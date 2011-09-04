@@ -1,0 +1,5 @@
+project 
+	: requirements <include>. ;
+
+explicit foo ;
+exe foo : main.cpp /$PROJECTNICKNAME$/lib/foo//$PROJECTNICKNAME$foo ;

@@ -1,0 +1,51 @@
+
+	#################
+	# HOWTO edit this file
+	# http://www.boost.org/boost-build2/doc/html/bbv2/tasks/libraries.html
+	#
+	# As an example:
+	# lib foo ;
+	# lib foo : : <name>foo ;
+	# lib foo : : <name>foo <os>LINUX ;
+	# lib foo : : <name>bar <os>NT ;
+	# lib foo : : <search>/path/to/foo  ;
+	# lib foo : : <file>/path/to/foo/libfoo.so  ;
+	# lib foo : : : : <include>/path/to/foo/include ;
+	# lib foo : : <name>foo <os>LINUX <search>/path/to/foo/lib : : <include>/path/to/foo/include ;
+	#
+	
+	project project-config ;
+	
+	ECHO ;
+	ECHO Using project-config.jam from $PROJECTNAME$ ;
+	ECHO Edit this file to use your own settings  ;
+	ECHO ;
+
+	#
+	#################
+
+		
+
+# Z library
+
+explicit zlib ;
+lib zlib : : <os>LINUX 
+			 <name>z 
+			 <search>/path/to/my/libz 
+	     : : <include>/path/to/my/libz/include ;
+
+lib zlib : : <os>NT
+			 <name>zlib
+			 <search>C:\path\to\my\libz ;
+
+explicit zlib ;
+lib zlib : : <os>MACOSX 
+			 <name>z 
+			 <search>/path/to/my/libz 
+	     : : <include>/path/to/my/libz/include ;
+
+
+
+
+
+

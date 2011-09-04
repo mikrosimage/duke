@@ -1,0 +1,6 @@
+project 
+	: requirements <include>.
+    : usage-requirements <include>.. ;
+
+explicit $PROJECTNICKNAME$bar ;
+lib $PROJECTNICKNAME$bar : bar.cpp /project-config//zlib ;

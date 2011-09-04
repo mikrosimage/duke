@@ -1,0 +1,61 @@
+$PROJECTNAME$ - install HOWTO
+
+	$PROJECTNAME$ build system is using bjam (Boost library's build tool)
+
+
+
+
+Setting up the build process
+
+	* Getting all external libraries
+	
+		You have the choice between:
+		1) install libraries on your system using standard packages
+		- OR - 
+		2) download and compile all these libraries by yourself
+			In this case, you need to edit the project-config.jam script
+
+		See externals/README file for the full list of dependencies 
+		
+	* Building the building tool (the build-ception...)
+	
+		BJam is Boost library's build tool.
+		Donwload and uncompress a full boost package in the externals directory.
+		Open a terminal and go to the boost root folder. Then type:
+		
+		1) under linux/osx platform:
+			./bootstrap
+			./bjam
+		- OR -
+		2) under windows platform:
+			bootstrap.bat
+			bjam.exe
+		
+	* Setting up environment variables
+	
+		In order to use bjam and build $PROJECTNAME$, two environment variables have to be set:
+			BOOST_ROOT			- to locate boost root directory
+			BOOST_BUILD_PATH	- to locate boost.build scripts
+
+		1) under linux/osx platform (edit the first line):
+			export BOOST_ROOT=/your/path/to/boost/root/directory
+			export BOOST_BUILD_PATH=$BOOST_ROOT/tools/build/v2
+		- OR -
+		2) under windows platform (edit the first line):
+			set BOOST_ROOT=C:\your\path\to\boost\root\directory
+			set BOOST_BUILD_PATH=%BOOST_ROOT%\tools\build\v2
+			
+
+Building
+
+	* Choose the appropriate script depending on your platform
+		./build-osx-darwin.sh on MacOSX
+		./build-linux-gcc.sh on Linux
+		./build-windows-mingw.bat on Windows with the mingw package
+
+	* Run it with one or more of the following command line arguments
+		dist 				: Full build & installation 
+		tests				: Build & run unit test suite
+		debug -or- release 	: Select the build variant
+		--help 				: Display help message
+		--clean 			: Remove targets instead of building

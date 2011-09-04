@@ -1,0 +1,6 @@
+project 
+	: requirements <include>.
+    : usage-requirements <include>.. ;
+
+explicit foo ;
+plugin foo : foo.cpp ;

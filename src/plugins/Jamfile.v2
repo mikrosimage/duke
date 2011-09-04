@@ -1,0 +1,10 @@
+import type ;
+
+if ! [ type.registered PLUGIN ] 
+{
+	type.register PLUGIN : : SHARED_LIB ;
+	type.set-generated-target-suffix PLUGIN : <os>NT : dll ;
+	type.set-generated-target-suffix PLUGIN : <os>LINUX : so ;
+	type.set-generated-target-suffix PLUGIN : <os>MACOSX : dylib ;
+	type.set-generated-target-prefix PLUGIN :  : plugin_ ;
+}

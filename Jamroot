@@ -1,0 +1,77 @@
+
+	#################
+	# Usage:
+	# 
+	# Targets:
+	#     dist     : full build & installation 
+	#     tests    : run unit-test suite
+	# 
+	# Options:
+	#     --no-<plugin>    : removes plugin <plugin> from build list
+	#
+	#################
+
+		
+import os ;
+import set ;
+
+## Project specific rules
+ 
+local rule plugins-selection ( existing-plugins * ) {
+	local argv = [ modules.peek : ARGV ] ;
+	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
+	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
+	if $(wrong)	{
+		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
+		EXIT ;
+	}
+	return [ set.difference $(existing-plugins) : $(no-parameter) ] ;
+}
+local rule check-required-env ( var ) {
+	if ! $($(var)) {
+		EXIT Missing variable $(var) ;
+	}
+}
+
+
+## Configuration
+
+local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ; 
+check-required-env 	BOOST_ROOT ;
+
+use-project /boost 						: $(BOOST_ROOT) ;
+use-project /$PROJECTNICKNAME$/lib/foo	: src/librairies/foo ;
+use-project /$PROJECTNICKNAME$/lib/bar	: src/librairies/bar ;
+
+project : requirements <threading>multi
+		: build-dir bin	;
+
+
+## Main targets
+
+explicit applications
+		 plugins
+		 tests
+		 plugin-foo
+		 dist ;
+
+alias applications 	: src/applications/foo//foo ;
+alias plugins 		: [ plugins-selection plugin-foo ] : <os>LINUX ;
+alias plugins 		: [ plugins-selection plugin-foo ] : <os>MACOSX ;
+alias plugins 		: [ plugins-selection plugin-foo ] : <os>NT ;
+alias tests 		: [ glob src/tests/* ] ;
+alias plugin-foo	: src/plugins/foo/foo//foo ;
+
+install dist :
+	applications
+	plugins
+	:
+	 <install-dependencies>on 
+	 <install-type>SHARED_LIB 
+	 <install-type>IMPORT_LIB 
+	 <install-type>SEARCHED_LIB 
+	 <install-type>LIB
+	 <install-type>EXE
+	 <variant>debug:<location>dist/debug
+	 <variant>release:<location>dist/release
+	;

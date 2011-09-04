@@ -1,0 +1,68 @@
+$COMMENTBLOCK$
+
+#
+#
+# Template for C/CPP project under LGPL, using bjam
+# (Boost library's build tool) and hosted on github
+# 
+# 
+# Run the edit.py python script and answer the questions 
+#
+#
+
+$COMMENTBLOCK$
+$PROJECTNAME$ version $PROJECTVERSIONNUMBER$
+
+
+	$PROJECTDESCRIPTION$
+
+
+License
+
+	see COPYING file
+
+
+Compilation
+
+	* Getting the source
+		git clone git://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$.git
+		cd $PROJECTNAME$
+		git submodule update -i
+
+	* External libraries
+		1) You can get all external libraries using a python script:
+			cd 3rdParty
+			python init.py
+		2) Use libraries installed on your computer
+			In this case, you need to edit the project-config.jam script
+
+	* Compilation
+		see INSTALL file
+
+
+Tested compilers
+
+	* Linux
+		+ GCC 4.4.1 on OpenSUSE 11.2
+	* MacOS
+		+ GCC 4.2.1 on OSX 10.5 Leopard
+	* Windows
+		+ GCC-MINGW 4.3.0 on Windows XP.
+
+
+More information 
+
+	Check $PROJECTNAME$ website for more information. 
+		$PROJECTWEBSITE$
+
+	$PROJECTNAME$ public repository.
+		http://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$/
+
+
+Contact
+
+	Public mailing-list
+		$PROJECTMAILINGLIST$
+
+	The github issues module for bug report
+		http://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$/issues
