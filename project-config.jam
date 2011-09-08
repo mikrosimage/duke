@@ -17,7 +17,7 @@
 	project project-config ;
 	
 	ECHO ;
-	ECHO Using project-config.jam from $PROJECTNAME$ ;
+	ECHO Using project-config.jam from Duke ;
 	ECHO Edit this file to use your own settings  ;
 	ECHO ;
 
@@ -26,26 +26,74 @@
 
 		
 
-# Z library
+# PROTOCOL BUFFER
+# SFML 2.0
+# OPENAL 
+# CG 3.0
+# DIRECTX SDK (plugin-dx9)
+# CGD3D (plugin-dx9)
+# CGGL (plugin-ogl)
+# GLEW (plugin-ogl)
+# GLUT (plugin-ogl)
+# JPEGTURBO (plugin-jpeg)
+# OPENIMAGEIO (plugin-oiio)
 
-explicit zlib ;
-lib zlib : : <os>LINUX 
+
+
+# SFML
+
+explicit protobuf ;
+lib protobuf ;
+	     
+# SFML
+
+explicit sfml ;
+lib sfml : : <os>LINUX 
 			 <name>z 
-			 <search>/path/to/my/libz 
-	     : : <include>/path/to/my/libz/include ;
+			 <search>/path/to/my/sfml 
+	     : : <include>/path/to/my/sfml/include ;
 
-lib zlib : : <os>NT
+lib sfml : : <os>NT
 			 <name>zlib
-			 <search>C:\path\to\my\libz ;
+			 <search>C:\path\to\my\sfml ;
 
-explicit zlib ;
-lib zlib : : <os>MACOSX 
+lib sfml : : <os>MACOSX 
 			 <name>z 
-			 <search>/path/to/my/libz 
-	     : : <include>/path/to/my/libz/include ;
+			 <search>/path/to/my/sfml 
+	     : : <include>/path/to/my/sfml/include ;
+
+
+# CG
+
+explicit cg ;
+lib cg : : <os>LINUX 
+			 <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
+
+lib cg : : <os>NT
+			 <name>zlib
+			 <search>C:\path\to\my\cg ;
+
+lib cg : : <os>MACOSX 
+			 <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
+
+
+# CGGL
+
+explicit cggl ;
+lib cggl : : <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
 
 
 
+# CGD3D
 
-
+explicit cgd3d ;
+lib cgd3d : : <name>z 
+			 <search>C:\path\to\my\sfml 
+ 	     : : <include>C:\path\to\my\sfml\include ;
 

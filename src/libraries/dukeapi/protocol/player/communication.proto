@@ -1,0 +1,468 @@
+package protocol.duke;
+option java_package = "fr.mikrosimage.player.protocol";
+
+import "shader_assembler.proto";
+
+message MessageType {
+	enum Action {
+		SET						= 0;
+		RETRIEVE				= 1;
+		UPDATE					= 2;
+		UNSET					= 3;
+	}
+	
+	enum Type {
+		INIT_RENDERER			= 0;
+		INIT_PLAYLIST			= 1;
+		TRANSPORT				= 2;
+		DEBUG_MSG				= 3;
+		QUIT					= 4;
+		EVENT					= 5;
+		SHADER					= 6;
+		TEXTURE					= 7;
+		MESH					= 8;
+		STATIC_PARAMETER		= 9;
+		AUTOMATIC_PARAMETER		= 10;
+		SHADING_FUNCTION		= 11;
+		GRADING					= 12;
+		SHADING_PROGRAM			= 13;
+		ENGINE					= 14;
+	}
+	
+	required Type type 			= 1;
+	optional Action action		= 2 [default = SET];
+}
+
+message Engine {
+	enum Action {
+		RENDER_ONE			= 0;
+		RENDER_STOP			= 1;
+		RENDER_START		= 2;
+	}
+	required Action action	= 1;
+}
+
+message Event {
+	enum Type {
+		CLOSED							= 0;
+		RESIZED 						= 1;
+		LOSTFOCUS 						= 2;
+		GAINEDFOCUS 					= 3;
+		KEYPRESSED 						= 4;
+		KEYRELEASED 					= 5;
+		MOUSEWHEELMOVED 				= 6;
+		MOUSEBUTTONPRESSED 				= 7;
+		MOUSEBUTTONRELEASED 			= 8;
+		MOUSEMOVED						= 9;
+		MOUSEENTERED 					= 10;
+		MOUSELEFT						= 11;
+		JOYBUTTONPRESSED 				= 12;
+		JOYBUTTONRELEASED 				= 13;
+		JOYMOVED						= 14;
+		TEXTENTERED 					= 15;
+	}
+	required Type type 					= 1;
+	optional KeyEvent keyEvent 			= 2;
+	optional ResizeEvent resizeEvent 	= 3;
+	optional MouseEvent mouseEvent 		= 4;
+}
+
+message MouseEvent {
+	enum Button {
+		LEFT							= 0;
+		RIGHT							= 1;
+		MIDDLE							= 2;
+		XBUTTONA						= 3;
+		XBUTTONB						= 4;
+		UNKNOWN							= 5;
+	}
+	optional uint32 x					= 1;
+	optional uint32 y					= 2;
+	optional int32 deltaWheel			= 3;
+	optional Button button				= 4;
+}
+
+message ResizeEvent {
+	optional uint32 width				= 1;
+	optional uint32 height				= 2;
+	optional uint32 x					= 3;
+	optional uint32 y					= 4;
+}
+
+message KeyEvent {
+	enum KeyCode {
+		A			= 0 ;
+		B			= 1 ;
+		C			= 2 ;
+		D			= 3 ;
+		E			= 4 ;
+		F			= 5 ;
+		G			= 6 ;
+		H			= 7 ;
+		I			= 8 ;
+		J			= 9 ;
+		K			= 10 ;
+		L			= 11 ;
+		M			= 12 ;
+		N			= 13 ;
+		O			= 14 ;
+		P			= 15 ;
+		Q			= 16 ;
+		R			= 17 ;
+		S			= 18 ;
+		T			= 19 ;
+		U			= 20 ;
+		V			= 21 ;
+		W			= 22 ;
+		X			= 23 ;
+		Y			= 24 ;
+		Z			= 25 ;
+		Num0		= 26 ;
+		Num1		= 27 ;
+		Num2		= 28 ;
+		Num3		= 29 ;
+		Num4		= 30 ;
+		Num5		= 31 ;
+		Num6		= 32 ;
+		Num7		= 33 ;
+		Num8		= 34 ;
+		Num9		= 35 ;
+		Escape		= 36 ;
+		LControl	= 37 ;
+		LShift		= 38 ;
+		LAlt		= 39 ;
+		LSystem		= 40 ;
+		RControl	= 41 ;
+		RShift		= 42 ;
+		RAlt		= 43 ;
+		RSystem		= 44 ;
+		Menu		= 45 ;
+		LBracket	= 46 ;
+		RBracket	= 47 ;
+		SemiColon	= 48 ;
+		Comma		= 49 ;
+		Period		= 50 ;
+		Quote		= 51 ;
+		Slash		= 52 ;
+		BackSlash	= 53 ;
+		Tilde		= 54 ;
+		Equal		= 55 ;
+		Dash		= 56 ;
+		Space		= 57 ;
+		Return		= 58 ;
+		Back		= 59 ;
+		Tab			= 60 ;
+		PageUp		= 61 ;
+		PageDown	= 62 ;
+		End			= 63 ;
+		Home		= 64 ;
+		Insert		= 65 ;
+		Delete		= 66 ;
+		Add			= 67 ;
+		Subtract	= 68 ;
+		Multiply	= 69 ;
+		Divide		= 70 ;
+		Left		= 71 ;
+		Right		= 72 ;
+		Up			= 73 ;
+		Down		= 74 ;
+		Numpad0		= 75 ;
+		Numpad1		= 76 ;
+		Numpad2		= 77 ;
+		Numpad3		= 78 ;
+		Numpad4		= 79 ;
+		Numpad5		= 80 ;
+		Numpad6		= 81 ;
+		Numpad7		= 82 ;
+		Numpad8		= 83 ;
+		Numpad9		= 84 ;
+		F1			= 85 ;
+		F2			= 86 ;
+		F3			= 87 ;
+		F4			= 88 ;
+		F5			= 89 ;
+		F6			= 90 ;
+		F7			= 91 ;
+		F8			= 92 ;
+		F9			= 93 ;
+		F10			= 94 ;
+		F11			= 95 ;
+		F12			= 96 ;
+		F13			= 97 ;
+		F14			= 98 ;
+		F15			= 99 ;
+		Pause		= 100 ;
+		Unknown		= 255 ;
+	}
+
+	required KeyCode code = 1 ;
+	required bool alt = 2 [default = false];
+	required bool control = 3 [default = false];
+	required bool shift = 4 [default = false];
+}
+
+message Renderer {
+	optional uint32 width = 1 [default = 800];
+	optional uint32 height = 2 [default = 600];
+	optional uint32 bitDepth = 3 [default = 32 ];
+	optional uint32 refreshRate = 4 [ default = 0 ]; // only used in fullscreen mode, 0 means use current refresh rate
+	optional uint32 presentInterval = 5 [ default = 0 ]; // 0 means immediate presentation, can be 1,2,3,4 blanking count
+	optional bool fullscreen = 6 [default = false];
+	optional bool decorateWindow = 7 [ default = true ]; 
+	optional bool visible = 8 [ default = true ];
+	optional uint64 handle = 9;
+}
+
+message Playlist {
+	required uint32 framerateNumerator = 1 [ default = 1 ];
+	optional uint32 framerateDenominator = 2 [ default = 1 ];
+	repeated Clip clip = 3;
+	optional uint32 recin = 4;
+	optional bool loop = 5 [ default = true ];
+	
+	enum PlaybackMode {
+		DROP_FRAME_TO_KEEP_REALTIME = 0;
+		PAUSE = 1;
+		RENDER = 2;
+		NO_SKIP = 3;
+	}
+	optional PlaybackMode playbackMode = 6 [default = DROP_FRAME_TO_KEEP_REALTIME ];
+	optional AudioSource audioSource = 7 ;
+}
+
+message Clip {
+	optional string name			= 1;
+	optional string path			= 2;
+	optional string filename		= 3;
+	required uint32 recIn			= 4;
+	required uint32 recOut			= 5;
+	required uint32 srcIn			= 6;
+	optional uint32 srcOut			= 7;
+	
+	optional Grading grade     		 = 8;
+	optional Grading dissolveGrading = 9;
+	optional string  gradeName       = 10; // reference to an existing grading
+}
+
+message Grading {
+    optional string name = 1;
+    repeated RenderPass pass = 2;
+}
+
+message Transport {
+	enum TransportType {
+		PLAY				= 0;
+		STOP				= 1;
+		STORE		        = 2;		
+		CUE					= 3;
+		CUE_FIRST			= 4;
+		CUE_LAST			= 5;
+		CUE_STORED			= 6;
+	}
+
+	message Cue {
+		optional bool cueClip = 1; // if set cue clips instead of frames
+		optional bool cueRelative = 2; // if set cue relative instead of absolute
+		required int32 value = 3;
+	}
+	
+	required TransportType type = 1;
+	optional Cue cue = 2;
+	optional bool doRender = 5; // if set the player will render after this action, otherwise it'll try to consume as much as Transport as possible
+	optional bool autoNotifyOnFrameChange = 6; // if set, sends event on each frame change  
+}
+
+message Debug {
+	enum Content {
+		FRAME				= 0;
+		FILENAMES	        = 1;
+		FPS			        = 2;
+	}
+	repeated string line = 1;
+	repeated Content content = 2;
+	optional uint32 pause = 3;
+}
+
+message Quit {
+	optional int32 returnCode = 1 [ default = 0 ];
+	repeated string quitMessage = 2;
+}
+
+message RenderPass {
+	enum RenderTarget {
+		SCREEN = 0;
+		TEXTURETARG = 1;
+	}
+	message Grab {
+		required string name = 1;
+		optional bool histogram = 2; // grab histogram instead of texture
+		optional bool toDisk = 3; // grab to disk instead of sending texture back to client
+	}
+
+	optional string name = 1;
+	optional Effect effect = 2;
+	optional bool clean = 3;
+	optional uint32 cleanColor = 4;
+	optional Rectangle viewport = 5;
+	repeated string meshName = 6;
+	optional RenderTarget target = 9 [default = SCREEN];
+	optional string renderTargetName = 10;
+	optional string renderTargetDimFromClipName = 11;
+	optional Texture renderTarget = 12;
+	optional Grab grab = 13;
+}
+
+message Effect {
+	optional string name				= 1;
+	required string pixelShaderName		= 2;
+	required string vertexShaderName	= 3;
+
+	enum Blend {
+		BLEND_ZERO			= 0;
+		BLEND_ONE			= 1;
+		BLEND_SRCALPHA		= 2;
+		BLEND_INVSRCALPHA	= 3;
+		BLEND_DESTALPHA		= 4;
+		BLEND_INVDESTALPHA	= 5;
+	}
+	optional bool alphaBlend	= 4;
+	optional Blend srcBlend  	= 5; // if src is set, dst must be set also
+	optional Blend dstBlend  	= 6;
+	optional Blend alphaSrcBlend= 7; // if src is set, dst must be set also
+	optional Blend alphaDstBlend= 8;
+}
+
+message Shader {
+	optional string name = 1;
+	optional string code = 2;
+	optional shader_assembler.Program program = 4;
+	repeated string parameterName = 3;
+}
+
+message Texture {
+
+	enum TextureDim {
+		DIM_1D = 0;
+		DIM_2D = 1;
+		DIM_3D = 2;
+	}
+	
+	enum TextureFormat {
+		R8G8B8A8       = 0;
+		R32G32B32A32F  = 1;
+		R10G10B10A2    = 2;
+		R32F           = 3;
+	}
+
+	optional string name			= 1;
+	optional TextureDim dimension	= 2;
+	optional TextureFormat format	= 3;
+	optional uint32 width			= 4;
+	optional uint32 height			= 5;
+	optional uint32 depth			= 6;
+	optional bool mipmap			= 7;
+	optional bytes data				= 8;
+}
+
+message Rectangle {
+	required uint32 x = 1;
+	required uint32 y = 2;
+	required uint32 width = 3;
+	required uint32 height = 4;
+}
+
+message Mesh {
+	enum MeshType {
+		TRIANGLELIST = 0;
+		TRIANGLESTRIP = 1;
+		TRIANGLEFAN = 2;
+		LINELIST = 3;
+		LINESTRIP = 4;
+		POINTLIST = 5;
+	}
+	optional string name 				= 1 [default = ""];
+	optional MeshType type				= 2; 
+	optional VertexBuffer vertexBuffer	= 3;
+	optional IndexBuffer indexBuffer	= 4;
+}
+
+message VertexBuffer {
+	enum VertexType {
+		POS = 0;
+		COLOR = 1;
+		NORMAL = 2;
+		UV0 = 3;
+		UV1 = 4;
+		UV2 = 5;
+		UV3 = 6;
+	}
+	repeated VertexType flag = 1;
+	repeated Vertex vertex = 2;
+}
+
+message Vertex {
+	repeated float data = 1; 
+}
+
+message IndexBuffer {
+	repeated uint32 index = 1; 
+}
+
+message SamplingSource {
+	enum Type {
+		CLIP							= 0;
+		SUPPLIED						= 1;
+		SURFACE							= 2;
+	}
+	required Type type					= 1;
+	optional string name				= 2;
+	optional uint32 clipTrack			= 3;
+}
+
+message AutomaticParameter {
+	optional string name = 1;
+	enum Type {
+		FLOAT3_TEX_DIM	= 0;	// texture dimensions [width, height, aspectRatio]
+		FLOAT3_TIME		= 1;	// time [realtime, playlist time, clip time]
+	}
+	optional Type type = 2;
+	optional SamplingSource	samplingSource = 3;  // the mapping to refer to, not set means current rendering target
+}
+
+message StaticParameter {
+	enum Type {
+		FLOAT = 0;
+		UINT32 = 1;
+		UINT64 = 2;
+		SAMPLER = 3;
+	}
+	optional string name					= 1;
+	optional Type type						= 2;
+	repeated float floatValue				= 3;
+	optional SamplingSource samplingSource	= 4;
+	repeated SamplerState samplerState		= 5;
+}
+
+message SamplerState {
+	enum Type {
+		MAG_FILTER = 0;
+		MIN_FILTER = 1;
+		WRAP_S     = 2;
+		WRAP_T     = 3;
+	}
+	
+	enum Value {
+		TEXF_POINT  = 0;
+		TEXF_LINEAR = 1;
+		WRAP_CLAMP  = 2;
+		WRAP_REPEAT = 3;
+		WRAP_BORDER = 4;
+	}
+
+	required Type type = 1 ;
+	required Value value = 2 ;
+}
+
+message AudioSource {
+	required string name = 1;
+}

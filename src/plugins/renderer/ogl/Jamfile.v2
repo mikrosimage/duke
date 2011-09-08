@@ -1,0 +1,13 @@
+project 
+	: requirements 
+		<include>.
+    	<library>/duke/lib/rendererplugin//dukerendererplugin 
+    	<library>/project-config//cgd3d 
+    : usage-requirements
+    	<include>.. 
+    	<library>/duke/lib/rendererplugin//dukerendererplugin 
+    	<library>/project-config//cgd3d 
+    ;
+
+explicit ogl ;
+rendererplugin ogl : [ glob-tree *.cpp ] ;

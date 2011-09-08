@@ -1,0 +1,11 @@
+#
+# dukeioplugin
+#
+
+project 
+	: requirements 
+    : usage-requirements 
+    	<library>/duke/sub/duke.plugin//dukeplugin
+	;
+
+alias dukeioplugin ; # header only library

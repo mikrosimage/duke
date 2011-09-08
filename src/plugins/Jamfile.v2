@@ -1,10 +1,19 @@
 import type ;
 
-if ! [ type.registered PLUGIN ] 
+if ! [ type.registered IOPLUGIN ] 
 {
-	type.register PLUGIN : : SHARED_LIB ;
-	type.set-generated-target-suffix PLUGIN : <os>NT : dll ;
-	type.set-generated-target-suffix PLUGIN : <os>LINUX : so ;
-	type.set-generated-target-suffix PLUGIN : <os>MACOSX : dylib ;
-	type.set-generated-target-prefix PLUGIN :  : plugin_ ;
+	type.register IOPLUGIN : : SHARED_LIB ;
+	type.set-generated-target-suffix IOPLUGIN : <os>NT : dll ;
+	type.set-generated-target-suffix IOPLUGIN : <os>LINUX : so ;
+	type.set-generated-target-suffix IOPLUGIN : <os>MACOSX : dylib ;
+	type.set-generated-target-prefix IOPLUGIN :  : plugin_io_ ;
+}
+
+if ! [ type.registered RENDERERPLUGIN ] 
+{
+	type.register RENDERERPLUGIN : : SHARED_LIB ;
+	type.set-generated-target-suffix RENDERERPLUGIN : <os>NT : dll ;
+	type.set-generated-target-suffix RENDERERPLUGIN : <os>LINUX : so ;
+	type.set-generated-target-suffix RENDERERPLUGIN : <os>MACOSX : dylib ;
+	type.set-generated-target-prefix RENDERERPLUGIN :  : plugin_renderer_ ;
 }

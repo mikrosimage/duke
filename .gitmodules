@@ -1,0 +1,3 @@
+[submodule "src/submodules/duke.plugins"]
+	path = src/submodules/duke.plugins
+	url = git@github.com:mikrosimage/dukeplugins.git

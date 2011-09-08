@@ -1,6 +1,6 @@
-$PROJECTNAME$ - install HOWTO
+Duke - install HOWTO
 
-	$PROJECTNAME$ build system is using bjam (Boost library's build tool)
+	Duke build system is using bjam (Boost library's build tool)
 
 
 
@@ -33,7 +33,7 @@ Setting up the build process
 		
 	* Setting up environment variables
 	
-		In order to use bjam and build $PROJECTNAME$, two environment variables have to be set:
+		In order to use bjam and build Duke, two environment variables have to be set:
 			BOOST_ROOT			- to locate boost root directory
 			BOOST_BUILD_PATH	- to locate boost.build scripts
 

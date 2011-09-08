@@ -1,0 +1,13 @@
+#
+# dukeio
+#
+
+project 
+	: requirements 
+		<include>.
+    : usage-requirements 
+    	<include>..
+	;
+
+explicit dukeio ;
+alias dukeio ; # header only library

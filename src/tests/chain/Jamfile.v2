@@ -1,0 +1,23 @@
+###############################################################################
+## Tests
+## author Guillaume Chatelet
+###############################################################################
+
+alias /PreemptiveLib : $(ROOT)/src/libraries/duke_core/chain//PreemptiveLib ;
+
+run    	chain.cpp
+		/PreemptiveLib
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+
+run    	ranges.cpp
+		/PreemptiveLib
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+	

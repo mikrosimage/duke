@@ -1,0 +1,13 @@
+###############################################################################
+## Tests
+## author Guillaume Chatelet
+###############################################################################
+run    	main.cpp
+		/duke_core//duke_core
+		/boost/filesystem
+		/boost/system
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;

@@ -1,0 +1,16 @@
+###############################################################################
+## Tests
+## author Michael ETIENNE (2009)
+###############################################################################
+
+# bring in the rules for testing
+import testing ;
+
+###############################################################################
+# Executing tests
+###############################################################################
+# Generating the test file
+run main.cpp /player_model//PlayerPBModel : test-tmp/datasRT.pb test-tmp/SimpleTransform.fx ;
+
+# Reading it : main.cpp is specified as a dependency.
+run /player//player : --renderer duke_renderer_dx9.dll --script test-tmp/datasRT.pb : : <dependency>main ;

@@ -1,0 +1,12 @@
+#
+# dukerendererplugin
+#
+
+project 
+	: requirements 
+    : usage-requirements 
+    	<library>/duke/sub/duke.plugin//dukeplugin
+	;
+
+explicit dukerendererplugin ;
+lib dukerendererplugin : [ glob-tree *.cpp ]  ;

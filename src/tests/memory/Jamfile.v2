@@ -1,0 +1,16 @@
+###############################################################################
+## Tests
+## author Guillaume Chatelet
+###############################################################################
+
+for local l in [ glob *.cpp ]
+{
+	run $(l)
+		/duke_core//duke_core
+		/boost/system
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+}

@@ -1,20 +1,8 @@
-$COMMENTBLOCK$
 
-#
-#
-# Template for C/CPP project under LGPL, using bjam
-# (Boost library's build tool) and hosted on github
-# 
-# 
-# Run the edit.py python script and answer the questions 
-#
-#
-
-$COMMENTBLOCK$
-$PROJECTNAME$ version $PROJECTVERSIONNUMBER$
+Duke version 1.0.0
 
 
-	$PROJECTDESCRIPTION$
+	Project under early development.
 
 
 License
@@ -25,8 +13,8 @@ License
 Compilation
 
 	* Getting the source
-		git clone git://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$.git
-		cd $PROJECTNAME$
+		git clone git://github.com/mikrosimage/Duke.git
+		cd Duke
 		git submodule update -i
 
 	* External libraries
@@ -52,17 +40,17 @@ Tested compilers
 
 More information 
 
-	Check $PROJECTNAME$ website for more information. 
-		$PROJECTWEBSITE$
+	Check Duke website for more information. 
+		NA
 
-	$PROJECTNAME$ public repository.
-		http://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$/
+	Duke public repository.
+		http://github.com/mikrosimage/Duke/
 
 
 Contact
 
 	Public mailing-list
-		$PROJECTMAILINGLIST$
+		NA
 
 	The github issues module for bug report
-		http://github.com/$PROJECTREPOSITORY$/$PROJECTNAME$/issues
+		http://github.com/mikrosimage/Duke/issues

@@ -1,0 +1,13 @@
+project 
+	: requirements 
+		<include>.
+    	<library>/duke/lib/rendererplugin//dukerendererplugin 
+    	<library>/project-config//cggl 
+    : usage-requirements
+    	<include>.. 
+    	<library>/duke/lib/rendererplugin//dukerendererplugin 
+    	<library>/project-config//cggl 
+    ;
+
+explicit dx9 ;
+rendererplugin dx9 	: [ glob-tree *.cpp ] ;

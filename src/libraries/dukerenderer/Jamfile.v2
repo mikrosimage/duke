@@ -1,0 +1,13 @@
+#
+# dukerenderer
+#
+
+project 
+	: requirements 
+		<include>.
+    : usage-requirements 
+    	<include>..
+	;
+
+explicit dukerenderer ; 
+alias dukerenderer ; # header only library

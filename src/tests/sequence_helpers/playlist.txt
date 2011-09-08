@@ -1,0 +1,501 @@
+framerateNumerator: 25
+framerateDenominator: 1
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C035_071081_001"
+  filename: "A019_C035_071081_001_######.jpg"
+  recIn: 900352
+  recOut: 900471
+  srcIn: 194072
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A008_C012_0707DM_001"
+  filename: "A008_C012_0707DM_001_######.jpg"
+  recIn: 900471
+  recOut: 900488
+  srcIn: 96704
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A005_C004_07079N_001"
+  filename: "A005_C004_07079N_001_######.jpg"
+  recIn: 900488
+  recOut: 900501
+  srcIn: 99543
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C010_0709MP_001"
+  filename: "A017_C010_0709MP_001_######.jpg"
+  recIn: 900551
+  recOut: 900569
+  srcIn: 98341
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C009_07070U_001"
+  filename: "A003_C009_07070U_001_######.jpg"
+  recIn: 900602
+  recOut: 900618
+  srcIn: 95946
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C009_07070U_001 (02)"
+  filename: "A003_C009_07070U_001_######.jpg"
+  recIn: 900668
+  recOut: 900694
+  srcIn: 96019
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A001_C003_070743_001"
+  filename: "A001_C003_070743_001_######.jpg"
+  recIn: 900694
+  recOut: 900717
+  srcIn: 95056
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A002_C007_0707QE_001"
+  filename: "A002_C007_0707QE_001_######.jpg"
+  recIn: 900717
+  recOut: 900752
+  srcIn: 95096
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A002_C007_0707QE_001 (02)"
+  filename: "A002_C007_0707QE_001_######.jpg"
+  recIn: 900802
+  recOut: 900827
+  srcIn: 95881
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C010_0707KK_001"
+  filename: "A003_C010_0707KK_001_######.jpg"
+  recIn: 900851
+  recOut: 900870
+  srcIn: 98260
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A002_C011_07075R_001"
+  filename: "A002_C011_07075R_001_######.jpg"
+  recIn: 900870
+  recOut: 901002
+  srcIn: 100151
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C012_0710PC_001"
+  filename: "A019_C012_0710PC_001_######.jpg"
+  recIn: 901020
+  recOut: 901048
+  srcIn: 114504
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A013_C011_070825_001"
+  filename: "A013_C011_070825_001_######.jpg"
+  recIn: 901048
+  recOut: 901067
+  srcIn: 96404
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A014_C002_0708AQ_001"
+  filename: "A014_C002_0708AQ_001_######.jpg"
+  recIn: 901067
+  recOut: 901098
+  srcIn: 91364
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A013_C013_0708TK_001"
+  filename: "A013_C013_0708TK_001_######.jpg"
+  recIn: 901184
+  recOut: 901220
+  srcIn: 99882
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C031_0710E3_001"
+  filename: "A019_C031_0710E3_001_######.jpg"
+  recIn: 901220
+  recOut: 901267
+  srcIn: 170184
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A014_C020_0708TB_001"
+  filename: "A014_C020_0708TB_001_######.jpg"
+  recIn: 901267
+  recOut: 901307
+  srcIn: 100559
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C035_071081_001"
+  filename: "A019_C035_071081_001_######.jpg"
+  recIn: 901307
+  recOut: 901345
+  srcIn: 193289
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C037_0709CP_001"
+  filename: "A017_C037_0709CP_001_######.jpg"
+  recIn: 901397
+  recOut: 901428
+  srcIn: 139898
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A008_C002_0707KH_001"
+  filename: "A008_C002_0707KH_001_######.jpg"
+  recIn: 901466
+  recOut: 901497
+  srcIn: 91135
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A007_C003_0707HP_001"
+  filename: "A007_C003_0707HP_001_######.jpg"
+  recIn: 901497
+  recOut: 901528
+  srcIn: 91864
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C023_07076X_001"
+  filename: "A006_C023_07076X_001_######.jpg"
+  recIn: 901528
+  recOut: 901544
+  srcIn: 102765
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C035_0709W0_001"
+  filename: "A017_C035_0709W0_001_######.jpg"
+  recIn: 901544
+  recOut: 901574
+  srcIn: 136888
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C020_0707DG_001"
+  filename: "A006_C020_0707DG_001_######.jpg"
+  recIn: 901574
+  recOut: 901604
+  srcIn: 100509
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C027_0707U7_001"
+  filename: "A006_C027_0707U7_001_######.jpg"
+  recIn: 901604
+  recOut: 901635
+  srcIn: 105170
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C004_070708_001"
+  filename: "A006_C004_070708_001_######.jpg"
+  recIn: 901635
+  recOut: 901680
+  srcIn: 93185
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C027_0707U7_001 (02)"
+  filename: "A006_C027_0707U7_001_######.jpg"
+  recIn: 901680
+  recOut: 901729
+  srcIn: 105246
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A007_C004_0707BB_001"
+  filename: "A007_C004_0707BB_001_######.jpg"
+  recIn: 901729
+  recOut: 901797
+  srcIn: 94021
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C019_0707BQ_001"
+  filename: "A003_C019_0707BQ_001_######.jpg"
+  recIn: 901851
+  recOut: 901943
+  srcIn: 101829
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C081_0709SE_001"
+  filename: "A017_C081_0709SE_001_######.jpg"
+  recIn: 901943
+  recOut: 902000
+  srcIn: 214257
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C027_07076W_001"
+  filename: "A003_C027_07076W_001_######.jpg"
+  recIn: 902100
+  recOut: 902131
+  srcIn: 105768
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C068_0709U1_001"
+  filename: "A017_C068_0709U1_001_######.jpg"
+  recIn: 902131
+  recOut: 902159
+  srcIn: 193795
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A003_C027_07076W_001 (02)"
+  filename: "A003_C027_07076W_001_######.jpg"
+  recIn: 902159
+  recOut: 902200
+  srcIn: 105821
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C044_071089_001"
+  filename: "A019_C044_071089_001_######.jpg"
+  recIn: 902200
+  recOut: 902225
+  srcIn: 215430
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A004_C016_0707PL_001"
+  filename: "A004_C016_0707PL_001_######.jpg"
+  recIn: 902225
+  recOut: 902258
+  srcIn: 101309
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A004_C014_0707H3_001"
+  filename: "A004_C014_0707H3_001_######.jpg"
+  recIn: 902258
+  recOut: 902300
+  srcIn: 97325
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C052_0710X0_001"
+  filename: "A019_C052_0710X0_001_######.jpg"
+  recIn: 902300
+  recOut: 902325
+  srcIn: 231400
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A004_C015_0707MM_001"
+  filename: "A004_C015_0707MM_001_######.jpg"
+  recIn: 902325
+  recOut: 902367
+  srcIn: 99492
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C055_0710L0_001"
+  filename: "A019_C055_0710L0_001_######.jpg"
+  recIn: 902367
+  recOut: 902400
+  srcIn: 246529
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C050_07103N_001"
+  filename: "A019_C050_07103N_001_######.jpg"
+  recIn: 902451
+  recOut: 902499
+  srcIn: 226254
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A020_C004_0710LP_001"
+  filename: "A020_C004_0710LP_001_######.jpg"
+  recIn: 902550
+  recOut: 902579
+  srcIn: 95205
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A015_C006_0708KE_001"
+  filename: "A015_C006_0708KE_001_######.jpg"
+  recIn: 902579
+  recOut: 902621
+  srcIn: 101192
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A015_C005_070823_001"
+  filename: "A015_C005_070823_001_######.jpg"
+  recIn: 902651
+  recOut: 902725
+  srcIn: 99800
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A014_C024_0708GE_001"
+  filename: "A014_C024_0708GE_001_######.jpg"
+  recIn: 902778
+  recOut: 902828
+  srcIn: 104057
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A015_C001_0708SF_001"
+  filename: "A015_C001_0708SF_001_######.jpg"
+  recIn: 902828
+  recOut: 902861
+  srcIn: 90400
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A015_C005_070823_001 (02)"
+  filename: "A015_C005_070823_001_######.jpg"
+  recIn: 902947
+  recOut: 902987
+  srcIn: 100907
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A015_C004_0708DS_001"
+  filename: "A015_C004_0708DS_001_######.jpg"
+  recIn: 902987
+  recOut: 903050
+  srcIn: 92163
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C068_0709U1_001 (02)"
+  filename: "A017_C068_0709U1_001_######.jpg"
+  recIn: 903050
+  recOut: 903098
+  srcIn: 192038
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A004_C011_07073J_001"
+  filename: "A004_C011_07073J_001_######.jpg"
+  recIn: 903098
+  recOut: 903128
+  srcIn: 94740
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A011_C006_07087N_001"
+  filename: "A011_C006_07087N_001_######.jpg"
+  recIn: 903171
+  recOut: 903213
+  srcIn: 99995
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A010_C006_0708VX_001"
+  filename: "A010_C006_0708VX_001_######.jpg"
+  recIn: 903213
+  recOut: 903248
+  srcIn: 95714
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A021_C001_0710NM_001"
+  filename: "A021_C001_0710NM_001_######.jpg"
+  recIn: 903248
+  recOut: 903299
+  srcIn: 90242
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A011_C005_0708J4_001"
+  filename: "A011_C005_0708J4_001_######.jpg"
+  recIn: 903375
+  recOut: 903427
+  srcIn: 97735
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A012_C011_07087J_001"
+  filename: "A012_C011_07087J_001_######.jpg"
+  recIn: 903427
+  recOut: 903479
+  srcIn: 98597
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A010_C010_0708J5_001"
+  filename: "A010_C010_0708J5_001_######.jpg"
+  recIn: 903498
+  recOut: 903572
+  srcIn: 102900
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A008_C012_0707DM_001"
+  filename: "A008_C012_0707DM_001_######.jpg"
+  recIn: 903572
+  recOut: 903618
+  srcIn: 97502
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A007_C008_0707U5_001"
+  filename: "A007_C008_0707U5_001_######.jpg"
+  recIn: 903648
+  recOut: 903672
+  srcIn: 96117
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C032_0709E7_001"
+  filename: "A017_C032_0709E7_001_######.jpg"
+  recIn: 903672
+  recOut: 903719
+  srcIn: 133391
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A007_C008_0707U5_001 (02)"
+  filename: "A007_C008_0707U5_001_######.jpg"
+  recIn: 903719
+  recOut: 903789
+  srcIn: 96322
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C002_0707QG_001"
+  filename: "A006_C002_0707QG_001_######.jpg"
+  recIn: 903789
+  recOut: 903847
+  srcIn: 91566
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A007_C016_07075W_001"
+  filename: "A007_C016_07075W_001_######.jpg"
+  recIn: 903847
+  recOut: 903872
+  srcIn: 101488
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A002_C006_07078M_001"
+  filename: "A002_C006_07078M_001_######.jpg"
+  recIn: 903872
+  recOut: 903897
+  srcIn: 93645
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A009_C002_07079S_001"
+  filename: "A009_C002_07079S_001_######.jpg"
+  recIn: 903921
+  recOut: 903947
+  srcIn: 91322
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A006_C017_070728_001"
+  filename: "A006_C017_070728_001_######.jpg"
+  recIn: 903971
+  recOut: 903997
+  srcIn: 99141
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A017_C070_0709RM_001"
+  filename: "A017_C070_0709RM_001_######.jpg"
+  recIn: 903997
+  recOut: 904023
+  srcIn: 197364
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A002_C010_0707GM_001"
+  filename: "A002_C010_0707GM_001_######.jpg"
+  recIn: 904023
+  recOut: 904047
+  srcIn: 99032
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A013_C016_0708R4_001"
+  filename: "A013_C016_0708R4_001_######.jpg"
+  recIn: 904072
+  recOut: 904097
+  srcIn: 102474
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A014_C021_07086Q_001"
+  filename: "A014_C021_07086Q_001_######.jpg"
+  recIn: 904122
+  recOut: 904147
+  srcIn: 101613
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A019_C009_071032_001"
+  filename: "A019_C009_071032_001_######.jpg"
+  recIn: 904147
+  recOut: 904172
+  srcIn: 104371
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A010_C007_0708X2_001"
+  filename: "A010_C007_0708X2_001_######.jpg"
+  recIn: 904172
+  recOut: 904196
+  srcIn: 98694
+}
+clip {
+  path: "N:\\footage\\lyria\\sources_jpeg\\lyria_FN\\from_datalab_100830\\A004_C012_07074H_001"
+  filename: "A004_C012_07074H_001_######.jpg"
+  recIn: 904222
+  recOut: 904286
+  srcIn: 95580
+}
+loop: false
+playbackMode: DROP_FRAME_TO_KEEP_REALTIME

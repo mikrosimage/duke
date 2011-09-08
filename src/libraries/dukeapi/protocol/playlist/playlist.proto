@@ -1,0 +1,41 @@
+package protocol.playlist;
+option java_package = "fr.mikrosimage.playlist.protocol";
+option java_outer_classname = "PlaylistProtocol";
+
+message Playlist {
+	repeated Shot shot 					= 1;
+	optional Display display 			= 2;
+	optional AudioSource audioSource	= 3;
+}
+
+message Shot {
+	required string path 				= 1;
+	required uint32 start 				= 2;
+	required uint32 in 					= 3;
+	required uint32 out					= 4;
+	optional Display display 			= 6;
+}
+
+message Display {
+	enum ImageRatio {
+		_1_1							= 0;
+		_4_3 							= 1;
+		_16_9							= 2;
+	}
+	enum ColorSpace {
+		LOGTOLIN						= 0;
+		SRGBTOLIN 						= 1;
+		LINTOLOG						= 2;
+		LINTOSRGB 						= 3;
+		FULLHEADTOSMPTE					= 4;
+		SMPTETOFULLHEAD					= 5;
+	}
+	optional float framerate 			= 1;
+	optional string lut 				= 2;
+	optional ColorSpace colorspace		= 3;
+	optional ImageRatio imageratio		= 4;
+}
+
+message AudioSource {
+	required string name 				= 1;
+}

@@ -1,0 +1,22 @@
+#
+# dukeapi
+#
+
+project 
+	: requirements 
+		<include>..
+	    <library>/boost//thread
+	    <library>/boost//system
+	    <library>/boost//regex
+		<library>/project-config//protobuf 
+		<library>/duke/sub/duke.plugin//dukehost
+    : usage-requirements 
+    	<include>..
+	    <library>/boost//thread
+	    <library>/boost//system
+	    <library>/boost//regex
+		<library>/project-config//protobuf
+		<library>/duke/sub/duke.plugin//dukehost ;
+
+explicit dukeapi ;
+lib dukeapi : [ glob-tree *.cpp ]	;
