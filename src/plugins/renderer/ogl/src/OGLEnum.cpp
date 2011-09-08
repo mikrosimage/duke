@@ -7,7 +7,7 @@
 
 #include "OGLEnum.h"
 
-#include <renderer/plugin/common/utils/PixelUtils.h>
+#include <dukerendererplugin/utils/PixelUtils.h>
 
 #include <iostream>
 #include <stdexcept>

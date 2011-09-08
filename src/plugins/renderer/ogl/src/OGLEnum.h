@@ -9,8 +9,8 @@
 #define OGLENUM_H_
 
 #include <GL/glew.h>
-#include <renderer/plugin/common/Enums.h>
-#include <duke_io/Formats.h>
+#include <plugin/Enums.h>
+#include <dukeio/Formats.h>
 
 class OGLEnum
 {

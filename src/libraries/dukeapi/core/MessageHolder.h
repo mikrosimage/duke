@@ -8,7 +8,7 @@
 #ifndef MESSAGEHOLDER_H_
 #define MESSAGEHOLDER_H_
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 #include <memory>
 #include <stdexcept>

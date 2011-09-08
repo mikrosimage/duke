@@ -5,7 +5,7 @@
 project 
 	: requirements 
     : usage-requirements 
-    	<library>/duke/sub/duke.plugin//dukeplugin
+    	<library>/duke/sub/duke.plugins//dukeplugin
 	;
 
 alias dukeioplugin ; # header only library

@@ -6,9 +6,9 @@
  */
 
 #include "FileBufferHolder.h"
-#include <image/ImageReader.h>
-#include <sequence/PlaylistHelper.h>
-#include <duke_io/ImageDescription.h>
+#include <dukeengine/image/ImageReader.h>
+#include <dukeengine/sequence/PlaylistHelper.h>
+#include <dukeio/ImageDescription.h>
 #include <boost/foreach.hpp>
 
 using namespace std;

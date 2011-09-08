@@ -8,10 +8,10 @@
 #ifndef IMAGETOOLBOX_H_
 #define IMAGETOOLBOX_H_
 
-#include <chain/Chain.h>
-#include <image/ImageHolder.h>
-#include <sequence/PlaylistHelper.h>
-#include <duke_io/ImageDecoderFactory.h>
+#include <dukeengine/chain/Chain.h>
+#include <dukeengine/image/ImageHolder.h>
+#include <dukeengine/sequence/PlaylistHelper.h>
+#include <dukeengine/host/io/ImageDecoderFactory.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/shared_ptr.hpp>
 

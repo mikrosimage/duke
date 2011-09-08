@@ -8,7 +8,7 @@
 #ifndef SFMLPROTOBUFUTILS_H_
 #define SFMLPROTOBUFUTILS_H_
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <SFML/Window/Event.hpp>
 
 inline ::protocol::duke::Event_Type Get( const ::sf::Event::EventType& eventType )
@@ -49,217 +49,215 @@ inline ::protocol::duke::Event_Type Get( const ::sf::Event::EventType& eventType
 	return Event_Type_Type_MIN;
 }
 
-inline ::protocol::duke::KeyEvent_KeyCode Get( const sf::Key::Code& keyCode )
+inline ::protocol::duke::KeyEvent_KeyCode Get( const sf::Keyboard::Key& keyCode )
 {
-    using namespace ::sf::Key;
+    using namespace ::sf;
     using namespace ::protocol::duke;
 
 	switch( keyCode )
 	{
-		case A:
+		case Keyboard::A:
 			return KeyEvent_KeyCode_A;
-		case B:
+		case Keyboard::B:
 			return KeyEvent_KeyCode_B;
-		case C:
+		case Keyboard::C:
 			return KeyEvent_KeyCode_C;
-		case D:
+		case Keyboard::D:
 			return KeyEvent_KeyCode_D;
-		case E:
+		case Keyboard::E:
 			return KeyEvent_KeyCode_E;
-		case F:
+		case Keyboard::F:
 			return KeyEvent_KeyCode_F;
-		case G:
+		case Keyboard::G:
 			return KeyEvent_KeyCode_G;
-		case H:
+		case Keyboard::H:
 			return KeyEvent_KeyCode_H;
-		case I:
+		case Keyboard::I:
 			return KeyEvent_KeyCode_I;
-		case J:
+		case Keyboard::J:
 			return KeyEvent_KeyCode_J;
-		case K:
+		case Keyboard::K:
 			return KeyEvent_KeyCode_K;
-		case L:
+		case Keyboard::L:
 			return KeyEvent_KeyCode_L;
-		case M:
+		case Keyboard::M:
 			return KeyEvent_KeyCode_M;
-		case N:
+		case Keyboard::N:
 			return KeyEvent_KeyCode_N;
-		case O:
+		case Keyboard::O:
 			return KeyEvent_KeyCode_O;
-		case P:
+		case Keyboard::P:
 			return KeyEvent_KeyCode_P;
-		case Q:
+		case Keyboard::Q:
 			return KeyEvent_KeyCode_Q;
-		case R:
+		case Keyboard::R:
 			return KeyEvent_KeyCode_R;
-		case S:
+		case Keyboard::S:
 			return KeyEvent_KeyCode_S;
-		case T:
+		case Keyboard::T:
 			return KeyEvent_KeyCode_T;
-		case U:
+		case Keyboard::U:
 			return KeyEvent_KeyCode_U;
-		case V:
+		case Keyboard::V:
 			return KeyEvent_KeyCode_V;
-		case W:
+		case Keyboard::W:
 			return KeyEvent_KeyCode_W;
-		case X:
+		case Keyboard::X:
 			return KeyEvent_KeyCode_X;
-		case Y:
+		case Keyboard::Y:
 			return KeyEvent_KeyCode_Y;
-		case Z:
+		case Keyboard::Z:
 			return KeyEvent_KeyCode_Z;
-		case Num0:
+		case Keyboard::Num0:
 			return KeyEvent_KeyCode_Num0;
-		case Num1:
+		case Keyboard::Num1:
 			return KeyEvent_KeyCode_Num1;
-		case Num2:
+		case Keyboard::Num2:
 			return KeyEvent_KeyCode_Num2;
-		case Num3:
+		case Keyboard::Num3:
 			return KeyEvent_KeyCode_Num3;
-		case Num4:
+		case Keyboard::Num4:
 			return KeyEvent_KeyCode_Num4;
-		case Num5:
+		case Keyboard::Num5:
 			return KeyEvent_KeyCode_Num5;
-		case Num6:
+		case Keyboard::Num6:
 			return KeyEvent_KeyCode_Num6;
-		case Num7:
+		case Keyboard::Num7:
 			return KeyEvent_KeyCode_Num7;
-		case Num8:
+		case Keyboard::Num8:
 			return KeyEvent_KeyCode_Num8;
-		case Num9:
+		case Keyboard::Num9:
 			return KeyEvent_KeyCode_Num9;
-		case sf::Key::Escape:
+		case Keyboard::Escape:
 			return KeyEvent_KeyCode_Escape;
-		case LControl:
+		case Keyboard::LControl:
 			return KeyEvent_KeyCode_LControl;
-		case LShift:
+		case Keyboard::LShift:
 			return KeyEvent_KeyCode_LShift;
-		case LAlt:
+		case Keyboard::LAlt:
 			return KeyEvent_KeyCode_LAlt;
-		case LSystem:
+		case Keyboard::LSystem:
 			return KeyEvent_KeyCode_LSystem;
-		case RControl:
+		case Keyboard::RControl:
 			return KeyEvent_KeyCode_RControl;
-		case RShift:
+		case Keyboard::RShift:
 			return KeyEvent_KeyCode_RShift;
-		case RAlt:
+		case Keyboard::RAlt:
 			return KeyEvent_KeyCode_RAlt;
-		case RSystem:
+		case Keyboard::RSystem:
 			return KeyEvent_KeyCode_RSystem;
-		case Menu:
+		case Keyboard::Menu:
 			return KeyEvent_KeyCode_Menu;
-		case LBracket:
+		case Keyboard::LBracket:
 			return KeyEvent_KeyCode_LBracket;
-		case RBracket:
+		case Keyboard::RBracket:
 			return KeyEvent_KeyCode_RBracket;
-		case SemiColon:
+		case Keyboard::SemiColon:
 			return KeyEvent_KeyCode_SemiColon;
-		case Comma:
+		case Keyboard::Comma:
 			return KeyEvent_KeyCode_Comma;
-		case Period:
+		case Keyboard::Period:
 			return KeyEvent_KeyCode_Period;
-		case Quote:
+		case Keyboard::Quote:
 			return KeyEvent_KeyCode_Quote;
-		case Slash:
+		case Keyboard::Slash:
 			return KeyEvent_KeyCode_Slash;
-		case BackSlash:
+		case Keyboard::BackSlash:
 			return KeyEvent_KeyCode_BackSlash;
-		case Tilde:
+		case Keyboard::Tilde:
 			return KeyEvent_KeyCode_Tilde;
-		case Equal:
+		case Keyboard::Equal:
 			return KeyEvent_KeyCode_Equal;
-		case Dash:
+		case Keyboard::Dash:
 			return KeyEvent_KeyCode_Dash;
-		case Space:
+		case Keyboard::Space:
 			return KeyEvent_KeyCode_Space;
-		case Return:
+		case Keyboard::Return:
 			return KeyEvent_KeyCode_Return;
-		case Back:
+		case Keyboard::Back:
 			return KeyEvent_KeyCode_Back;
-		case Tab:
+		case Keyboard::Tab:
 			return KeyEvent_KeyCode_Tab;
-		case PageUp:
+		case Keyboard::PageUp:
 			return KeyEvent_KeyCode_PageUp;
-		case PageDown:
+		case Keyboard::PageDown:
 			return KeyEvent_KeyCode_PageDown;
-		case End:
+		case Keyboard::End:
 			return KeyEvent_KeyCode_End;
-		case Home:
+		case Keyboard::Home:
 			return KeyEvent_KeyCode_Home;
-		case Insert:
+		case Keyboard::Insert:
 			return KeyEvent_KeyCode_Insert;
-		case Delete:
+		case Keyboard::Delete:
 			return KeyEvent_KeyCode_Delete;
-		case Add:
+		case Keyboard::Add:
 			return KeyEvent_KeyCode_Add;
-		case Subtract:
+		case Keyboard::Subtract:
 			return KeyEvent_KeyCode_Subtract;
-		case Multiply:
+		case Keyboard::Multiply:
 			return KeyEvent_KeyCode_Multiply;
-		case Divide:
+		case Keyboard::Divide:
 			return KeyEvent_KeyCode_Divide;
-		case Left:
+		case Keyboard::Left:
 			return KeyEvent_KeyCode_Left;
-		case Right:
+		case Keyboard::Right:
 			return KeyEvent_KeyCode_Right;
-		case Up:
+		case Keyboard::Up:
 			return KeyEvent_KeyCode_Up;
-		case Down:
+		case Keyboard::Down:
 			return KeyEvent_KeyCode_Down;
-		case Numpad0:
+		case Keyboard::Numpad0:
 			return KeyEvent_KeyCode_Numpad0;
-		case Numpad1:
+		case Keyboard::Numpad1:
 			return KeyEvent_KeyCode_Numpad1;
-		case Numpad2:
+		case Keyboard::Numpad2:
 			return KeyEvent_KeyCode_Numpad2;
-		case Numpad3:
+		case Keyboard::Numpad3:
 			return KeyEvent_KeyCode_Numpad3;
-		case Numpad4:
+		case Keyboard::Numpad4:
 			return KeyEvent_KeyCode_Numpad4;
-		case Numpad5:
+		case Keyboard::Numpad5:
 			return KeyEvent_KeyCode_Numpad5;
-		case Numpad6:
+		case Keyboard::Numpad6:
 			return KeyEvent_KeyCode_Numpad6;
-		case Numpad7:
+		case Keyboard::Numpad7:
 			return KeyEvent_KeyCode_Numpad7;
-		case Numpad8:
+		case Keyboard::Numpad8:
 			return KeyEvent_KeyCode_Numpad8;
-		case Numpad9:
+		case Keyboard::Numpad9:
 			return KeyEvent_KeyCode_Numpad9;
-		case F1:
+		case Keyboard::F1:
 			return KeyEvent_KeyCode_F1;
-		case F2:
+		case Keyboard::F2:
 			return KeyEvent_KeyCode_F2;
-		case F3:
+		case Keyboard::F3:
 			return KeyEvent_KeyCode_F3;
-		case F4:
+		case Keyboard::F4:
 			return KeyEvent_KeyCode_F4;
-		case F5:
+		case Keyboard::F5:
 			return KeyEvent_KeyCode_F5;
-		case F6:
+		case Keyboard::F6:
 			return KeyEvent_KeyCode_F6;
-		case F7:
+		case Keyboard::F7:
 			return KeyEvent_KeyCode_F7;
-		case F8:
+		case Keyboard::F8:
 			return KeyEvent_KeyCode_F8;
-		case F9:
+		case Keyboard::F9:
 			return KeyEvent_KeyCode_F9;
-		case F10:
+		case Keyboard::F10:
 			return KeyEvent_KeyCode_F10;
-		case F11:
+		case Keyboard::F11:
 			return KeyEvent_KeyCode_F11;
-		case F12:
+		case Keyboard::F12:
 			return KeyEvent_KeyCode_F12;
-		case F13:
+		case Keyboard::F13:
 			return KeyEvent_KeyCode_F13;
-		case F14:
+		case Keyboard::F14:
 			return KeyEvent_KeyCode_F14;
-		case F15:
+		case Keyboard::F15:
 			return KeyEvent_KeyCode_F15;
-		case Pause:
+		case Keyboard::Pause:
 			return KeyEvent_KeyCode_Pause;
-		case Count:
-			return KeyEvent_KeyCode_Unknown;
 		default:
             std::cerr << "Unknown keycode " << keyCode << std::endl;
 	}
@@ -268,19 +266,19 @@ inline ::protocol::duke::KeyEvent_KeyCode Get( const sf::Key::Code& keyCode )
 
 inline ::protocol::duke::MouseEvent_Button Get( const sf::Mouse::Button& mouseButton )
 {
-    using namespace ::sf::Mouse;
+    using namespace ::sf;
     using namespace ::protocol::duke;
 	switch( mouseButton )
 	{
-		case Left:
+		case Mouse::Left:
 			return MouseEvent_Button_LEFT;
-		case Right:
+		case Mouse::Right:
 			return MouseEvent_Button_RIGHT;
-		case Middle:
+		case Mouse::Middle:
 			return MouseEvent_Button_MIDDLE;
-		case XButton1:
+		case Mouse::XButton1:
 			return MouseEvent_Button_XBUTTONA;
-		case XButton2:
+		case Mouse::XButton2:
 			return MouseEvent_Button_XBUTTONB;
 		default:
 		    std::cerr << "Unknown mouse button " << mouseButton << std::endl;

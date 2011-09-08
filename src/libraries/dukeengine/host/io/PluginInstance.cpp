@@ -6,8 +6,8 @@
  */
 
 #include "PluginInstance.h"
-#include <openfx/support/host/HostUtils.h>
-#include <duke_io/openfx/api/ofxDukeIo.h>
+#include <dukeio/ofxDukeIo.h>
+#include <dukehost/HostUtils.h>
 
 #include <vector>
 #include <string>

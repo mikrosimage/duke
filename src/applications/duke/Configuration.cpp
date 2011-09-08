@@ -16,7 +16,7 @@
 #include <dukeapi/core/decoders/socket/SingleSocketServer.h>
 #include <dukeapi/core/MessageHolder.h>
 #include <dukeapi/core/queue/MessageQueue.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <iostream>

@@ -8,8 +8,8 @@
 #ifndef RENDERERBUILDER_H
 #define RENDERERBUILDER_H
 
-#include <duke_pb/IMessageIO.h>
-#include <communication.pb.h>
+#include <dukeapi/core/IMessageIO.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 
 namespace {

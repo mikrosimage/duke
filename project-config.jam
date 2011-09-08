@@ -37,7 +37,7 @@ project project-config ;
 
 # protobuf
 
-local PROTO = L:/protobuf-2.4.0a ;
+local PROTO = /datas/nro/_/3rdParty/protobuf-2.4.0a ;
 local PROTO_INCLUDE = [ path.native $(PROTO)/include ] ;
 local PROTO_BIN = [ path.native $(PROTO)/bin ] ;
 local PROTO_LIB = [ path.native $(PROTO)/lib ] ;
@@ -50,13 +50,29 @@ lib protobuf : : <toolset>msvc <search>$(PROTO_LIB) <name>libprotobuf <os>NT:<li
 
 explicit protobuf ;
 	     
+# SNDFILE
+
+explicit sndfile ;
+lib sndfile : : <os>LINUX 
+			 <search>/datas/nro/_/3rdParty/libsndfile-1.0.24/src/.libs ;
 # SFML
 
-explicit sfml ;
-lib sfml : : <os>LINUX 
-			 <name>z 
-			 <search>/path/to/my/sfml 
-	     : : <include>/path/to/my/sfml/include ;
+local SFML = /datas/nro/_/3rdParty/SFML2.0 ;
+explicit sfml sfml-graphics sfml-system sfml-window sfml-audio ;
+lib sfml-graphics : : <os>LINUX 
+			 <name>sfml-graphics 
+			 <search>$(SFML)/build/lib ;
+lib sfml-system : : <os>LINUX 
+			 <name>sfml-system
+			 <search>$(SFML)/build/lib ;
+lib sfml-window : : <os>LINUX 
+			 <name>sfml-window
+			 <search>$(SFML)/build/lib ;
+lib sfml-audio : : <os>LINUX 
+			 <name>sfml-audio 
+			 <library>sndfile 
+			 <search>$(SFML)/build/lib ;
+alias sfml : sfml-graphics sfml-system sfml-window sfml-audio : <os>LINUX : : <include>$(SFML)/include ;
 
 lib sfml : : <os>NT
 			 <name>zlib

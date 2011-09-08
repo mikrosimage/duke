@@ -6,14 +6,14 @@ project
 	: requirements 
 		<include>..
 		<library>/duke/lib/api//dukeapi
-		<library>/duke/sub/duke.host//dukehost 
+		<library>/duke/sub/duke.plugins//dukehost 
 		<library>/project-config//sfml 
 		<library>/boost//iostreams 
 		<library>/boost//chrono
     : usage-requirements 
     	<include>..
     	<library>/duke/lib/api//dukeapi
-		<library>/duke/sub/duke.host//dukehost 
+		<library>/duke/sub/duke.plugins//dukehost 
 		<library>/project-config//sfml 
 		<library>/boost//iostreams 
 		<library>/boost//chrono ;

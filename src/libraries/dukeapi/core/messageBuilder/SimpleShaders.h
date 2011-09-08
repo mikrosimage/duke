@@ -106,20 +106,20 @@ const char* fittableTransformVs = "float displayMode;\n"
     "	return OUT;\n"
     "}\n";
 
-const char* simpleSamplerPs = "struct vertexOutput {\n"
-    "    float4 HPosition: POSITION;\n"
-    "    float2 UV		: TEXCOORD0;\n"
-    "};\n"
-    "\n"
-    "sampler2D ColorSampler;\n"
-    "\n"
-    "float4 sampleTx1(float2 uv){\n"
-    "	return tex2D( ColorSampler, uv );\n"
-    "}\n"
-    "\n"
-    "float4 main(vertexOutput IN) : COLOR {\n"
-    "	return sampleTx1(IN.UV);\n"
-    "}\n";
+//const char* simpleSamplerPs = "struct vertexOutput {\n"
+//    "    float4 HPosition: POSITION;\n"
+//    "    float2 UV		: TEXCOORD0;\n"
+//    "};\n"
+//    "\n"
+//    "sampler2D ColorSampler;\n"
+//    "\n"
+//    "float4 sampleTx1(float2 uv){\n"
+//    "	return tex2D( ColorSampler, uv );\n"
+//    "}\n"
+//    "\n"
+//    "float4 main(vertexOutput IN) : COLOR {\n"
+//    "	return sampleTx1(IN.UV);\n"
+//    "}\n";
 
 }
 

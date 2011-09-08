@@ -9,8 +9,8 @@
 #define OGLTEXTURE_H_
 
 #include <GL/glew.h>
-#include <renderer/plugin/common/math/Rect.h>
-#include <renderer/plugin/common/ITextureBase.h>
+#include <plugin/math/Rect.h>
+#include <plugin/ITextureBase.h>
 
 class OGLRenderer;
 

@@ -8,7 +8,7 @@
 #ifndef PLAYLISTREADER_H_
 #define PLAYLISTREADER_H_
 
-#include <playlist.pb.h>
+#include <dukeapi/protocol/playlist/playlist.pb.h>
 #include <dukeapi/core/queue/MessageQueue.h>
 
 namespace protocol {

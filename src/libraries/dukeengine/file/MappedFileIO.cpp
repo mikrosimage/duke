@@ -8,7 +8,7 @@
 #include "MappedFileIO.h"
 #include <iostream>
 #include <fstream>
-#include <memory/MemoryUtils.h>
+#include <dukeengine/memory/MemoryUtils.h>
 #include <boost/iostreams/device/mapped_file.hpp>
 
 using namespace mikrosimage::alloc;

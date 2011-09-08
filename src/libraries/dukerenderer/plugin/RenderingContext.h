@@ -10,7 +10,7 @@
 
 #include "ITextureProvider.h"
 #include "Image.h"
-#include <duke_io/ImageDescription.h>
+#include <dukeio/ImageDescription.h>
 #include <vector>
 #include <string>
 

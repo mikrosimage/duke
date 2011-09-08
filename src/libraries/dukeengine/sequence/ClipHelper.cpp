@@ -6,7 +6,7 @@
  */
 
 #include "ClipHelper.h"
-#include <utils/Rational.h>
+#include <dukeengine/utils/Rational.h>
 
 #include <boost/functional/hash.hpp>
 

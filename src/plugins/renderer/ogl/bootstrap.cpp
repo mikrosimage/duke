@@ -87,6 +87,6 @@ public: Plugin() {}
 
 const int PLUGIN_COUNT = 1;
 
-#include <openfx/support/plugin/PluginBootstrap.h>
+#include <dukeplugin/PluginBootstrap.h>
 
 OfxPluginInstance<0> plugin( kOfxRendererPluginApi, 1, "fr.mikrosimage.player.renderer.OpenGL", 1, 0, new Plugin() );

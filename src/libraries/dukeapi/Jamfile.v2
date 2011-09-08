@@ -3,10 +3,9 @@
 #
 
 # protobuf source file generation
-import path ;
 
 local pb_cc_files ;
-for local proto in [ path.glob-tree . : *.proto ]
+for local proto in [ glob-tree *.proto ]
 {
 	local pb_cc_file = $(proto:S=.pb.cc) ;
 	make $(pb_cc_file) : $(proto) : @generateProtocolBuffer ;
@@ -18,6 +17,7 @@ for local proto in [ path.glob-tree . : *.proto ]
 actions generateProtocolBuffer
 {
 	$(PROTOC) --cpp_out=$(<:D) --proto_path=$(>:D) $(>)
+	$(PROTOC) --cpp_out=$(>:D) --proto_path=$(>:D) $(>)
 }
 
 project 
@@ -27,14 +27,12 @@ project
 	    <library>/boost//system
 	    <library>/boost//regex
 		<library>/project-config//protobuf 
-		<library>/duke/sub/duke.plugin//dukehost
     : usage-requirements 
     	<include>..
 	    <library>/boost//thread
 	    <library>/boost//system
 	    <library>/boost//regex
-		<library>/project-config//protobuf
-		<library>/duke/sub/duke.plugin//dukehost ;
+		<library>/project-config//protobuf ;
 
 explicit dukeapi ;
 lib dukeapi : 

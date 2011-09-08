@@ -12,8 +12,8 @@
 #include "IShaderBase.h"
 #include "RenderingContext.h"
 #include "ProtoBufResource.h"
-#include <communication.pb.h>
-#include <duke_io/ImageDescription.h>
+#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeio/ImageDescription.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <string>

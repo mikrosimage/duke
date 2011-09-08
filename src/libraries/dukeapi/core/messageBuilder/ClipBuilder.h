@@ -8,7 +8,7 @@
 #ifndef CLIPBUILDER_H_
 #define CLIPBUILDER_H_
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 
 namespace {

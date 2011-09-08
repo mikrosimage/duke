@@ -7,10 +7,10 @@
 
 #include "ImageDecoderFactoryImpl.h"
 
-#include <openfx/support/host/HostUtils.h>
-#include <openfx/support/plugin/OstreamHelper.h>
+#include <dukehost/HostUtils.h>
+#include <dukeplugin/OstreamHelper.h>
 
-#include <duke_io/openfx/api/ofxDukeIo.h>
+#include <dukeio/ofxDukeIo.h>
 #include <iostream>
 
 bool _acceptFile(const char* filename, const bool isDirectory) {
@@ -69,9 +69,9 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
     return mapEntry->second.get();
 }
 
-#include <openfx/support/host/suite/property/PropertySet.h>
-#include <openfx/support/host/suite/property/Property.h>
-#include <openfx/support/host/suite/property/OstreamHelpers.h>
+#include <dukehost/suite/property/PropertySet.h>
+#include <dukehost/suite/property/Property.h>
+#include <dukehost/suite/property/OstreamHelpers.h>
 
 OfxStatus perform(FormatHandle decoder, const char* action, const void* handle, OfxPropertySetHandle inArgs, OfxPropertySetHandle outArgs) {
     assert(decoder);

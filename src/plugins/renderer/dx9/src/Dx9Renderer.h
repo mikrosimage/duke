@@ -9,7 +9,7 @@
 #define DX9RENDERER_H_
 
 #include "ScopedIUnknownPtr.h"
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <renderer/common/RendererSuite.h>
 #include <renderer/plugin/common/IRenderer.h>
 #include <renderer/plugin/common/IFactory.h>

@@ -26,7 +26,7 @@ static bool isEqual(const char* expected, const char* actual) {
 #include <renderer/common/RendererSuite.h>
 #include <renderer/plugin/common/IRenderer.h>
 #include <renderer/plugin/common/SfmlWindow.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <cassert>
 #include <stdexcept>
 #include <memory>
@@ -78,6 +78,6 @@ public:
 
 const int PLUGIN_COUNT = 1;
 
-#include <openfx/support/plugin/PluginBootstrap.h>
+#include <dukeplugin/PluginBootstrap.h>
 
 OfxPluginInstance<0> plugin(kOfxRendererPluginApi, 1, "fr.mikrosimage.player.renderer.DirectX9", 1, 0, new Plugin());

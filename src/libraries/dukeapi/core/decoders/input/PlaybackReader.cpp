@@ -6,9 +6,9 @@
  */
 
 #include "PlaybackReader.h"
-#include <duke_pb/MessageHolder.h>
-#include <duke_pb/stream/Helpers.h>
-#include <communication.pb.h>
+#include <dukeapi/core/MessageHolder.h>
+#include <dukeapi/core/stream/Helpers.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 #include <stdexcept>
 

@@ -13,8 +13,8 @@
 #include "ResourceManager.h"
 #include "TexturePool.h"
 #include "math/Vector2.h"
-#include <duke_io/ImageDescription.h>
-#include <PrototypeFactory.h>
+#include <dukeio/ImageDescription.h>
+#include <dukeapi/protocol/player/PrototypeFactory.h>
 #include <boost/utility.hpp>
 #include <Cg/cg.h>
 

@@ -8,7 +8,7 @@
 #ifndef TIMEUTILS_H_
 #define TIMEUTILS_H_
 
-#include <utils/Rational.h>
+#include <dukeengine/utils/Rational.h>
 #include "boost/date_time/local_time/local_time_types.hpp"
 
 /**

@@ -1,7 +1,7 @@
 #ifndef PIXELUTILS_H_
 #define PIXELUTILS_H_
 
-#include <duke_io/ImageDescription.h>
+#include <dukeio/ImageDescription.h>
 #include <string>
 #include <stdexcept>
 #include <iostream>

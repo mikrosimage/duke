@@ -7,7 +7,7 @@
 
 #include <sequence/ClipHelper.h>
 #include <sequence/PlaylistHelper.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>

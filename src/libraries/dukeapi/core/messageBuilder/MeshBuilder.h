@@ -9,7 +9,7 @@
 #define MESHBUILDER_H_
 
 #include <dukeapi/core/IMessageIO.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 
 namespace {

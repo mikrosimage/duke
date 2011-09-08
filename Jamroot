@@ -46,11 +46,12 @@ use-project /duke/lib/io				: src/libraries/dukeio ;
 use-project /duke/lib/ioplugin			: src/libraries/dukeio/plugin ;
 use-project /duke/lib/renderer			: src/libraries/dukerenderer ;
 use-project /duke/lib/rendererplugin	: src/libraries/dukerenderer/plugin ;
-use-project /duke/sub/duke.plugin		: src/submodules/duke.plugins ;
+use-project /duke/sub/duke.plugins		: src/submodules/duke.plugins ;
 
 project : requirements 
 			<threading>multi
 			<include>$(BOOST_ROOT)
+			<toolset>gcc:<cxxflags>-std=gnu++0x
 		: build-dir bin	;
 
 
@@ -62,7 +63,7 @@ explicit applications
 		 plugin-foo
 		 dist ;
 
-alias applications 	: src/applications/duke//duke src/applications/diskbench//diskbench ;
+alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-ogl ] : <os>LINUX ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-ogl ] : <os>MACOSX ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-dx9 ] : <os>NT ;

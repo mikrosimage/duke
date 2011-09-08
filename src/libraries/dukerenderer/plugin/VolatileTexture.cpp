@@ -8,7 +8,7 @@
 #include "VolatileTexture.h"
 #include "IFactory.h"
 #include "ITextureBase.h"
-#include <duke_io/ImageDescription.h>
+#include <dukeio/ImageDescription.h>
 #include <iostream>
 #include <cassert>
 

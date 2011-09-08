@@ -9,7 +9,7 @@
 #define SETUP_H_
 
 #include <dukeio/ImageDescription.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <vector>
 
 typedef struct Setup {

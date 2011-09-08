@@ -1,8 +1,3 @@
-###############################################################################
-## Tests
-## author Guillaume Chatelet
-###############################################################################
-
 alias /PreemptiveLib : $(ROOT)/src/libraries/duke_core/chain//PreemptiveLib ;
 
 run    	chain.cpp

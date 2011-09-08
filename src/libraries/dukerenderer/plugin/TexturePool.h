@@ -8,7 +8,7 @@
 #ifndef TEXTUREPOOL_H_
 #define TEXTUREPOOL_H_
 
-#include <duke_io/Formats.h>
+#include <dukeio/Formats.h>
 #include "math/Vector3.h"
 
 struct PoolRequest

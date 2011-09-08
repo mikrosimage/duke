@@ -8,9 +8,9 @@
 #ifndef SHADERBUILDER_H_
 #define SHADERBUILDER_H_
 
-#include "duke_pb/messageBuilder/SimpleShaders.h"
-#include <communication.pb.h>
-#include <shader_assembler.pb.h>
+#include "SimpleShaders.h"
+#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/shader_assembler.pb.h>
 #include <iostream>
 
 namespace {

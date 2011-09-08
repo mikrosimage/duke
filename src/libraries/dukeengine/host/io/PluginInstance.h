@@ -9,8 +9,8 @@
 #define PLUGININSTANCE_H_
 
 #include <openfx/ofxCorePlugin.h>
-#include <openfx/support/host/suite/property/PropertySet.h>
-#include <openfx/support/host/suite/property/Property.h>
+#include <dukehost/suite/property/PropertySet.h>
+#include <dukehost/suite/property/Property.h>
 
 class PluginInstance {
     ::openfx::host::PropertySet m_DescribeProperty;

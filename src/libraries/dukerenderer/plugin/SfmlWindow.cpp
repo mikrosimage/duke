@@ -6,7 +6,7 @@
  */
 
 #include "SfmlWindow.h"
-#include <renderer/common/RendererSuite.h>
+#include "RendererSuite.h"
 #include <SFML/Window.hpp>
 #include <stdexcept>
 #include <iostream>

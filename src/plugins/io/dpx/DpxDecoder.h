@@ -8,9 +8,9 @@
 #ifndef DPXDECODER_H_
 #define DPXDECODER_H_
 
-#include <duke_io/ImageDescription.h>
-#include <openfx/support/plugin/IBoostPlugin.h>
-#include <openfx/support/plugin/suite/property/PropertySuiteImpl.h>
+#include <dukeio/ImageDescription.h>
+#include <dukeplugin/IBoostPlugin.h>
+#include <dukeplugin/suite/property/PropertySuiteImpl.h>
 
 class DpxDecoder : public IBoostPlugin {
 

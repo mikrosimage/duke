@@ -9,7 +9,7 @@
 #define ITEXTUREPROVIDER_H_
 
 #include "IImageDescriptor.h"
-#include <duke_io/ImageDescription.h>
+#include <dukeio/ImageDescription.h>
 
 class ITextureBase;
 

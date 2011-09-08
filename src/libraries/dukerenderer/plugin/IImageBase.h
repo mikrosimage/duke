@@ -11,7 +11,7 @@
 #include "IResource.h"
 #include "IImageDescriptor.h"
 #include "Enums.h"
-#include <duke_io/ImageDescription.h>
+#include <dukeio/ImageDescription.h>
 #include <vector>
 
 class IImageBase : public IResource,

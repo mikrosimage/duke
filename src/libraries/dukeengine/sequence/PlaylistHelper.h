@@ -10,7 +10,7 @@
 
 #include "ClipHelper.h"
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>

@@ -6,7 +6,7 @@
  */
 
 #include "ShaderFactory.h"
-#include <ShadingGraphCodeBuilder.h>
+#include <dukeapi/protocol/player/ShadingGraphCodeBuilder.h>
 #include "ProtoBufResource.h"
 #include "IRenderer.h"
 #include "DisplayableImage.h"

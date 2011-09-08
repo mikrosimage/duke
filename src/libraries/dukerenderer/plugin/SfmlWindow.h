@@ -8,8 +8,8 @@
 #ifndef SFMLWINDOW_H_
 #define SFMLWINDOW_H_
 
-#include <renderer/plugin/common/IRenderer.h>
-#include <communication.pb.h>
+#include "IRenderer.h"
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <SFML/Window.hpp>
 #include <boost/thread.hpp>
 #include <boost/function.hpp>

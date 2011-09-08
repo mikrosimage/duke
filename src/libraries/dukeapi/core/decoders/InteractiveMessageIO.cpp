@@ -8,7 +8,7 @@
 #include "InteractiveMessageIO.h"
 #include <dukeapi/core/queue/MessageQueue.h>
 #include <dukeapi/core/MessageHolder.h>
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 #include <cassert>
 

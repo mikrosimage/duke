@@ -6,10 +6,10 @@
  */
 
 #include "ImageReader.h"
-#include <file/DmaFileIO.h>
-#include <file/MappedFileIO.h>
-#include <file/StreamedFileIO.h>
-#include <duke_io/ImageDecoderFactory.h>
+#include <dukeengine/file/DmaFileIO.h>
+#include <dukeengine/file/MappedFileIO.h>
+#include <dukeengine/file/StreamedFileIO.h>
+#include <dukeengine/host/io/ImageDecoderFactory.h>
 #include <iostream>
 
 using namespace ::mikrosimage::alloc;

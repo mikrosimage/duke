@@ -9,11 +9,10 @@
 #define IMAGEDECODERFACTORYIMPL_H_
 
 #include "PluginInstance.h"
+#include "ImageDecoderFactory.h"
 
-#include <duke_io/ImageDecoderFactory.h>
-
-#include <openfx/support/host/PluginManager.h>
-#include <openfx/support/host/HostImpl.h>
+#include <dukehost/PluginManager.h>
+#include <dukehost/HostImpl.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/predicate.hpp>

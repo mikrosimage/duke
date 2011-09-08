@@ -6,9 +6,9 @@
  */
 
 #include "Renderer.h"
-#include <openfx/support/host/HostUtils.h>
-#include <openfx/support/plugin/OstreamHelper.h>
-#include <renderer/common/ofxRenderer.h>
+#include <dukehost/HostUtils.h>
+#include <dukeplugin/OstreamHelper.h>
+#include <dukerenderer/ofxRenderer.h>
 #include <boost/thread.hpp>
 #include <sstream>
 #include <iostream>

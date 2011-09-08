@@ -3,9 +3,15 @@
 #
 
 project 
-	: requirements 
+	: requirements
+		<include>.. 
+		<library>/project-config//cg
+		<library>/project-config//sfml 
+    	<library>/duke/lib/api//dukeapi
+    	<library>/duke/sub/duke.plugins//dukeplugin
     : usage-requirements 
-    	<library>/duke/sub/duke.plugin//dukeplugin
+		<library>/project-config//cg
+		<include>.. 
 	;
 
 explicit dukerendererplugin ;

@@ -8,7 +8,7 @@
 #ifndef OGLSHADER_H_
 #define OGLSHADER_H_
 
-#include <renderer/plugin/common/IShaderBase.h>
+#include <plugin/IShaderBase.h>
 
 class OGLShader : public IShaderBase
 {

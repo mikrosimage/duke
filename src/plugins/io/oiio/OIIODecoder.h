@@ -8,9 +8,9 @@
 #ifndef OIIODECODER_H_
 #define OIIODECODER_H_
 
-#include <duke_io/ImageDescription.h>
-#include <openfx/support/plugin/IBoostPlugin.h>
-#include <openfx/support/plugin/suite/property/PropertySuiteImpl.h>
+#include <dukeio/ImageDescription.h>
+#include <dukeplugin/IBoostPlugin.h>
+#include <dukehost/suite/property/PropertySuiteImpl.h>
 
 namespace OpenImageIO{
 namespace v0{

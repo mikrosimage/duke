@@ -8,7 +8,7 @@
 #ifndef ENUMS_H_
 #define ENUMS_H_
 
-#include <duke_io/Formats.h>
+#include <dukeio/Formats.h>
 
 /////////////////////////////////////////////////////////////
 /// Buffers creation flags
@@ -56,7 +56,7 @@ enum TShaderType
 {
 	SHADER_VERTEX, SHADER_PIXEL
 };
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 struct Enums
 {
 	static TPrimitiveType Get( const ::protocol::duke::Mesh_MeshType& type );

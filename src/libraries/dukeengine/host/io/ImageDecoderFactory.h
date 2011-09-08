@@ -8,7 +8,7 @@
 #ifndef IMAGEDECODERFACTORY_H_
 #define IMAGEDECODERFACTORY_H_
 
-#include "ImageDescription.h"
+#include <dukeio/ImageDescription.h>
 #include <memory>
 
 typedef void* FormatHandle;

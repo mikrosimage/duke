@@ -11,7 +11,7 @@
 #include <openfx/ofxCorePlugin.h>
 #include <dukehost/PluginBinary.h>
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 class Renderer {
 private:

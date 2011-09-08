@@ -6,7 +6,7 @@
  */
 
 #include "PlaylistHelper.h"
-#include <utils/TimeUtils.h>
+#include <dukeengine/utils/TimeUtils.h>
 #include <boost/foreach.hpp>
 #include <boost/integer_traits.hpp>
 

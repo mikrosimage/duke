@@ -1,7 +1,7 @@
 #ifndef FORMATS_H_
 #define FORMATS_H_
 
-#include <duke_io/openfx/api/ofxDukeIo.h>
+#include "ofxDukeIo.h"
 
 /////////////////////////////////////////////////////////////
 /// Pixel Format

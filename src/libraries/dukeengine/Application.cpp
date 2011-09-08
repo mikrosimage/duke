@@ -6,8 +6,8 @@
  */
 
 #include "Application.h"
-#include "renderer/Renderer.h"
-#include <communication.pb.h>
+#include "host/renderer/Renderer.h"
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <set>
 
 using namespace ::google::protobuf;
 using namespace ::protocol::duke;

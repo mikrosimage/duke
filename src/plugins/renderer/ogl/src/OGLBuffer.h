@@ -9,7 +9,7 @@
 #define OGLBUFFER_H_
 
 #include <GL/glew.h>
-#include <renderer/plugin/common/IBufferBase.h>
+#include <plugin/IBufferBase.h>
 
 template<int T>
 class OGLBuffer : public IBufferBase

@@ -8,7 +8,7 @@
 #include "OGLTexture.h"
 #include "OGLRenderer.h"
 #include "OGLEnum.h"
-#include <renderer/common/Setup.h>
+#include <dukerenderer/Setup.h>
 #ifndef __APPLE__
 #include <GL/gl.h>
 #else

@@ -8,7 +8,7 @@
 #ifndef CLIPHELPER_H_
 #define CLIPHELPER_H_
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <boost/filesystem.hpp>
 
 size_t duration(const size_t in, const size_t out);

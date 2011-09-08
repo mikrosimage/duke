@@ -6,7 +6,7 @@
  */
 
 #include "TurboJpegDecoder.h"
-#include <duke_io/openfx/api/ofxDukeIo.h>
+#include <dukeio/ofxDukeIo.h>
 #include <boost/bind.hpp>
 #include <iostream>
 #include <stdio.h>
@@ -82,6 +82,6 @@ OfxStatus TurboJpegDecoder::decodeImage(const void* handle, OfxPropertySetHandle
 const int PLUGIN_COUNT = 1;
 
 // You should include PluginBootstrap.h only once as it defines global variables and functions
-#include <openfx/support/plugin/PluginBootstrap.h>
+#include <dukeplugin/PluginBootstrap.h>
 
 OfxPluginInstance<0> plug(kOfxDukeIoApi, kOfxDukeIoApiVersion, "fr.mikrosimage.turbo_jpeg", 1, 0, new TurboJpegDecoder());

@@ -7,7 +7,7 @@
 
 #include "Configuration.h"
 #ifdef _WIN32
- #include <dukeengine/file/DmaFileIO.h>
+    #include <dukeengine/file/DmaFileIO.h>
 #endif
 #include <dukeengine/file/StreamedFileIO.h>
 #include <dukeengine/memory/alloc/Allocators.h>

@@ -10,7 +10,7 @@
 #include "OGLShader.h"
 #include "OGLEnum.h"
 #include "OGLTexture.h"
-#include <renderer/plugin/common/Mesh.h>
+#include <plugin/Mesh.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>

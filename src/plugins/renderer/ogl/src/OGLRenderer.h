@@ -9,11 +9,11 @@
 #define OGLRENDERER_H_
 
 #include <GL/glew.h>
-#include <communication.pb.h>
-#include <renderer/common/RendererSuite.h>
-#include <renderer/plugin/common/IRenderer.h>
-#include <renderer/plugin/common/IFactory.h>
-#include <renderer/plugin/common/Mesh.h>
+#include <dukeapi/protocol/player/communication.pb.h>
+#include <plugin/RendererSuite.h>
+#include <plugin/IRenderer.h>
+#include <plugin/IFactory.h>
+#include <plugin/Mesh.h>
 
 class OGLRenderer : public IRenderer
 {

@@ -5,7 +5,7 @@
  *      Author: Michael ETIENNE
  */
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include "OutputStreamHelper.h"
 #include <fstream>
 #include <sstream>

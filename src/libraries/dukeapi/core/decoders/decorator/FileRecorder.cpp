@@ -6,7 +6,7 @@
  */
 
 #include "FileRecorder.h"
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <dukeapi/core/stream/Helpers.h>
 #include <iostream>
 #include <stdexcept>

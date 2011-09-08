@@ -15,10 +15,10 @@
 #include "RenderingContext.h"
 #include "IShaderBase.h"
 
-#include <renderer/common/RendererSuite.h>
-#include <renderer/common/Setup.h>
+#include "RendererSuite.h"
+#include <dukerenderer/Setup.h>
 
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Window/Event.hpp>

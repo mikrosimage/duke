@@ -8,8 +8,8 @@
 #ifndef PARAMETERBUILDER_H_
 #define PARAMETERBUILDER_H_
 
-#include <duke_pb/IMessageIO.h>
-#include <communication.pb.h>
+#include <dukeapi/core/IMessageIO.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 #include <stdexcept>
 

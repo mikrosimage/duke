@@ -10,6 +10,8 @@ then
 	exit 0;
 fi
 
+export NO_BZIP2=1
+
 # boost build configuration
 export BOOST_BUILD_PATH=$BOOST_ROOT/tools/build/v2
 $BOOST_ROOT/bjam --toolset=gcc cflags=-fPIC cxxflags=-fPIC $*

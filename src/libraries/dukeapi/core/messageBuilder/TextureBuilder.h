@@ -8,8 +8,8 @@
 #ifndef TEXTUREBUILDER_H_
 #define TEXTUREBUILDER_H_
 
-#include <duke_pb/IMessageIO.h>
-#include <communication.pb.h>
+#include <dukeapi/core/IMessageIO.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 #include <iostream>
 
 namespace {

@@ -9,7 +9,7 @@
 #define RENDERERSUITE_H_
 
 #include "ofxRenderer.h"
-#include <communication.pb.h>
+#include <dukeapi/protocol/player/communication.pb.h>
 
 class RendererSuite {
     const OfxHost* m_pHost;
