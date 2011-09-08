@@ -2,6 +2,24 @@
 # dukeapi
 #
 
+# protobuf source file generation
+import path ;
+
+local pb_cc_files ;
+for local proto in [ path.glob-tree . : *.proto ]
+{
+	local pb_cc_file = $(proto:S=.pb.cc) ;
+	make $(pb_cc_file) : $(proto) : @generateProtocolBuffer ;
+	explicit $(pb_cc_file) ;
+	pb_cc_files += $(pb_cc_file) ;
+	ECHO adding dependency to $(proto) ;
+}
+
+actions generateProtocolBuffer
+{
+	$(PROTOC) --cpp_out=$(<:D) --proto_path=$(>:D) $(>)
+}
+
 project 
 	: requirements 
 		<include>..
@@ -19,4 +37,10 @@ project
 		<library>/duke/sub/duke.plugin//dukehost ;
 
 explicit dukeapi ;
-lib dukeapi : [ glob-tree *.cpp ]	;
+lib dukeapi : 
+			  [ glob-tree *.cpp ]
+			  $(pb_cc_files)
+			:
+			  <dependency>$(pb_cc_files)
+		    ;
+

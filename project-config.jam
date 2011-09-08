@@ -1,3 +1,6 @@
+import path ;
+
+project project-config ;
 
 	#################
 	# HOWTO edit this file
@@ -13,14 +16,6 @@
 	# lib foo : : : : <include>/path/to/foo/include ;
 	# lib foo : : <name>foo <os>LINUX <search>/path/to/foo/lib : : <include>/path/to/foo/include ;
 	#
-	
-	project project-config ;
-	
-	ECHO ;
-	ECHO Using project-config.jam from Duke ;
-	ECHO Edit this file to use your own settings  ;
-	ECHO ;
-
 	#
 	#################
 
@@ -40,10 +35,20 @@
 
 
 
-# SFML
+# protobuf
+
+local PROTO = L:/protobuf-2.4.0a ;
+local PROTO_INCLUDE = [ path.native $(PROTO)/include ] ;
+local PROTO_BIN = [ path.native $(PROTO)/bin ] ;
+local PROTO_LIB = [ path.native $(PROTO)/lib ] ;
+constant PROTOC : [ path.native $(PROTO_BIN)/protoc ] ;
+
+lib protobuflib-dll : : <file>$(PROTO_BIN)/libprotobuf-7.dll ;
+
+lib protobuf : : <search>$(PROTO_LIB) <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
+lib protobuf : : <toolset>msvc <search>$(PROTO_LIB) <name>libprotobuf <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
 
 explicit protobuf ;
-lib protobuf ;
 	     
 # SFML
 

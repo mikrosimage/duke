@@ -8,7 +8,7 @@
 #ifndef PrototypeFactory_H_
 #define PrototypeFactory_H_
 
-#include <shader_assembler.pb.h>
+#include "shader_assembler.pb.h"
 
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
