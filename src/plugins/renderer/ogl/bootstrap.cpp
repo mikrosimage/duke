@@ -5,7 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#include <openfx/support/plugin/IPlugin.h>
+#include <dukeplugin/IPlugin.h>
 
 static bool isEqual( const char* expected, const char* actual )
 {
@@ -24,11 +24,10 @@ static bool isEqual( const char* expected, const char* actual )
 }
 
 #include "src/OGLRenderer.h"
-#include <renderer/common/ofxRenderer.h>
-#include <renderer/common/RendererSuite.h>
-
-#include <renderer/plugin/common/IRenderer.h>
-#include <renderer/plugin/common/SfmlWindow.h>
+#include <dukerenderer/ofxRenderer.h>
+#include <plugin/RendererSuite.h>
+#include <plugin/IRenderer.h>
+#include <plugin/SfmlWindow.h>
 
 #include <iostream>
 #include <cassert>

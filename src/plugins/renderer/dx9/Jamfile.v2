@@ -2,11 +2,11 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/project-config//cggl 
+    	<library>/project-config//cgd3d 
     : usage-requirements
     	<include>.. 
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/project-config//cggl 
+    	<library>/project-config//cgd3d 
     ;
 
 explicit dx9 ;

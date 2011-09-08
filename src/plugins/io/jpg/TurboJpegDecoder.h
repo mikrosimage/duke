@@ -10,7 +10,7 @@
 
 #include <dukeio/ImageDescription.h>
 #include <dukeplugin/IBoostPlugin.h>
-#include <dukehost/suite/property/PropertySuiteImpl.h>
+#include <dukeplugin/suite/property/PropertySuiteImpl.h>
 
 #include <turbojpeg.h>
 

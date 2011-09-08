@@ -14,7 +14,7 @@
 #include <iostream>
 
 bool _acceptFile(const char* filename, const bool isDirectory) {
-    return isDirectory || std::string(filename).find(".duke_io.") != std::string::npos;
+    return isDirectory || std::string(filename).find("plugin_io_") != std::string::npos;
 }
 
 bool _acceptPlug(const OfxPlugin* plug) {
