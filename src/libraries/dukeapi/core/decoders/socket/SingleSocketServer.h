@@ -1,10 +1,3 @@
-/*
- * SingleSocketServer.h
- *
- *  Created on: Dec 11, 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SingleSocketServer_H_
 #define SingleSocketServer_H_
 

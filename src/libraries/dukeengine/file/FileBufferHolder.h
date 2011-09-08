@@ -1,10 +1,3 @@
-/*
- * FileBufferHolder.h
- *
- *  Created on: 30 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef FILEBUFFERHOLDER_H_
 #define FILEBUFFERHOLDER_H_
 

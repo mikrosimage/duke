@@ -1,10 +1,3 @@
-/*
- * SimpleIterators.h
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SIMPLEITERATORS_H_
 #define SIMPLEITERATORS_H_
 

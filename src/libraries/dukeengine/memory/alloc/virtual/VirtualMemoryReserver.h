@@ -1,10 +1,3 @@
-/*
- * VirtualMemoryReserver.h
- *
- *  Created on: 16 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef VIRTUALMEMORYRESERVER_H_
 #define VIRTUALMEMORYRESERVER_H_
 

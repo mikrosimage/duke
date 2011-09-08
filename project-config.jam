@@ -46,7 +46,6 @@ explicit protobuf ;
 lib protobuflib-dll : : <file>$(PROTO_BIN)/libprotobuf-7.dll ;
 lib protobuf : : <search>$(PROTO_LIB) <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
 lib protobuf : : <toolset>msvc <search>$(PROTO_LIB) <name>libprotobuf <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
-
 	     
 # SFML
 
@@ -75,12 +74,15 @@ lib cg : : <os>MACOSX ;
 explicit cggl ;
 lib cggl : : <os>LINUX <name>CgGL <search>/datas/nro/_/3rdParty/cg_3.0
 	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
+explicit cggl ;
+lib cggl : : <os>MACOSX <name>CgGL <search>/datas/nro/_/3rdParty/cg_3.0
+	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
 
 
 # CGD3D
 
 explicit cgd3d ;
-lib cgd3d : : <name>z <search>C:\path\to\my\sfml 
+lib cgd3d : : <os>NT <name>z <search>C:\path\to\my\sfml 
  	      : : <include>C:\path\to\my\sfml\include ;
 
 

@@ -1,10 +1,3 @@
-/*
- * IBufferBase.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IBufferBase.h"
 
 IBufferBase::IBufferBase( unsigned long count )

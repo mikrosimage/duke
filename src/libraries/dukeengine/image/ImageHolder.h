@@ -1,10 +1,3 @@
-/*
- * ImageHolder.h
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGEHOLDER_H_
 #define IMAGEHOLDER_H_
 

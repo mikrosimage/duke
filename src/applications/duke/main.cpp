@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 3 nov. 2008
- *      Author: Guillaume CHATELET
- */
-
 #include "Configuration.h"
 #include <iostream>
 

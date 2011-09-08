@@ -1,10 +1,3 @@
-/*
- * IResource.h
- *
- *  Created on: 10 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IRESOURCE_H_
 #define IRESOURCE_H_
 

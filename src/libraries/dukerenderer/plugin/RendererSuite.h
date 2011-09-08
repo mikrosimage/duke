@@ -1,10 +1,3 @@
-/*
- * RendererSuite.h
- *
- *  Created on: 23 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef RENDERERSUITE_H_
 #define RENDERERSUITE_H_
 

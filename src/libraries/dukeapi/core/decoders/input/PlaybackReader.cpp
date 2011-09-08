@@ -1,10 +1,3 @@
-/*
- * PlaybackReader.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include "PlaybackReader.h"
 #include <dukeapi/core/MessageHolder.h>
 #include <dukeapi/core/stream/Helpers.h>

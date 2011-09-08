@@ -1,10 +1,3 @@
-/*
- * MessageHolder.h
- *
- *  Created on: 1 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef MESSAGEHOLDER_H_
 #define MESSAGEHOLDER_H_
 

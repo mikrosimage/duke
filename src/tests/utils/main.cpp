@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include <utils/TimeUtils.h>
 
 #define BOOST_TEST_MODULE ClipHelper

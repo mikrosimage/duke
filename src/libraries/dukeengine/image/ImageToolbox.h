@@ -1,10 +1,3 @@
-/*
- * ImageToolbox.h
- *
- *  Created on: 16 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGETOOLBOX_H_
 #define IMAGETOOLBOX_H_
 

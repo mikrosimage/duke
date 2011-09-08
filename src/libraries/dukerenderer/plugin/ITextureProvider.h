@@ -1,10 +1,3 @@
-/*
- * ITextureProvider.h
- *
- *  Created on: 1 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef ITEXTUREPROVIDER_H_
 #define ITEXTUREPROVIDER_H_
 

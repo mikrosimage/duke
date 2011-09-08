@@ -1,10 +1,3 @@
-/*
- * Chain.cpp
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Chain.h"
 
 #include <iterator>

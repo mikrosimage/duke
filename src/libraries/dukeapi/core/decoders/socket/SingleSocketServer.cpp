@@ -1,10 +1,3 @@
-/*
- * SingleSocketServer.cpp
- *
- *  Created on: Dec 11, 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "SingleSocketServer.h"
 #include <string>
 #include <iostream>

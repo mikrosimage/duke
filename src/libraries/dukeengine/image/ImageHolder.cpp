@@ -1,10 +1,3 @@
-/*
- * ImageHolder.cpp
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageHolder.h"
 
 ImageHolder::ImageHolder() {

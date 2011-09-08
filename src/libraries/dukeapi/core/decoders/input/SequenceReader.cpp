@@ -1,10 +1,3 @@
-/*
- * SequenceReader.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include "SequenceReader.h"
 #include "sequence/Sequence.hpp"
 #include <boost/foreach.hpp>

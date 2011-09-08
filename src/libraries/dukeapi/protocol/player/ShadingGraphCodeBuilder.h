@@ -1,10 +1,3 @@
-/*
- * ShadingGraphCodeBuilder.h
- *
- *  Created on: 8 mars 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SHADINGGRAPHCODEBUILDER_H_
 #define SHADINGGRAPHCODEBUILDER_H_
 

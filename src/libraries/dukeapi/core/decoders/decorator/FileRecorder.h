@@ -1,10 +1,3 @@
-/*
- * FileRecorder.h
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #ifndef FILEWRITERINPUTDECORATOR_H_
 #define FILEWRITERINPUTDECORATOR_H_
 

@@ -1,9 +1,3 @@
-/*
- * Buffer.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
 #ifndef DECLARATIONELEMENT_H_
 #define DECLARATIONELEMENT_H_
 

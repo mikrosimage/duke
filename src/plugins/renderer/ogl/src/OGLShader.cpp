@@ -1,10 +1,3 @@
-/*
- * OGLShader.cpp
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "OGLShader.h"
 #include <Cg/cgGL.h>
 

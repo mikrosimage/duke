@@ -1,10 +1,3 @@
-/*
- * PlaylistHelper.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "PlaylistHelper.h"
 #include <dukeengine/utils/TimeUtils.h>
 #include <boost/foreach.hpp>

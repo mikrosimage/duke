@@ -1,10 +1,3 @@
-/*
- * ImageDecoderFactoryImpl.h
- *
- *  Created on: 30 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGEDECODERFACTORYIMPL_H_
 #define IMAGEDECODERFACTORYIMPL_H_
 

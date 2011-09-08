@@ -1,10 +1,3 @@
-/*
- * Buffer.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Buffer.h"
 #include <cassert>
 

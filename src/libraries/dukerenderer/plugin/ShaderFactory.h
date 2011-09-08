@@ -1,10 +1,3 @@
-/*
- * ShaderFactory.h
- *
- *  Created on: 21 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SHADERFACTORY_H_
 #define SHADERFACTORY_H_
 

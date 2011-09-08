@@ -1,10 +1,3 @@
-/*
- * ImageToolbox.cpp
- *
- *  Created on: 16 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageToolbox.h"
 #include <dukeengine/file/StreamedFileIO.h>
 #include <iostream>

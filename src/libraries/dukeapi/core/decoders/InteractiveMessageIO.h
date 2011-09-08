@@ -1,10 +1,3 @@
-/*
- * InteractiveMessageIO.h
- *
- *  Created on: 22 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef INTERACTIVEDECODER_H_
 #define INTERACTIVEDECODER_H_
 

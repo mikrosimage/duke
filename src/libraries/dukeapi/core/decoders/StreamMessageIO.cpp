@@ -1,10 +1,3 @@
-/*
- * StreamMessageIO.cpp
- *
- *  Created on: 28 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "StreamMessageIO.h"
 #include <dukeapi/core/stream/Helpers.h>
 #include <boost/thread/thread.hpp>

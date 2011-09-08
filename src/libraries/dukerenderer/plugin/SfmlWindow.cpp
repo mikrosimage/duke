@@ -1,10 +1,3 @@
-/*
- * SfmlWindow.cpp
- *
- *  Created on: 5 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "SfmlWindow.h"
 #include "RendererSuite.h"
 #include <SFML/Window.hpp>

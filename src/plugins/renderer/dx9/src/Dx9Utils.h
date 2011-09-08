@@ -1,10 +1,3 @@
-/*
- * Dx9Utils.h
- *
- *  Created on: 3 juin 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DX9UTILS_H_
 #define DX9UTILS_H_
 

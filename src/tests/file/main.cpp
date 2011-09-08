@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include <memory/alloc/Allocators.h>
 #include <memory/alloc/MemoryBlock.h>
 #include <file/DmaFileIO.h>

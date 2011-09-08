@@ -1,10 +1,3 @@
-/*
- * BigAlignedBlockAllocator.cpp
- *
- *  Created on: Jan 8, 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "BigAlignedBlockAllocator.h"
 
 #include "PageSize.h"

@@ -1,10 +1,3 @@
-/*
- * TextureBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef TEXTUREBUILDER_H_
 #define TEXTUREBUILDER_H_
 

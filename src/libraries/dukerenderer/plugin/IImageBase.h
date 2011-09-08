@@ -1,10 +1,3 @@
-/*
- * IImageBase.h
- *
- *  Created on: 2 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IIMAGEBASE_H_
 #define IIMAGEBASE_H_
 

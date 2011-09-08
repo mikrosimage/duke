@@ -1,10 +1,3 @@
-/*
- * IMessageIO.h
- *
- *  Created on: 31 août 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMESSAGEIO_H_
 #define IMESSAGEIO_H_
 

@@ -1,10 +1,3 @@
-/*
- * OGLRenderer.h
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OGLRENDERER_H_
 #define OGLRENDERER_H_
 

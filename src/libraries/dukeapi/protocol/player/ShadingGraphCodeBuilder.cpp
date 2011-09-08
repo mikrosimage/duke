@@ -1,10 +1,3 @@
-/*
- * ShadingGraphCodeBuilder.cpp
- *
- *  Created on: 8 mars 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "ShadingGraphCodeBuilder.h"
 
 #include <string>

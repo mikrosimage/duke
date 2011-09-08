@@ -1,10 +1,3 @@
-/*
- * ofxRenderer.h
- *
- *  Created on: 13 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef OFXRENDERER_H_
 #define OFXRENDERER_H_
 

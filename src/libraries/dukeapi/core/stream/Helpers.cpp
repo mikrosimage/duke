@@ -1,10 +1,3 @@
-/*
- * Helpers.cpp
- *
- *  Created on: Dec 12, 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Helpers.h"
 
 #include <google/protobuf/message.h>

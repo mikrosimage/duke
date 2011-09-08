@@ -1,10 +1,3 @@
-/*
- * OGLTexture.h
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OGLTEXTURE_H_
 #define OGLTEXTURE_H_
 

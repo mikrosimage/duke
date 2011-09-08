@@ -1,10 +1,3 @@
-/*
- * Mesh.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef MESH_H_
 #define MESH_H_
 

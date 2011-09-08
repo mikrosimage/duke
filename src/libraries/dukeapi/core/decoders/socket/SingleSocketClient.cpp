@@ -1,10 +1,3 @@
-/*
- * SingleSocketClient.h
- *
- *  Created on: March 28, 2011
- *      Author: Rondaud Nicolas
- */
-
 #include "SingleSocketClient.h"
 #include <string>
 #include <iostream>

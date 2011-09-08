@@ -1,10 +1,3 @@
-/*
- * Mesh.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Mesh.h"
 #include "IRenderer.h"
 #include "IMeshBase.h"

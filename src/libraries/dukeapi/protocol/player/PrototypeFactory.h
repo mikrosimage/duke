@@ -1,10 +1,3 @@
-/*
- * PrototypeFactory.h
- *
- *  Created on: 26 oct. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PrototypeFactory_H_
 #define PrototypeFactory_H_
 

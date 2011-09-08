@@ -1,10 +1,3 @@
-/*
- * OGLShader.h
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OGLSHADER_H_
 #define OGLSHADER_H_
 

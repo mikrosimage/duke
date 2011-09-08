@@ -1,10 +1,3 @@
-/*
- * SimpleShaders.h
- *
- *  Created on: 1 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SIMPLESHADERS_H_
 #define SIMPLESHADERS_H_
 

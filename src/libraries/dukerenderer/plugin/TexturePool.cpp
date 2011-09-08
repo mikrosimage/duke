@@ -1,10 +1,3 @@
-/*
- * TexturePool.cpp
- *
- *  Created on: 31 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "TexturePool.h"
 #include "IResource.h"
 #include "utils/PixelUtils.h"

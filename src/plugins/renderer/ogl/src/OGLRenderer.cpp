@@ -1,10 +1,3 @@
-/*
- * OGLRenderer.cpp
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "OGLRenderer.h"
 #include "OGLBuffer.h"
 #include "OGLShader.h"

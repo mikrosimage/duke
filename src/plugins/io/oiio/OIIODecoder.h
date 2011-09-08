@@ -1,10 +1,3 @@
-/*
- * OIIODecoder.h
- *
- *  Created on: 6 sep 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OIIODECODER_H_
 #define OIIODECODER_H_
 

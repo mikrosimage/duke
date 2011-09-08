@@ -1,10 +1,3 @@
-/*
- * Configuration.h
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #ifndef CONFIGURATION_H_
 #define CONFIGURATION_H_
 

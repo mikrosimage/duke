@@ -1,10 +1,3 @@
-/*
- * FileBufferHolder.cpp
- *
- *  Created on: 30 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "FileBufferHolder.h"
 #include <dukeengine/image/ImageReader.h>
 #include <dukeengine/sequence/PlaylistHelper.h>

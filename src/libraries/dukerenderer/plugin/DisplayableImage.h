@@ -1,10 +1,3 @@
-/*
- * DisplayableImage.h
- *
- *  Created on: 10 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DISPLAYABLEIMAGE_H_
 #define DISPLAYABLEIMAGE_H_
 

@@ -1,10 +1,3 @@
-/*
- * MessageQueue.h
- *
- *  Created on: 15 juin 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef MESSAGEQUEUE_H_
 #define MESSAGEQUEUE_H_
 

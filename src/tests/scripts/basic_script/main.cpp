@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include <dukeapi/protocol/player/communication.pb.h>
 #include "OutputStreamHelper.h"
 #include <fstream>

@@ -1,10 +1,3 @@
-/*
- * ScopedIUnknownPtr.h
- *
- *  Created on: 10 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SCOPEDIUNKNOWNPTR_H_
 #define SCOPEDIUNKNOWNPTR_H_
 

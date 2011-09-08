@@ -1,10 +1,3 @@
-/*
- * IRenderer.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IRenderer.h"
 #include "VolatileTexture.h"
 #include "DisplayableImage.h"

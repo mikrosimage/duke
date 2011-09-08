@@ -1,10 +1,3 @@
-/*
- * MeshBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef MESHBUILDER_H_
 #define MESHBUILDER_H_
 

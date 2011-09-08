@@ -1,10 +1,3 @@
-/*
- * PageSize.h
- *
- *  Created on: Jan 9, 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PAGESIZE_H_
 #define PAGESIZE_H_
 

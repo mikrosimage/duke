@@ -1,10 +1,3 @@
-/*
- * bootstrap.cpp
- *
- *  Created on: 13 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include <openfx/support/plugin/IPlugin.h>
 
 static bool isEqual(const char* expected, const char* actual) {

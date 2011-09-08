@@ -1,10 +1,3 @@
-/*
- * ChainOStream.cpp
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ChainOStream.h"
 
 using namespace std;

@@ -1,10 +1,3 @@
-/*
- * InteractiveMessageIO.cpp
- *
- *  Created on: 22 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "InteractiveMessageIO.h"
 #include <dukeapi/core/queue/MessageQueue.h>
 #include <dukeapi/core/MessageHolder.h>

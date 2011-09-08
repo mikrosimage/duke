@@ -1,10 +1,3 @@
-/*
- * Playback.cpp
- *
- *  Created on: 5 sept. 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "Playback.h"
 
 using namespace std;

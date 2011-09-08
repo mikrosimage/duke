@@ -1,10 +1,3 @@
-/*
- * Dx9Buffer.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DX9BUFFER_H_
 #define DX9BUFFER_H_
 

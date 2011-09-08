@@ -1,10 +1,3 @@
-/*
- * ChainOStream.h
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef CHAINOSTREAM_H_
 #define CHAINOSTREAM_H_
 

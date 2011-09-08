@@ -1,10 +1,3 @@
-/*
- * Dx9Enum.cpp
- *
- *  Created on: 17 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "DX9Enum.h"
 
 #include <renderer/plugin/common/Enums.h>

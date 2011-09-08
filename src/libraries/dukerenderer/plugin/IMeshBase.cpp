@@ -1,10 +1,3 @@
-/*
- * IMeshBase.cpp
- *
- *  Created on: 24 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IMeshBase.h"
 #include "IRenderer.h"
 

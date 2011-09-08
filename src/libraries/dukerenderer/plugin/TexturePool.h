@@ -1,10 +1,3 @@
-/*
- * TexturePool.h
- *
- *  Created on: 31 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef TEXTUREPOOL_H_
 #define TEXTUREPOOL_H_
 

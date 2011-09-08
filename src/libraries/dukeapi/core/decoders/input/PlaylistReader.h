@@ -1,10 +1,3 @@
-/*
- * PlaylistReader.h
- *
- *  Created on: 25 aout 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef PLAYLISTREADER_H_
 #define PLAYLISTREADER_H_
 

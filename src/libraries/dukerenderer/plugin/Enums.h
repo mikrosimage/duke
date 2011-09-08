@@ -1,10 +1,3 @@
-/*
- * Enums.h
- *
- *  Created on: 17 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef ENUMS_H_
 #define ENUMS_H_
 

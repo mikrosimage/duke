@@ -1,10 +1,3 @@
-/*
- * ProtoBufResource.h
- *
- *  Created on: 12 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PROTOBUFRESOURCE_H_
 #define PROTOBUFRESOURCE_H_
 

@@ -1,10 +1,3 @@
-/*
- * ImageDescription.h
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGEDESCRIPTION_H_
 #define IMAGEDESCRIPTION_H_
 

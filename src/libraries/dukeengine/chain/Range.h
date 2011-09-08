@@ -1,10 +1,3 @@
-/*
- * OnePassRange.h
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef RANGE_H_
 #define RANGE_H_
 

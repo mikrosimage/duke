@@ -1,10 +1,3 @@
-/*
- * Dx9Utils.cpp
- *
- *  Created on: 3 juin 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "Dx9Utils.h"
 #include <Cg/cgD3D9.h>
 

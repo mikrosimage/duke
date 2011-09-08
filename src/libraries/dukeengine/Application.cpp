@@ -1,10 +1,3 @@
-/*
- * Application.cpp
- *
- *  Created on: 13 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Application.h"
 #include "host/renderer/Renderer.h"
 #include <dukeapi/protocol/player/communication.pb.h>

@@ -1,10 +1,3 @@
-/*
- * IFactory.cpp
- *
- *  Created on: 19 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IFactory.h"
 #include <iostream>
 

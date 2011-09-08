@@ -1,10 +1,3 @@
-/*
- * ImageReader.h
- *
- *  Created on: 1 oct. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGEREADER_H_
 #define IMAGEREADER_H_
 

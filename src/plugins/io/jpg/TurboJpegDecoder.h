@@ -1,10 +1,3 @@
-/*
- * TurboJpegDecoder.h
- *
- *  Created on: 05 sep. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef TURBOJPEGDECODER_H_
 #define TURBOJPEGDECODER_H_
 

@@ -1,10 +1,3 @@
-/*
- * ParameterBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef PARAMETERBUILDER_H_
 #define PARAMETERBUILDER_H_
 

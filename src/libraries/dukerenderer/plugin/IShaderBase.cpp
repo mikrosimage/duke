@@ -1,10 +1,3 @@
-/*
- * IShaderBase.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IShaderBase.h"
 #include <iostream>
 #include <stdexcept>

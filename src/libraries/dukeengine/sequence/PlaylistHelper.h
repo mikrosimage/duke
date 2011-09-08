@@ -1,10 +1,3 @@
-/*
- * PlaylistHelper.h
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PLAYLISTHELPER_H_
 #define PLAYLISTHELPER_H_
 

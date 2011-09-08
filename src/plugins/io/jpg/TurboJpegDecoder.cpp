@@ -1,10 +1,3 @@
-/*
- * TurboJpegDecoder.cpp
- *
- *  Created on: 18 oct. 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "TurboJpegDecoder.h"
 #include <dukeio/ofxDukeIo.h>
 #include <boost/bind.hpp>

@@ -1,10 +1,3 @@
-/*
- * ImageDecoderFactory.cpp
- *
- *  Created on: 7 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageDecoderFactory.h"
 #include "ImageDecoderFactoryImpl.h"
 

@@ -1,10 +1,3 @@
-/*
- * PlaylistReader.cpp
- *
- *  Created on: 25 aout 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "PlaylistReader.h"
 #include <dukeapi/core/messageBuilder/Commons.h>
 #include <google/protobuf/text_format.h>

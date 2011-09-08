@@ -1,10 +1,3 @@
-/*
- * ImageDecoderFactory.h
- *
- *  Created on: 7 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGEDECODERFACTORY_H_
 #define IMAGEDECODERFACTORY_H_
 

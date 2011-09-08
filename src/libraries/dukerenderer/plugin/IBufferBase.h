@@ -1,10 +1,3 @@
-/*
- * IBufferBase.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IBUFFERBASE_H_
 #define IBUFFERBASE_H_
 

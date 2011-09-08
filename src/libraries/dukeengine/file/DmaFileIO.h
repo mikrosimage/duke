@@ -1,10 +1,3 @@
-/*
- * DmaFileIO.h
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DMAFILEIO_H_
 #define DMAFILEIO_H_
 
