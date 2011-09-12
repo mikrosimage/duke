@@ -1,10 +1,3 @@
-/*
- * DisplayTiming.cpp
- *
- *  Created on: 26 août 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "Timings.h"
 
 #include <iostream>

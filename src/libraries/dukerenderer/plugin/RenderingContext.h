@@ -1,10 +1,3 @@
-/*
- * RenderingContext.h
- *
- *  Created on: 10 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef RENDERINGCONTEXT_H_
 #define RENDERINGCONTEXT_H_
 

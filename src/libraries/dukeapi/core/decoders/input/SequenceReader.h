@@ -1,10 +1,3 @@
-/*
- * SequenceReader.h
- *
- *  Created on: 25 aout 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef SEQUENCEREADER_H_
 #define SEQUENCEREADER_H_
 

@@ -1,10 +1,3 @@
-/*
- * MemoryUtilsTest.cpp
- *
- *  Created on: 19 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #define BOOST_TEST_MODULE MemoryUtils
 #include <boost/test/unit_test.hpp>
 

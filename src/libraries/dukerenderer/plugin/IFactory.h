@@ -1,10 +1,3 @@
-/*
- * IFactory.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IFACTORY_H_
 #define IFACTORY_H_
 

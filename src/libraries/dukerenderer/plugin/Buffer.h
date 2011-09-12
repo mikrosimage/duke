@@ -1,10 +1,3 @@
-/*
- * Buffer.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef BUFFER_H_
 #define BUFFER_H_
 

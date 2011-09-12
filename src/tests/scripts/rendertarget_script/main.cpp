@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 24 juil. 2009
- *      Author: Michael ETIENNE
- */
-
 #include <dukeapi/protocol/player/communication.pb.h>
 #include "OutputStreamHelper.h"
 #include <fstream>

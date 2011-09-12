@@ -1,10 +1,3 @@
-/*
- * ImageReader.cpp
- *
- *  Created on: 1 oct. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageReader.h"
 #include <dukeengine/file/DmaFileIO.h>
 #include <dukeengine/file/MappedFileIO.h>

@@ -1,10 +1,3 @@
-/*
- * IDeclaration.h
- *
- *  Created on: 18 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DECLARATION_H_
 #define DECLARATION_H_
 

@@ -1,10 +1,3 @@
-/*
- * OGLTexture.cpp
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "OGLTexture.h"
 #include "OGLRenderer.h"
 #include "OGLEnum.h"

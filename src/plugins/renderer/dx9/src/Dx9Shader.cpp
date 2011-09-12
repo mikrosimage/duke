@@ -1,10 +1,3 @@
-/*
- * Dx9Shader.cpp
- *
- *  Created on: 19 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Dx9Shader.h"
 #include <Cg/cgD3D9.h>
 

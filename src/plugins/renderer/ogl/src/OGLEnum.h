@@ -1,10 +1,3 @@
-/*
- * OGLEnum.h
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OGLENUM_H_
 #define OGLENUM_H_
 

@@ -1,10 +1,3 @@
-/*
- * ResourceManager.h
- *
- *  Created on: 19 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef RESOURCEMANAGER_H_
 #define RESOURCEMANAGER_H_
 

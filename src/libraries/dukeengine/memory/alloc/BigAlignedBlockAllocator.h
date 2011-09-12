@@ -22,8 +22,6 @@
  *
  * All memory requested will be page aligned to allow very DMA transfer.
  *
- *  Created on: Jan 8, 2011
- *      Author: Guillaume Chatelet
  */
 
 #ifndef BIGALIGNEDBLOCKALLOCATOR_H_

@@ -1,10 +1,3 @@
-/*
- * GradingBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef GRADINGBUILDER_H_
 #define GRADINGBUILDER_H_
 

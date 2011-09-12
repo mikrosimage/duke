@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include <sequence/ClipHelper.h>
 #include <sequence/PlaylistHelper.h>
 #include <dukeapi/protocol/player/communication.pb.h>

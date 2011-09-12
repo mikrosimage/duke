@@ -1,10 +1,3 @@
-/*
- * DisplayableImage.cpp
- *
- *  Created on: 10 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Enums.h"
 #include "DisplayableImage.h"
 #include "IFactory.h"

@@ -1,10 +1,3 @@
-/*
- * OfxDukeIo.h
- *
- *  Created on: 27 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef OFXDUKEIO_H_
 #define OFXDUKEIO_H_
 

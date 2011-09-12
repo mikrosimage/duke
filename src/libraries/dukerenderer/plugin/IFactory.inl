@@ -1,10 +1,3 @@
-/*
- * IFactory.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 template <class T>
 inline Buffer<T> IFactory::createVertexBuffer(unsigned long size, unsigned long flags, const T* data) const
 {

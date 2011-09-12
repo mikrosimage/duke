@@ -1,10 +1,3 @@
-/*
- * Memory.h
- *
- *  Created on: 16 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef MEMORYUTILS_H_
 #define MEMORYUTILS_H_
 

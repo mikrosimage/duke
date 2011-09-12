@@ -1,10 +1,3 @@
-/*
- * ProtoBufResource.cpp
- *
- *  Created on: 12 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ProtoBufResource.h"
 #include <google/protobuf/message.h>
 

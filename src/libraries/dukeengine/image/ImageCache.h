@@ -1,10 +1,3 @@
-/*
- * ImageCache.h
- *
- *  Created on: 10 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMAGECACHE_H_
 #define IMAGECACHE_H_
 

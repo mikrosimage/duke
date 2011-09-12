@@ -1,10 +1,3 @@
-/*
- * IRenderer.h
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IRENDERER_H_
 #define IRENDERER_H_
 

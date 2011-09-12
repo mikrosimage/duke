@@ -1,10 +1,3 @@
-/*
- * OGLEnum.cpp
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "OGLEnum.h"
 
 #include <plugin/utils/PixelUtils.h>

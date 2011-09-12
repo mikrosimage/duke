@@ -1,10 +1,3 @@
-/*
- * MappedFileIO.h
- *
- *  Created on: 31 aout 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef MAPPEDFILEIO_H_
 #define MAPPEDFILEIO_H_
 

@@ -1,10 +1,3 @@
-/*
- * Dx9Buffer.cpp
- *
- *  Created on: 11 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Dx9Buffer.h"
 #include "DX9Enum.h"
 

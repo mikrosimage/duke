@@ -1,10 +1,3 @@
-/*
- * Allocators.h
- *
- *  Created on: 20 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef ALLOCATORS_H_
 #define ALLOCATORS_H_
 

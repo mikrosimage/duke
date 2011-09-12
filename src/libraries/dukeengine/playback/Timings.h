@@ -1,10 +1,3 @@
-/*
- * DisplayTiming.h
- *
- *  Created on: 26 août 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DISPLAYTIMING_H_
 #define DISPLAYTIMING_H_
 

@@ -1,10 +1,3 @@
-/*
- * DmaFileIO.cpp
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifdef _WIN32
 
 #include "DmaFileIO.h"

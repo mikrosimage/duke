@@ -1,10 +1,3 @@
-/*
- * FileRecorder.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include "FileRecorder.h"
 #include <dukeapi/protocol/player/communication.pb.h>
 #include <dukeapi/core/stream/Helpers.h>

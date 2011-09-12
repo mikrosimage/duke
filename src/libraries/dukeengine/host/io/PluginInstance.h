@@ -1,10 +1,3 @@
-/*
- * PluginInstance.h
- *
- *  Created on: 30 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PLUGININSTANCE_H_
 #define PLUGININSTANCE_H_
 

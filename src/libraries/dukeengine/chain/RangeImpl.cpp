@@ -1,10 +1,3 @@
-/*
- * RangeImpl.cpp
- *
- *  Created on: 15 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "RangeImpl.h"
 #include <stdexcept>
 

@@ -1,10 +1,3 @@
-/*
- * Commons.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef COMMONS_H_
 #define COMMONS_H_
 

@@ -1,10 +1,3 @@
-/*
- * ProtobufFactory.cpp
- *
- *  Created on: 29 oct. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "PrototypeFactory.h"
 
 using namespace std;

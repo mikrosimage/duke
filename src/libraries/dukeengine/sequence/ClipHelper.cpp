@@ -1,10 +1,3 @@
-/*
- * ClipHelper.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ClipHelper.h"
 #include <dukeengine/utils/Rational.h>
 

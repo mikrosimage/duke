@@ -1,10 +1,3 @@
-/*
- * PlaybackReader.h
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PLAYBACKREADER_H_
 #define PLAYBACKREADER_H_
 

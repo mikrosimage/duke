@@ -1,10 +1,3 @@
-/*
- * Configuration.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include "Configuration.h"
 #include <dukeengine/Application.h>
 #include <dukeapi/core/decoders/input/PlaybackReader.h>

@@ -1,10 +1,3 @@
-/*
- * Metronom.h
- *
- *  Created on: 15 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef TIMEUTILS_H_
 #define TIMEUTILS_H_
 

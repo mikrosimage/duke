@@ -1,10 +1,3 @@
-/*
- * StreamedFileIO.h
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef STREAMEDFILEIO_H_
 #define STREAMEDFILEIO_H_
 

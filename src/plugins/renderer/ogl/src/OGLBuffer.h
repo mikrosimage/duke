@@ -1,10 +1,3 @@
-/*
- * OGLBuffer.h
- *
- *  Created on: 02 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef OGLBUFFER_H_
 #define OGLBUFFER_H_
 

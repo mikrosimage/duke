@@ -1,10 +1,3 @@
-/*
- * ClipBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef CLIPBUILDER_H_
 #define CLIPBUILDER_H_
 

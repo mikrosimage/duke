@@ -1,10 +1,3 @@
-/*
- * Chain.h
- *
- *  Created on: 10 nov. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef CHAIN_H_
 #define CHAIN_H_
 

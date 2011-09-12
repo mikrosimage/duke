@@ -1,10 +1,3 @@
-/*
- * ShaderFactory.cpp
- *
- *  Created on: 21 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ShaderFactory.h"
 #include <dukeapi/protocol/player/ShadingGraphCodeBuilder.h>
 #include "ProtoBufResource.h"

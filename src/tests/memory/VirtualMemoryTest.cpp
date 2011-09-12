@@ -1,10 +1,3 @@
-/*
- * main.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #define BOOST_TEST_MODULE VirtualMemoryBlock
 #include <boost/test/unit_test.hpp>
 

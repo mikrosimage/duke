@@ -1,10 +1,3 @@
-/*
- * IMeshBase.h
- *
- *  Created on: 24 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IMESHBASE_H_
 #define IMESHBASE_H_
 

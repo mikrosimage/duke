@@ -1,10 +1,3 @@
-/*
- * Metronom.cpp
- *
- *  Created on: 15 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "TimeUtils.h"
 
 Rational getMicrosecondsPerFrame( const Rational& framerate )

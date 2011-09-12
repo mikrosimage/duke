@@ -1,10 +1,3 @@
-/*
- * OIIODecoder.cpp
- *
- *  Created on: 6 sep 2010
- *      Author: Nicolas Rondaud
- */
-
 #include "OIIODecoder.h"
 #include <dukeio/ofxDukeIo.h>
 #include <boost/bind.hpp>

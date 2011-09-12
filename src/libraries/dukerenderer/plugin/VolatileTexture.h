@@ -1,10 +1,3 @@
-/*
- * VolatileTexture.h
- *
- *  Created on: 1 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef VOLATILETEXTURE_H_
 #define VOLATILETEXTURE_H_
 

@@ -1,10 +1,3 @@
-/*
- * StreamedFileIO.cpp
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "StreamedFileIO.h"
 #include <iostream>
 #include <fstream>

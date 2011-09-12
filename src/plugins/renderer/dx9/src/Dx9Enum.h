@@ -1,10 +1,3 @@
-/*
- * Dx9Enum.h
- *
- *  Created on: 17 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DX9ENUM_H_
 #define DX9ENUM_H_
 

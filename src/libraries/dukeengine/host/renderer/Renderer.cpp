@@ -1,10 +1,3 @@
-/*
- * Renderer.cpp
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Renderer.h"
 #include <dukehost/HostUtils.h>
 #include <dukeplugin/OstreamHelper.h>

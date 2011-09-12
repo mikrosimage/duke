@@ -1,10 +1,3 @@
-/*
- * FileGrabber.h
- *
- *  Created on: 19 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef FILEGRABBER_H_
 #define FILEGRABBER_H_
 

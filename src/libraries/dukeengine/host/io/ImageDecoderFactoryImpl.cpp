@@ -1,10 +1,3 @@
-/*
- * ImageDecoderFactoryImpl.cpp
- *
- *  Created on: 30 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageDecoderFactoryImpl.h"
 
 #include <dukehost/HostUtils.h>

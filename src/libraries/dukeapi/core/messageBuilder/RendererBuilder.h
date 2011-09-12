@@ -1,10 +1,3 @@
-/*
- * RendererBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef RENDERERBUILDER_H
 #define RENDERERBUILDER_H
 

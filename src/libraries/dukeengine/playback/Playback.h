@@ -1,10 +1,3 @@
-/*
- * Playback.h
- *
- *  Created on: 5 sept. 2011
- *      Author: Guillaume Chatelet
- */
-
 #ifndef PLAYBACK_H_
 #define PLAYBACK_H_
 

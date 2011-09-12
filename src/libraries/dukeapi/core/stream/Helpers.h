@@ -1,10 +1,3 @@
-/*
- * Helpers.h
- *
- *  Created on: Dec 12, 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef HELPERS_H_
 #define HELPERS_H_
 

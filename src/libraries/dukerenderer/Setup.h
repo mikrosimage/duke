@@ -1,10 +1,3 @@
-/*
- * Setup.h
- *
- *  Created on: 28 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SETUP_H_
 #define SETUP_H_
 

@@ -1,10 +1,3 @@
-/*
- * StreamMessageIO.h
- *
- *  Created on: 28 juin 2010
- *      Author: Nicolas Rondaud
- */
-
 #ifndef STREAMMESSAGEIO_H_
 #define STREAMMESSAGEIO_H_
 

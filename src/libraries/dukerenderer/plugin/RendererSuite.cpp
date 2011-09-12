@@ -1,10 +1,3 @@
-/*
- * RendererSuite.cpp
- *
- *  Created on: 23 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "RendererSuite.h"
 
 using namespace ::google::protobuf;

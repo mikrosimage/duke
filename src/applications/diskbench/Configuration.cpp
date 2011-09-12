@@ -1,10 +1,3 @@
-/*
- * Configuration.cpp
- *
- *  Created on: 15 avr. 2009
- *      Author: Guillaume Chatelet
- */
-
 #include "Configuration.h"
 #ifdef _WIN32
     #include <dukeengine/file/DmaFileIO.h>

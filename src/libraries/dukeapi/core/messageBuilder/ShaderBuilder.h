@@ -1,10 +1,3 @@
-/*
- * ShaderBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef SHADERBUILDER_H_
 #define SHADERBUILDER_H_
 

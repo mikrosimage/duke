@@ -1,10 +1,3 @@
-/*
- * MessageQueue.cpp
- *
- *  Created on: 15 juin 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "MessageQueue.h"
 
 void MessageQueue::push(const SharedMessage& holder) {

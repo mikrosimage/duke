@@ -1,10 +1,3 @@
-/*
- * Durations.h
- *
- *  Created on: 30 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DURATIONS_H_
 #define DURATIONS_H_
 

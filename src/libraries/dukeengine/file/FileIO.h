@@ -1,10 +1,3 @@
-/*
- * FileIO.h
- *
- *  Created on: 19 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef FILEIO_H_
 #define FILEIO_H_
 

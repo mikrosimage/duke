@@ -1,10 +1,3 @@
-/*
- * DpxDecoder.h
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DPXDECODER_H_
 #define DPXDECODER_H_
 

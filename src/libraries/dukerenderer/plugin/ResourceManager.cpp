@@ -1,10 +1,3 @@
-/*
- * ResourceManager.cpp
- *
- *  Created on: 19 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ResourceManager.h"
 #include "IResource.h"
 #include <string>

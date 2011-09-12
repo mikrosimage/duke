@@ -1,10 +1,3 @@
-/*
- * ClipHelper.h
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef CLIPHELPER_H_
 #define CLIPHELPER_H_
 

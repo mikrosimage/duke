@@ -1,10 +1,3 @@
-/*
- * Renderer.h
- *
- *  Created on: 14 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef RENDERER_H_
 #define RENDERER_H_
 

@@ -1,10 +1,3 @@
-/*
- * Dx9Renderer.h
- *
- *  Created on: 22 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef DX9RENDERER_H_
 #define DX9RENDERER_H_
 

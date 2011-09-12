@@ -1,10 +1,3 @@
-/*
- * SfmlProtobufUtils.h
- *
- *  Created on: 6 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SFMLPROTOBUFUTILS_H_
 #define SFMLPROTOBUFUTILS_H_
 

@@ -1,10 +1,3 @@
-/*
- * VolatileTexture.cpp
- *
- *  Created on: 1 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "VolatileTexture.h"
 #include "IFactory.h"
 #include "ITextureBase.h"

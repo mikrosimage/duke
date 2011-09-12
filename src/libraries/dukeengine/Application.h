@@ -1,10 +1,3 @@
-/*
- * Application.h
- *
- *  Created on: 13 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
@@ -12,7 +5,6 @@
 #include "file/FileBufferHolder.h"
 #include "playback/Playback.h"
 #include "time_statistics/Durations.h"
-//#include "time/FramePresenter.h"
 #include "playback/Timings.h"
 #include "sequence/PlaylistHelper.h"
 #include "image/ImageCache.h"

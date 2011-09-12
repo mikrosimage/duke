@@ -1,10 +1,3 @@
-/*
- * Dx9Renderer.cpp
- *
- *  Created on: 22 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Dx9Renderer.h"
 #include "Dx9Buffer.h"
 #include "Dx9Shader.h"

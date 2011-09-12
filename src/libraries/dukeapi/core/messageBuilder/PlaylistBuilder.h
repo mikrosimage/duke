@@ -1,10 +1,3 @@
-/*
- * PlaylistBuilder.h
- *
- *  Created on: 14 avr. 2011
- *      Author: Nicolas Rondaud
- */
-
 #ifndef PLAYLISTBUILDER_H_
 #define PLAYLISTBUILDER_H_
 

@@ -1,10 +1,3 @@
-/*
- * PluginInstance.cpp
- *
- *  Created on: 30 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "PluginInstance.h"
 #include <dukeio/ofxDukeIo.h>
 #include <dukehost/HostUtils.h>

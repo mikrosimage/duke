@@ -1,13 +1,5 @@
-/*
- * IResourceType.h
- *
- *  Created on: 3 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef IRESOURCETYPE_H_
 #define IRESOURCETYPE_H_
-
 
 namespace resource {
 

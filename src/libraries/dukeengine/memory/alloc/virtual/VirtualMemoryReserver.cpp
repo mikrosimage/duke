@@ -1,10 +1,3 @@
-/*
- * VirtualMemoryReserver.cpp
- *
- *  Created on: 16 avr. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifdef _WIN32
 
 #include "VirtualMemoryReserver.h"

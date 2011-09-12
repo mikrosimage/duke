@@ -1,10 +1,3 @@
-/*
- * IImageBase.cpp
- *
- *  Created on: 2 juin 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "IImageBase.h"
 #include "utils/PixelUtils.h"
 

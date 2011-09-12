@@ -1,10 +1,3 @@
-/*
- * Enums.cpp
- *
- *  Created on: 18 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "Enums.h"
 #include "utils/PixelUtils.h"
 

@@ -1,10 +1,3 @@
-/*
- * SfmlWindow.h
- *
- *  Created on: 5 juil. 2010
- *      Author: Guillaume Chatelet
- */
-
 #ifndef SFMLWINDOW_H_
 #define SFMLWINDOW_H_
 

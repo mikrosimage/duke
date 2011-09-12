@@ -1,10 +1,3 @@
-/*
- * DpxDecoder.cpp
- *
- *  Created on: 5 mai 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "DpxDecoder.h"
 #include <dukeio/ofxDukeIo.h>
 #include <boost/bind.hpp>

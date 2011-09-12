@@ -1,14 +1,6 @@
-###############################################################################
-## Tests
-## author Guillaume Chatelet (2009)
-###############################################################################
-
 # bring in the rules for testing
 import testing ;
 
-###############################################################################
-# Executing tests
-###############################################################################
 # Generating the test file
 run main.cpp /player_model//PlayerPBModel : test-tmp/datas.pb test-tmp/SimpleTransform.fx ;
 

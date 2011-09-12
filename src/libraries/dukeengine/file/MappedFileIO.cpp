@@ -1,10 +1,3 @@
-/*
- * MappedFileIO.cpp
- *
- *  Created on: 31 aout 2011
- *      Author: Nicolas Rondaud
- */
-
 #include "MappedFileIO.h"
 #include <iostream>
 #include <fstream>

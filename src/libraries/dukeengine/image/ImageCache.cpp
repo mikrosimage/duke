@@ -1,10 +1,3 @@
-/*
- * ImageCache.cpp
- *
- *  Created on: 10 sept. 2010
- *      Author: Guillaume Chatelet
- */
-
 #include "ImageCache.h"
 #include <iostream>
 

@@ -1,10 +1,3 @@
-/*
- * IMessageOutput.cpp
- *
- *  Created on: 15 juin 2011
- *      Author: Guillaume Chatelet
- */
-
 #include "IMessageIO.h"
 
 using namespace google::protobuf;
