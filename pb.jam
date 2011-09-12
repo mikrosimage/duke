@@ -1,0 +1,112 @@
+import modules ;
+import feature ;
+import errors ;
+import type ;
+import path ;
+import utility ;
+import "class" : new ;
+import generators ;
+import project ;
+import toolset : flags ;
+import common ;
+
+project.initialize $(__name__) ;
+project pb ;
+
+.project = [ project.current ] ;
+
+rule init ( prefix )
+{
+    project.push-current $(.project) ;
+
+	.prefix = $(prefix) ;
+
+	.incprefix = $(prefix)/include ;
+	.libprefix = $(prefix)/lib ;
+	.binprefix = $(prefix)/bin ;   
+	.protoc = $(.binprefix)/protoc ;
+	.copy = [ common.copy-command ] ;
+  
+	if ! $(.initialized)
+	{
+		.initialized = true ;
+		
+		type.register PROTO : proto ;
+		generators.register [ new proto-generator pb.protoc : PROTO : HPP(%.pb) CPP(%.pb)  ] ;
+		.PREFIX = $(prefix) ;
+	}
+	
+	lib protobuflib-dll : : <file>$(.binprefix)/libprotobuf-7.dll ;
+	lib protobuf : : <search>$(.libprefix) <os>NT:<library>protobuflib-dll : : <include>$(.incprefix) ;
+	lib protobuf : : <toolset>msvc <search>$(.libprefix) <name>libprotobuf <os>NT:<library>protobuflib-dll : : <include>$(.incprefix) ;
+	
+	project.pop-current ;
+}
+
+rule initialized ( )
+{
+  return $(.initialized) ;
+}
+
+class proto-generator : generator 
+{
+  rule __init__ ( * : * )
+  {
+    generator.__init__ $(1) : $(2) : $(3) : $(4) : $(5) : $(6) : $(7) : $(8) : $(9) ;
+  }
+
+  rule run ( project name ? : property-set : sources * )
+  {
+     if ! $(sources[2])
+     { 
+       local t = [ $(sources[1]).type ] ;
+       if $(t) = PROTO
+       {
+         if ! $(name)
+         {
+           name = [ generator.determine-output-name $(sources) ] ;
+           name = $(name)".pb" ;
+         }
+
+         local a = [ new action $(sources[1]) : pb.protoc : $(property-set) ] ;
+
+         local cpp_suffix = [ type.generated-target-suffix CPP : $(property-set) ] ;
+         local hpp_suffix = [ type.generated-target-suffix HPP : $(property-set) ] ;
+         
+         type.change-generated-target-suffix CPP : $(property-set) : "cc" ;
+         type.change-generated-target-suffix HPP : $(property-set) : "h" ;
+
+         local cpp_target = [ new file-target $(name) : CPP : $(project) : $(a) ] ;
+         local hpp_target = [ new file-target $(name) : HPP : $(project) : $(a) ] ;
+         
+         type.change-generated-target-suffix CPP : $(property-set) : $(cpp_suffix) ;
+         type.change-generated-target-suffix HPP : $(property-set) : $(hpp_suffix) ;
+
+         # DEPENDS all : [ $(cpp_target).actualize ] ;
+
+         return [ virtual-target.register $(hpp_target) ] [ virtual-target.register $(cpp_target) ] ;
+      }
+    }
+  }
+}
+
+local rule ungrist ( value : steps * )
+{
+	local ungristed = [ MATCH ^<p(.*)>$ : $(value:G) ] ; 
+	return [ path.native [ path.join [ path.pwd ] $(ungristed) $(steps) ] ] ; # normalizing
+}
+
+rule protoc ( targets * : sources * : properties * )
+{
+	local relative_dir = $(>:D) ;
+    OUT_DIR on $(targets) = [ ungrist $(targets[0]) : $(relative_dir) ] ;
+    local proto_file = [ ungrist $(>) : $(relative_dir) $(>:D=:G=) ] ;
+	PROTO_FILE on $(targets) = $(proto_file) ;
+	PROTO_DIR on $(targets) = $(proto_file:D) ;
+}
+
+actions protoc
+{
+  	$(.protoc) --cpp_out=$(OUT_DIR) --proto_path=$(PROTO_DIR) $(PROTO_FILE)
+  	$(.copy) $(<[2]) $(PROTO_DIR)
+}

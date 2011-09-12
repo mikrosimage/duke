@@ -35,69 +35,62 @@ project project-config ;
 
 
 
-# PROTOBUF
+# protobuf
+using pb : L:/protobuf-2.4.0a ;
 
-local PROTO = /datas/nro/_/3rdParty/protobuf-2.4.0a ;
-local PROTO_INCLUDE = [ path.native $(PROTO)/include ] ;
-local PROTO_BIN = [ path.native $(PROTO)/bin ] ;
-local PROTO_LIB = [ path.native $(PROTO)/lib ] ;
-constant PROTOC : [ path.native $(PROTO_BIN)/protoc ] ;
-explicit protobuf ;
-lib protobuflib-dll : : <file>$(PROTO_BIN)/libprotobuf-7.dll ;
-lib protobuf : : <search>$(PROTO_LIB) <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
-lib protobuf : : <toolset>msvc <search>$(PROTO_LIB) <name>libprotobuf <os>NT:<library>protobuflib-dll : : <include>$(PROTO_INCLUDE) ;
-
-	     
 # SFML
+local SFML = L:/SFML ;
+local SFML_LIB = $(SFML)/lib ;
+local SFML_EXTLIB = $(SFML)/extlibs/bin/x86 ;
 
-local SFML = /datas/nro/_/3rdParty/SFML2.0 ;
 explicit sfml sfml-graphics sfml-system sfml-window sfml-audio ;
-lib sfml-graphics : : <os>LINUX <name>sfml-graphics <search>$(SFML)/build/lib ;
-lib sfml-system : : <os>LINUX <name>sfml-system <search>$(SFML)/build/lib ;
-lib sfml-window : : <os>LINUX <name>sfml-window <search>$(SFML)/build/lib ;
-lib sfml-audio : : <os>LINUX <name>sfml-audio <search>$(SFML)/build/lib ;
-alias sfml : sfml-graphics sfml-system sfml-window sfml-audio : <os>LINUX : : <include>$(SFML)/include ;
-lib sfml : : <os>NT <name>zlib <search>C:\path\to\my\sfml ;
-lib sfml : : <os>MACOSX <name>z <search>/path/to/my/sfml : : <include>/path/to/my/sfml/include ;
+lib openal32    : : <file>$(SFML_EXTLIB)/openal32.dll ;
+lib libsndfile    : : <file>$(SFML_EXTLIB)/libsndfile-1.dll ;
 
+lib sfml-graphics-2 : : <file>$(SFML_LIB)/sfml-graphics-2.dll ;
+lib sfml-system-2   : : <file>$(SFML_LIB)/sfml-system-2.dll ;
+lib sfml-window-2   : : <file>$(SFML_LIB)/sfml-window-2.dll ;
+lib sfml-audio-2    : openal32 libsndfile : <file>$(SFML_LIB)/sfml-audio-2.dll ;
+
+lib sfml-graphics  : : <search>$(SFML_LIB) <os>NT:<dependency>sfml-graphics-2 ;
+lib sfml-system    : : <search>$(SFML_LIB) <os>NT:<dependency>sfml-system-2   ;
+lib sfml-window    : : <search>$(SFML_LIB) <os>NT:<dependency>sfml-window-2   ;
+lib sfml-audio     : : <search>$(SFML_LIB) <os>NT:<dependency>sfml-audio-2    ;
+
+alias sfml : sfml-graphics sfml-system sfml-window sfml-audio 
+		   : : : <include>$(SFML)/include ;
 
 # CG
 
 explicit cg ;
-lib cg : : <os>LINUX <name>Cg <search>/datas/nro/_/3rdParty/cg_3.0/lib64
-	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
-lib cg : : <os>NT ;
-lib cg : : <os>MACOSX ;
+lib cg : : <os>LINUX 
+			 <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
+
+lib cg : : <os>NT
+			 <name>zlib
+			 <search>C:\path\to\my\cg ;
+
+lib cg : : <os>MACOSX 
+			 <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
 
 
 # CGGL
 
 explicit cggl ;
-lib cggl : : <os>LINUX <name>CgGL <search>/datas/nro/_/3rdParty/cg_3.0
-	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
+lib cggl : : <name>z 
+			 <search>/path/to/my/cg 
+	     : : <include>/path/to/my/cg/include ;
+
 
 
 # CGD3D
 
 explicit cgd3d ;
-lib cgd3d : : <name>z <search>C:\path\to\my\sfml 
- 	      : : <include>C:\path\to\my\sfml\include ;
-
-
-# TURBOJPEG
-
-explicit turbojpeg ;
-lib turbojpeg : : <os>LINUX <search>/datas/nro/_/3rdParty/libjpeg-turbo-1.1.1/dist/lib 
- 	      	  : : <include>/datas/nro/_/3rdParty/libjpeg-turbo-1.1.1/dist/include ;
-lib turbojpeg : : <os>NT ; 
-lib turbojpeg : : <os>MACOSX ; 
-
-
-# OPENIMAGEIO
-
-explicit oiio ;
-lib oiio : : <name>OpenImageIO <os>LINUX <search>/datas/nro/_/3rdParty/oiio_0.10.2/libOpenImageIO
- 	     : : <include>/datas/nro/_/3rdParty/oiio_0.10.2/include ;
-lib oiio : : <os>NT ; 
-lib oiio : : <os>MACOSX ; 
+lib cgd3d : : <name>z 
+			 <search>C:\path\to\my\sfml 
+ 	     : : <include>C:\path\to\my\sfml\include ;
 

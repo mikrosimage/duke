@@ -8,7 +8,7 @@
 #ifdef _WIN32
 
 #include "DmaFileIO.h"
-#include <memory/MemoryUtils.h>
+#include <dukeengine/memory/MemoryUtils.h>
 #include <cassert>
 #include <windows.h>
 

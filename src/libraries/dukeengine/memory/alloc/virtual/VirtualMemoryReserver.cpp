@@ -8,7 +8,7 @@
 #ifdef _WIN32
 
 #include "VirtualMemoryReserver.h"
-#include <memory/MemoryUtils.h>
+#include <dukeengine/memory/MemoryUtils.h>
 #include <stdexcept>
 #include <string>
 #include <sstream>

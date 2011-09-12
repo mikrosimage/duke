@@ -1,44 +1,40 @@
 #
 # dukeapi
 #
-
-# protobuf source file generation
-
-local pb_cc_files ;
-for local proto in [ glob-tree *.proto ]
-{
-	local pb_cc_file = $(proto:S=.pb.cc) ;
-	make $(pb_cc_file) : $(proto) : @generateProtocolBuffer ;
-	explicit $(pb_cc_file) ;
-	pb_cc_files += $(pb_cc_file) ;
-	ECHO adding dependency to $(proto) ;
-}
-
-actions generateProtocolBuffer
-{
-	$(PROTOC) --cpp_out=$(<:D) --proto_path=$(>:D) $(>)
-	$(PROTOC) --cpp_out=$(>:D) --proto_path=$(>:D) $(>)
-}
+import pb ;
 
 project 
 	: requirements 
 		<include>..
 	    <library>/boost//thread
 	    <library>/boost//system
+	    <library>/boost//filesystem
 	    <library>/boost//regex
-		<library>/project-config//protobuf 
+		<os>NT:<find-shared-library>Ws2_32
     : usage-requirements 
     	<include>..
 	    <library>/boost//thread
 	    <library>/boost//system
+	    <library>/boost//filesystem
 	    <library>/boost//regex
-		<library>/project-config//protobuf ;
+		<os>NT:<find-shared-library>Ws2_32
+	;
+
+lib allpb : 
+			[ glob-tree *.proto ]
+		: #requirements
+			<library>/pb//protobuf
+		: #default-build
+		: #usage-requirements
+			<library>/pb//protobuf
+		;
+explicit allpb ;
 
 explicit dukeapi ;
 lib dukeapi : 
 			  [ glob-tree *.cpp ]
-			  $(pb_cc_files)
+			  allpb/<link>static
 			:
-			  <dependency>$(pb_cc_files)
+			  <dependency>allpb/<link>static
 		    ;
 

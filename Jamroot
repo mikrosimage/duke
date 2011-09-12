@@ -52,6 +52,9 @@ project : requirements
 			<threading>multi
 			<include>$(BOOST_ROOT)
 			<toolset>gcc:<cxxflags>-std=gnu++0x
+			<os>NT:<define>WIN32_LEAN_AND_MEAN
+			<os>NT:<define>VC_EXTRALEAN
+			<os>NT:<define>_WIN32_WINNT=0x0501
 		: build-dir bin	;
 
 
@@ -76,13 +79,11 @@ alias plugin-dx9	: src/plugins/renderer/dx9//dx9 ;
 
 install dist :
 	applications
-	plugins
+#	plugins
 	:
 	 <install-dependencies>on 
 	 <install-type>SHARED_LIB 
-	 <install-type>IMPORT_LIB 
 	 <install-type>SEARCHED_LIB 
-	 <install-type>LIB
 	 <install-type>EXE
 	 <variant>debug:<location>dist/debug
 	 <variant>release:<location>dist/release

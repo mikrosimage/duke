@@ -3,3 +3,5 @@
 /dist
 /bin
 /.settings
+/.cproject
+/.project
