@@ -1,9 +1,8 @@
-
 Duke version 1.0.0
 
-
-	Project under early development.
-
+	Duke is an opensource high resolution video player dedicated to
+	visual effect and post production companies.
+	
 
 License
 
@@ -13,16 +12,12 @@ License
 Compilation
 
 	* Getting the source
-		git clone git://github.com/mikrosimage/Duke.git
-		cd Duke
+		git clone git://github.com/mikrosimage/duke.git
+		cd duke
 		git submodule update -i
 
 	* External libraries
-		1) You can get all external libraries using a python script:
-			cd 3rdParty
-			python init.py
-		2) Use libraries installed on your computer
-			In this case, you need to edit the project-config.jam script
+		Use libraries installed on your computer by editing the project-config.jam script
 
 	* Compilation
 		see INSTALL file
@@ -35,7 +30,7 @@ Tested compilers
 	* MacOS
 		+ GCC 4.2.1 on OSX 10.5 Leopard
 	* Windows
-		+ GCC-MINGW 4.3.0 on Windows XP.
+		+ gcc (tdm-1) 4.5.2 on Windows XP ( http://tdm-gcc.tdragon.net/ )
 
 
 More information 
@@ -44,7 +39,7 @@ More information
 		NA
 
 	Duke public repository.
-		http://github.com/mikrosimage/Duke/
+		https://github.com/mikrosimage/duke
 
 
 Contact
@@ -53,4 +48,4 @@ Contact
 		NA
 
 	The github issues module for bug report
-		http://github.com/mikrosimage/Duke/issues
+		https://github.com/mikrosimage/duke/issues
