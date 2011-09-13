@@ -2,7 +2,8 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/project-config//cgd3d 
+    	<library>/project-config//cgd3d
+    	<cxxflags>-Wno-unknown-pragmas
     ;
     
 explicit dx9 ;
