@@ -68,6 +68,7 @@ explicit applications
 		 plugin-oiio
 		 plugin-ogl
 		 plugin-dx9
+		 shader_prototypes
 		 dist ;
 
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
@@ -81,14 +82,24 @@ alias plugin-oiio	: src/plugins/io/oiio//oiio ;
 alias plugin-ogl	: src/plugins/renderer/ogl//ogl ;
 alias plugin-dx9	: src/plugins/renderer/dx9//dx9 ;
 
+
+install shader_prototypes :
+	[ glob resources/shader_prototypes/* ]
+	:
+	<variant>debug:<location>dist/debug/shader_prototypes
+	<variant>release:<location>dist/release/shader_prototypes
+	;
+	
 install dist :
 	applications
 	plugins
+	shader_prototypes
 	:
-	 <install-dependencies>on 
-	 <install-type>SHARED_LIB 
-	 <install-type>SEARCHED_LIB 
-	 <install-type>EXE
-	 <variant>debug:<location>dist/debug
-	 <variant>release:<location>dist/release
+	<install-dependencies>on 
+	<install-type>SHARED_LIB 
+	<install-type>SEARCHED_LIB 
+	<install-type>EXE
+	<variant>debug:<location>dist/debug
+	<variant>release:<location>dist/release
+	<dependency>shader_prototypes
 	;

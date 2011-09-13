@@ -1,0 +1,7 @@
+body: "return tex2D( $0, @0 );"
+signature {
+	name: "sample2d"
+	returnType: "float4"
+	operandType: "float2"
+	parameterType: "sampler2D"
+}

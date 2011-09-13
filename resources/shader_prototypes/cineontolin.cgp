@@ -1,0 +1,6 @@
+body: "return 1.010915615730753*(pow(float4(10), (1023*@0-685)/300)-0.010797751623277);"
+signature {
+	name: "cineontolin"
+	returnType: "float4"
+	operandType: "float4"
+}

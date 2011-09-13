@@ -1,0 +1,6 @@
+body: "int4 copy = @0*255;@0.r = (copy.r*4) + (copy.g/64);@0.g = ((copy.g%64)*16) + (copy.b/16);@0.b = ((copy.b%16)*64) + (copy.a/4);return @0/1023;"
+signature {
+	name: "tenbitunpackfloat"
+	returnType: "float4"
+	operandType: "float4"
+}

@@ -1,0 +1,6 @@
+body: "return 4.2453028534042214e-4*(300*log(0.98920224837672*@0+0.010797751623277)+1577.270788700921);"
+signature {
+	name: "lintocineon"
+	returnType: "float4"
+	operandType: "float4"
+}
