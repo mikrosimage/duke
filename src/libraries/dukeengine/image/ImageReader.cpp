@@ -48,14 +48,15 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
     }
 
     ImageDescription description;
-    const char* filename(path.string().c_str());
+    const std::string filename = path.string();
+    const char* cfilename = filename.c_str();
 
     if (delegateReadToHost) {
         // file reader
         ::mikrosimage::alloc::Allocator *pAllocator = &alignedMallocAlloc;
         if(path.extension()==".dpx")
             pAllocator = &bigAlignedBlockAlloc;
-#ifdef false//WIN32
+#ifdef WIN32
         DmaFileIO fileIO(pAllocator);
 #else
         MappedFileIO fileIO(pAllocator);
@@ -63,7 +64,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 
 //        StopWatch file(true);
         // reading file in memory
-        const MemoryBlockPtr pFileMemoryBlock = fileIO.read(filename);
+        const MemoryBlockPtr pFileMemoryBlock = fileIO.read(cfilename);
 //        m_TimeReadFile = file.splitTime();
         if (pFileMemoryBlock == NULL) {
             std::cerr << "unable to read " << path << std::endl;
@@ -76,7 +77,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 
 //        StopWatch header(true);
         // reading header
-        if (!m_ImageFactory.readImageHeader(filename, formatHandler, description)) {
+        if (!m_ImageFactory.readImageHeader(cfilename, formatHandler, description)) {
             std::cerr << "unable to open " << path << std::endl;
             return false;
         }
@@ -98,7 +99,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 //        m_TimeDecode = decode.splitTime();
     } else {
 //        StopWatch header(true);
-        if (!m_ImageFactory.readImageHeader(filename, formatHandler, description)) {
+        if (!m_ImageFactory.readImageHeader(cfilename, formatHandler, description)) {
             std::cerr << "unable to open " << path << std::endl;
             return false;
         }

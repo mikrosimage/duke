@@ -15,7 +15,7 @@ static bool get(const ImageReader& imageReader, const PlaylistHelper &helper, co
     if (hash == 0)
         return false;
 
-    const string filename = helper.getPathAtHash(hash).string();
+    const boost::filesystem::path filename = helper.getPathAtHash(hash);
     if (filename.empty())
         return true;
 

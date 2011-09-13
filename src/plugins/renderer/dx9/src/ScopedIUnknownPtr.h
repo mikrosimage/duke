@@ -31,12 +31,10 @@ public:
     }
 
     operator IUNKNOWN *() const {
-        assert( m_Ptr );
         return m_Ptr;
     }
 
     IUNKNOWN** operator &() {
-        assert( m_Ptr );
         return &m_Ptr;
     }
 

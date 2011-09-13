@@ -2,9 +2,8 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/duke/lib/api//dukeapi
     	<library>/project-config//cgd3d 
     ;
-
+    
 explicit dx9 ;
 rendererplugin dx9 	: [ glob-tree *.cpp ] ;

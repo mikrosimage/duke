@@ -34,7 +34,10 @@ explicit dukeapi ;
 lib dukeapi : 
 			  [ glob-tree *.cpp ]
 			  allpb
-			:
-			  <dependency>allpb
-		    ;
+			: #requirements
+				<dependency>allpb
+		    : #default-build
+			: #usage-requirements
+				<library>allpb
+			;
 
