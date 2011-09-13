@@ -1,7 +1,5 @@
-alias /PreemptiveLib : $(ROOT)/src/libraries/duke_core/chain//PreemptiveLib ;
-
 run    	chain.cpp
-		/PreemptiveLib
+		/duke/lib/engine//dukeengine
 		/boost//unit_test_framework
 	: : :
     	<define>BOOST_TEST_MAIN
@@ -9,7 +7,7 @@ run    	chain.cpp
 	;
 
 run    	ranges.cpp
-		/PreemptiveLib
+		/duke/lib/engine//dukeengine
 		/boost//unit_test_framework
 	: : :
     	<define>BOOST_TEST_MAIN

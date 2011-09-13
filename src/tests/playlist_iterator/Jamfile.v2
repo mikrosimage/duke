@@ -1,6 +1,6 @@
 run    	main.cpp
+		/duke/lib/engine//dukeengine
 		/boost//unit_test_framework
-		/duke_core
 	: : :
     	<define>BOOST_TEST_MAIN
 		<define>BOOST_TEST_DYN_LINK

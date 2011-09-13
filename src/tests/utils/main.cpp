@@ -1,8 +1,7 @@
-#include <utils/TimeUtils.h>
+#include <dukeengine/utils/TimeUtils.h>
 
 #define BOOST_TEST_MODULE ClipHelper
 #include <boost/test/unit_test.hpp>
-
 #include <iostream>
 
 using namespace std;

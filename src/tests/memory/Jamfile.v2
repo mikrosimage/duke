@@ -1,8 +1,7 @@
 for local l in [ glob *.cpp ]
 {
 	run $(l)
-		/duke_core//duke_core
-		/boost/system
+		/duke/lib/engine//dukeengine
 		/boost//unit_test_framework
 	: : :
     	<define>BOOST_TEST_MAIN

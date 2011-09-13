@@ -1,7 +1,8 @@
+#include <dukeengine/memory/alloc/virtual/VirtualMemoryReserver.h>
+
 #define BOOST_TEST_MODULE VirtualMemoryBlock
 #include <boost/test/unit_test.hpp>
 
-#include <memory/alloc/virtual/VirtualMemoryReserver.h>
 BOOST_AUTO_TEST_SUITE( VirtualMemorySuite )
 
 BOOST_AUTO_TEST_CASE( VirtualMemoryReserverTest )

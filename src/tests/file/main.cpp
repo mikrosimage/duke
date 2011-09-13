@@ -1,7 +1,7 @@
-#include <memory/alloc/Allocators.h>
-#include <memory/alloc/MemoryBlock.h>
-#include <file/DmaFileIO.h>
-#include <file/StreamedFileIO.h>
+#include <dukeengine/memory/alloc/Allocators.h>
+#include <dukeengine/memory/alloc/MemoryBlock.h>
+#include <dukeengine/file/DmaFileIO.h>
+#include <dukeengine/file/StreamedFileIO.h>
 #include <boost/filesystem.hpp>
 
 #include <iostream>

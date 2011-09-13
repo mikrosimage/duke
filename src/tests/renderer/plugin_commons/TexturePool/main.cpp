@@ -1,8 +1,6 @@
-#include <renderer/plugin/common/TexturePool.h>
-
+#include <plugin/TexturePool.h>
 #include <iostream>
 #include <boost/integer_traits.hpp>
-
 #define BOOST_TEST_MODULE TexturePool
 #include <boost/test/unit_test.hpp>
 

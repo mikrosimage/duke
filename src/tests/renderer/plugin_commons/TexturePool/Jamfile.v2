@@ -1,8 +1,5 @@
 run    	main.cpp
-		/renderer_plugin_common//duke_rpc
-		/protocol//protocol
-		/boost/filesystem
-		/boost/system
+		/duke/lib/rendererplugin//dukerendererplugin
 		/boost//unit_test_framework
 	: : :
     	<define>BOOST_TEST_MAIN

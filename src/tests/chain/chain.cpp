@@ -1,5 +1,5 @@
-#include <Chain.h>
-#include <ChainOStream.h>
+#include <dukeengine/chain/Chain.h>
+#include <dukeengine/chain/ChainOStream.h>
 
 #include <boost/thread.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp" //include all types plus i/o

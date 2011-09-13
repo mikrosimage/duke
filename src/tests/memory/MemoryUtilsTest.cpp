@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE MemoryUtils
 #include <boost/test/unit_test.hpp>
+#include <dukeengine/memory/MemoryUtils.h>
 
-#include <memory/MemoryUtils.h>
 BOOST_AUTO_TEST_SUITE( MemoryUtils )
 
 #define STEP 512U

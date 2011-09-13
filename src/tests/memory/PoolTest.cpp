@@ -1,10 +1,9 @@
 // custom host
-#include <memory/pool/MemoryPool.h>
-
-#include <iostream>
+#include <dukeengine/memory/pool/MemoryPool.h>
 
 #define BOOST_TEST_MODULE graph_tests
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 
 using namespace boost::unit_test;
 using namespace std;

@@ -1,4 +1,4 @@
-#include <RangeImpl.h>
+#include <dukeengine/chain/RangeImpl.h>
 
 #include <iostream>
 #include <vector>
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( boundAlternatingIterator )
 
 BOOST_AUTO_TEST_CASE( playlistIterator0 )
 {
-    auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(1,0,0, false));
+    unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(1,0,0, false));
     BOOST_CHECK_EQUAL( m_pRange->front(), 0 );
     m_pRange->popFront();
     BOOST_CHECK( m_pRange->empty() );
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator0 )
 
 BOOST_AUTO_TEST_CASE( playlistIterator1 )
 {
-    auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(3,0,0, false));
+    unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(3,0,0, false));
 
     BOOST_CHECK_EQUAL( m_pRange->front(), 0 );
     m_pRange->popFront();
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator1 )
 BOOST_AUTO_TEST_CASE( playlistIterator2 )
 {
     BOOST_CHECK_THROW( getPlaylistRange(3,3,0, false), runtime_error );
-    auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(3,2,0, false));
+    unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(3,2,0, false));
 
     BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
     m_pRange->popFront();
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator2 )
 
 BOOST_AUTO_TEST_CASE( playlistIterator3 )
 {
-    auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,0, false));
+    unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,0, false));
 
     BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
     m_pRange->popFront();
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator3 )
 BOOST_AUTO_TEST_CASE( playlistIterator4 )
 {
     { // forward
-        auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,-1, false));
+        unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,-1, false));
 
         BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
         m_pRange->popFront();
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator4 )
         BOOST_CHECK( m_pRange->empty() );
     }
     { // reverse
-        auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,-1, true));
+        unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,-1, true));
 
         BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
         m_pRange->popFront();
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator4 )
 BOOST_AUTO_TEST_CASE( playlistIterator5 )
 {
     { // forward
-        auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,1, false));
+        unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,1, false));
 
         BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
         m_pRange->popFront();
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator5 )
         BOOST_CHECK( m_pRange->empty() );
     }
     { // reverse
-        auto_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,1, true));
+        unique_ptr<ForwardRange<ptrdiff_t> > m_pRange( getPlaylistRange(5,2,1, true));
 
         BOOST_CHECK_EQUAL( m_pRange->front(), 2 );
         m_pRange->popFront();

@@ -33,8 +33,8 @@ explicit allpb ;
 explicit dukeapi ;
 lib dukeapi : 
 			  [ glob-tree *.cpp ]
-			  allpb/<link>static
+			  allpb
 			:
-			  <dependency>allpb/<link>static
+			  <dependency>allpb
 		    ;
 

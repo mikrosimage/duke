@@ -1,7 +1,5 @@
 run    	main.cpp
-		/duke_core//duke_core
-		/boost/filesystem
-		/boost/system
+		/duke/lib/engine//dukeengine
 		/boost//unit_test_framework
 	: : :
     	<define>BOOST_TEST_MAIN

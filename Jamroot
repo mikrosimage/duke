@@ -63,14 +63,18 @@ project : requirements
 explicit applications
 		 plugins
 		 tests
-		 plugin-foo
+		 plugin-jpg
+		 plugin-dpx
+		 plugin-oiio
+		 plugin-ogl
+		 plugin-dx9
 		 dist ;
 
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-ogl ] : <os>LINUX ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-ogl ] : <os>MACOSX ;
 alias plugins 		: [ plugins-selection plugin-jpg plugin-dpx plugin-dx9 ] : <os>NT ;
-alias tests 		: [ glob src/tests/* ] ;
+alias tests 		: [ glob src/tests/* : src/tests/renderer src/tests/scripts ] ;
 alias plugin-jpg	: src/plugins/io/jpg//jpg ;
 alias plugin-dpx	: src/plugins/io/dpx//dpx ;
 alias plugin-oiio	: src/plugins/io/oiio//oiio ;

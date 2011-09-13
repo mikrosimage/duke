@@ -1,6 +1,6 @@
-#include <memory/alloc/MemoryBlock.h>
-#include <memory/alloc/Allocators.h>
-#include <image/ImageCache.h>
+#include <dukeengine/memory/alloc/MemoryBlock.h>
+#include <dukeengine/memory/alloc/Allocators.h>
+#include <dukeengine/image/ImageCache.h>
 
 #define BOOST_TEST_MODULE ImageCache
 #include <boost/test/unit_test.hpp>

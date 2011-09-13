@@ -1,7 +1,5 @@
-#include <sequence/PlaylistHelper.h>
-
+#include <dukeengine/sequence/PlaylistHelper.h>
 #include <boost/filesystem.hpp>
-
 #include <iostream>
 
 #define BOOST_TEST_MODULE PlaylistIterator
