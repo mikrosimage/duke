@@ -1,0 +1,6 @@
+body: "return @0.bgra;"
+signature {
+	name: "rgbatobgra"
+	returnType: "float4"
+	operandType: "float4"
+}
