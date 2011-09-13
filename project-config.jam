@@ -19,7 +19,6 @@ project project-config ;
 	#
 	#################
 
-		
 
 # PROTOCOL BUFFER
 # SFML 2.0
@@ -33,14 +32,29 @@ project project-config ;
 # JPEGTURBO (plugin-jpeg)
 # OPENIMAGEIO (plugin-oiio)
 
+#
+# Google Protocolbuffer
+#
+# website  : http://code.google.com/p/protobuf/
+# download : http://code.google.com/p/protobuf/downloads/list
+#
 
+# local PROTO_ROOT = /datas/nro/_/3rdParty/protobuf-2.4.0a ;
+local PROTO_ROOT = L:/protobuf-2.4.0a ;
 
-# protobuf
-using pb : L:/protobuf-2.4.0a ;
+using pb : $(PROTO_ROOT) ;
 
+#
 # SFML
+#
+# website  : http://www.sfml-dev.org/
+# download : http://www.sfml-dev.org/download.php
+#
+
+#local SFML = /datas/nro/_/3rdParty/SFML2.0 ;
 local SFML = L:/SFML ;
 local SFML_LIB = $(SFML)/lib ;
+
 local SFML_EXTLIB = $(SFML)/extlibs/bin/x86 ;
 
 explicit sfml sfml-graphics sfml-system sfml-window sfml-audio ;
@@ -59,47 +73,75 @@ lib sfml-audio     : : <search>$(SFML_LIB) <os>NT:<dependency>sfml-audio-2    ;
 
 alias sfml : sfml-graphics sfml-system sfml-window sfml-audio 
 		   : : : <include>$(SFML)/include ;
-
+#
 # CG
+#
+# website  : http://developer.nvidia.com/cg-toolkit
+# download : http://developer.nvidia.com/cg-toolkit-download
+#
+
+#local CG_ROOT = /datas/nro/_/3rdParty/cg_3.0 ;
+local CG_ROOT = "L:/NVIDIA Corporation/Cg" ;
 
 explicit cg ;
-lib cg : : <os>LINUX <name>Cg <search>/datas/nro/_/3rdParty/cg_3.0/lib64
-	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
-lib cg : : <os>NT ;
-lib cg : : <os>MACOSX ;
-
+lib cg : : <name>Cg <search>$(CG_ROOT)/lib
+	   : : <include>$(CG_ROOT)/include ;
 
 # CGGL
 
 explicit cggl ;
-lib cggl : : <os>LINUX <name>CgGL <search>/datas/nro/_/3rdParty/cg_3.0
-	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
+lib cggl : : <os>LINUX <name>CgGL <search>$(CG_ROOT)
+	   : : <include>$(CG_ROOT)/include ;
 explicit cggl ;
-lib cggl : : <os>MACOSX <name>CgGL <search>/datas/nro/_/3rdParty/cg_3.0
-	   : : <include>/datas/nro/_/3rdParty/cg_3.0/include ;
+lib cggl : : <os>MACOSX <name>CgGL <search>$(CG_ROOT)
+	   : : <include>$(CG_ROOT)/include ;
 
 
 # CGD3D
+local DX_SDK_ROOT = "L:/Microsoft DirectX SDK (February 2010)" ;
+
+explicit d3dx9 ;
+lib d3dx9 : : <os>NT <search>$(DX_SDK_ROOT)/Lib/x86
+ 	      : : <include>$(DX_SDK_ROOT)/Include ;
+ 	      
+explicit d3d9 ;
+lib d3d9  : : <os>NT <search>$(DX_SDK_ROOT)/Lib/x86
+ 	      : : <include>$(DX_SDK_ROOT)/Include ;
 
 explicit cgd3d ;
-lib cgd3d : : <os>NT <name>z <search>C:\path\to\my\sfml 
- 	      : : <include>C:\path\to\my\sfml\include ;
+lib cgd3d : d3d9 d3dx9 : <os>NT <name>cgD3D9 <search>$(CG_ROOT)
+ 	      : : <include>$(CG_ROOT)/include ;
 
 
+#
 # TURBOJPEG
+#
+# website  : http://sourceforge.net/projects/libjpeg-turbo/
+# download : http://sourceforge.net/projects/libjpeg-turbo/files/1.1.1/
+#
+
+# local TURBO_JPEG_ROOT = /datas/nro/_/3rdParty/libjpeg-turbo-1.1.1/dist ;
+local TURBO_JPEG_ROOT = L:/libjpeg-turbo-gcc ;
 
 explicit turbojpeg ;
-lib turbojpeg : : <os>LINUX <search>/datas/nro/_/3rdParty/libjpeg-turbo-1.1.1/dist/lib 
- 	      	  : : <include>/datas/nro/_/3rdParty/libjpeg-turbo-1.1.1/dist/include ;
-lib turbojpeg : : <os>NT ; 
-lib turbojpeg : : <os>MACOSX ; 
 
+lib turbojpeg : : <search>$(TURBO_JPEG_ROOT)/lib 
+ 	      	  : : <include>$(TURBO_JPEG_ROOT)/include ;
 
+#
 # OPENIMAGEIO
+#
+# website  : https://sites.google.com/site/openimageio/home
+# download : https://github.com/OpenImageIO/oiio
+#
+
+#local OPENIMAGEIO_ROOT = /datas/nro/_/3rdParty/oiio_0.10.2 ;
+local OPENIMAGEIO_ROOT = /path/to/oiio ;
+
 
 explicit oiio ;
-lib oiio : : <name>OpenImageIO <os>LINUX <search>/datas/nro/_/3rdParty/oiio_0.10.2/libOpenImageIO
- 	     : : <include>/datas/nro/_/3rdParty/oiio_0.10.2/include ;
+lib oiio : : <name>OpenImageIO <os>LINUX <search>$(OPENIMAGEIO_ROOT)/libOpenImageIO
+ 	     : : <include>$(OPENIMAGEIO_ROOT)/include ;
 lib oiio : : <os>NT ; 
 lib oiio : : <os>MACOSX ; 
 

@@ -4,9 +4,9 @@
 #include "Dx9Texture.h"
 #include "DX9Enum.h"
 #include "Dx9Utils.h"
-#include <renderer/plugin/common/Mesh.h>
-#include <renderer/plugin/common/utils/PixelUtils.h>
-#include <renderer/plugin/common/SfmlWindow.h>
+#include <dukerenderer/plugin/Mesh.h>
+#include <dukerenderer/plugin/utils/PixelUtils.h>
+#include <dukerenderer/plugin/SfmlWindow.h>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>

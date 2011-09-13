@@ -1,8 +1,8 @@
 #ifndef DX9TEXTURE_H_
 #define DX9TEXTURE_H_
 
-#include <renderer/plugin/common/math/Rect.h>
-#include <renderer/plugin/common/ITextureBase.h>
+#include <dukerenderer/plugin/math/Rect.h>
+#include <dukerenderer/plugin/ITextureBase.h>
 #include "ScopedIUnknownPtr.h"
 #include <d3d9.h>
 

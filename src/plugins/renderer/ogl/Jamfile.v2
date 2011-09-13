@@ -3,10 +3,6 @@ project
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
     	<library>/project-config//cggl 
-    : usage-requirements
-    	<include>.. 
-    	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/project-config//cggl 
     ;
 
 explicit ogl ;

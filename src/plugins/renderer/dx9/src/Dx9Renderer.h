@@ -3,9 +3,9 @@
 
 #include "ScopedIUnknownPtr.h"
 #include <dukeapi/protocol/player/communication.pb.h>
-#include <renderer/common/RendererSuite.h>
-#include <renderer/plugin/common/IRenderer.h>
-#include <renderer/plugin/common/IFactory.h>
+#include <dukerenderer/plugin/RendererSuite.h>
+#include <dukerenderer/plugin/IRenderer.h>
+#include <dukerenderer/plugin/IFactory.h>
 #include <d3d9.h>
 #include <windows.h>
 

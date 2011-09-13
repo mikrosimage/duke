@@ -1,7 +1,7 @@
 #include "DX9Enum.h"
 
-#include <renderer/plugin/common/Enums.h>
-#include <renderer/plugin/common/utils/PixelUtils.h>
+#include <dukerenderer/plugin/Enums.h>
+#include <dukerenderer/plugin/utils/PixelUtils.h>
 
 #include <iostream>
 #include <stdexcept>

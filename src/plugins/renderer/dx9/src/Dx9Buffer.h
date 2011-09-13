@@ -2,7 +2,7 @@
 #define DX9BUFFER_H_
 
 #include "ScopedIUnknownPtr.h"
-#include <renderer/plugin/common/IBufferBase.h>
+#include <dukerenderer/plugin/IBufferBase.h>
 
 template<typename T>
 class Dx9Buffer : public IBufferBase {

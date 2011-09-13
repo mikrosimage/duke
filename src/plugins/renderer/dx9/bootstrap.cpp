@@ -1,4 +1,4 @@
-#include <openfx/support/plugin/IPlugin.h>
+#include <dukeplugin/IPlugin.h>
 
 static bool isEqual(const char* expected, const char* actual) {
     const char* pExpected = expected;
@@ -15,10 +15,10 @@ static bool isEqual(const char* expected, const char* actual) {
 }
 
 #include "src/Dx9Renderer.h"
-#include <renderer/common/ofxRenderer.h>
-#include <renderer/common/RendererSuite.h>
-#include <renderer/plugin/common/IRenderer.h>
-#include <renderer/plugin/common/SfmlWindow.h>
+#include <dukerenderer/ofxRenderer.h>
+#include <dukerenderer/plugin/RendererSuite.h>
+#include <dukerenderer/plugin/IRenderer.h>
+#include <dukerenderer/plugin/SfmlWindow.h>
 #include <dukeapi/protocol/player/communication.pb.h>
 #include <cassert>
 #include <stdexcept>

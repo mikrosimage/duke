@@ -8,7 +8,7 @@
 #ifndef DX9SHADER_H_
 #define DX9SHADER_H_
 
-#include <renderer/plugin/common/IShaderBase.h>
+#include <dukerenderer/plugin/IShaderBase.h>
 
 class Dx9Shader : public IShaderBase
 {

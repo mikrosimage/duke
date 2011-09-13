@@ -1,7 +1,7 @@
 #ifndef DX9ENUM_H_
 #define DX9ENUM_H_
 
-#include <renderer/plugin/common/Enums.h>
+#include <dukerenderer/plugin/Enums.h>
 #include <d3d9.h>
 
 class Dx9Enum

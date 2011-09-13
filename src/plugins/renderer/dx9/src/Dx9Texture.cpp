@@ -2,8 +2,8 @@
 #include "Dx9Enum.h"
 #include "Dx9Renderer.h"
 #include "Dx9Utils.h"
-#include <renderer/plugin/common/utils/PixelUtils.h>
-#include <renderer/common/Setup.h>
+#include <dukerenderer/plugin/utils/PixelUtils.h>
+#include <dukerenderer/Setup.h>
 #include <cassert>
 #include <d3dx9tex.h>
 
