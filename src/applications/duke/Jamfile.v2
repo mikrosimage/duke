@@ -16,7 +16,7 @@ explicit duke ;
 exe duke
 	:
 		[ glob-tree *.cpp ]
-		/duke/lib/engine//dukeengine/<link>static
+		/duke/lib/engine//dukeengine
 		/boost//program_options
 	:
 		<define>BUILD_INFORMATION=\"\\\"$(VERSION_INFORMATION)\\\"\"
