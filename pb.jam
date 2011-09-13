@@ -15,17 +15,21 @@ project pb ;
 
 .project = [ project.current ] ;
 
-rule init ( prefix )
+rule init ( PROTOC )
 {
     project.push-current $(.project) ;
 
-	.prefix = $(prefix) ;
-
-	.incprefix = $(prefix)/include ;
-	.libprefix = $(prefix)/lib ;
-	.binprefix = $(prefix)/bin ;   
-	.protoc = $(.binprefix)/protoc ;
 	.copy = [ common.copy-command ] ;
+	
+	
+	if ! [ path.exists $(PROTOC) ] {
+		EXIT "
+module $(__file__) expects the variable PROTOC to refer to the Google protobuf compiler ( aka protoc ).
+Please check your configuration files ( site-config.jam or user-config.jam ).
+Current value is '$(PROTOC)'" ;
+	}
+	
+	.protoc = $(PROTOC) ;
   
 	if ! $(.initialized)
 	{
@@ -36,9 +40,6 @@ rule init ( prefix )
 		.PREFIX = $(prefix) ;
 	}
 	
-	lib protobuflib-dll : : <file>$(.binprefix)/libprotobuf-7.dll ;
-	lib protobuf : : <search>$(.libprefix) <os>NT:<library>protobuflib-dll : : <include>$(.incprefix) ;
-	lib protobuf : : <toolset>msvc <search>$(.libprefix) <name>libprotobuf <os>NT:<library>protobuflib-dll : : <include>$(.incprefix) ;
 	
 	project.pop-current ;
 }

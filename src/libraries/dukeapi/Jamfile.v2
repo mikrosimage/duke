@@ -1,7 +1,7 @@
 #
 # dukeapi
 #
-import pb ;
+using pb : $(PROTOC) ;
 
 project 
 	: requirements 
@@ -23,10 +23,10 @@ project
 lib allpb : 
 			[ glob-tree *.proto ]
 		: #requirements
-			<library>/pb//protobuf
+			<library>/site-config//protobuf
 		: #default-build
 		: #usage-requirements
-			<library>/pb//protobuf
+			<library>/site-config//protobuf
 		;
 explicit allpb ;
 

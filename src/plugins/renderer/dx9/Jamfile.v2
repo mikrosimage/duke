@@ -2,7 +2,7 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/project-config//cgd3d
+    	<library>/site-config//cgd3d
     	<cxxflags>-Wno-unknown-pragmas
     ;
     
