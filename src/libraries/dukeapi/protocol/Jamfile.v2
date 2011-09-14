@@ -1,0 +1,16 @@
+#
+# dukeapi
+#
+using pb : $(PROTOC) ;
+
+project 
+	: requirements 
+		<library>/site-config//protobuf
+    : usage-requirements 
+		<library>/site-config//protobuf
+	;
+
+lib allpb : 
+			[ glob-tree *.proto ]
+		;
+explicit allpb ;
