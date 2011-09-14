@@ -1,0 +1,132 @@
+project user-config ;
+
+# This file configures the external libraries needed by duke.
+# See README for more details.
+
+############ warning for windows users ############
+# -> Paths
+#
+# if your path is C:\PATH\TO\FILE
+# you must write it C:/PATH/TO/FILE
+#
+# -> dll redistribution
+#
+# you don't need to add path to your dlls but doing
+# so will automatically add them to the dist folder
+# easing the distribution process
+###################################################
+
+#----------------------------------------#
+#    Mandatory libraries                 #
+#----------------------------------------#
+
+#-----------------------------------------------------------------------------
+# name     : Google Protocolbuffer
+# purpose  : Defines duke's protocol to communicate internally and with other
+#            applications  
+# website  : http://code.google.com/p/protobuf/
+# download : http://code.google.com/p/protobuf/downloads/list
+#-----------------------------------------------------------------------------
+
+lib protobuf : : <file>C:/PATH/TO/PROTOBUF/LIB/libprotobuf.a
+				 <file>C:/PATH/TO/PROTOBUF/BIN/libprotobuf-7.dll
+	   		 : : <include>C:/PATH/TO/PROTOBUF/include ;
+
+# expected by duke build system
+constant PROTOC : C:/PATH/TO/PROTOC-BINARY/protoc.exe ; 
+
+
+#-----------------------------------------------------------------------------
+# name     : SFML2
+# purpose  : Window creation and sound management
+# website  : http://www.sfml-dev.org/
+# download : http://www.sfml-dev.org/download.php
+#-----------------------------------------------------------------------------
+lib sfml-graphics  : : <file>C:/PATH/TO/SFML-GRAPHICS-DLL/sfml-graphics-2.dll
+                       <file>C:/PATH/TO/SFML-GRAPHICS-LIB/libsfml-graphics.a ;
+lib sfml-system    : : <file>C:/PATH/TO/SFML-SYSTEM-DLL/sfml-system-2.dll
+                       <file>C:/PATH/TO/SFML-SYSTEM-LIB/libsfml-system.a ;
+lib sfml-window    : : <file>C:/PATH/TO/SFML-WINDOW-DLL/sfml-window-2.dll
+                       <file>C:/PATH/TO/SFML-WINDOW-LIB/libsfml-window.a ;
+lib sfml-audio     : : <file>C:/PATH/TO/OPENAL-DLL/openal32.dll
+                       <file>C:/PATH/TO/LIBSNDFILE-DLL/libsndfile-1.dll
+                       <file>C:/PATH/TO/SFML-AUDIO-DLL/sfml-audio-2.dll
+                       <file>C:/PATH/TO/SFML-AUDIO-LIB/libsfml-audio-2.a ;
+
+alias sfml : sfml-graphics sfml-system sfml-window sfml-audio 
+		   : : : <include>C:/PATH/TO/SFML/include ;
+
+
+#-----------------------------------------------------------------------------
+# name     : Cg
+# purpose  : Graphical toolkit
+# website  : http://developer.nvidia.com/cg-toolkit
+# download : http://developer.nvidia.com/cg-toolkit-download
+#-----------------------------------------------------------------------------
+lib cg : : 	<file>C:/PATH/TO/CG-LIB/cg.lib
+			<file>C:/PATH/TO/CG-DLL/cg.dll
+	   : : 	<include>C:/PATH/TO/CG/include ;
+
+
+
+
+
+
+#----------------------------------------#
+#   Optional  libraries                  #
+#----------------------------------------#
+
+# you can build either the OpenGL or DirectX9 backend ( or both )
+
+#-----------------------------------------------------------------------------#
+# name     : CgGL - OpenGL backend
+#-----------------------------------------------------------------------------#
+lib cggl : : <name>CgGL <search>$(CG_ROOT)
+	     : : <include>$(CG_ROOT)/include ;
+	     
+#-----------------------------------------------------------------------------#
+# name     : CgD3D - DirectX9 backend                 
+#-----------------------------------------------------------------------------#
+
+# CGD3D
+lib cgd3d : : <file>C:/PATH/TO/CG_LIB/cgD3D9.lib
+              <file>C:/PATH/TO/CG_DLL/cgD3D9.dll
+              <file>C:/PATH/TO/DX_SDK_LIB/d3d9.lib
+              <file>C:/PATH/TO/DX_SDK_DLL/d3d9.dll
+              <file>C:/PATH/TO/DX_SDK_LIB/d3dx9.lib
+              <file>C:/PATH/TO/DX_SDK_DLL/d3dx9.dll
+ 	      : : <include>C:/PATH/TO/CG_ROOT/include <include>C:/PATH/TO/DX_SDK/Include ;
+
+#-----------------------------------------------------------------------------
+# name     : TurboJpeg
+# purpose  : adds support for jpeg (plugin)
+# website  : http://sourceforge.net/projects/libjpeg-turbo/
+# download : http://sourceforge.net/projects/libjpeg-turbo/files/1.1.1/
+#-----------------------------------------------------------------------------
+lib turbojpeg : : <file>C:/PATH/TO/TURBOJPEG-LIB/libturbojpeg.a
+ 	      	  : : <include>C:/PATH/TO/TURBOJPEG/include ;
+
+
+#-----------------------------------------------------------------------------
+# name     : OpenImageIO
+# purpose  : adds support for various file format (plugin)
+# website  : https://sites.google.com/site/openimageio/home
+# download : https://github.com/OpenImageIO/oiio
+#-----------------------------------------------------------------------------
+lib oiio : : <file>C:/PATH/TO/OPENIMAGEIO-LIB/libOpenImageIO.a
+			 <file>C:/PATH/TO/ADDITIONAL-DLL/png.dll
+ 	     : : <include>C:/PATH/TO/OPENIMAGEIO/include ;
+
+
+#-----------------------------------------------------------------------------
+## prevent building targets by default
+## more info here http://www.boost.org/boost-build2/doc/html/bbv2/reference/rules.html
+explicit protobuf sfml sfml-graphics sfml-system sfml-window sfml-audio cg cggl turbojpeg oiio d3dx9 d3d9 cgd3d ;
+#-----------------------------------------------------------------------------
+
+
+#---------------------------------------#
+#    Congratulations ! You're done :)   #
+#    Uncomment the following line.      #
+#---------------------------------------#
+#constant duke_user_configuration : true ;
