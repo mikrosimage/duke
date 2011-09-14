@@ -4,7 +4,7 @@
 #include <openfx/ofxCorePlugin.h>
 #include <dukehost/PluginBinary.h>
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 
 class Renderer {
 private:
@@ -17,7 +17,7 @@ public:
     Renderer(OfxHost host, const char* filename);
     ~Renderer(); // not virtual
 
-    void initRender(const ::protocol::duke::Renderer& Renderer);
+    void initRender(const ::duke::protocol::Renderer& Renderer);
     void waitForRenderLoopToStop();
 
     inline bool isInit() const {

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-Mesh::Mesh( IFactory& factory, const ::protocol::duke::Mesh& mesh )
+Mesh::Mesh( IFactory& factory, const ::duke::protocol::Mesh& mesh )
 {
 	const std::string name( mesh.name() );
 
@@ -12,11 +12,11 @@ Mesh::Mesh( IFactory& factory, const ::protocol::duke::Mesh& mesh )
 
 	if( !m_pMeshBase )
 	{
-		const ::protocol::duke::VertexBuffer& vb = mesh.vertexbuffer();
+		const ::duke::protocol::VertexBuffer& vb = mesh.vertexbuffer();
 		std::vector<IMeshBase::TVertex> vertices;
 		for( int vertexIndex = 0; vertexIndex < vb.vertex_size(); vertexIndex++ )
 		{
-			const ::protocol::duke::Vertex& vertex = vb.vertex( vertexIndex );
+			const ::duke::protocol::Vertex& vertex = vb.vertex( vertexIndex );
 			IMeshBase::TVertex vertexStruct;
 			vertexStruct.x = vertex.data( 0 );
 			vertexStruct.y = vertex.data( 1 );
@@ -28,7 +28,7 @@ Mesh::Mesh( IFactory& factory, const ::protocol::duke::Mesh& mesh )
 		Buffer<IMeshBase::TVertex> vertexBuffer( factory.createVertexBuffer( vertices.size(), BUF_STATIC, vertices.data() ) );
 		if( mesh.has_indexbuffer() )
 		{
-			const ::protocol::duke::IndexBuffer& ib = mesh.indexbuffer();
+			const ::duke::protocol::IndexBuffer& ib = mesh.indexbuffer();
 			const int indicesCount             = ib.index_size();
 			std::vector<IMeshBase::TIndex> indices;
 			indices.reserve( indicesCount );

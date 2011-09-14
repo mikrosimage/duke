@@ -2,12 +2,12 @@
 #define MESHBUILDER_H_
 
 #include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 
 namespace {
 
-namespace dk = ::protocol::duke;
+namespace dk = ::duke::protocol;
 
 enum MeshShape {
     MS_Cube = 0, MS_Plane = 1
@@ -72,8 +72,8 @@ void buildPlaneVertexBuffer(dk::VertexBuffer* const pVertexBuffer //
                             , const float y0 //
                             , const float xsize //
                             , const float ysize) {
-    pVertexBuffer->add_flag(::protocol::duke::VertexBuffer_VertexType_POS);
-    pVertexBuffer->add_flag(::protocol::duke::VertexBuffer_VertexType_UV1);
+    pVertexBuffer->add_flag(::duke::protocol::VertexBuffer_VertexType_POS);
+    pVertexBuffer->add_flag(::duke::protocol::VertexBuffer_VertexType_UV1);
     buildVertex(pVertexBuffer->add_vertex(), x0, y0, 1, 0, 1); // 0
     buildVertex(pVertexBuffer->add_vertex(), x0 + xsize, y0, 1, 1, 1); // 1
     buildVertex(pVertexBuffer->add_vertex(), x0, y0 + ysize, 1, 0, 0); // 2

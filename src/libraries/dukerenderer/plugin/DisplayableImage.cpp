@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-ImageDescription getImageDescriptionFrom(const ::protocol::duke::Texture& texture) {
+ImageDescription getImageDescriptionFrom(const ::duke::protocol::Texture& texture) {
     ImageDescription description;
 
     description.width = texture.width();
@@ -20,7 +20,7 @@ ImageDescription getImageDescriptionFrom(const ::protocol::duke::Texture& textur
     return description;
 }
 
-DisplayableImage::DisplayableImage(IFactory& factory, const ::protocol::duke::Texture& texture) :
+DisplayableImage::DisplayableImage(IFactory& factory, const ::duke::protocol::Texture& texture) :
     m_Image(factory, texture.name(), getImageDescriptionFrom(texture)) {
     m_pTexture = factory.getResourceManager().get<ITextureBase> (::resource::TEXTURE, texture.name());
     if (!m_pTexture) {

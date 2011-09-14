@@ -7,7 +7,7 @@
 #include <fstream>
 #include <stdexcept>
 
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::std;
 
 namespace { // empty namespace
@@ -29,13 +29,13 @@ static bool isEmptyOrComment(const string& line) {
     return true;
 }
 
-static float getImageRatio(::protocol::playlist::Display_ImageRatio _ratio) {
+static float getImageRatio(::duke::playlist::Display_ImageRatio _ratio) {
     switch (_ratio) {
-        case ::protocol::playlist::Display_ImageRatio__1_1:
+        case ::duke::playlist::Display_ImageRatio__1_1:
             return 1.0f;
-        case ::protocol::playlist::Display_ImageRatio__4_3:
+        case ::duke::playlist::Display_ImageRatio__4_3:
             return 4.f / 3.f;
-        case ::protocol::playlist::Display_ImageRatio__16_9:
+        case ::duke::playlist::Display_ImageRatio__16_9:
             return 16.f / 9.f;
         default:
             assert(!"Aspect ratio not handled.");
@@ -160,7 +160,7 @@ void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
     ss << _file.rdbuf();
     string data = ss.str();
 
-    ::protocol::playlist::Playlist p;
+    ::duke::playlist::Playlist p;
     ::google::protobuf::TextFormat::ParseFromString(data, &p);
 
     for (int i = 0; i < p.shot_size(); ++i) {
@@ -169,7 +169,7 @@ void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
 
         // adding sound
         if (p.has_audiosource()) {
-            const ::protocol::playlist::AudioSource & s = p.audiosource();
+            const ::duke::playlist::AudioSource & s = p.audiosource();
             if (s.has_name()) {
                 AudioSource * source = _playlist.mutable_audiosource();
                 source->set_name(s.name());
@@ -216,22 +216,22 @@ void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
 
             if (p.shot(i).display().has_colorspace()) {
                 switch (p.shot(i).display().colorspace()) {
-                    case ::protocol::playlist::Display_ColorSpace_LOGTOLIN:
+                    case ::duke::playlist::Display_ColorSpace_LOGTOLIN:
                         addShadingNode(pixelShader, "logtolin", nextNode);
                         break;
-                    case ::protocol::playlist::Display_ColorSpace_SRGBTOLIN:
+                    case ::duke::playlist::Display_ColorSpace_SRGBTOLIN:
                         addShadingNode(pixelShader, "srgbtolin", nextNode);
                         break;
-                    case ::protocol::playlist::Display_ColorSpace_LINTOLOG:
+                    case ::duke::playlist::Display_ColorSpace_LINTOLOG:
                         addShadingNode(pixelShader, "lintolog", nextNode);
                         break;
-                    case ::protocol::playlist::Display_ColorSpace_LINTOSRGB:
+                    case ::duke::playlist::Display_ColorSpace_LINTOSRGB:
                         addShadingNode(pixelShader, "lintosrgb", nextNode);
                         break;
-                    case ::protocol::playlist::Display_ColorSpace_FULLHEADTOSMPTE:
+                    case ::duke::playlist::Display_ColorSpace_FULLHEADTOSMPTE:
                         addShadingNode(pixelShader, "fullheadtosmpte", nextNode);
                         break;
-                    case ::protocol::playlist::Display_ColorSpace_SMPTETOFULLHEAD:
+                    case ::duke::playlist::Display_ColorSpace_SMPTETOFULLHEAD:
                         addShadingNode(pixelShader, "smptetofullhead", nextNode);
                         break;
                     default:

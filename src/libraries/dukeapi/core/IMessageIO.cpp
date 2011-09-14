@@ -1,7 +1,7 @@
 #include "IMessageIO.h"
 
 using namespace google::protobuf;
-using namespace protocol::duke;
+using namespace duke::protocol;
 
 void push(IMessageIO& io, const Message& msg, MessageType_Action action) {
     io.push(SharedMessage(new MessageCopy(msg, action)));

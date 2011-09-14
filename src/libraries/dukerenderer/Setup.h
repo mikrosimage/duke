@@ -2,12 +2,12 @@
 #define SETUP_H_
 
 #include <dukeio/ImageDescription.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <vector>
 
 typedef struct Setup {
     size_t m_iFrame;
-    std::vector<protocol::duke::Clip> m_Clips;
+    std::vector<duke::protocol::Clip> m_Clips;
     std::vector<ImageDescription> m_Images;
 } Setup;
 

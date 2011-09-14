@@ -3,7 +3,7 @@
 
 #include "ClipHelper.h"
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
@@ -15,7 +15,7 @@
 
 struct PlaylistHelper : boost::noncopyable {
 private:
-    ::protocol::duke::Playlist m_Playlist;
+    ::duke::protocol::Playlist m_Playlist;
     size_t m_uRecIn;
     size_t m_uRecOut;
     size_t m_uFrameCount;
@@ -36,8 +36,8 @@ public:
 public:
     // functions
     PlaylistHelper();
-    PlaylistHelper(const ::protocol::duke::Playlist& playlist);
-    void getClipsAtFrame(const size_t frame, std::vector<protocol::duke::Clip>& clips) const;
+    PlaylistHelper(const ::duke::protocol::Playlist& playlist);
+    void getClipsAtFrame(const size_t frame, std::vector<duke::protocol::Clip>& clips) const;
     void getIteratorsAtFrame(const size_t frame, std::vector<size_t>& indices) const;
     size_t getIteratorIndexAtFrame(const size_t frame) const;
     boost::filesystem::path getPathAtIterator(const size_t) const;
@@ -46,7 +46,7 @@ public:
     size_t getWrappedFrame(size_t frame) const;
     size_t getClampedFrame(size_t frame) const;
     size_t getNormalizedFrame(size_t frame) const;
-    inline const ::protocol::duke::Playlist& getPlaylist() const {
+    inline const ::duke::protocol::Playlist& getPlaylist() const {
         return m_Playlist;
     }
     inline size_t getRecIn() const {

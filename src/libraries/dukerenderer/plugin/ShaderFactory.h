@@ -5,7 +5,7 @@
 #include "IShaderBase.h"
 #include "RenderingContext.h"
 #include "ProtoBufResource.h"
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <dukeio/ImageDescription.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -24,7 +24,7 @@ class IRenderer;
 class ShaderFactory
 {
 public:
-    ShaderFactory( IRenderer& renderer, const ::protocol::duke::Shader& shader, RenderingContext& context, const TShaderType type );
+    ShaderFactory( IRenderer& renderer, const ::duke::protocol::Shader& shader, RenderingContext& context, const TShaderType type );
 
 	ShaderBasePtr getShader() const;
 
@@ -33,15 +33,15 @@ private:
 	TResourcePtr    getParam(const std::string &) const;
 	void            applyParameters();
 	void            applyParameter(const std::string &);
-	void            applyParameter(const std::string &, const ::protocol::duke::AutomaticParameter&);
-	void            applyParameter(const std::string &, const ::protocol::duke::StaticParameter&);
+	void            applyParameter(const std::string &, const ::duke::protocol::AutomaticParameter&);
+	void            applyParameter(const std::string &, const ::duke::protocol::StaticParameter&);
 
 	ShaderBasePtr		m_pShader;
 
 	// ShaderFactory is meant to last for a very short amount of time
 	// so we can keep references here instead of copies
 	IRenderer& 								m_Renderer;
-	const ::protocol::duke::Shader			&m_Shader;
+	const ::duke::protocol::Shader			&m_Shader;
 	RenderingContext					    &m_RenderingContext;
 	const ImageDescriptions					&m_Images;
 	const TShaderType 						m_Type;

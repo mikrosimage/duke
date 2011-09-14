@@ -8,7 +8,7 @@
 //#include <Windows.h>
 
 using namespace std;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 
 Image::Image(IFactory& factory, const string& name, const ImageDescription& imageDescription) {
     m_pImage = factory.getResourceManager().get<IImageBase> (::resource::IMAGE, name);

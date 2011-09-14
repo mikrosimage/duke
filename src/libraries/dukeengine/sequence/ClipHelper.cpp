@@ -13,11 +13,11 @@ bool existAt(const size_t in, const size_t out, const size_t frame) {
     return frame >= in && frame < out;
 }
 
-bool isRecFrame(const ::protocol::duke::Clip& clip, const size_t frame) {
+bool isRecFrame(const ::duke::protocol::Clip& clip, const size_t frame) {
     return ::existAt(clip.recin(), clip.recout(), frame);
 }
 
-bool isSrcFrame(const ::protocol::duke::Clip& clip, const size_t frame) {
+bool isSrcFrame(const ::duke::protocol::Clip& clip, const size_t frame) {
     return ::existAt(clip.srcin(), clip.srcout(), frame);
 }
 
@@ -26,7 +26,7 @@ size_t duration(const size_t in, const size_t out) {
     return (out - 1) - in;
 }
 
-ClipHelper::ClipHelper(const ::protocol::duke::Clip& clip) :
+ClipHelper::ClipHelper(const ::duke::protocol::Clip& clip) :
     m_Clip(clip),//
             m_uStartIndex(m_Clip.filename().find_first_of('#')), //
             m_uEndIndex(m_Clip.filename().find_last_of('#')), //

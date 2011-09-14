@@ -2,12 +2,12 @@
 #define PLAYLISTBUILDER_H_
 
 #include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 
 namespace {
 
-namespace dk = ::protocol::duke;
+namespace dk = ::duke::protocol;
 
 void buildPlaylist(dk::Playlist& _p //
                    , size_t _framerate = 25//

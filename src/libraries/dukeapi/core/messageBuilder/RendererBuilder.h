@@ -2,12 +2,12 @@
 #define RENDERERBUILDER_H
 
 #include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 
 namespace {
 
-namespace dk = ::protocol::duke;
+namespace dk = ::duke::protocol;
 
 void buildRenderer(dk::Renderer& _r //
                    , bool _windowed = true//

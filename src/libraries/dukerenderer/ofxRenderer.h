@@ -18,7 +18,7 @@ typedef struct OfxRendererSuiteV1 {
     PresentStatus (* getPresentStatus)();
     void (* verticalBlanking)(bool verticalBlanking);
     void (* pushEvent)(std::unique_ptr<google::protobuf::Message>&);
-    const ::google::protobuf::Message* (*popEvent)(::protocol::duke::MessageType&);
+    const ::google::protobuf::Message* (*popEvent)(::duke::protocol::MessageType&);
     bool (* renderEnd)(unsigned msToPresent);
 
     Setup m_Setup;

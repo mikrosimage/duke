@@ -2,7 +2,7 @@
 #define OGLRENDERER_H_
 
 #include <GL/glew.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <plugin/RendererSuite.h>
 #include <plugin/IRenderer.h>
 #include <plugin/IFactory.h>
@@ -17,7 +17,7 @@ protected:
     virtual void waitForBlanking() const;
 	virtual Image dumpTexture( ITextureBase* pTextureBase );
 
-public: OGLRenderer( const protocol::duke::Renderer& Renderer, sf::Window& window, const RendererSuite& suite );
+public: OGLRenderer( const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite );
 	~OGLRenderer();
 
 	// IFactory
@@ -34,8 +34,8 @@ public: OGLRenderer( const protocol::duke::Renderer& Renderer, sf::Window& windo
 	virtual void setIndexBuffer( const IBufferBase* buffer );
 	virtual void drawPrimitives( TPrimitiveType meshType, unsigned long count );
 	virtual void drawIndexedPrimitives( TPrimitiveType meshType, unsigned long count );
-    virtual void setRenderState( const ::protocol::duke::Effect &renderState ) const;
-	virtual void setTexture( const CGparameter sampler, const ::google::protobuf::RepeatedPtrField< ::protocol::duke::SamplerState >& samplerStates, const ITextureBase* pTextureBase ) const;
+    virtual void setRenderState( const ::duke::protocol::Effect &renderState ) const;
+	virtual void setTexture( const CGparameter sampler, const ::google::protobuf::RepeatedPtrField< ::duke::protocol::SamplerState >& samplerStates, const ITextureBase* pTextureBase ) const;
 
     virtual GLuint getPBO() const {
         return m_Pbo;

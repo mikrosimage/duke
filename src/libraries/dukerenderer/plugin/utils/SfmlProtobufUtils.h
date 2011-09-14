@@ -1,12 +1,12 @@
 #ifndef SFMLPROTOBUFUTILS_H_
 #define SFMLPROTOBUFUTILS_H_
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <SFML/Window/Event.hpp>
 
-inline ::protocol::duke::Event_Type Get( const ::sf::Event::EventType& eventType )
+inline ::duke::protocol::Event_Type Get( const ::sf::Event::EventType& eventType )
 {
-	using namespace ::protocol::duke;
+	using namespace ::duke::protocol;
 
 	switch( eventType )
 	{
@@ -42,10 +42,10 @@ inline ::protocol::duke::Event_Type Get( const ::sf::Event::EventType& eventType
 	return Event_Type_Type_MIN;
 }
 
-inline ::protocol::duke::KeyEvent_KeyCode Get( const sf::Keyboard::Key& keyCode )
+inline ::duke::protocol::KeyEvent_KeyCode Get( const sf::Keyboard::Key& keyCode )
 {
     using namespace ::sf;
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 
 	switch( keyCode )
 	{
@@ -257,10 +257,10 @@ inline ::protocol::duke::KeyEvent_KeyCode Get( const sf::Keyboard::Key& keyCode 
 	return KeyEvent_KeyCode_Unknown;
 }
 
-inline ::protocol::duke::MouseEvent_Button Get( const sf::Mouse::Button& mouseButton )
+inline ::duke::protocol::MouseEvent_Button Get( const sf::Mouse::Button& mouseButton )
 {
     using namespace ::sf;
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 	switch( mouseButton )
 	{
 		case Mouse::Left:
@@ -279,9 +279,9 @@ inline ::protocol::duke::MouseEvent_Button Get( const sf::Mouse::Button& mouseBu
 	return MouseEvent_Button_UNKNOWN;
 }
 
-inline void Update( ::protocol::duke::Event& toUpdate, const ::sf::Event& withEvent )
+inline void Update( ::duke::protocol::Event& toUpdate, const ::sf::Event& withEvent )
 {
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 	// setting event type
 	toUpdate.set_type( Get( withEvent.Type ) );
 	switch( withEvent.Type )

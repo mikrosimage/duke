@@ -1,7 +1,7 @@
 #ifndef PrototypeFactory_H_
 #define PrototypeFactory_H_
 
-#include "shader_assembler.pb.h"
+#include "protocol.pb.h"
 
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -19,7 +19,7 @@
 std::string& replaceAll(std::string& context, const std::string& from, const std::string& to);
 
 class PrototypeFactory : boost::noncopyable {
-    typedef protocol::shader_assembler::FunctionPrototype Function;
+    typedef duke::protocol::FunctionPrototype Function;
     typedef boost::ptr_map<std::string, Function> TMap;
     TMap m_Map;
 public:

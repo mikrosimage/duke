@@ -1,6 +1,6 @@
 #include <dukeengine/sequence/ClipHelper.h>
 #include <dukeengine/sequence/PlaylistHelper.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #define BOOST_TEST_MODULE ClipHelper
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( existAt )
 
 BOOST_AUTO_TEST_CASE( isRecFrame )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "prefix####.jpg" );
     BOOST_CHECK_EQUAL( 0u, clip.recin() );
     BOOST_CHECK_EQUAL( 0u, clip.recout() );
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_SUITE( ClipHelperSuite )
 
 BOOST_AUTO_TEST_CASE( frameIndex )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "prefix####.jpg" );
     clip.set_recin( 0 );
     clip.set_recout( 1 );
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( frameIndex )
 
 BOOST_AUTO_TEST_CASE( filenameNotSet )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_recin( 0 );
     clip.set_recout( 1 );
     ClipHelper helper( clip );
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( filenameNotSet )
 
 BOOST_AUTO_TEST_CASE( filenameBadSet )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_recin( 0 );
     clip.set_recout( 1 );
     clip.set_filename( "t" );
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( filenameBadSet )
 
 BOOST_AUTO_TEST_CASE( frameIndexTooLarge )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "prefix#.jpg" );
     clip.set_recin( 0 );
     clip.set_recout( 1 );
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( frameIndexTooLarge )
 
 BOOST_AUTO_TEST_CASE( sourceFrame )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "#" );
     clip.set_recin( 0 );
     clip.set_recout( 10 );
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( sourceFrame )
 
 BOOST_AUTO_TEST_CASE( sourceFrameOffset )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "#" );
     clip.set_recin( 0 );
     clip.set_recout( 10 );
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( sourceFrameOffset )
 
 BOOST_AUTO_TEST_CASE( sourceFrameHalfSpeed )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "#" );
     clip.set_recin( 0 );
     clip.set_recout( 6 );
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( sourceFrameHalfSpeed )
 
 BOOST_AUTO_TEST_CASE( sourceFrameReverse )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "#" );
     clip.set_recin( 0 );
     clip.set_recout( 10 );
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( sourceFrameReverse )
 
 BOOST_AUTO_TEST_CASE( sourceFrameReverseHalf )
 {
-    ::protocol::duke::Clip clip;
+    ::duke::protocol::Clip clip;
     clip.set_filename( "#" );
     clip.set_recin( 0 );
     clip.set_recout( 6 );
@@ -161,16 +161,16 @@ BOOST_AUTO_TEST_SUITE_END()
 //--------------------------------------
 BOOST_AUTO_TEST_SUITE( PlaylistHelperSuite )
 
-::protocol::duke::Playlist buildPlaylist()
+::duke::protocol::Playlist buildPlaylist()
 {
-    ::protocol::duke::Playlist playlist;
+    ::duke::protocol::Playlist playlist;
     playlist.set_loop(true);
-    ::protocol::duke::Clip* const pFirst = playlist.add_clip();
+    ::duke::protocol::Clip* const pFirst = playlist.add_clip();
     pFirst->set_filename( "prefix####.jpg" );
     pFirst->set_recin( 10 );
     pFirst->set_recout( 20 );
     pFirst->set_srcin( 10 );
-    ::protocol::duke::Clip* const pSecond = playlist.add_clip();
+    ::duke::protocol::Clip* const pSecond = playlist.add_clip();
     pSecond->set_path( "../toto" );
     pSecond->set_filename( "prefix_####_suffix.dpx" );
     pSecond->set_recin( 15 );
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_SUITE( PlaylistHelperSuite )
 
 BOOST_AUTO_TEST_CASE( PlaylistHelperTests )
 {
-    ::protocol::duke::Playlist playlist( buildPlaylist() );
+    ::duke::protocol::Playlist playlist( buildPlaylist() );
     PlaylistHelper helper( playlist );
 
     BOOST_CHECK_EQUAL( 20u, helper.getFrameCount() );
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( PlaylistWithHolesTest )
     if(!infile.is_open())
         return;
     ::google::protobuf::io::IstreamInputStream zcis(&infile);
-    ::protocol::duke::Playlist playlist;
+    ::duke::protocol::Playlist playlist;
     ::google::protobuf::TextFormat::Parse(&zcis, &playlist);
 
     PlaylistHelper helper(playlist);

@@ -11,7 +11,7 @@ class Playlist;
 
 class SequenceReader{
 public:
-    SequenceReader(const std::string&, MessageQueue&, ::protocol::duke::Playlist&);
+    SequenceReader(const std::string&, MessageQueue&, ::duke::protocol::Playlist&);
 
 private:
     MessageQueue& m_Queue;

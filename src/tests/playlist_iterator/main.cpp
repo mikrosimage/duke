@@ -7,10 +7,10 @@
 
 BOOST_AUTO_TEST_SUITE( PlaylistIteratorSuite )
 
-::protocol::duke::Playlist buildOneFramePlaylist()
+::duke::protocol::Playlist buildOneFramePlaylist()
 {
-    ::protocol::duke::Playlist playlist;
-    ::protocol::duke::Clip* const pFirst = playlist.add_clip();
+    ::duke::protocol::Playlist playlist;
+    ::duke::protocol::Clip* const pFirst = playlist.add_clip();
     pFirst->set_filename( "prefix####.jpg" );
     pFirst->set_recin( 10 );
     pFirst->set_recout( 11 );
@@ -18,16 +18,16 @@ BOOST_AUTO_TEST_SUITE( PlaylistIteratorSuite )
     return playlist;
 }
 
-::protocol::duke::Playlist buildPlaylist()
+::duke::protocol::Playlist buildPlaylist()
 {
-    ::protocol::duke::Playlist playlist;
+    ::duke::protocol::Playlist playlist;
     playlist.set_loop(true);
-    ::protocol::duke::Clip* const pFirst = playlist.add_clip();
+    ::duke::protocol::Clip* const pFirst = playlist.add_clip();
     pFirst->set_filename( "prefix####.jpg" );
     pFirst->set_recin( 10 );
     pFirst->set_recout( 13 );
     pFirst->set_srcin( 10 );
-    ::protocol::duke::Clip* const pSecond = playlist.add_clip();
+    ::duke::protocol::Clip* const pSecond = playlist.add_clip();
     pSecond->set_path( "../toto" );
     pSecond->set_filename( "prefix_####_suffix.dpx" );
     pSecond->set_recin( 11 );
@@ -66,10 +66,10 @@ BOOST_AUTO_TEST_CASE( TestAccelerators )
  * frame 11 to 14 track 1 (rec:11-15)
  * frame 12 to 13 track 2 (rec:12-14)
  */
-::protocol::duke::Playlist buildTrickyPlaylist()
+::duke::protocol::Playlist buildTrickyPlaylist()
 {
-    ::protocol::duke::Playlist playlist;
-    ::protocol::duke::Clip* pClip = playlist.add_clip();
+    ::duke::protocol::Playlist playlist;
+    ::duke::protocol::Clip* pClip = playlist.add_clip();
     pClip->set_filename( "_0_##" );
     pClip->set_recin( 10 );
     pClip->set_recout( 13 );

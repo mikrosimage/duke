@@ -1,7 +1,5 @@
-package protocol.duke;
+package duke.protocol;
 option java_package = "fr.mikrosimage.player.protocol";
-
-import "shader_assembler.proto";
 
 message MessageType {
 	enum Action {
@@ -335,7 +333,7 @@ message Effect {
 message Shader {
 	optional string name = 1;
 	optional string code = 2;
-	optional shader_assembler.Program program = 4;
+	optional Program program = 4;
 	repeated string parameterName = 3;
 }
 
@@ -465,4 +463,47 @@ message SamplerState {
 
 message AudioSource {
 	required string name = 1;
+}
+
+message FunctionSignature {
+	optional string name 					= 1; // if the function is inlined no name needed
+	required string returnType				= 2;
+	repeated string operandType				= 3; // list of operand types
+	repeated string parameterType			= 4; // list of parameter types
+	optional string varyingOuputSemantic  	= 5; // COLOR for instance
+	repeated string prependDeclaration  	= 6; // anything to declare ? ( struct declarations for instance )
+}
+
+message FunctionPrototype {
+	required FunctionSignature signature	= 1;
+
+	// now the body definition, body can refer to
+	// arguments : @0, @1, @2 ...
+	// parameters: $0, $1, $2 ...
+	
+	optional string body					= 2;
+}
+
+message FunctionInstance {
+	message CallGraph {
+		message FunctionCall {
+			required FunctionInstance function		= 1;
+			repeated uint32 operand					= 2; // index of the ShadingGraphNode from ShadingGraph::node list to use as argument
+		}
+		required FunctionSignature signature		= 1;
+		repeated FunctionCall call					= 2; // defines every possible call
+		optional uint32 returnCallIndex				= 3; // if not defined choose the last call as the return value
+	}
+
+	// select one of the three following instantiation method
+	optional string usePrototypeNamed		= 1;	// If this node refers to a registered Function.
+	optional FunctionPrototype usePrototype	= 2;	// Otherwise use this Function.
+	optional CallGraph callGraph			= 3;	// If callGraph is defined the body is generated on the fly
+	optional string inlinedValue			= 4;	// If you want to set an argument to a particular value
+
+	repeated string parameterName			= 5;	// Names of the parameters to link to this instance.
+}
+
+message Program {
+	repeated FunctionInstance function		= 1; // All the methods in the program
 }

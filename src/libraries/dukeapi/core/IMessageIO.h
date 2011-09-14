@@ -10,9 +10,9 @@ struct IMessageIO {
 };
 
 void push(IMessageIO&, const google::protobuf::Message&, //
-          ::protocol::duke::MessageType_Action action = ::protocol::duke::MessageType_Action_SET);
+          ::duke::protocol::MessageType_Action action = ::duke::protocol::MessageType_Action_SET);
 
 void push(IMessageIO&, std::unique_ptr<google::protobuf::Message>&, //
-          ::protocol::duke::MessageType_Action action = ::protocol::duke::MessageType_Action_SET);
+          ::duke::protocol::MessageType_Action action = ::duke::protocol::MessageType_Action_SET);
 
 #endif /* IMESSAGEIO_H_ */

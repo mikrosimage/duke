@@ -14,7 +14,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 using namespace ::std;
-using namespace ::protocol::shader_assembler;
+using namespace ::duke::protocol;
 using namespace ::google::protobuf;
 
 namespace shader_factory {
@@ -306,7 +306,7 @@ public:
     }
 };
 
-string compile(const ::protocol::shader_assembler::Program &program, const PrototypeFactory& factory) {
+string compile(const ::duke::protocol::Program &program, const PrototypeFactory& factory) {
     return Compiler(program, factory).getCode();
 }
 

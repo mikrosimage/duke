@@ -19,7 +19,7 @@ static bool isEqual(const char* expected, const char* actual) {
 #include <dukerenderer/plugin/RendererSuite.h>
 #include <dukerenderer/plugin/IRenderer.h>
 #include <dukerenderer/plugin/SfmlWindow.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <cassert>
 #include <stdexcept>
 #include <memory>
@@ -27,7 +27,7 @@ static bool isEqual(const char* expected, const char* actual) {
 
 using namespace std;
 
-IRenderer* createRenderer(const protocol::duke::Renderer& Renderer, sf::Window& window, const RendererSuite& suite) {
+IRenderer* createRenderer(const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite) {
     return new Dx9Renderer(Renderer, window, suite);
 }
 
@@ -44,7 +44,7 @@ public:
 
     virtual OfxStatus pluginMain(const char* action, const void* handle, OfxPropertySetHandle inArgs, OfxPropertySetHandle outArgs) {
         if (isEqual(action, kOfxActionRendererInit)) {
-            const protocol::duke::Renderer* pDescriptor = (const protocol::duke::Renderer*) handle;
+            const duke::protocol::Renderer* pDescriptor = (const duke::protocol::Renderer*) handle;
             assert( pDescriptor );
             m_pWindow.reset(new SfmlWindow(&::createRenderer, *pDescriptor, *m_pRendererSuite));
             return kOfxStatOK;
