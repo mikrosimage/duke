@@ -12,6 +12,7 @@ rule plugins-selection ( existing-plugins * ) {
 	}
 	return [ set.difference $(existing-plugins) : $(no-parameter) ] ;
 }
+
 local rule check-required-env ( var ) {
 	if ! $($(var)) {
 		EXIT Missing variable $(var) ;
@@ -24,7 +25,8 @@ check-required-env 	BOOST_ROOT ;
 if ! $(duke_user_configuration) {
 	EXIT "
 To build Duke you need to setup a few libraries.
-In the config folder, please copy 'user-config.jam.platform-example' to user-config.jam.
-Customize it in your favorite editor. When you're done, don't forget to uncomment the file's last line.
-" ;
+Please customize one of the predefined files in the config folder
+and have a look at the config/README file to get started.
+
+NB : When you're done, don't forget to uncomment the last line of the file." ;
 }

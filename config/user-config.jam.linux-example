@@ -1,11 +1,7 @@
 project user-config ;
 
 # This file configures the external libraries needed by duke.
-# See README for more details
-
-# prevent building by default
-explicit protobuf sfml sfml-graphics sfml-system sfml-window sfml-audio cg cggl turbojpeg oiio ;
-
+# See README for more details.
 
 
 #----------------------------------------#
@@ -87,11 +83,15 @@ lib oiio : : <file>/PATH/TO/OPENIMAGEIO-SO/libOpenImageIO.so
  	     : : <include>/PATH/TO/OPENIMAGEIO/include ;
 
 
+#-----------------------------------------------------------------------------
+## prevent building targets by default
+## more info here http://www.boost.org/boost-build2/doc/html/bbv2/reference/rules.html
+explicit protobuf sfml sfml-graphics sfml-system sfml-window sfml-audio cg cggl turbojpeg oiio ;
+#-----------------------------------------------------------------------------
 
 
 #---------------------------------------#
 #    Congratulations ! You're done :)   #
 #    Uncomment the following line.      #
 #---------------------------------------#
-#constant duke_user_configuration : true ; 
-
+#constant duke_user_configuration : true ;
