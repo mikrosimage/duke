@@ -2,7 +2,7 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/ioplugin//dukeioplugin 
-    	<library>/site-config//oiio
+    	<library>/user-config//oiio
     ;
 
 explicit oiio ;

@@ -6,12 +6,12 @@ project
 	: requirements
 		<include>.. 
     	<library>/duke/sub/duke.plugins//dukeplugin
-		<library>/site-config//cg
-		<library>/site-config//sfml 
+		<library>/user-config//cg
+		<library>/user-config//sfml 
     	<library>/duke/lib/api//dukeapi
     : usage-requirements 
 		<include>.. 
-		<library>/site-config//cg
+		<library>/user-config//cg
 		<library>/duke/lib/api//dukeapi
 	;
 

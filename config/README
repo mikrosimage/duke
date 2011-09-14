@@ -1,0 +1,8 @@
+
+We are using Boost.Build, the build system embedded within Boost.
+As a starter you need to understand how boost.build manages libraries
+http://www.boost.org/boost-build2/doc/html/bbv2/tasks/libraries.html
+
+An excellent introduction to Boost.Build can be found here
+http://www.highscore.de/cpp/boostbuild/
+

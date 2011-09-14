@@ -18,7 +18,8 @@ Compilation
 
 	* External libraries
 		A few external libraries are mandatory to build duke.
-		Please customize 'site-config.jam.example' and move it to (BOOST_ROOT)/tools/build/v2/site-config.jam
+		In the config folder, please copy 'user-config.jam.platform-example' to user-config.jam.
+		Customize it in your favorite editor.
 		When you're done, don't forget to uncomment the file's last line.
 
 	* Compilation

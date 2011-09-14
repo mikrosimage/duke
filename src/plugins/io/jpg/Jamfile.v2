@@ -2,7 +2,7 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/ioplugin//dukeioplugin 
-    	<library>/site-config//turbojpeg
+    	<library>/user-config//turbojpeg
     ;
 
 explicit jpg ;

@@ -2,7 +2,7 @@ project
 	: requirements 
 		<include>.
     	<library>/duke/lib/rendererplugin//dukerendererplugin 
-    	<library>/site-config//cggl 
+    	<library>/user-config//cggl 
     ;
 
 explicit ogl ;

@@ -1,11 +1,30 @@
 import path ;
+import os ;
+import set ;
 
-project project-config ;
+rule plugins-selection ( existing-plugins * ) {
+	local argv = [ modules.peek : ARGV ] ;
+	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
+	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
+	if $(wrong)	{
+		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
+		EXIT ;
+	}
+	return [ set.difference $(existing-plugins) : $(no-parameter) ] ;
+}
+local rule check-required-env ( var ) {
+	if ! $($(var)) {
+		EXIT Missing variable $(var) ;
+	}
+}
 
-if ! $(duke_site_configuration) {
+local BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ; 
+check-required-env 	BOOST_ROOT ;
+
+if ! $(duke_user_configuration) {
 	EXIT "
-To build 'duke' you need to setup a few libraries.
-Please customize 'site-config.jam.example' and move it to (BOOST_ROOT)/tools/build/v2/site-config.jam
-
-NB : When done, don't forget to uncomment the file's last line" ;
+To build Duke you need to setup a few libraries.
+In the config folder, please copy 'user-config.jam.platform-example' to user-config.jam.
+Customize it in your favorite editor. When you're done, don't forget to uncomment the file's last line.
+" ;
 }

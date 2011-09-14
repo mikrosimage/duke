@@ -1,0 +1,97 @@
+project user-config ;
+
+# This file configures the external libraries needed by duke.
+# See README for more details
+
+# prevent building by default
+explicit protobuf sfml sfml-graphics sfml-system sfml-window sfml-audio cg cggl turbojpeg oiio ;
+
+
+
+#----------------------------------------#
+#    Mandatory libraries                 #
+#----------------------------------------#
+
+#-----------------------------------------------------------------------------
+# name     : Google Protocolbuffer
+# purpose  : Defines duke's protocol to communicate internally and with other
+#            applications  
+# website  : http://code.google.com/p/protobuf/
+# download : http://code.google.com/p/protobuf/downloads/list
+#-----------------------------------------------------------------------------
+lib protobuf : : <file>/PATH/TO/PROTOBUF-SO/libprotobuf.so.7
+	   		 : : <include>/PATH/TO/PROTOBUF/include ;
+
+# expected by duke build system
+constant PROTOC : /PATH/TO/PROTOC-BINARY/protoc ; 
+
+
+#-----------------------------------------------------------------------------
+# name     : SFML2
+# purpose  : Window creation and sound management
+# website  : http://www.sfml-dev.org/
+# download : http://www.sfml-dev.org/download.php
+#-----------------------------------------------------------------------------
+lib sfml-graphics  : : <file>/PATH/TO/SFML-GRAPHICS-SO/libsfml-graphics.so.2 ;
+lib sfml-system    : : <file>/PATH/TO/SFML-SYSTEM-SO/libsfml-system.so.2 ;
+lib sfml-window    : : <file>/PATH/TO/SFML-WINDOW-SO/libsfml-window.so.2 ;
+lib sfml-audio     : : <file>/PATH/TO/SFML-AUDIO-SO/libsfml-audio.so.2 ;
+
+alias sfml : sfml-graphics sfml-system sfml-window sfml-audio 
+		   : : : <include>/PATH/TO/SFML/include ;
+
+
+#-----------------------------------------------------------------------------
+# name     : Cg
+# purpose  : Graphical toolkit
+# website  : http://developer.nvidia.com/cg-toolkit
+# download : http://developer.nvidia.com/cg-toolkit-download
+#-----------------------------------------------------------------------------
+lib cg : : 	<file>/PATH/TO/CG-SO/libCg.so
+	   : : 	<include>/PATH/TO/CG/include ;
+
+
+#-----------------------------------------------------------------------------
+# name     : CgGL
+# purpose  : Graphical toolkit - OpenGL backend
+# website  : http://developer.nvidia.com/cg-toolkit
+# download : http://developer.nvidia.com/cg-toolkit-download
+#-----------------------------------------------------------------------------
+lib cggl : : <file>/PATH/TO/CGGL-SO/libCgGL.so
+	     : : <include>/PATH/TO/CGGL/include ;
+
+
+
+
+#----------------------------------------#
+#   Optional  libraries                  #
+#----------------------------------------#
+
+#-----------------------------------------------------------------------------
+# name     : TurboJpeg
+# purpose  : adds support for jpeg (plugin)
+# website  : http://sourceforge.net/projects/libjpeg-turbo/
+# download : http://sourceforge.net/projects/libjpeg-turbo/files/1.1.1/
+#-----------------------------------------------------------------------------
+lib turbojpeg : : <file>/PATH/TO/TURBOJPEG-SO/libturbojpeg.so
+ 	      	  : : <include>/PATH/TO/TURBOJPEG/include ;
+
+
+#-----------------------------------------------------------------------------
+# name     : OpenImageIO
+# purpose  : adds support for various file format (plugin)
+# website  : https://sites.google.com/site/openimageio/home
+# download : https://github.com/OpenImageIO/oiio
+#-----------------------------------------------------------------------------
+lib oiio : : <file>/PATH/TO/OPENIMAGEIO-SO/libOpenImageIO.so
+ 	     : : <include>/PATH/TO/OPENIMAGEIO/include ;
+
+
+
+
+#---------------------------------------#
+#    Congratulations ! You're done :)   #
+#    Uncomment the following line.      #
+#---------------------------------------#
+#constant duke_user_configuration : true ; 
+

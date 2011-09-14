@@ -5,9 +5,9 @@ using pb : $(PROTOC) ;
 
 project 
 	: requirements 
-		<library>/site-config//protobuf
+		<library>/user-config//protobuf
     : usage-requirements 
-		<library>/site-config//protobuf
+		<library>/user-config//protobuf
 	;
 
 lib allpb : 

@@ -15,30 +15,9 @@
 import os ;
 import set ;
 
-## Project specific rules
- 
-local rule plugins-selection ( existing-plugins * ) {
-	local argv = [ modules.peek : ARGV ] ;
-	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
-	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
-	if $(wrong)	{
-		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
-		EXIT ;
-	}
-	return [ set.difference $(existing-plugins) : $(no-parameter) ] ;
-}
-local rule check-required-env ( var ) {
-	if ! $($(var)) {
-		EXIT Missing variable $(var) ;
-	}
-}
-
-
 ## Configuration
 
 local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ; 
-check-required-env 	BOOST_ROOT ;
-
 use-project /boost 						: $(BOOST_ROOT) ;
 use-project /duke/lib/engine			: src/libraries/dukeengine ;
 use-project /duke/lib/api				: src/libraries/dukeapi ;
