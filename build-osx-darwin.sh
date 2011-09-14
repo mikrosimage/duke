@@ -7,7 +7,7 @@ then
 	echo "Edit and type the following command: export BOOST_ROOT=/your/path/to/boost/root/directory"
 	echo "See README file for more informations."
 	echo "Quit." 
-	exit 0;
+	exit 1;
 fi
 
 # boost build configuration
