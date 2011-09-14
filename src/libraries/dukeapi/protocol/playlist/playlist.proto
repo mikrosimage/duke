@@ -1,5 +1,5 @@
-package protocol.playlist;
-option java_package = "fr.mikrosimage.playlist.protocol";
+package duke.playlist;
+option java_package = "fr.mikrosimage.player.playlist";
 option java_outer_classname = "PlaylistProtocol";
 
 message Playlist {

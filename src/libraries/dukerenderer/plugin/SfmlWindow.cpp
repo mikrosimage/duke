@@ -7,7 +7,7 @@
 
 using namespace std;
 
-SfmlWindow::SfmlWindow(const RendererFactoryFunc& rendererFactoryFunction, protocol::duke::Renderer renderer, const RendererSuite& suite) :
+SfmlWindow::SfmlWindow(const RendererFactoryFunc& rendererFactoryFunction, duke::protocol::Renderer renderer, const RendererSuite& suite) :
     m_bWindowCreated(false) {
     try {
         const sf::VideoMode desktopMode = sf::VideoMode::GetDesktopMode();

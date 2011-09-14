@@ -2,7 +2,7 @@
 #define DX9RENDERER_H_
 
 #include "ScopedIUnknownPtr.h"
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <dukerenderer/plugin/RendererSuite.h>
 #include <dukerenderer/plugin/IRenderer.h>
 #include <dukerenderer/plugin/IFactory.h>
@@ -34,7 +34,7 @@ protected:
 	virtual Image dumpTexture( ITextureBase* pTextureBase );
 	virtual void checkCaps();
 
-public: Dx9Renderer( const protocol::duke::Renderer& Renderer, sf::Window& window, const RendererSuite& suite );
+public: Dx9Renderer( const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite );
 	virtual ~Dx9Renderer();
 
 	// IFactory
@@ -50,8 +50,8 @@ public: Dx9Renderer( const protocol::duke::Renderer& Renderer, sf::Window& windo
 	virtual void setIndexBuffer( const IBufferBase* buffer );
 	virtual void drawPrimitives( TPrimitiveType meshType, unsigned long count );
 	virtual void drawIndexedPrimitives( TPrimitiveType meshType, unsigned long count );
-    virtual void setRenderState( const ::protocol::duke::Effect &renderState ) const;
-	virtual void setTexture( const CGparameter sampler, const ::google::protobuf::RepeatedPtrField< ::protocol::duke::SamplerState >& samplerStates, const ITextureBase* pTextureBase ) const;
+    virtual void setRenderState( const ::duke::protocol::Effect &renderState ) const;
+	virtual void setTexture( const CGparameter sampler, const ::google::protobuf::RepeatedPtrField< ::duke::protocol::SamplerState >& samplerStates, const ITextureBase* pTextureBase ) const;
 
 	LPDIRECT3D9       getD3dInterface() const { return m_pD3d; }
 	LPDIRECT3DDEVICE9 getD3dDevice() const    { return m_pD3dDevice; }

@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "host/renderer/Renderer.h"
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
@@ -12,7 +12,7 @@
 #include <set>
 
 using namespace ::google::protobuf;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::std;
 
 const string HEADER = "[Application] ";
@@ -107,7 +107,7 @@ void Application::consumeUntilRenderOrQuit() {
     assert(holder);
     const MessageType_Type type(holder->type());
     if (type == MessageType_Type_INIT_RENDERER)
-        m_Renderer.initRender(holder->message<protocol::duke::Renderer> ());
+        m_Renderer.initRender(holder->message<duke::protocol::Renderer> ());
     else if (type == MessageType_Type_QUIT)
         handleQuitMessage(holder->message<Quit> ());
     else

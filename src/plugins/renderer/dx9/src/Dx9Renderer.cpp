@@ -14,7 +14,7 @@
 #include <Cg/cgD3D9.h>
 
 using namespace ::google::protobuf;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::std;
 
 #define CUSTOMFVF ( D3DFVF_XYZ | D3DFVF_TEX1 )
@@ -246,7 +246,7 @@ inline static D3DSAMPLERSTATETYPE Get(const SamplerState_Type type) {
 }
 
 inline static int Get(const SamplerState_Value value) {
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 
     switch (value) {
         case SamplerState_Value_TEXF_POINT:

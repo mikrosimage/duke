@@ -12,7 +12,7 @@
 using namespace ::std;
 using namespace ::google::protobuf;
 using namespace ::google::protobuf::io;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 
 const string HEADER = "[MessageIOHelper] ";
 const string READHEADER = HEADER + "-read - ";

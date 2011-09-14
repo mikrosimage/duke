@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::google::protobuf;
 using namespace ::std;
 
@@ -62,7 +62,7 @@ inline void IRenderer::addResource(const ::google::protobuf::Message& msg) {
     );
 }
 
-IRenderer::IRenderer(const protocol::duke::Renderer& renderer, sf::Window& window, const RendererSuite& suite) :
+IRenderer::IRenderer(const duke::protocol::Renderer& renderer, sf::Window& window, const RendererSuite& suite) :
     m_Window(window), m_Renderer(renderer), m_RendererSuite(suite), m_pSetup(NULL), m_DisplayedFrameCount(0), m_bRenderOccured(false) {
     m_EmptyImageDescription.width = 1;
     m_EmptyImageDescription.height = 1;
@@ -112,9 +112,9 @@ void IRenderer::consumeUntilEngine() {
                 break;
             }
             case MessageType_Type_MESH: {
-                const protocol::duke::Mesh& s = dynamic_cast<const protocol::duke::Mesh&> (msg);
+                const duke::protocol::Mesh& s = dynamic_cast<const duke::protocol::Mesh&> (msg);
                 getResourceManager().remove(::resource::MESH, s.name());
-                addResource<protocol::duke::Mesh> (msg);
+                addResource<duke::protocol::Mesh> (msg);
                 break;
             }
             case MessageType_Type_TEXTURE: {
@@ -157,7 +157,6 @@ void IRenderer::consumeUntilEngine() {
                 break;
             }
             case MessageType_Type_SHADING_FUNCTION: {
-                using namespace ::protocol::shader_assembler;
                 FunctionPrototype function;
                 function.CopyFrom(msg);
                 getPrototypeFactory().setPrototype(function);
@@ -251,7 +250,7 @@ void IRenderer::waitForBlankingAndWarn(bool presented) const {
     m_RendererSuite.verticalBlanking(presented);
 }
 
-void IRenderer::displayClip(const ::protocol::duke::Clip& clip) {
+void IRenderer::displayClip(const ::duke::protocol::Clip& clip) {
     try {
         if (!clip.has_grade() && !clip.has_gradename()) {
             cerr << HEADER + "no grading associated with clip" << endl;
@@ -265,12 +264,12 @@ void IRenderer::displayClip(const ::protocol::duke::Clip& clip) {
         RAIIContext clipContext(m_Context, clip.name(), clip.has_name());
 
         TResourcePtr pResource;
-        const ::protocol::duke::Grading * pGrading = NULL;
+        const ::duke::protocol::Grading * pGrading = NULL;
         if (clip.has_grade()) {
             pGrading = &clip.grade();
         } else {
             pResource = getResourceManager().safeGet<ProtoBufResource> (::resource::PROTOBUF, clip.gradename());
-            pGrading = pResource->get<protocol::duke::Grading> ();
+            pGrading = pResource->get<duke::protocol::Grading> ();
         }
         RAIIContext gradingContext(m_Context, pGrading->name(), pGrading->has_name());
         for (int passIndex = 0; passIndex < pGrading->pass_size(); ++passIndex)
@@ -305,7 +304,7 @@ static void overrideClipDimension(ImageDescription &description, const Texture &
     }
 }
 
-void IRenderer::displayPass(const ::protocol::duke::RenderPass& pass) {
+void IRenderer::displayPass(const ::duke::protocol::RenderPass& pass) {
     try {
         // fetching the effect
         RAIIContext passContext(m_Context, pass.name(), pass.has_name());
@@ -354,7 +353,7 @@ void IRenderer::displayPass(const ::protocol::duke::RenderPass& pass) {
 
             // render all meshes
             for (auto itr = pass.meshname().begin(); itr != pass.meshname().end(); ++itr)
-                displayMesh(getResourceManager().safeGetProto<protocol::duke::Mesh> (*itr));
+                displayMesh(getResourceManager().safeGetProto<duke::protocol::Mesh> (*itr));
         }
 
         // dumpTexture
@@ -368,7 +367,7 @@ void IRenderer::displayPass(const ::protocol::duke::RenderPass& pass) {
     }
 }
 
-void IRenderer::displayMesh(const ::protocol::duke::Mesh& mesh) {
+void IRenderer::displayMesh(const ::duke::protocol::Mesh& mesh) {
     ::Mesh(*this, mesh).render(*this);
 }
 

@@ -27,7 +27,7 @@ static bool isEqual( const char* expected, const char* actual )
 #include <stdexcept>
 #include <memory>
 
-IRenderer* createRenderer( const protocol::duke::Renderer& Renderer, sf::Window& window, const RendererSuite& suite )
+IRenderer* createRenderer( const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite )
 {
 	return new OGLRenderer( Renderer, window, suite );
 }
@@ -45,7 +45,7 @@ public: Plugin() {}
 	{
 		if( isEqual( action, kOfxActionRendererInit ) )
 		{
-			const protocol::duke::Renderer* pDescriptor = (const protocol::duke::Renderer*) handle;
+			const duke::protocol::Renderer* pDescriptor = (const duke::protocol::Renderer*) handle;
 			assert( pDescriptor );
 			m_pWindow.reset( new SfmlWindow( &::createRenderer, *pDescriptor, *m_pRendererSuite ) );
 			return kOfxStatOK;

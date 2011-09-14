@@ -12,7 +12,7 @@ PlaylistHelper::PlaylistHelper() :
     m_Playlist(), m_uRecIn(0), m_uRecOut(0), m_uFrameCount(0), m_uEndIterator(0) {
 }
 
-PlaylistHelper::PlaylistHelper(const ::protocol::duke::Playlist& _playlist) :
+PlaylistHelper::PlaylistHelper(const ::duke::protocol::Playlist& _playlist) :
     m_Playlist(_playlist), m_uRecIn(boost::integer_traits<uint32_t>::const_max), m_uRecOut(boost::integer_traits<uint32_t>::const_min), m_uEndIterator(0) {
     using namespace std;
 
@@ -24,7 +24,7 @@ PlaylistHelper::PlaylistHelper(const ::protocol::duke::Playlist& _playlist) :
     }
 
     m_vpClipHelpers.reserve(clipCount);
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
     using namespace ::google::protobuf;
 
     for (RepeatedPtrField<Clip>::const_iterator itr = m_Playlist.clip().begin(), end = m_Playlist.clip().end(); itr != end; ++itr) {
@@ -70,7 +70,7 @@ PlaylistHelper::PlaylistHelper(const ::protocol::duke::Playlist& _playlist) :
         m_uEndIterator = m_mIteratorToFrame.rbegin()->first;
 }
 
-void PlaylistHelper::getClipsAtFrame(const size_t frame, std::vector<protocol::duke::Clip>& clips) const {
+void PlaylistHelper::getClipsAtFrame(const size_t frame, std::vector<duke::protocol::Clip>& clips) const {
     clips.clear();
     const FrameToIndices::const_iterator itr = getRangeContainingFrame(frame);
     if (itr == m_mFrameToClipIndices.end())

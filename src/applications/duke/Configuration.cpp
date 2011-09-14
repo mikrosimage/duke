@@ -9,7 +9,7 @@
 #include <dukeapi/core/decoders/socket/SingleSocketServer.h>
 #include <dukeapi/core/MessageHolder.h>
 #include <dukeapi/core/queue/MessageQueue.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <iostream>
@@ -41,7 +41,7 @@ const char* NO_SKIP = "no-skip";
 const char* RECORD = "record";
 const char* PORT = "port";
 
-void setDisplayOptions(boost::program_options::options_description& description, const ::protocol::duke::Renderer& Renderer) {
+void setDisplayOptions(boost::program_options::options_description& description, const ::duke::protocol::Renderer& Renderer) {
     ostringstream resolution;
     resolution << Renderer.width() << 'x' << Renderer.height();
 
@@ -57,7 +57,7 @@ Configuration::Configuration(int argc, char** argv) :
     m_iReturnValue(0), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
             m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 
     std::string configuration_filename;
     if (argc >= 1) {
@@ -79,7 +79,7 @@ Configuration::Configuration(int argc, char** argv) :
     (PORT, po::value<short>(), "Sets the port number to be used") //
     (CACHE_SIZE, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.");
     // adding display settings
-    ::protocol::duke::Renderer renderer;
+    ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
     // adding interactive mode options
     m_Interactive.add_options() //

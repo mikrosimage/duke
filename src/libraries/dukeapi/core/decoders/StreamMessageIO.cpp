@@ -8,7 +8,7 @@
 #include <google/protobuf/descriptor.h>
 
 using namespace boost::asio::ip;
-using namespace protocol::duke;
+using namespace duke::protocol;
 using namespace std;
 
 const string HEADER = "[SocketMessageIO] ";

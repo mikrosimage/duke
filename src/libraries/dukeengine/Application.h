@@ -37,14 +37,14 @@ public:
     bool renderFinished(unsigned msToPresent);
     OfxRendererSuiteV1::PresentStatus getPresentStatus();
     void pushEvent(std::unique_ptr<google::protobuf::Message>& event);
-    const ::google::protobuf::Message* popEvent(::protocol::duke::MessageType& type);
+    const ::google::protobuf::Message* popEvent(::duke::protocol::MessageType& type);
 
 private:
-    void applyTransport(const ::protocol::duke::Transport&);
+    void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();
     void consumeTransport();
-    void handleQuitMessage(const ::protocol::duke::Quit&) const;
-    std::string dumpInfo(const ::protocol::duke::Debug_Content& debug) const;
+    void handleQuitMessage(const ::duke::protocol::Quit&) const;
+    std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
 
 private:
     // order of variables are very important because of multi threading issues

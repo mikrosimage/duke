@@ -19,9 +19,6 @@ rule init ( PROTOC )
 {
     project.push-current $(.project) ;
 
-	.copy = [ common.copy-command ] ;
-	
-	
 	if ! [ path.exists $(PROTOC) ] {
 		EXIT "
 module $(__file__) expects the variable PROTOC to refer to the Google protobuf compiler ( aka protoc ).
@@ -29,6 +26,7 @@ Please check your configuration files ( site-config.jam or user-config.jam ).
 Current value is '$(PROTOC)'" ;
 	}
 	
+	.copy = [ common.copy-command ] ;
 	.protoc = $(PROTOC) ;
   
 	if ! $(.initialized)
@@ -40,13 +38,7 @@ Current value is '$(PROTOC)'" ;
 		.PREFIX = $(prefix) ;
 	}
 	
-	
 	project.pop-current ;
-}
-
-rule initialized ( )
-{
-  return $(.initialized) ;
 }
 
 class proto-generator : generator 
@@ -58,43 +50,42 @@ class proto-generator : generator
 
   rule run ( project name ? : property-set : sources * )
   {
-     if ! $(sources[2])
-     { 
-       local t = [ $(sources[1]).type ] ;
-       if $(t) = PROTO
-       {
-         if ! $(name)
-         {
-           name = [ generator.determine-output-name $(sources) ] ;
-           name = $(name)".pb" ;
-         }
-
-         local a = [ new action $(sources[1]) : pb.protoc : $(property-set) ] ;
-
-         local cpp_suffix = [ type.generated-target-suffix CPP : $(property-set) ] ;
-         local hpp_suffix = [ type.generated-target-suffix HPP : $(property-set) ] ;
-         
-         type.change-generated-target-suffix CPP : $(property-set) : "cc" ;
-         type.change-generated-target-suffix HPP : $(property-set) : "h" ;
-
-         local cpp_target = [ new file-target $(name) : CPP : $(project) : $(a) ] ;
-         local hpp_target = [ new file-target $(name) : HPP : $(project) : $(a) ] ;
-         
-         type.change-generated-target-suffix CPP : $(property-set) : $(cpp_suffix) ;
-         type.change-generated-target-suffix HPP : $(property-set) : $(hpp_suffix) ;
-
-         # DEPENDS all : [ $(cpp_target).actualize ] ;
-
-         return [ virtual-target.register $(hpp_target) ] [ virtual-target.register $(cpp_target) ] ;
-      }
-    }
+     if $(sources[2]) {
+     	EXIT (__file__) does not accept more than one source ;
+     }
+     if [ $(sources[1]).type ] != PROTO {
+     	EXIT (__file__) accept solely PROTO files ;
+     }
+	 if ! $(name) {
+	   name = [ generator.determine-output-name $(sources) ] ;
+	   name = $(name)".pb" ;
+	 }
+	
+	 local a = [ new action $(sources[1]) : pb.protoc : $(property-set) ] ;
+	
+	 local cpp_suffix = [ type.generated-target-suffix CPP : $(property-set) ] ;
+	 local hpp_suffix = [ type.generated-target-suffix HPP : $(property-set) ] ;
+	     
+	 type.change-generated-target-suffix CPP : $(property-set) : "cc" ;
+	 type.change-generated-target-suffix HPP : $(property-set) : "h" ;
+	
+	 local cpp_target = [ new file-target $(name) : CPP : $(project) : $(a) ] ;
+	 local hpp_target = [ new file-target $(name) : HPP : $(project) : $(a) ] ;
+	     
+	 type.change-generated-target-suffix CPP : $(property-set) : $(cpp_suffix) ;
+	 type.change-generated-target-suffix HPP : $(property-set) : $(hpp_suffix) ;
+	
+	 return [ virtual-target.register $(hpp_target) ] [ virtual-target.register $(cpp_target) ] ;
   }
 }
 
-local rule ungrist ( value : steps * )
+local rule ungrist ( value : suffix * )
 {
 	local ungristed = [ MATCH ^<p(.*)>$ : $(value:G) ] ; 
-	return [ path.native [ path.join [ path.pwd ] $(ungristed) $(steps) ] ] ; # normalizing
+	if ! [ path.is-rooted $(ungristed) ] {
+		ungristed = [ path.join [ path.pwd ] $(ungristed) ] ;
+	}
+	return [ path.native [ path.join $(ungristed) $(suffix) ] ] ; # normalizing
 }
 
 rule protoc ( targets * : sources * : properties * )

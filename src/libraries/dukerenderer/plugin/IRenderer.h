@@ -11,7 +11,7 @@
 #include "RendererSuite.h"
 #include <dukerenderer/Setup.h>
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Window/Event.hpp>
@@ -22,7 +22,7 @@ class IBufferBase;
 
 class IRenderer : public IFactory {
 public:
-    IRenderer(const protocol::duke::Renderer&, sf::Window&, const RendererSuite&);
+    IRenderer(const duke::protocol::Renderer&, sf::Window&, const RendererSuite&);
     virtual ~IRenderer();
 
     // to implement in derived classes
@@ -31,9 +31,9 @@ public:
     virtual void setIndexBuffer(const IBufferBase* buffer) = 0;
     virtual void drawPrimitives(TPrimitiveType meshType, unsigned long count) = 0;
     virtual void drawIndexedPrimitives(TPrimitiveType meshType, unsigned long count) = 0;
-    virtual void setRenderState(const ::protocol::duke::Effect &renderState) const = 0;
+    virtual void setRenderState(const ::duke::protocol::Effect &renderState) const = 0;
     virtual void setTexture(const CGparameter sampler, //
-                            const ::google::protobuf::RepeatedPtrField<protocol::duke::SamplerState>& samplerStates, //
+                            const ::google::protobuf::RepeatedPtrField<duke::protocol::SamplerState>& samplerStates, //
                             const ITextureBase* pTextureBase) const = 0;
 
     virtual Image dumpTexture(ITextureBase* pTextureBase) = 0;
@@ -56,9 +56,9 @@ private:
     void waitForBlankingAndWarn(bool presented) const;
     void consumeUntilEngine();
     void loop();
-    void displayClip(const ::protocol::duke::Clip&);
-    void displayPass(const ::protocol::duke::RenderPass&);
-    void displayMesh(const ::protocol::duke::Mesh&);
+    void displayClip(const ::duke::protocol::Clip&);
+    void displayPass(const ::duke::protocol::RenderPass&);
+    void displayMesh(const ::duke::protocol::Mesh&);
     void compileAndSetShader(const TShaderType&, const std::string&);
     friend class ShaderFactory;
     const ImageDescription& getSafeImageDescription(const ImageDescription*) const;
@@ -67,12 +67,12 @@ private:
     template<typename T>
     inline void addResource(const ::google::protobuf::Message&);
 
-    const protocol::duke::Renderer m_Renderer;
+    const duke::protocol::Renderer m_Renderer;
     const RendererSuite& m_RendererSuite;
     const Setup* m_pSetup;
     sf::Event m_Event;
     unsigned long m_DisplayedFrameCount;
-    ::protocol::duke::Engine m_EngineStatus;
+    ::duke::protocol::Engine m_EngineStatus;
     ImageDescription m_EmptyImageDescription;
     bool m_bRenderOccured;
     RenderingContext m_Context;

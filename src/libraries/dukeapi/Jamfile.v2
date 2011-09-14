@@ -1,7 +1,6 @@
 #
 # dukeapi
 #
-using pb : $(PROTOC) ;
 
 project 
 	: requirements 
@@ -20,24 +19,12 @@ project
 		<os>NT:<find-shared-library>Ws2_32
 	;
 
-lib allpb : 
-			[ glob-tree *.proto ]
-		: #requirements
-			<library>/site-config//protobuf
-		: #default-build
-		: #usage-requirements
-			<library>/site-config//protobuf
-		;
-explicit allpb ;
-
 explicit dukeapi ;
 lib dukeapi : 
 			  [ glob-tree *.cpp ]
-			  allpb
-			: #requirements
-				<dependency>allpb
-		    : #default-build
-			: #usage-requirements
-				<library>allpb
+			  protocol//allpb
+			: <implicit-dependency>protocol//allpb
+			:
+			: <library>protocol//allpb
 			;
 

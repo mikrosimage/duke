@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <cmath>
 
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::std;
 
 #define _MAX_PITCH_ 2.f

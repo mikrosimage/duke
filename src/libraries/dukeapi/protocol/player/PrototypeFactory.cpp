@@ -1,7 +1,7 @@
 #include "PrototypeFactory.h"
 
 using namespace std;
-using namespace protocol::shader_assembler;
+using namespace duke::protocol;
 
 string& replaceAll(string& context, const string& from, const string& to) {
     size_t lookHere = 0;

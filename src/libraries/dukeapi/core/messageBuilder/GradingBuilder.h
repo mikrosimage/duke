@@ -2,12 +2,12 @@
 #define GRADINGBUILDER_H_
 
 #include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 
 namespace {
 
-namespace dk = ::protocol::duke;
+namespace dk = ::duke::protocol;
 
 // ------------------------------------------------------
 // RenderPass

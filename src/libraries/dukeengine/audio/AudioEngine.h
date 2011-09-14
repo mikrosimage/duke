@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <SFML/Audio.hpp>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include "ISyncMethod.h"
 
 class AudioEngine {
@@ -22,13 +22,13 @@ public:
     virtual ~AudioEngine();
 
 public:
-    bool load(const ::protocol::duke::Playlist & _playlist);
+    bool load(const ::duke::protocol::Playlist & _playlist);
     bool load(const std::string & _file);
     void play();
     void pause();
     void stop();
     void rewind();
-    void applyTransport(const ::protocol::duke::Transport& transport);
+    void applyTransport(const ::duke::protocol::Transport& transport);
 
 private:
     void instantSync();

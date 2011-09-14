@@ -1,11 +1,11 @@
 #include "InteractiveMessageIO.h"
 #include <dukeapi/core/queue/MessageQueue.h>
 #include <dukeapi/core/MessageHolder.h>
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 #include <cassert>
 
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 
 namespace {
 
@@ -49,7 +49,7 @@ void InteractiveMessageIO::push(const SharedMessage& holder) {
     if (!holder)
         throw std::runtime_error("Trying to interact with a NULL message");
 
-    using namespace ::protocol::duke;
+    using namespace ::duke::protocol;
 
     // we are taking into account only Event type messages
     if (holder->type() != MessageType_Type_EVENT)

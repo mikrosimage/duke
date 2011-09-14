@@ -1,7 +1,7 @@
 #ifndef MESH_H_
 #define MESH_H_
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <boost/shared_ptr.hpp>
 
 class IFactory;
@@ -10,7 +10,7 @@ class IMeshBase;
 
 class Mesh
 {
-public: Mesh( IFactory&, const ::protocol::duke::Mesh& );
+public: Mesh( IFactory&, const ::duke::protocol::Mesh& );
 	virtual ~Mesh();
 
 	void render( IRenderer& ) const;

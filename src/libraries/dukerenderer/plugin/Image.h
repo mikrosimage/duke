@@ -23,7 +23,7 @@ public:
     Image(IFactory& factory, const std::string& name);
 
     void dump(const std::string& filename) const;
-    void dump(::protocol::duke::Texture &texture) const;
+    void dump(::duke::protocol::Texture &texture) const;
 
     virtual ~Image();
 

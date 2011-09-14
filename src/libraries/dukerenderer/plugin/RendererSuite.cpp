@@ -1,7 +1,7 @@
 #include "RendererSuite.h"
 
 using namespace ::google::protobuf;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::std;
 
 RendererSuite::RendererSuite(const OfxHost* pHost, const OfxRendererSuiteV1* pSuite) :

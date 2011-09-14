@@ -15,12 +15,11 @@
 #include <string>
 
 using namespace ::std;
-using namespace ::protocol::shader_assembler;
 using namespace ::google::protobuf;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 using namespace ::shader_factory;
 
-ShaderFactory::ShaderFactory(IRenderer& renderer, const ::protocol::duke::Shader& shader, RenderingContext& context, const TShaderType type) :
+ShaderFactory::ShaderFactory(IRenderer& renderer, const ::duke::protocol::Shader& shader, RenderingContext& context, const TShaderType type) :
     m_Renderer(renderer), m_Shader(shader), m_RenderingContext(context), m_Images(context.images()), m_Type(type), m_ResourceManager(m_Renderer.getResourceManager()) {
     const string name = m_Shader.name();
     const bool isPersistent = !name.empty();

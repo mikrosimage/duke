@@ -10,7 +10,7 @@
 #include <Cg/cgGL.h>
 
 using namespace ::google::protobuf;
-using namespace ::protocol::duke;
+using namespace ::duke::protocol;
 
 #define BUFFER_OFFSET( n ) ( (char*)NULL + ( n ) )
 
@@ -46,7 +46,7 @@ int CheckGLError(const char* msg, const char* file, int line) {
     return retCode;
 }
 
-OGLRenderer::OGLRenderer(const protocol::duke::Renderer& Renderer, sf::Window& window, const RendererSuite& suite) :
+OGLRenderer::OGLRenderer(const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite) :
     IRenderer(Renderer, window, suite) {
 
     // Initializing OGL Extensions
@@ -228,36 +228,36 @@ void OGLRenderer::drawIndexedPrimitives(TPrimitiveType meshType, unsigned long c
     //    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
-GLenum Get(const ::protocol::duke::SamplerState_Type type) {
+GLenum Get(const ::duke::protocol::SamplerState_Type type) {
     switch (type) {
-        case ::protocol::duke::SamplerState_Type_MIN_FILTER:
+        case ::duke::protocol::SamplerState_Type_MIN_FILTER:
             return GL_TEXTURE_MIN_FILTER;
-        case ::protocol::duke::SamplerState_Type_MAG_FILTER:
+        case ::duke::protocol::SamplerState_Type_MAG_FILTER:
             return GL_TEXTURE_MAG_FILTER;
-        case ::protocol::duke::SamplerState_Type_WRAP_S:
+        case ::duke::protocol::SamplerState_Type_WRAP_S:
             return GL_TEXTURE_WRAP_S;
-        case ::protocol::duke::SamplerState_Type_WRAP_T:
+        case ::duke::protocol::SamplerState_Type_WRAP_T:
             return GL_TEXTURE_WRAP_T;
     }
-    std::cerr << "invalid sampler state type " << ::protocol::duke::SamplerState_Type_Name(type) << std::endl;
+    std::cerr << "invalid sampler state type " << ::duke::protocol::SamplerState_Type_Name(type) << std::endl;
     assert(false);
     return 0;
 }
 
-GLenum Get(const ::protocol::duke::SamplerState_Value value) {
+GLenum Get(const ::duke::protocol::SamplerState_Value value) {
     switch (value) {
-        case ::protocol::duke::SamplerState_Value_TEXF_POINT:
+        case ::duke::protocol::SamplerState_Value_TEXF_POINT:
             return GL_NEAREST;
-        case ::protocol::duke::SamplerState_Value_TEXF_LINEAR:
+        case ::duke::protocol::SamplerState_Value_TEXF_LINEAR:
             return GL_LINEAR;
-        case ::protocol::duke::SamplerState_Value_WRAP_CLAMP:
+        case ::duke::protocol::SamplerState_Value_WRAP_CLAMP:
             return GL_CLAMP_TO_EDGE;
-        case ::protocol::duke::SamplerState_Value_WRAP_BORDER:
+        case ::duke::protocol::SamplerState_Value_WRAP_BORDER:
             return GL_CLAMP_TO_BORDER;
-        case ::protocol::duke::SamplerState_Value_WRAP_REPEAT:
+        case ::duke::protocol::SamplerState_Value_WRAP_REPEAT:
             return GL_REPEAT;
     }
-    std::cerr << "invalid sampler state value " << ::protocol::duke::SamplerState_Value_Name(value) << std::endl;
+    std::cerr << "invalid sampler state value " << ::duke::protocol::SamplerState_Value_Name(value) << std::endl;
     assert(false);
     return 0;
 }

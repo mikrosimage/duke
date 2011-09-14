@@ -8,7 +8,7 @@
 
 using namespace std;
 using namespace google::protobuf;
-using namespace protocol::duke;
+using namespace duke::protocol;
 
 SequenceReader::SequenceReader(const string& directory, MessageQueue& queue, Playlist& _playlist) :
     m_Queue(queue) {

@@ -1,12 +1,12 @@
 #ifndef CLIPBUILDER_H_
 #define CLIPBUILDER_H_
 
-#include <dukeapi/protocol/player/communication.pb.h>
+#include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
 
 namespace {
 
-namespace dk = ::protocol::duke;
+namespace dk = ::duke::protocol;
 
 void buildClip(dk::Clip & _c //
                , std::string _name = "defaultClipName" //

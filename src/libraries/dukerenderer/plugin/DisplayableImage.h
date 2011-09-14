@@ -8,7 +8,7 @@
 class DisplayableImage : public ITextureProvider
 {
 public:
-    DisplayableImage( IFactory& factory, const ::protocol::duke::Texture& texture );
+    DisplayableImage( IFactory& factory, const ::duke::protocol::Texture& texture );
 	DisplayableImage( IFactory& factory, const std::string& name );
 	virtual ~DisplayableImage();
 

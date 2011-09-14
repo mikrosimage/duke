@@ -31,7 +31,7 @@ Renderer::~Renderer() {
     waitForRenderLoopToStop();
 }
 
-void Renderer::initRender(const ::protocol::duke::Renderer& Renderer) {
+void Renderer::initRender(const ::duke::protocol::Renderer& Renderer) {
     ::openfx::host::perform(m_pOfxPlugin, kOfxActionRendererInit, &Renderer, NULL, NULL);
     m_bIsInit = true;
 }
