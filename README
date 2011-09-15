@@ -16,12 +16,6 @@ Compilation
 		cd duke
 		git submodule update -i
 
-	* External libraries
-		A few external libraries are mandatory to build duke.
-		In the config folder, please copy 'user-config.jam.platform-example' to user-config.jam.
-		Customize it in your favorite editor.
-		When you're done, don't forget to uncomment the file's last line.
-
 	* Compilation
 		see INSTALL file
 

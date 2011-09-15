@@ -1,61 +1,64 @@
 Duke - install HOWTO
 
-	Duke build system is using bjam (Boost library's build tool)
 
+Why Boost.Build ?
+=================
 
+    Duke relies heavily on the Boost library, so instead of using one of
+    the many multiplatform build system available like Scons, CMake, Autotools
+    we're simply using Boost.Build, the build system embedded within Boost.
+    
+    Boost.Build is powerful yet very expressive and terse. It's a weapon of
+    choice when building large pieces of code with a lot of dependencies.
+    
+    An excellent introduction to Boost.Build can be found here
+    http://www.highscore.de/cpp/boostbuild/
+    
+    And the official documentation is available online
+    http://www.boost.org/boost-build2/doc/html/
+    or in your boost copy at $(BOOST_ROOT)/tools/build/index.html 
 
 
 Setting up the build process
+============================
 
-	* Getting all external libraries
-	
-		You have the choice between:
-		1) install libraries on your system using standard packages
-		- OR - 
-		2) download and compile all these libraries by yourself
-			In this case, you need to edit the project-config.jam script
+    Building the building tool (the build-ception...)
+    
+        - First grab Boost from the website ( http://www.boost.org/ )
+        - Uncompress the archive somewhere.
+        - Open a terminal and go to the boost root folder, then type
+            Linux / MacOsX  : ./bootstrap.sh
+            Windows         : bootstrap.bat
+            
+        This will generate a 'b2' executable.
 
-		See externals/README file for the full list of dependencies 
-		
-	* Building the building tool (the build-ception...)
-	
-		BJam is Boost library's build tool.
-		Donwload and uncompress a full boost package in the externals directory.
-		Open a terminal and go to the boost root folder. Then type:
-		
-		1) under linux/osx platform:
-			./bootstrap
-			./bjam
-		- OR -
-		2) under windows platform:
-			bootstrap.bat
-			bjam.exe
-		
-	* Setting up environment variables
-	
-		In order to use bjam and build Duke, two environment variables have to be set:
-			BOOST_ROOT			- to locate boost root directory
-			BOOST_BUILD_PATH	- to locate boost.build scripts
+    * Setting up environment variables
+    
+        In order to use Boost.Build you have to set the BOOST_ROOT
+        environment variable.
+            
+            Linux / MacOsX  : export BOOST_ROOT=/your/path/to/boost/root
+            Windows         : set BOOST_ROOT=C:\your\path\to\boost\root
+            
+        Note : You can add it to your ~/.bashrc, ~/.profile
+        or to your Windows environment to make it persistent.
 
-		1) under linux/osx platform (edit the first line):
-			export BOOST_ROOT=/your/path/to/boost/root/directory
-			export BOOST_BUILD_PATH=$BOOST_ROOT/tools/build/v2
-		- OR -
-		2) under windows platform (edit the first line):
-			set BOOST_ROOT=C:\your\path\to\boost\root\directory
-			set BOOST_BUILD_PATH=%BOOST_ROOT%\tools\build\v2
-			
+    * Getting all external libraries
+    
+        Have a look at the config/README file.
 
 Building
+========
 
-	* Choose the appropriate script depending on your platform
-		./build-osx-darwin.sh on MacOSX
-		./build-linux-gcc.sh on Linux
-		./build-windows-mingw.bat on Windows with the mingw package
+    * Choose the appropriate script depending on your platform
+            Linux   : ./build-linux-gcc.sh 
+            MacOSX  : ./build-osx-darwin.sh
+            Windows : ./build-windows-mingw.bat
 
-	* Run it with one or more of the following command line arguments
-		dist 				: Full build & installation 
-		tests				: Build & run unit test suite
-		debug -or- release 	: Select the build variant
-		--help 				: Display help message
-		--clean 			: Remove targets instead of building
+    * Run it with one or more of the following command line arguments
+        --user-config=XXX   : Specifies the configuration file
+        --help              : Display help message
+        --clean             : Remove targets instead of building
+        dist                : Full build & installation 
+        tests               : Build & run unit test suite
+        debug -or- release  : Select the build variant ( debug is default )
