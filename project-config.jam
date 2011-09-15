@@ -6,6 +6,7 @@ rule plugins-selection ( existing-plugins * ) {
 	local argv = [ modules.peek : ARGV ] ;
 	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
 	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
+	ECHO $(existing-plugins) ;
 	if $(wrong)	{
 		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
 		EXIT ;
@@ -28,5 +29,7 @@ To build Duke you need to setup a few libraries.
 Please customize one of the predefined files in the config folder
 and have a look at the config/README file to get started.
 
-NB : When you're done, don't forget to uncomment the last line of the file." ;
+NB : When you're done, don't forget to uncomment the last line of the file
+     and to specify its path on the command line, eg :
+    > ./build-platform-compiler.sh --user-config=/path/to/user-config.jam" ;
 }

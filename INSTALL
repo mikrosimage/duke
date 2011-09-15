@@ -22,7 +22,7 @@ Why Boost.Build ?
 Setting up the build process
 ============================
 
-    Building the building tool (the build-ception...)
+    * Building the building tool (the build-ception...)
     
         - First grab Boost from the website ( http://www.boost.org/ )
         - Uncompress the archive somewhere.
@@ -46,6 +46,7 @@ Setting up the build process
     * Getting all external libraries
     
         Have a look at the config/README file.
+        
 
 Building
 ========
