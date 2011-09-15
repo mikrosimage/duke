@@ -6,7 +6,6 @@ rule plugins-selection ( existing-plugins * ) {
 	local argv = [ modules.peek : ARGV ] ;
 	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
 	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
-	ECHO $(existing-plugins) ;
 	if $(wrong)	{
 		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
 		EXIT ;
