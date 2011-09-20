@@ -6,4 +6,9 @@ project
     ;
 
 explicit oiio ;
-ioplugin oiio : [ glob *.cpp ] ;
+ioplugin oiio 
+    :   
+        [ glob *.cpp ] 
+    : 
+        <build>$(build-oiio) 
+    ; 

@@ -6,4 +6,9 @@ project
     ;
 
 explicit ogl ;
-rendererplugin ogl : [ glob-tree *.cpp ] ;
+rendererplugin ogl 
+    :   
+        [ glob-tree *.cpp ]
+    :
+        <build>$(build-ogl) 
+    ; 

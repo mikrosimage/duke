@@ -7,4 +7,9 @@ project
     ;
     
 explicit dx9 ;
-rendererplugin dx9 	: [ glob-tree *.cpp ] ;
+rendererplugin dx9 
+    :   
+        [ glob-tree *.cpp ] 
+    : 
+        <build>$(build-dx9) 
+    ; 

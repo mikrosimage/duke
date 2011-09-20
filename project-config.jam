@@ -1,16 +1,22 @@
 import path ;
 import os ;
-import set ;
 
-rule plugins-selection ( existing-plugins * ) {
-	local argv = [ modules.peek : ARGV ] ;
-	local no-parameter = [ MATCH --no-(.*) : $(argv) ] ;
-	local wrong = [ set.difference $(no-parameter) : $(existing-plugins) ] ;
-	if $(wrong)	{
-		ECHO "error: wrong plugin name '$(wrong[1])' in the --no-<plugin> option." ;
-		EXIT ;
-	}
-	return [ set.difference $(existing-plugins) : $(no-parameter) ] ;
+constant build-dpx      : yes ;
+constant build-jpg      : yes ;
+constant build-oiio     : yes ;
+constant build-dx9      : yes ;
+constant build-ogl      : yes ;
+
+if [ MATCH (--no-plugin-(.*)) : [ modules.peek : ARGV ] ]
+{
+    local argv = [ modules.peek : ARGV ] ;
+    local no-parameter = [ MATCH --no-plugin-(.*) : $(argv) ] ;
+
+    for local l in $(no-parameter)
+    {
+        if ! $(build-$(l)) { ECHO "error: wrong plugin name '$(l)' in the --no-plugin-<pluginname> option." ; EXIT ; }
+        constant build-$(l) : no ;
+    }
 }
 
 local rule check-required-env ( var ) {
