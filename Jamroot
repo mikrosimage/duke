@@ -52,8 +52,8 @@ explicit applications
 
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
-alias plugins 		: plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
-alias plugins 		: plugins-selection plugin-jpg plugin-dpx plugin-oiio plugin-dx9 : <os>NT ;
+alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
+alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-dx9 : <os>NT ;
 alias tests 		: [ glob src/tests/* : src/tests/renderer src/tests/scripts ] ;
 alias plugin-jpg	: src/plugins/io/jpg//jpg ;
 alias plugin-dpx	: src/plugins/io/dpx//dpx ;
