@@ -11,9 +11,10 @@
 	#
 	#################
 
-		
 import os ;
 import set ;
+
+using pb : $(PROTOC) ;
 
 ## Configuration
 

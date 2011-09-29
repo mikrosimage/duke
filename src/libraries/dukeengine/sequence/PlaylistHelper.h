@@ -3,7 +3,7 @@
 
 #include "ClipHelper.h"
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>

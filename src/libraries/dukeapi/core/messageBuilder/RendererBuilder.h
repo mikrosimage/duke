@@ -1,8 +1,8 @@
 #ifndef RENDERERBUILDER_H
 #define RENDERERBUILDER_H
 
-#include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <dukeapi/io/IMessageIO.h>
+#include <player.pb.h>
 #include <iostream>
 
 namespace {

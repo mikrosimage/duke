@@ -4,6 +4,7 @@
 #include "Setup.h"
 
 #include <openfx/ofxCorePlugin.h>
+#include <protocol.pb.h>
 
 #include <memory>
 
@@ -17,8 +18,8 @@ typedef struct OfxRendererSuiteV1 {
     void (* renderStart)();
     PresentStatus (* getPresentStatus)();
     void (* verticalBlanking)(bool verticalBlanking);
-    void (* pushEvent)(std::unique_ptr<google::protobuf::Message>&);
-    const ::google::protobuf::Message* (*popEvent)(::duke::protocol::MessageType&);
+    void (* pushEvent)(const google::protobuf::serialize::MessageHolder&);
+    const google::protobuf::serialize::MessageHolder * const (*popEvent)();
     bool (* renderEnd)(unsigned msToPresent);
 
     Setup m_Setup;

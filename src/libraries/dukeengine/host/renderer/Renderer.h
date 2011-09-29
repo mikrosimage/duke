@@ -4,7 +4,7 @@
 #include <openfx/ofxCorePlugin.h>
 #include <dukehost/PluginBinary.h>
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 
 class Renderer {
 private:

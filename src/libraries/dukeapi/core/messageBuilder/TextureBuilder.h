@@ -1,13 +1,15 @@
 #ifndef TEXTUREBUILDER_H_
 #define TEXTUREBUILDER_H_
 
-#include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <dukeapi/io/IMessageIO.h>
+#include <dukeapi/serialize/ProtobufSerialize.h>
+#include <player.pb.h>
 #include <iostream>
 
 namespace {
 
 namespace dk = ::duke::protocol;
+using ::google::protobuf::serialize::packAndShare;
 
 void buildTexture(dk::Texture & _t //
                   , std::string _name //
@@ -57,7 +59,7 @@ void addRawTexture(IMessageIO & _queue //
                    , const unsigned int _dataHeight, std::string _clipName = "") {
     dk::Texture t;
     buildTexture(t, _name, dk::Texture_TextureDim_DIM_2D, dk::Texture_TextureFormat_R32G32B32A32F, _dataWidth, _dataHeight, _data, _dataWidth * _dataHeight * 16, false, _clipName);
-    push(_queue, t);
+    push(_queue,t);
 }
 
 void add8bitTexture(IMessageIO & _queue //
@@ -68,7 +70,7 @@ void add8bitTexture(IMessageIO & _queue //
                     , std::string _clipName = "") {
     dk::Texture t;
     buildTexture(t, _name, dk::Texture_TextureDim_DIM_2D, dk::Texture_TextureFormat_R8G8B8A8, _dataWidth, _dataHeight, _data, _dataWidth * _dataHeight * 4, false, _clipName);
-    push(_queue, t);
+    push(_queue,t);
 }
 
 } // empty namespace

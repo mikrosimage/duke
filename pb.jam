@@ -8,7 +8,6 @@ import "class" : new ;
 import generators ;
 import project ;
 import toolset : flags ;
-import common ;
 
 project.initialize $(__name__) ;
 project pb ;
@@ -26,7 +25,6 @@ Please check your configuration files ( site-config.jam or user-config.jam ).
 Current value is '$(PROTOC)'" ;
 	}
 	
-	.copy = [ common.copy-command ] ;
 	.protoc = $(PROTOC) ;
   
 	if ! $(.initialized)
@@ -34,7 +32,7 @@ Current value is '$(PROTOC)'" ;
 		.initialized = true ;
 		
 		type.register PROTO : proto ;
-		generators.register [ new proto-generator pb.protoc : PROTO : HPP(%.pb) CPP(%.pb)  ] ;
+		generators.register [ new proto-generator pb.protoc : PROTO : HPP CPP ] ;
 		.PREFIX = $(prefix) ;
 	}
 	
@@ -63,18 +61,9 @@ class proto-generator : generator
 	
 	 local a = [ new action $(sources[1]) : pb.protoc : $(property-set) ] ;
 	
-	 local cpp_suffix = [ type.generated-target-suffix CPP : $(property-set) ] ;
-	 local hpp_suffix = [ type.generated-target-suffix HPP : $(property-set) ] ;
+	 local cpp_target = [ new file-target $(name).cc exact : CPP : $(project) : $(a) ] ;
+	 local hpp_target = [ new file-target $(name).h exact : HPP : $(project) : $(a) ] ;
 	     
-	 type.change-generated-target-suffix CPP : $(property-set) : "cc" ;
-	 type.change-generated-target-suffix HPP : $(property-set) : "h" ;
-	
-	 local cpp_target = [ new file-target $(name) : CPP : $(project) : $(a) ] ;
-	 local hpp_target = [ new file-target $(name) : HPP : $(project) : $(a) ] ;
-	     
-	 type.change-generated-target-suffix CPP : $(property-set) : $(cpp_suffix) ;
-	 type.change-generated-target-suffix HPP : $(property-set) : $(hpp_suffix) ;
-	
 	 return [ virtual-target.register $(hpp_target) ] [ virtual-target.register $(cpp_target) ] ;
   }
 }
@@ -94,11 +83,9 @@ rule protoc ( targets * : sources * : properties * )
     OUT_DIR on $(targets) = [ ungrist $(targets[0]) : $(relative_dir) ] ;
     local proto_file = [ ungrist $(>) : $(relative_dir) $(>:D=:G=) ] ;
 	PROTO_FILE on $(targets) = $(proto_file) ;
-	PROTO_DIR on $(targets) = $(proto_file:D) ;
 }
 
 actions protoc
 {
-  	$(.protoc) --cpp_out=$(OUT_DIR) --proto_path=$(PROTO_DIR) $(PROTO_FILE)
-  	$(.copy) $(<[2]) $(PROTO_DIR)
+  	$(.protoc) --cpp_out=$(OUT_DIR) --proto_path=$(PROTO_FILE:D) $(PROTO_FILE)
 }

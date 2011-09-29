@@ -48,6 +48,8 @@ D3DPRIMITIVETYPE Dx9Enum::Get(TPrimitiveType type) {
 
 D3DFORMAT Dx9Enum::Get(TPixelFormat format) {
     switch (format) {
+        case PXF_R8G8B8:
+            return D3DFMT_R8G8B8;
         case PXF_B8G8R8A8:
             return D3DFMT_A8B8G8R8;
         case PXF_R32G32B32A32F:
@@ -59,7 +61,6 @@ D3DFORMAT Dx9Enum::Get(TPixelFormat format) {
         case PXF_R10G10B10A2:
         case PXF_A2B10G10R10:
         case PXF_R8G8B8A8:
-        case PXF_R8G8B8:
         case PXF_B8G8R8:
         case PXF_UNDEFINED:
             std::cerr << "Unsupported Format for DirectX9 \"" << FormatToString(format) << "\" " << format << std::endl;

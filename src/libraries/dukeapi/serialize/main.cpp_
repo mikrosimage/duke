@@ -1,0 +1,68 @@
+/*
+ * main.cpp
+ *
+ *  Created on: 22 sept. 2011
+ *      Author: Guillaume Chatelet
+ */
+
+#include "ProtobufSerialize.h"
+//#include "ProtobufSocket.h"
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include <boost/asio.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <sstream>
+#include <iostream>
+#include <cassert>
+
+using namespace google::protobuf::serialize;
+using namespace google::protobuf::io;
+using namespace boost::asio;
+
+using namespace std;
+
+bool connectionHandler(ip::tcp::iostream& stream) {
+    MessageHolder holder;
+    holder.set_body("the booty");
+    writeDelimitedTo(stream, holder);
+    writeDelimitedTo(stream, holder);
+    writeDelimitedTo(stream, holder);
+    writeDelimitedTo(stream, holder);
+    return false;
+}
+
+struct duke_server {
+    duke_server(const ip::tcp::endpoint &endpoint, boost::function<bool(ip::tcp::iostream&)> callback) :
+        acceptor_(io_service_, endpoint) {
+        bool run = true;
+        while (run) {
+            ip::tcp::iostream stream;
+            boost::system::error_code ec;
+            acceptor_.accept(*stream.rdbuf(), ec);
+            if (!ec)
+                run = callback(stream);
+        }
+    }
+private:
+    io_service io_service_;
+    ip::tcp::acceptor acceptor_;
+};
+
+int main(int argc, char **argv) {
+    using boost::asio::ip::tcp;
+    if (argc == 2) { //client
+        const char *hostname = argv[1];
+        cout << "trying to connect to " << hostname << endl;
+        ip::tcp::iostream stream(hostname, boost::lexical_cast<string>(7171));
+        while (!stream.error()) {
+            MessageHolder holder;
+            parseDelimitedFrom(stream, holder);
+            holder.PrintDebugString();
+        }
+    } else if (argc == 1) { //server
+        duke_server server(tcp::endpoint(ip::tcp::v4(), 7171), &::connectionHandler);
+    }
+}

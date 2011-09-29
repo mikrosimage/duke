@@ -1,7 +1,7 @@
 #ifndef CLIPBUILDER_H_
 #define CLIPBUILDER_H_
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <iostream>
 
 namespace {

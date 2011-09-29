@@ -1,0 +1,27 @@
+
+project 
+    : requirements 
+        <library>/user-config//protobuf/<link>shared
+        <library>/boost//system
+        <os>NT:<find-shared-library>Ws2_32
+        <os>NT:<find-shared-library>Mswsock
+    : usage-requirements
+        <library>/user-config//protobuf/<link>shared
+        <library>/boost//system
+        <os>NT:<find-shared-library>Ws2_32
+        <os>NT:<find-shared-library>Mswsock
+    ;
+
+explicit serialize_pb ;
+lib serialize_pb : protocol.proto ;
+
+explicit serialize ;
+alias serialize :   # sources
+                    serialize_pb
+                :   # requirements
+                    <implicit-dependency>serialize_pb
+                :   # default-build
+                :   # usage-requirements
+                    <implicit-dependency>serialize_pb
+                    <library>serialize_pb
+                ;

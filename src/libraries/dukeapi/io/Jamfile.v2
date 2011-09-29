@@ -1,0 +1,12 @@
+project 
+    : requirements
+        <library>/boost//thread
+    : usage-requirements 
+        <library>/boost//thread
+    ;
+        
+explicit io ;
+alias io        :   # sources
+                    [ glob-tree *.cpp ]
+                    ../serialize//serialize
+                ;
