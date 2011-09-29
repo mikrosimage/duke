@@ -1,48 +1,48 @@
 Duke version 1.0.0
 
-	Duke is an opensource high resolution video player dedicated to
-	visual effect and post production companies.
-	
+
+    Duke is an opensource high resolution video player dedicated to
+    visual effect and post production companies.
+    
 
 License
+========
 
-	see COPYING file
+    see COPYING file
 
 
 Compilation
+===========
 
-	* Getting the source
-		git clone git://github.com/mikrosimage/duke.git
-		cd duke
-		git submodule update -i
+    * Getting the source
+        git clone git://github.com/mikrosimage/duke.git
+        cd duke
+        git submodule update -i
 
-	* Compilation
-		see INSTALL file
+    * Compilation
+        see INSTALL file
 
 
 Tested compilers
+================
 
-	* Linux
-		+ GCC 4.4.1 on OpenSUSE 11.2
-	* MacOS
-		+ GCC 4.2.1 on OSX 10.5 Leopard
-	* Windows
-		+ gcc (tdm-1) 4.5.2 on Windows XP ( http://tdm-gcc.tdragon.net/ )
+    * Linux
+        - GCC 4.4.1 on OpenSUSE 11.2
+    * MacOS
+        - GCC 4.2.1 on OSX 10.5 Leopard
+    * Windows
+        - GCC (tdm-1) 4.5.2 on Windows XP ( http://tdm-gcc.tdragon.net/ )
 
 
 More information 
+================
 
-	Check Duke website for more information. 
-		NA
-
-	Duke public repository.
-		https://github.com/mikrosimage/duke
+    Duke public repository.
+        http://github.com/mikrosimage/duke
 
 
 Contact
+=======
 
-	Public mailing-list
-		NA
-
-	The github issues module for bug report
-		https://github.com/mikrosimage/duke/issues
+    The github issues module for bug report
+        https://github.com/mikrosimage/duke/issues

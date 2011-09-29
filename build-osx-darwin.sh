@@ -12,4 +12,4 @@ fi
 
 # boost build configuration
 export BOOST_BUILD_PATH=$BOOST_ROOT/tools/build/v2
-$BOOST_ROOT/bjam --toolset=darwin cflags=-fPIC cxxflags=-fPIC $*
+$BOOST_ROOT/bjam --toolset=darwin cflags=-fPIC cxxflags=-fPIC dist $*

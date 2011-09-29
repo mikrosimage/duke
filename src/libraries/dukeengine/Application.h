@@ -37,7 +37,7 @@ public:
     bool renderFinished(unsigned msToPresent);
     OfxRendererSuiteV1::PresentStatus getPresentStatus();
     void pushEvent(const google::protobuf::serialize::MessageHolder&);
-    const google::protobuf::serialize::MessageHolder * const popEvent();
+    const google::protobuf::serialize::MessageHolder * popEvent();
 
 private:
     void applyTransport(const ::duke::protocol::Transport&);

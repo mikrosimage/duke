@@ -6,4 +6,9 @@ project
     ;
 
 explicit jpg ;
-ioplugin jpg : [ glob *.cpp ] ;
+ioplugin jpg 
+    :   
+        [ glob *.cpp ] 
+    : 
+        <build>$(build-jpg) 
+    ; 

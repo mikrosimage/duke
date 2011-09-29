@@ -129,7 +129,7 @@ Configuration::Configuration(int argc, char** argv) :
 
             auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
 
-            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<unsigned short> ());
+            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
             duke_server server(endpoint, sessionCreator);
 
             boost::thread io_launcher(&duke_server::run, &server);

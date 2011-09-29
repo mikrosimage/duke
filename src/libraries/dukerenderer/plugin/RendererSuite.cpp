@@ -39,7 +39,7 @@ void RendererSuite::pushEvent(const google::protobuf::serialize::MessageHolder& 
     (*m_pSuite->pushEvent)(msg);
 }
 
-const google::protobuf::serialize::MessageHolder * const RendererSuite::popEvent() const {
+const google::protobuf::serialize::MessageHolder * RendererSuite::popEvent() const {
     assert(m_pSuite->popEvent);
     return (*m_pSuite->popEvent)();
 }

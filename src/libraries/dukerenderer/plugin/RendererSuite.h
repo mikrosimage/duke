@@ -2,7 +2,6 @@
 #define RENDERERSUITE_H_
 
 #include "ofxRenderer.h"
-#include <player.pb.h>
 
 class RendererSuite {
     const OfxHost* m_pHost;
@@ -19,7 +18,7 @@ public:
 
     void pushEvent(const google::protobuf::serialize::MessageHolder&) const;
 
-    const google::protobuf::serialize::MessageHolder * const  popEvent() const;
+    const google::protobuf::serialize::MessageHolder * popEvent() const;
 
     bool renderEnd(unsigned msToPresent) const;
 

@@ -19,7 +19,7 @@ static bool isEqual(const char* expected, const char* actual) {
 #include <dukerenderer/plugin/RendererSuite.h>
 #include <dukerenderer/plugin/IRenderer.h>
 #include <dukerenderer/plugin/SfmlWindow.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <cassert>
 #include <stdexcept>
 #include <memory>

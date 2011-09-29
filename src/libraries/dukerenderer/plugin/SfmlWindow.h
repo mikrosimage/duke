@@ -2,7 +2,7 @@
 #define SFMLWINDOW_H_
 
 #include "IRenderer.h"
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <SFML/Window.hpp>
 #include <boost/thread.hpp>
 #include <boost/function.hpp>

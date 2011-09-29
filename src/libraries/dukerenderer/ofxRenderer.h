@@ -4,7 +4,14 @@
 #include "Setup.h"
 
 #include <openfx/ofxCorePlugin.h>
-#include <protocol.pb.h>
+
+namespace google {
+namespace protobuf {
+namespace serialize {
+class MessageHolder;
+}  // namespace serialize
+}  // namespace protobuf
+}  // namespace google
 
 #include <memory>
 
@@ -19,7 +26,7 @@ typedef struct OfxRendererSuiteV1 {
     PresentStatus (* getPresentStatus)();
     void (* verticalBlanking)(bool verticalBlanking);
     void (* pushEvent)(const google::protobuf::serialize::MessageHolder&);
-    const google::protobuf::serialize::MessageHolder * const (*popEvent)();
+    const google::protobuf::serialize::MessageHolder * (*popEvent)();
     bool (* renderEnd)(unsigned msToPresent);
 
     Setup m_Setup;

@@ -1,36 +1,6 @@
 package duke.protocol;
 option java_package = "fr.mikrosimage.player.protocol";
 
-message MessageType {
-	enum Action {
-		SET						= 0;
-		RETRIEVE				= 1;
-		UPDATE					= 2;
-		UNSET					= 3;
-	}
-	
-	enum Type {
-		INIT_RENDERER			= 0;
-		INIT_PLAYLIST			= 1;
-		TRANSPORT				= 2;
-		DEBUG_MSG				= 3;
-		QUIT					= 4;
-		EVENT					= 5;
-		SHADER					= 6;
-		TEXTURE					= 7;
-		MESH					= 8;
-		STATIC_PARAMETER		= 9;
-		AUTOMATIC_PARAMETER		= 10;
-		SHADING_FUNCTION		= 11;
-		GRADING					= 12;
-		SHADING_PROGRAM			= 13;
-		ENGINE					= 14;
-	}
-	
-	required Type type 			= 1;
-	optional Action action		= 2 [default = SET];
-}
-
 message Engine {
 	enum Action {
 		RENDER_ONE			= 0;

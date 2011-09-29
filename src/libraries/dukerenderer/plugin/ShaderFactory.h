@@ -5,7 +5,7 @@
 #include "IShaderBase.h"
 #include "RenderingContext.h"
 #include "ProtoBufResource.h"
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <dukeio/ImageDescription.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>

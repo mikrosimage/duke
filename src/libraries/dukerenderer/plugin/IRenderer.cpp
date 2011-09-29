@@ -5,6 +5,8 @@
 #include "utils/SfmlProtobufUtils.h"
 #include "ShaderFactory.h"
 
+#include <dukeapi/serialize/ProtobufSerialize.h>
+
 #include <boost/thread.hpp>
 
 #include <iostream>
@@ -12,6 +14,8 @@
 using namespace ::duke::protocol;
 using namespace ::google::protobuf;
 using namespace ::std;
+
+using namespace google::protobuf::serialize;
 
 const char emptyImageData[] = { CHAR_MAX, CHAR_MIN, CHAR_MAX, CHAR_MIN };
 const string HEADER = "[IRenderer] ";
@@ -54,9 +58,10 @@ private:
  * templated helper to add a protobuf resource in the resource manager
  */
 template<typename T>
-inline void IRenderer::addResource(const ::google::protobuf::Message& msg) {
+inline void IRenderer::addResource(const ::google::protobuf::serialize::MessageHolder& holder) {
+    const auto msg = unpackTo<T>(holder);
     getResourceManager().add( //
-                             dynamic_cast<const T&> (msg).name(), //
+                             msg.name(), //
                              new ProtoBufResource(msg), //
                              false //
     );
@@ -96,82 +101,61 @@ void IRenderer::loop() {
 
 void IRenderer::consumeUntilEngine() {
     // updating resources by popping all the pending messages
-    MessageType msgType;
-    const Message* pMessage;
-    while ((pMessage = m_RendererSuite.popEvent(msgType)) != NULL) {
-        const Message &msg(*pMessage);
-        msg.CheckInitialized();
+    const MessageHolder* pHolder;
+    while ((pHolder = m_RendererSuite.popEvent()) != NULL) {
+        const MessageHolder &holder(*pHolder);
+        const auto descriptor(descriptorFor(holder));
+        holder.CheckInitialized();
 #ifdef DEBUG_MESSAGES
         cerr << HEADER + "pop " + MessageType_Type_Name(msgType.type()) << "\t" << msg.ShortDebugString() << endl;
 #endif
-        switch (msgType.type()) {
-            case MessageType_Type_SHADER: {
-                const Shader &s = dynamic_cast<const Shader&> (msg);
-                getResourceManager().remove(::resource::SHADER, s.name());
-                addResource<Shader> (msg);
-                break;
-            }
-            case MessageType_Type_MESH: {
-                const duke::protocol::Mesh& s = dynamic_cast<const duke::protocol::Mesh&> (msg);
-                getResourceManager().remove(::resource::MESH, s.name());
-                addResource<duke::protocol::Mesh> (msg);
-                break;
-            }
-            case MessageType_Type_TEXTURE: {
-                const Texture& texture = dynamic_cast<const Texture&> (msg);
-                switch (msgType.action()) {
-                    case MessageType_Action_SET:
-                        DisplayableImage(*this, texture);
-                        break;
-                    default: {
-                        ostringstream msg;
-                        msg << HEADER << "IRenderer : don't know how to action " << MessageType_Action_Name(msgType.action()) << " on a Texture" << endl;
-                        throw runtime_error(msg.str());
-                    }
+
+        if (isType<Shader> (descriptor)) {
+            const auto shader = unpackTo<Shader> (holder); // fixme gchatelet : unpack to shared for addResource
+            getResourceManager().remove(::resource::SHADER, shader.name());
+            addResource<Shader> (holder);
+        } else if (isType<duke::protocol::Mesh> (descriptor)) {
+            const auto mesh = unpackTo<duke::protocol::Mesh> (holder); // fixme gchatelet : unpack to shared for addResource
+            getResourceManager().remove(::resource::MESH, mesh.name());
+            addResource<duke::protocol::Mesh> (holder);
+        } else if (isType<Texture> (descriptor)) {
+            const auto texture = unpackTo<Texture> (holder); // fixme gchatelet : unpack to shared for addResource
+            switch (holder.action()) {
+                case MessageHolder_Action_CREATE:
+                case MessageHolder_Action_UPDATE:
+                    DisplayableImage(*this, texture);
+                    break;
+                default: {
+                    ostringstream msg;
+                    msg << HEADER << "IRenderer : don't know how to action " << MessageHolder_Action_Name(holder.action()) << " on a Texture" << endl;
+                    throw runtime_error(msg.str());
                 }
-                break;
             }
-            case MessageType_Type_STATIC_PARAMETER:
-                addResource<StaticParameter> (msg);
-                break;
-            case MessageType_Type_AUTOMATIC_PARAMETER:
-                addResource<AutomaticParameter> (msg);
-                break;
-            case MessageType_Type_GRADING:
-                addResource<Grading> (msg);
-                break;
-            case MessageType_Type_EVENT: {
-                const Event &event = dynamic_cast<const Event&> (msg);
-                switch (event.type()) {
-                    case Event_Type_RESIZED: {
-                        const ResizeEvent &resizeEvent = event.resizeevent();
-                        if (resizeEvent.has_height() && resizeEvent.has_width())
-                            m_Window.SetSize(resizeEvent.width(), resizeEvent.height());
-                        if (resizeEvent.has_x() && resizeEvent.has_y())
-                            m_Window.SetPosition(resizeEvent.x(), resizeEvent.y());
-                        break;
-                    }
-                    default:
-                        break;
-                }
-                break;
+        } else if (isType<StaticParameter> (descriptor)) {
+            addResource<StaticParameter> ( holder);
+        } else if (isType<AutomaticParameter> (descriptor)) {
+            addResource<AutomaticParameter> ( holder);
+        } else if (isType<Grading> (descriptor)) {
+            addResource<Grading> ( holder);
+        } else if (isType<Event> (descriptor)) {
+            const auto event = unpackTo<Event> (holder);
+            if (event.type() == Event_Type_RESIZED) {
+                const ResizeEvent &resizeEvent = event.resizeevent();
+                if (resizeEvent.has_height() && resizeEvent.has_width())
+                    m_Window.SetSize(resizeEvent.width(), resizeEvent.height());
+                if (resizeEvent.has_x() && resizeEvent.has_y())
+                    m_Window.SetPosition(resizeEvent.x(), resizeEvent.y());
             }
-            case MessageType_Type_SHADING_FUNCTION: {
-                FunctionPrototype function;
-                function.CopyFrom(msg);
-                getPrototypeFactory().setPrototype(function);
-                break;
-            }
-            case MessageType_Type_ENGINE: {
-                m_EngineStatus.CopyFrom(msg);
-                if (m_EngineStatus.action() != Engine_Action_RENDER_STOP)
-                    return;
-                break;
-            }
-            default:
-                ostringstream msg;
-                msg << HEADER << "IRenderer : unknown message type " << MessageType_Type_Name(msgType.type()) << endl;
-                throw runtime_error(msg.str());
+        } else if (isType<FunctionPrototype> (descriptor)) {
+            getPrototypeFactory().setPrototype(unpackTo<FunctionPrototype> (holder));
+        } else if (isType<Engine> (descriptor)) {
+            m_EngineStatus.CopyFrom(unpackTo<Engine>(holder));
+            if (m_EngineStatus.action() != Engine_Action_RENDER_STOP)
+                return;
+        } else {
+            ostringstream msg;
+            msg << HEADER << "IRenderer : unknown message type " << descriptor->name() << endl;
+            throw runtime_error(msg.str());
         }
     }
 }
@@ -220,14 +204,15 @@ bool IRenderer::simulationStep() {
     }
 
     // Sending back messages if needed
+    MessageHolder holder;
     try {
+        Event event;
         while (m_Window.PollEvent(m_Event)) {
-            unique_ptr<Event> pEvent(new Event());
-            pEvent->Clear();
+            event.Clear();
             // transcoding the event to protocol buffer
-            Update(*pEvent, m_Event);
-            unique_ptr<Message> msg(pEvent.release());
-            m_RendererSuite.pushEvent(msg);
+            Update(event, m_Event);
+            pack(holder, event);
+            m_RendererSuite.pushEvent(holder);
         }
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while dispatching events : " + e.what() << endl;
@@ -236,11 +221,11 @@ bool IRenderer::simulationStep() {
 
     for (auto itr = m_Context.dumpedImages.begin(); itr != m_Context.dumpedImages.end(); ++itr) {
         const string &name = itr->first;
-        unique_ptr<Texture> pTexture(new Texture());
-        itr->second->dump(*pTexture);
-        pTexture->set_name(name);
-        unique_ptr<Message> msg(pTexture.release());
-        m_RendererSuite.pushEvent(msg);
+        Texture texture;
+        itr->second->dump(texture);
+        texture.set_name(name);
+        pack(holder, texture);
+        m_RendererSuite.pushEvent(holder);
     }
     return m_RendererSuite.renderEnd(0);
 }

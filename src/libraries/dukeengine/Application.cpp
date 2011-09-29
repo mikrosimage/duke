@@ -30,7 +30,7 @@ void pushEvent(const google::protobuf::serialize::MessageHolder&event) {
     g_pApplication->pushEvent(event);
 }
 
-const google::protobuf::serialize::MessageHolder * const popEvent() {
+const google::protobuf::serialize::MessageHolder * popEvent() {
     return g_pApplication->popEvent();
 }
 
@@ -351,7 +351,7 @@ void Application::pushEvent(const google::protobuf::serialize::MessageHolder& ev
     m_IO.push(makeSharedHolder(event));
 }
 
-const google::protobuf::serialize::MessageHolder * const Application::popEvent() {
+const google::protobuf::serialize::MessageHolder * Application::popEvent() {
     m_RendererMessages.tryPop(m_RendererMessageHolder);
     return m_RendererMessageHolder.get();
 }

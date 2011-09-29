@@ -5,4 +5,9 @@ project
     ;
 
 explicit dpx ;
-ioplugin dpx : [ glob *.cpp ] ;
+ioplugin dpx 
+    :   
+        [ glob *.cpp ] 
+    : 
+        <build>$(build-dpx) 
+    ; 
