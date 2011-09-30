@@ -10,7 +10,6 @@
 class TurboJpegDecoder : public IBoostPlugin
 {
     openfx::plugin::PropertySuiteImpl m_PropertySuite;
-    const tjhandle m_jpeghandle;
 
 public:
 	TurboJpegDecoder();

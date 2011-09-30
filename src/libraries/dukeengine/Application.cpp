@@ -70,6 +70,73 @@ OfxHost buildHost(Application* pApplication) {
     return ofxHost;
 }
 
+struct PlaylistRange : public ForwardRange<uint64_t> {
+private:
+    typedef ForwardRange<uint64_t> RANGE;
+    auto_ptr<ForwardRange<ptrdiff_t> > m_pDelegateRange;
+    const PlaylistHelper & m_Helper;
+
+public:
+    PlaylistRange(const PlaylistRange& other) :
+        m_pDelegateRange(other.m_pDelegateRange->save()), m_Helper(other.m_Helper) {
+    }
+    PlaylistRange(size_t currentframe, bool playing, const PlaylistHelper &helper) :
+        m_Helper(helper) {
+        size_t last = m_Helper.getEndIterator();
+        if (!(last > 0))
+            throw runtime_error("playlist size must be > 0");
+        int bound = -1;
+        if (!playing){
+            bound = -5;
+            while(abs(bound)>=last) bound--;
+        }
+        BalancingIndexRange balancing(0, last, bound);
+        OffsetRange<ptrdiff_t> offsetRange(balancing, m_Helper.getIteratorIndexAtFrame(currentframe));
+        ModuloIndexRange<ptrdiff_t> range(offsetRange, 0, last-1);
+        m_pDelegateRange.reset(range.save());
+    }
+    virtual ~PlaylistRange() {
+    }
+    bool empty() const {
+        return m_pDelegateRange->empty();
+    }
+    void popFront() {
+        m_pDelegateRange->popFront();
+    }
+    uint64_t front() {
+        return m_Helper.getHashAtIterator(m_pDelegateRange->front());
+    }
+    RANGE* save() const {
+        return new PlaylistRange(*this);
+    }
+};
+
+struct DumpRange : public SimpleIndexRange<uint64_t> {
+private:
+    typedef SimpleIndexRange<uint64_t> RANGE;
+    SharedPlaylistHelperPtr m_Helper;
+
+public:
+    DumpRange(SharedPlaylistHelperPtr helper) :
+        SimpleIndexRange<uint64_t> (helper->getRecIn(), helper->getRecOut() - 1), m_Helper(helper) {
+    }
+    virtual ~DumpRange() {
+    }
+    bool empty() const {
+        return RANGE::empty();
+    }
+    void popFront() {
+        RANGE::popFront();
+    }
+    uint64_t front() {
+        size_t index = m_Helper->getIteratorIndexAtFrame(RANGE::front());
+        return m_Helper->getHashAtIterator(index);
+    }
+    RANGE* save() const {
+        return new DumpRange(*this);
+    }
+};
+
 } // namespace
 
 
@@ -81,17 +148,18 @@ static void dump(const SharedMessage msg) {
 
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const size_t cacheSize) :
     m_IO(io), //
-            m_ImageReader(m_ImageDecoderFactory), //
-            // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
-            m_FileBufferHolder(m_ImageReader), //
-            m_VbiTimings(TimingType::VBI, 120), //
-            m_FrameTimings(TimingType::FRAME, 10), //
-            m_PreviousFrame(-1), //
-            m_StoredFrame(-1), //
-            m_bRequestTermination(false), //
-            m_bAutoNotifyOnFrameChange(false), //
-            m_iReturnCode(returnCode), //
-            m_Renderer(buildHost(this), rendererFilename) {
+    m_ImageReader(m_ImageDecoderFactory), //
+    // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
+    m_Cache(cacheSize, m_ImageDecoderFactory),//
+    m_FileBufferHolder(m_ImageReader), //
+    m_VbiTimings(TimingType::VBI, 120), //
+    m_FrameTimings(TimingType::FRAME, 10), //
+    m_PreviousFrame(-1), //
+    m_StoredFrame(-1), //
+    m_bRequestTermination(false), //
+    m_bAutoNotifyOnFrameChange(false), //
+    m_iReturnCode(returnCode), //
+    m_Renderer(buildHost(this), rendererFilename) {
 
     consumeUntilRenderOrQuit();
 }
@@ -161,7 +229,7 @@ void Application::consumeTransport() {
                 }
 #ifdef __linux__
                 std::stringstream ss;
-                ss << "\r\e[" << debug.line_size()+1 << "A";
+                ss << "\r\e[" << debug.line_size() + 1 << "A";
                 std::cout << ss.str() << std::endl;
 #endif
                 if (debug.has_pause())
@@ -295,10 +363,23 @@ void Application::renderStart() {
         const size_t frame = m_Playback.frame();
 
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
-
-        // populate images
         setup.m_Images.clear();
-        m_FileBufferHolder.update(frame, m_Playlist);
+
+        if (m_Cache.isRunning()) {
+            PlaylistRange range(frame, m_Playback.isPlaying(), m_Playlist);
+            m_Cache.seek(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
+            m_FileBufferHolder.update(frame, m_Playlist, m_Cache);
+
+            // dump --->
+            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
+            DumpRange fullrange(getSharedPlaylistHelper());
+            m_Cache.dump(fullrange, currentFrameHash);
+            // <--- dump
+
+        } else {
+            m_FileBufferHolder.update(frame, m_Playlist);
+        }
+
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
                         setup.m_Images.push_back(image.getImageDescription());
 
@@ -340,7 +421,7 @@ bool Application::renderFinished(unsigned msToPresent) {
         //            m_AudioEngine.rewind();
         //        }
         m_PreviousFrame = newFrame;
-        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS";
+        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS ";
         return m_bRequestTermination;
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while finishing simulation step : " << e.what() << endl;
@@ -381,4 +462,8 @@ std::string Application::dumpInfo(const Debug_Content& info) const {
         }
     }
     return ss.str();
+}
+
+SharedPlaylistHelperPtr Application::getSharedPlaylistHelper() const {
+    return SharedPlaylistHelperPtr(new PlaylistHelper(m_Playlist.getPlaylist()));
 }

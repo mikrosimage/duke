@@ -38,7 +38,22 @@ typedef boost::shared_ptr<ASlotData> TSlotDataPtr;
 /**
  * Definition of the workers
  */
-void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
-void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+//void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+//void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+
+
+struct load_error : public std::runtime_error {
+    load_error(std::string what) :
+        std::runtime_error(what) {
+    }
+};
+
+uint64_t getNextFilename(Chain &chain, TSlotDataPtr& pData);
+void getImageHandler(const ImageDecoderFactory& factory, TSlotDataPtr& pData);
+void loadFileFromDisk(TSlotDataPtr& pData);
+void readHeader(const ImageDecoderFactory& factory, TSlotDataPtr& pData);
+void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData);
+bool isAlreadyUncompressed(TSlotDataPtr &pData);
+
 
 #endif /* IMAGETOOLBOX_H_ */

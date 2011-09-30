@@ -9,8 +9,9 @@ ImageHolder::~ImageHolder() {
 void ImageHolder::setImageData(const ImageDescription &description, const MemoryBlockPtr pMemory) {
     m_ImageDescription = description;
     m_pImageData = pMemory;
-    if (m_ImageDescription.pImageData == NULL)
+    if (m_ImageDescription.pImageData == NULL){
         m_ImageDescription.pImageData = m_pImageData->getPtr<char> ();
+    }
 }
 
 size_t ImageHolder::getImageDataSize() const {

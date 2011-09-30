@@ -31,7 +31,7 @@ private:
     typedef boost::shared_ptr<SlotData> TSlotDataPtr;
 public:
     enum State {
-        NEW, LOADING, LOADED, DECODING, READY
+        NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4
     };
     /**
      * we cannot use a simple playlist index as an image identifier
@@ -72,10 +72,11 @@ struct TChain : public std::vector<Slot> {
     TChain(OnePassRange<uint64_t> &iterator);
     iterator quickFind(const Slot::State state, size_t &fromIndex);
     iterator find(const uint64_t);
+    const_iterator find(const uint64_t) const;
     const_iterator safeFind(const uint64_t) const;
 };
 
-void transferWorkUnit(TChain &from, TChain &to);
+void transferWorkUnit(TChain &from, TChain &to, bool avoidEviction);
 
 #include <set>
 template<typename T>
@@ -99,6 +100,7 @@ struct ChainContext : boost::noncopyable {
 class Chain : boost::noncopyable {
 public:
     typedef boost::function<std::string(uint64_t)> HashToFilenameFunction;
+    typedef boost::function<bool(const TChain &, uint64_t &)> ComputeTotalWeightFunction;
     typedef boost::function<void(Chain&)> WorkerThreadFunction;
     typedef std::vector<WorkerThreadFunction> WorkerThreadFunctions;
 private:
@@ -113,7 +115,6 @@ private:
     mutable boost::condition m_condSlotDecoded;
     // accelerators so we wont search for index from the M_Chain.begin() every time
     std::size_t m_LastIndexAccelerator[2]; ///< shared
-    std::size_t m_ChainSize; ///< shared
 
     mutable boost::shared_mutex m_LoadFunctionReadWriteMutex;
     HashToFilenameFunction m_LoadFunction; ///< shared
@@ -134,7 +135,7 @@ public:
      * /!\ !!! range must not contains twice the same index !!!
      * This precondition is checked in debug mode
      */
-    void postNewJob(ForwardRange<uint64_t> &range, const HashToFilenameFunction &function);
+    void postNewJob(ForwardRange<uint64_t> &range, const HashToFilenameFunction &function, const ComputeTotalWeightFunction &weighfunction);
 
     /**
      * append workers to this Chain to multithread load and decode
@@ -160,7 +161,6 @@ public:
     inline void setDecoded(Slot::Shared shared) {
         setData(shared, Slot::READY, m_condSlotDecoded);
     }
-
     void getFilenameForHash(const uint64_t &hash, std::string &filename) const;
 
     /**
@@ -169,6 +169,8 @@ public:
      * throw if asking for an image out the provided job's range
      */
     bool getResult(const uint64_t &imageHash, Slot::Shared &slot) const;
+
+    void dump(ForwardRange<uint64_t> & range, const uint64_t &imageHash) const;
 
     /**
      * code for this function is in ChainOStream.cpp

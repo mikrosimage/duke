@@ -3,9 +3,11 @@
 #include <dukeapi/core/MessageHolder.h>
 #include <dukeapi/protocol/player/protocol.pb.h>
 #include <iostream>
+#include <iomanip>
 #include <cassert>
 
 using namespace ::duke::protocol;
+using namespace std;
 
 namespace {
 
@@ -106,22 +108,38 @@ void InteractiveMessageIO::push(const SharedMessage& holder) {
                     PUSH(displayMode);
                     break;
                 }
-                case KeyEvent_KeyCode_I: {
-                    Debug d;
-                    d.add_line("INFO:");
-                    d.add_line(". current frame: %0");
-                    d.add_line(". associated file(s): %1");
-                    d.add_line(". FPS: %2");
-                    d.add_content(Debug_Content_FRAME);
-                    d.add_content(Debug_Content_FILENAMES);
-                    d.add_content(Debug_Content_FPS);
-                    PUSH(d);
-                    break;
-                }
                 case KeyEvent_KeyCode_G: {
                     PUSH(MAKE(Transport_TransportType_CUE, atoi(m_ssSeek.str().c_str()), false, false));
                     m_ssSeek.str("");
                     m_ssSeek.clear();
+                    break;
+                }
+                case KeyEvent_KeyCode_H: {
+                    cout << "SHORTCUTS" << endl;
+                    cout << setw(15) << "[H]" << setw(20) << "Display this help" << endl;
+                    cout << setw(15) << "[I]" << setw(20) << "Display image info" << endl;
+                    cout << setw(15) << "[F]" << setw(20) << "Toggle fit mode" << endl;
+                    cout << setw(15) << "[->]" << setw(20) << "Next frame" << endl;
+                    cout << setw(15) << "[<-]" << setw(20) << "Previous frame" << endl;
+                    cout << setw(15) << "[shift]+[->]" << setw(20) << "Go to frame + 100" << endl;
+                    cout << setw(15) << "[shift]+[<-]" << setw(20) << "Go to frame - 100" << endl;
+                    cout << setw(15) << "[PgUp]" << setw(20) << "Next Shot" << endl;
+                    cout << setw(15) << "[PgDown]" << setw(20) << "Previous Shot" << endl;
+                    cout << setw(15) << "[Home]" << setw(20) << "First frame" << endl;
+                    cout << setw(15) << "[End]" << setw(20) << "Last frame" << endl;
+                    cout << setw(15) << "[Esc]" << setw(20) << "Quit" << endl;
+                    break;
+                }
+                case KeyEvent_KeyCode_I: {
+                    Debug d;
+                    d.add_line("IMAGE INFO");
+                    d.add_line("    current frame: %0");
+                    d.add_line("    associated file(s): %1");
+                    d.add_line("    FPS: %2");
+                    d.add_content(Debug_Content_FRAME);
+                    d.add_content(Debug_Content_FILENAMES);
+                    d.add_content(Debug_Content_FPS);
+                    PUSH(d);
                     break;
                 }
                 case KeyEvent_KeyCode_Num0:

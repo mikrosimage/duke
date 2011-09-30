@@ -7,7 +7,7 @@
 #include "time_statistics/Durations.h"
 #include "playback/Timings.h"
 #include "sequence/PlaylistHelper.h"
-#include "image/ImageCache.h"
+#include "image/SmartCache.h"
 #include "image/ImageReader.h"
 #include "host/renderer/Renderer.h"
 #include "host/io/ImageDecoderFactory.h"
@@ -45,6 +45,8 @@ private:
     void consumeTransport();
     void handleQuitMessage(const ::duke::protocol::Quit&) const;
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
+    SharedPlaylistHelperPtr getSharedPlaylistHelper() const;
+
 
 private:
     // order of variables are very important because of multi threading issues
@@ -55,11 +57,12 @@ private:
     ImageReader m_ImageReader;
     PlaylistHelper m_Playlist;
     playback::PlaybackState m_Playback;
+    //    AudioEngine m_AudioEngine;
+    SmartCache m_Cache;
     FileBufferHolder m_FileBufferHolder;
     Timings m_VbiTimings;
     Timings m_FrameTimings;
     Durations m_Durations;
-    //    AudioEngine m_AudioEngine;
     uint32_t m_PreviousFrame;
     uint32_t m_StoredFrame;
     bool m_bRequestTermination;

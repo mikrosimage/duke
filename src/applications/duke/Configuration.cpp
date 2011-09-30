@@ -55,7 +55,7 @@ void setDisplayOptions(boost::program_options::options_description& description,
 
 Configuration::Configuration(int argc, char** argv) :
     m_iReturnValue(0), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
-            m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
+                    m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
     using namespace ::duke::protocol;
 

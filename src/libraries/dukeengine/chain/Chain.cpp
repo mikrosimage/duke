@@ -49,23 +49,32 @@ TChain::iterator TChain::find(const uint64_t imageHash) {
             return itr;
     return end;
 }
+TChain::const_iterator TChain::find(const uint64_t imageHash) const {
+    const const_iterator end = this->end();
+    for (const_iterator itr = begin(); itr != end; ++itr)
+        if (itr->m_Shared.m_ImageHash == imageHash)
+            return itr;
+    return end;
+}
 TChain::const_iterator TChain::safeFind(const uint64_t imageHash) const {
     const const_iterator end = this->end();
     for (const_iterator itr = begin(); itr != end; ++itr)
         if (itr->m_Shared.m_ImageHash == imageHash)
             return itr;
-    throw std::runtime_error("safeFind forbids asking for a frame not in the range");
+    throw std::runtime_error("safeFind forbids asking for a frame not in the range ");
 }
 
-void transferWorkUnit(TChain &from, TChain &to) {
+void transferWorkUnit(TChain &from, TChain &to, bool avoidEviction) {
     sort(from.begin(), from.end());
     const TChain::const_iterator sortedFrom_Begin = from.begin();
     const TChain::const_iterator sortedFrom_End = from.end();
     for (TChain::iterator destinationItr = to.begin(); destinationItr != to.end(); ++destinationItr) {
         Slot &current = *destinationItr; // the current element
         const TChain::const_iterator fromSlotItr = lower_bound(sortedFrom_Begin, sortedFrom_End, current);
-        if (fromSlotItr == sortedFrom_End || fromSlotItr->m_Shared.m_ImageHash != current.m_Shared.m_ImageHash || fromSlotItr->m_State == Slot::NEW)
-            continue;
+        if (fromSlotItr == sortedFrom_End || fromSlotItr->m_Shared.m_ImageHash != current.m_Shared.m_ImageHash || fromSlotItr->m_State == Slot::NEW) {
+            if(avoidEviction) continue;
+            else break;
+        }
         current = *fromSlotItr;
         switch (current.m_State) {
             case Slot::DECODING:
@@ -108,7 +117,10 @@ void Chain::stopWorkers() {
     m_ThreadGroup.join_all();
 }
 
-void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFunction &function) {
+void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFunction &function, const ComputeTotalWeightFunction &weighfunction) {
+
+//    auto_ptr<ForwardRange<uint64_t> > iteratorCopy(iterator.save());
+
     assert( !hasDouble(iterator) ); // ensuring no doubles in list
     TChain newJobChain(iterator);
     {// locking the chain for reordering
@@ -117,8 +129,23 @@ void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFun
             boost::unique_lock<boost::shared_mutex> writeLock(m_LoadFunctionReadWriteMutex);
             m_LoadFunction = function;
         }
+
         // moving previous work from old chain to new chain
-        transferWorkUnit(m_Chain, newJobChain);
+        transferWorkUnit(m_Chain, newJobChain, false);
+
+        uint64_t total_size = 0;
+        weighfunction(newJobChain, total_size);
+
+//        // moving previous work from old chain to new chain
+//        transferWorkUnit(m_Chain, newJobChain, true);
+//
+//        uint64_t total_size = 0;
+//        if(!weighfunction(newJobChain, total_size)){
+//            TChain emptyJobChain(*iteratorCopy);
+//            transferWorkUnit(m_Chain, emptyJobChain, false);
+//            newJobChain = emptyJobChain;
+//        }
+
         // now working on the new chain
         m_Chain.swap(newJobChain);
         cleanAccelerators();
@@ -127,18 +154,18 @@ void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFun
 }
 
 boost::posix_time::time_duration Chain::benchmark(const WorkerThreadFunctions &functions, const HashToFilenameFunction &function, const size_t count) {
-//    assert(count<SIZE_MAX);
-    using namespace boost::posix_time;
-    using namespace boost;
-    SimpleIndexRange<uint64_t> iterator(0, count + 1);
-    addWorker(functions);
-    ptime start = microsec_clock::local_time();
-    postNewJob(iterator, function);
-    Slot::Shared slot;
-    for (size_t i = 0; i <= count; ++i)
-        getResult(i, slot);
-    stopWorkers();
-    return microsec_clock::local_time() - start;
+    //    assert(count<SIZE_MAX);
+    //    using namespace boost::posix_time;
+    //    using namespace boost;
+    //    SimpleIndexRange<uint64_t> iterator(0, count + 1);
+    //    addWorker(functions);
+    //    ptime start = microsec_clock::local_time();
+    //    postNewJob(iterator, function);
+    //    Slot::Shared slot;
+    //    for (size_t i = 0; i <= count; ++i)
+    //        getResult(i, slot);
+    //    stopWorkers();
+    //    return microsec_clock::local_time() - start;
 }
 
 Slot::Shared Chain::getHash(const Slot::State stateToFind, const Slot::State stateToSet, boost::condition &conditionToCheck) {
@@ -149,7 +176,7 @@ Slot::Shared Chain::getHash(const Slot::State stateToFind, const Slot::State sta
         throw chain_terminated();
     const size_t acceleratorIndex = stateToFind == Slot::NEW ? 0 : 1;
     while (m_Chain.empty() || (pSlot = m_Chain.quickFind(stateToFind, m_LastIndexAccelerator[acceleratorIndex])) == m_Chain.end()) {
-        conditionToCheck.wait(lock);
+        conditionToCheck.timed_wait(lock, boost::posix_time::millisec(10));
         if (m_Terminate)
             throw chain_terminated();
     }
@@ -183,6 +210,50 @@ bool Chain::getResult(const uint64_t &imageHash, Slot::Shared &ptr) const {
     }
     ptr = pSlot->m_Shared;
     return true;
+}
+
+void Chain::dump(ForwardRange<uint64_t> & range, const uint64_t &imageHash) const {
+    TChain::const_iterator pSlot;
+    boost::mutex::scoped_lock lock(m_ChainMutex);
+    if (m_Terminate)
+        return;
+
+    std::stringstream ssdump;
+    ssdump << "[";
+    while (!range.empty()) {
+        pSlot = m_Chain.find(range.front());
+        if (pSlot == m_Chain.end()) {
+            if (imageHash == range.front())
+                ssdump << "X";
+            else ssdump << "x";
+            range.popFront();
+            continue;
+        }
+        switch (pSlot->m_State) {
+            case Slot::NEW:
+            case Slot::LOADING:
+                if (imageHash == range.front())
+                    ssdump << "N";
+                else
+                    ssdump << "n";
+                break;
+            case Slot::LOADED:
+            case Slot::DECODING:
+                if (imageHash == range.front())
+                    ssdump << "L";
+                else
+                    ssdump << "l";
+                break;
+            case Slot::READY:
+                if (imageHash == range.front())
+                    ssdump << "R";
+                else
+                    ssdump << "r";
+                break;
+        }
+        range.popFront();
+    }
+    cout << ssdump.str() << "]\n" ;
 }
 
 void Chain::getFilenameForHash(const uint64_t &hash, std::string &filename) const {

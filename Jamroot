@@ -70,13 +70,14 @@ install shader_prototypes :
 	;
 
 install dist :
+	#src/applications/imagecache//imagecache
 	applications
 	plugins
 	shader_prototypes
 	:
-	<install-dependencies>on 
-	<install-type>SHARED_LIB 
-	<install-type>SEARCHED_LIB 
+	<install-dependencies>on
+	<install-type>SHARED_LIB
+	<install-type>SEARCHED_LIB
 	<install-type>EXE
 	<variant>debug:<location>dist/debug
 	<variant>release:<location>dist/release

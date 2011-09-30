@@ -95,10 +95,11 @@ struct PlaybackState {
 
     void play(uint32_t frame, int32_t speed = 1);
 
-private:
     inline bool isPlaying() const {
         return m_Speed != 0;
     }
+
+private:
 
     inline duration nsPerFrame() const {
         return m_Speed == 0 ? duration::zero() : m_NsPerFrame / m_Speed;

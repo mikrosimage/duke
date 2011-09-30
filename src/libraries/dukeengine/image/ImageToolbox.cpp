@@ -15,16 +15,10 @@ string PlaylistHashToName::getFilename(uint64_t hash) const {
     return playlistHelper->getPathAtHash(hash).string();
 }
 
-struct load_error : public runtime_error {
-    load_error(string what) :
-        runtime_error(what) {
-    }
-};
-
 const char * reader = "READ   : ";
 const char * decoder = "DECODE : ";
 
-inline uint64_t getNextFilename(Chain &chain, TSlotDataPtr& pData) {
+uint64_t getNextFilename(Chain &chain, TSlotDataPtr& pData) {
     Slot::Shared shared = chain.getLoadHash();
     assert(shared.m_ImageHash!=0);
     string filename;
@@ -35,13 +29,13 @@ inline uint64_t getNextFilename(Chain &chain, TSlotDataPtr& pData) {
     return shared.m_ImageHash;
 }
 
-inline void getImageHandler(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
+void getImageHandler(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
     pData->m_FormatHandler = factory.getImageDecoder(pData->m_FilenameExtension.c_str(), pData->m_bDelegateReadToHost, pData->m_bFormatUncompressed);
     if (pData->m_FormatHandler == NULL)
         throw load_error("no decoder for extension \"" + pData->m_FilenameExtension + "\"");
 }
 
-inline void loadFileFromDisk(TSlotDataPtr& pData) {
+void loadFileFromDisk(TSlotDataPtr& pData) {
     // file reader
     StreamedFileIO fileIO(&_alignedMallocAlloc);
     MemoryBlockPtr &pFile = pData->m_pFileMemoryBlock;
@@ -53,12 +47,12 @@ inline void loadFileFromDisk(TSlotDataPtr& pData) {
     imgDesc.fileDataSize = pFile->size();
 }
 
-inline void readHeader(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
+void readHeader(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
     if (!factory.readImageHeader(pData->m_Filename.c_str(), pData->m_FormatHandler, pData->m_TempImageDescription))
         throw load_error("unable to open " + pData->m_Filename);
 }
 
-inline void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData) {
+void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData) {
     const ImageDescription &description = pData->m_TempImageDescription;
     ImageHolder &holder = pData->m_Holder;
     assert( description.imageDataSize > 0 );
@@ -71,7 +65,7 @@ inline void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pDa
 
 // if pImageData is set, it means the uncompressed data was in the file in which case we must
 // save the allocated memory along with the image ( ie : in the ImageHolder )
-inline bool isAlreadyUncompressed(TSlotDataPtr &pData) {
+bool isAlreadyUncompressed(TSlotDataPtr &pData) {
     const ImageDescription &description = pData->m_TempImageDescription;
     if (description.pImageData == NULL)
         return false;
@@ -84,7 +78,6 @@ inline bool isAlreadyUncompressed(TSlotDataPtr &pData) {
 }
 
 void loadOne(Chain &chain, const ImageDecoderFactory& factory) {
-//    StopWatch time(true);
     TSlotDataPtr pData(new ASlotData());
     uint64_t hash = 0;
     try {
@@ -92,9 +85,7 @@ void loadOne(Chain &chain, const ImageDecoderFactory& factory) {
         getImageHandler(factory, pData);
         if (pData->m_bDelegateReadToHost)
             loadFileFromDisk(pData);
-//        pData->loadTime = time.splitTime();
-        //        cerr << reader << "read " << pData->loadTime << endl;
-        chain.setLoaded(Slot::Shared(hash, pData));
+//        chain.setLoaded(Slot::Shared(hash, pData));
     } catch (load_error &e) {
         cerr << e.what() << endl;
         if (hash == 0)
@@ -105,7 +96,6 @@ void loadOne(Chain &chain, const ImageDecoderFactory& factory) {
 }
 
 void decodeOne(Chain &chain, const ImageDecoderFactory& factory) {
-//    StopWatch time(true);
     Slot::Shared shared = chain.getDecodeHash();
     const uint64_t hash = shared.m_ImageHash;
     TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
@@ -113,9 +103,7 @@ void decodeOne(Chain &chain, const ImageDecoderFactory& factory) {
         readHeader(factory, pData);
         if (!isAlreadyUncompressed(pData))
             readImage(factory, pData);
-//        pData->decodeTime = time.splitTime();
-        //        cerr << decoder << "decoded " << pData->decodeTime << endl;
-        chain.setDecoded(Slot::Shared(hash, pData));
+//        chain.setDecoded(Slot::Shared(hash, pData));
     } catch (load_error &e) {
         cerr << e.what() << endl;
         if (hash == 0)
@@ -124,30 +112,30 @@ void decodeOne(Chain &chain, const ImageDecoderFactory& factory) {
     }
 }
 
-#if defined (WIN32)
-void setCpuAffinity(unsigned cpu) {
-    //SetThreadAffinityMask(GetCurrentThread(), 1 << cpu);
-}
-#else
-void setCpuAffinity(unsigned cpu) {
-}
-#endif
-
-void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
-    setCpuAffinity(cpu);
-    try {
-        while (true) {
-            loadOne(chain, factory);
-        }
-    } catch (chain_terminated &e) {
-    }
-}
-
-void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
-    setCpuAffinity(cpu);
-    try {
-        while (true)
-            decodeOne(chain, factory);
-    } catch (chain_terminated &e) {
-    }
-}
+//#if defined (WIN32)
+//void setCpuAffinity(unsigned cpu) {
+//    //SetThreadAffinityMask(GetCurrentThread(), 1 << cpu);
+//}
+//#else
+//void setCpuAffinity(unsigned cpu) {
+//}
+//#endif
+//
+//void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
+//    setCpuAffinity(cpu);
+//    try {
+//        while (true) {
+//            loadOne(chain, factory);
+//        }
+//    } catch (chain_terminated &e) {
+//    }
+//}
+//
+//void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
+//    setCpuAffinity(cpu);
+//    try {
+//        while (true)
+//            decodeOne(chain, factory);
+//    } catch (chain_terminated &e) {
+//    }
+//}
