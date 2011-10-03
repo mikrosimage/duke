@@ -24,7 +24,13 @@ namespace serialize {
 
 inline const google::protobuf::Descriptor* descriptorFor(const MessageHolder &holder) {
     using namespace google::protobuf;
-    return DescriptorPool::generated_pool()->FindMessageTypeByName(holder.type_name());
+    assert(holder.has_type_name());
+    const Descriptor* pDescriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(holder.type_name());
+    if (!pDescriptor) {
+        cerr << "No descriptor for message of type " << holder.type_name() << endl;
+        exit(EXIT_FAILURE);
+    }
+    return pDescriptor;
 }
 
 template<typename T>

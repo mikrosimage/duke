@@ -109,12 +109,13 @@ void Application::consumeUntilRenderOrQuit() {
     m_IO.waitPop(pHolder);
     assert(pHolder);
     const MessageHolder &holder = *pHolder;
-    if (isType<Renderer> (holder))
+    const auto descriptor = descriptorFor(holder);
+    if (isType<Renderer> (descriptor))
         m_Renderer.initRender(unpackTo<Renderer> (holder));
-    else if (isType<Quit> (holder))
+    else if (isType<Quit> (descriptor))
         handleQuitMessage(unpackTo<Quit> (holder));
     else
-        cerr << HEADER + "First message must be either InitRenderer or Quit, was " << descriptorFor(holder)->name() << endl;
+        cerr << HEADER + "First message must be either InitRenderer or Quit, was " << descriptor->name() << endl;
 }
 
 void Application::handleQuitMessage(const Quit& quit) const {
