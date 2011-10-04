@@ -46,13 +46,9 @@ struct ISession;
 typedef boost::shared_ptr<ISession> duke_session_ptr;
 
 typedef boost::function<ISession*(ba::io_service&)> connectionCreatorFunction;
-typedef boost::function<void()> relaunchFunction;
 
-/**
- * a session as viewed by the api user
- */
 struct ISession {
-    virtual void start(const relaunchFunction& relaunchFunction)=0;
+    virtual void start()=0;
     virtual ba::ip::tcp::socket& socket()=0;
 
     virtual ~ISession() {
@@ -69,8 +65,7 @@ public:
         close();
     }
 
-    virtual void start(const relaunchFunction& relaunchFunction) {
-        relaunchFunction_ = relaunchFunction;
+    virtual void start() {
         incomingConnection();
         read_header();
     }
@@ -103,9 +98,6 @@ protected:
     virtual void disconnecting(const boost::system::error_code&) {
     }
 
-    void relaunch() {
-        relaunchFunction_();
-    }
 private:
     inline void read_header() {
         ba::async_read_until(socket_, headerbuffer_, ba::match_varint, boost::bind(&DukeSession::handle_read_header, this, ba::placeholders::error, _2));
@@ -163,7 +155,6 @@ private:
     MessageHolder rcv_msg_holder_;
     raw_buffer post_msg_buffer_;
     MessageHolder post_msg_holder_;
-    relaunchFunction relaunchFunction_;
 };
 
 typedef boost::shared_ptr<DukeSession> duke_session_impl_ptr;
@@ -189,10 +180,7 @@ struct duke_common {
 protected:
     void incomingConnection(duke_session_ptr pSession) {
         current_connection_ = pSession;
-        current_connection_->start(boost::bind(&duke_common::relaunch, this));
-    }
-
-    virtual void relaunch() {
+        current_connection_->start();
     }
 
     duke_session_ptr createConnection() {
@@ -222,10 +210,6 @@ private:
         error_code_ = error;
         if (!error)
             incomingConnection(pSession);
-    }
-
-    virtual void relaunch() {
-        start_accept();
     }
 
     ba::ip::tcp::acceptor acceptor_;

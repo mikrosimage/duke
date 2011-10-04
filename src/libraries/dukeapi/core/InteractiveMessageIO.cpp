@@ -1,4 +1,5 @@
 #include "InteractiveMessageIO.h"
+#include "messageBuilder/QuitBuilder.h"
 #include <protocol.pb.h>
 #include <player.pb.h>
 #include <iostream>
@@ -91,7 +92,7 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                     PUSH(MAKE(Transport_TransportType_CUE_LAST));
                     break;
                 case KeyEvent_KeyCode_Escape:
-                    PUSH(Quit());
+                    m_ToApplicationQueue.push(makeSharedHolder(quitSuccess()));
                     break;
                 case KeyEvent_KeyCode_PageUp:
                     PUSH(MAKE(Transport_TransportType_CUE, 1, true, true));
@@ -172,7 +173,7 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
             break;
         }
         case Event_Type_CLOSED:
-            PUSH(Quit());
+            m_ToApplicationQueue.push(makeSharedHolder(quitSuccess()));
             break;
         default:
             break;

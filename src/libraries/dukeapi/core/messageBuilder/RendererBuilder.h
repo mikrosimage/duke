@@ -1,6 +1,7 @@
 #ifndef RENDERERBUILDER_H
 #define RENDERERBUILDER_H
 
+#include "QuitBuilder.h"
 #include <dukeapi/io/IMessageIO.h>
 #include <player.pb.h>
 #include <iostream>
@@ -33,15 +34,13 @@ void startRenderer(IMessageIO & _queue //
 }
 
 void stopRenderer(IMessageIO & _queue) {
-    dk::Quit q;
-    q.set_returncode(0);
-    push(_queue, q);
+    using namespace ::google::protobuf::serialize;
+    _queue.push(makeSharedHolder(relaunch()));
 }
 
 void quitRenderer(IMessageIO & _queue) {
-    dk::Quit q;
-    q.set_returncode(-1);
-    push(_queue, q);
+    using namespace ::google::protobuf::serialize;
+    _queue.push(makeSharedHolder(quitSuccess()));
 }
 
 } // empty namespace

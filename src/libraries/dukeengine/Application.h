@@ -43,7 +43,7 @@ private:
     void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();
     void consumeTransport();
-    void handleQuitMessage(const ::duke::protocol::Quit&) const;
+    bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
 
 private:

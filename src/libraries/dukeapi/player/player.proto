@@ -251,11 +251,6 @@ message Debug {
 	optional uint32 pause = 3;
 }
 
-message Quit {
-	optional int32 returnCode = 1 [ default = 0 ];
-	repeated string quitMessage = 2;
-}
-
 message RenderPass {
 	enum RenderTarget {
 		SCREEN = 0;

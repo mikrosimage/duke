@@ -1,5 +1,6 @@
 #include "Configuration.h"
 #include <dukeengine/Application.h>
+#include <dukeapi/core/messageBuilder/QuitBuilder.h>
 #include <dukeapi/core/PlaybackReader.h>
 #include <dukeapi/core/PlaylistReader.h>
 #include <dukeapi/core/SequenceReader.h>
@@ -54,7 +55,7 @@ void setDisplayOptions(boost::program_options::options_description& description,
 }
 
 Configuration::Configuration(int argc, char** argv) :
-    m_iReturnValue(0), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
+    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
             m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
     using namespace ::duke::protocol;
@@ -124,7 +125,7 @@ Configuration::Configuration(int argc, char** argv) :
         using namespace boost::asio::ip;
         using google::protobuf::serialize::duke_server;
 
-        while (m_iReturnValue == 0) {
+        while (m_iReturnValue == EXIT_RELAUNCH) {
             QueueMessageIO io;
 
             auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
@@ -132,11 +133,13 @@ Configuration::Configuration(int argc, char** argv) :
             tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
             duke_server server(endpoint, sessionCreator);
 
+            printf("Configuration::launch");
             boost::thread io_launcher(&duke_server::run, &server);
 
             decorateAndRun(io);
 
             io_launcher.join();
+            printf("Configuration::join");
         }
         return;
     }

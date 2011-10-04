@@ -104,24 +104,30 @@ Application::~Application() {
 
 void Application::consumeUntilRenderOrQuit() {
     using ::duke::protocol::Renderer;
-    using ::duke::protocol::Quit;
     SharedHolder pHolder;
     m_IO.waitPop(pHolder);
-    assert(pHolder);
+    if (handleQuitMessage(pHolder))
+        return;
+
     const MessageHolder &holder = *pHolder;
     const auto descriptor = descriptorFor(holder);
+
     if (isType<Renderer> (descriptor))
         m_Renderer.initRender(unpackTo<Renderer> (holder));
-    else if (isType<Quit> (descriptor))
-        handleQuitMessage(unpackTo<Quit> (holder));
     else
         cerr << HEADER + "First message must be either InitRenderer or Quit, was " << descriptor->name() << endl;
 }
 
-void Application::handleQuitMessage(const Quit& quit) const {
-    for (int i = 0; i < quit.quitmessage_size(); ++i)
-        cout << quit.quitmessage(i) << endl;
-    m_iReturnCode = quit.returncode();
+bool Application::handleQuitMessage(const ::google::protobuf::serialize::SharedHolder& pHolder) {
+    if (!pHolder) {
+        m_iReturnCode = EXIT_FAILURE;
+        return true;
+    }
+    if (pHolder->action() == MessageHolder_Action_CLOSE_CONNECTION) {
+        m_iReturnCode = pHolder->return_value();
+        return true;
+    }
+    return false;
 }
 
 void* Application::fetchSuite(const char* suiteName, int suiteVersion) {
@@ -140,7 +146,11 @@ void Application::consumeTransport() {
 
     SharedHolder pHolder;
     while (m_IO.tryPop(pHolder)) {
-        assert(pHolder);
+        if (handleQuitMessage(pHolder)) {
+            m_bRequestTermination = true;
+            cerr << "handling Quit message and quitting" << endl;
+            return;
+        }
         const MessageHolder &holder = *pHolder;
         const auto descriptor = descriptorFor(holder);
         if (isType<Renderer> (descriptor)) {
@@ -177,11 +187,6 @@ void Application::consumeTransport() {
             dump(pHolder);
             m_Playlist.swap(PlaylistHelper(unpackTo<Playlist> (holder)));
             m_Playback = create(m_Playlist);
-        } else if (isType<Quit> (descriptor)) {
-            dump(pHolder);
-            m_bRequestTermination = true;
-            handleQuitMessage(unpackTo<Quit> (holder));
-            return;
         } else if (isType<Transport> (descriptor)) {
             dump(pHolder);
             switch (pHolder->action()) {

@@ -7,10 +7,10 @@ message MessageHolder {
         UPDATE = 2;
         DELETE = 3;
         CLOSE_CONNECTION = 4;
-        CLOSE_AND_RELAUNCH_CONNECTION = 5;
     }
     
     required Action action = 1 [default = CREATE];
     optional string type_name = 2;
     optional bytes body = 3;
+    optional int32 return_value = 4 [default = 0];
 }

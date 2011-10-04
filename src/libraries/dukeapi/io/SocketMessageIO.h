@@ -33,24 +33,25 @@ protected:
 
     virtual void incomingMessage(const google::protobuf::serialize::MessageHolder &msg) {
         using namespace google::protobuf::serialize;
-        switch (msg.action()) {
-            case MessageHolder_Action_CLOSE_AND_RELAUNCH_CONNECTION:
-                relaunch(); // fallthrough next case
-            case MessageHolder_Action_CLOSE_CONNECTION:
-                closing = true;
-                outputQueue.push(SharedHolder()); // pushing sentinel
-                sendLoopThread->join();
-                close();
-                break;
-            default:
-                inputQueue.push(google::protobuf::serialize::makeSharedHolder(msg));
+        using namespace std;
+        if (msg.action() == MessageHolder_Action_CLOSE_CONNECTION) {
+            closing = true;
+            outputQueue.push(SharedHolder()); // pushing sentinel to end output loop
+            sendLoopThread->join();
+            close();
         }
+        inputQueue.push(makeSharedHolder(msg));
     }
 
     virtual void disconnecting(const boost::system::error_code&e) {
         using namespace google::protobuf::serialize;
-        if (!closing)
-            std::cerr << "Abnormal termination : " << e.message() << std::endl;
+        using namespace std;
+        if (!closing) {
+            cerr << "Abnormal termination : " << e.message() << endl;
+            MessageHolder holder;
+            holder.set_action(MessageHolder_Action_CLOSE_CONNECTION);
+            incomingMessage(holder);
+        }
     }
 
     void sendLoop() {
@@ -64,14 +65,8 @@ protected:
                     break; // stopping
                 else {
                     post(*holder);
-                    switch (holder->action()) {
-                        case MessageHolder_Action_CLOSE_AND_RELAUNCH_CONNECTION:
-                        case MessageHolder_Action_CLOSE_CONNECTION:
-                            closing = true;
-                            break;
-                        default:
-                            break;
-                    }
+                    if (holder->action() == MessageHolder_Action_CLOSE_CONNECTION)
+                        closing = true;
                 }
             }
             // emptying output queue
