@@ -133,13 +133,11 @@ Configuration::Configuration(int argc, char** argv) :
             tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
             duke_server server(endpoint, sessionCreator);
 
-            printf("Configuration::launch");
             boost::thread io_launcher(&duke_server::run, &server);
 
             decorateAndRun(io);
 
             io_launcher.join();
-            printf("Configuration::join");
         }
         return;
     }
