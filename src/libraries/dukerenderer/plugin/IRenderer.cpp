@@ -59,7 +59,7 @@ private:
  */
 template<typename T>
 inline void IRenderer::addResource(const ::google::protobuf::serialize::MessageHolder& holder) {
-    const auto msg = unpackTo<T>(holder);
+    const auto msg = unpackTo<T> (holder);
     getResourceManager().add( //
                              msg.name(), //
                              new ProtoBufResource(msg), //
@@ -132,11 +132,11 @@ void IRenderer::consumeUntilEngine() {
                 }
             }
         } else if (isType<StaticParameter> (descriptor)) {
-            addResource<StaticParameter> ( holder);
+            addResource<StaticParameter> (holder);
         } else if (isType<AutomaticParameter> (descriptor)) {
-            addResource<AutomaticParameter> ( holder);
+            addResource<AutomaticParameter> (holder);
         } else if (isType<Grading> (descriptor)) {
-            addResource<Grading> ( holder);
+            addResource<Grading> (holder);
         } else if (isType<Event> (descriptor)) {
             const auto event = unpackTo<Event> (holder);
             if (event.type() == Event_Type_RESIZED) {
@@ -149,7 +149,7 @@ void IRenderer::consumeUntilEngine() {
         } else if (isType<FunctionPrototype> (descriptor)) {
             getPrototypeFactory().setPrototype(unpackTo<FunctionPrototype> (holder));
         } else if (isType<Engine> (descriptor)) {
-            m_EngineStatus.CopyFrom(unpackTo<Engine>(holder));
+            m_EngineStatus.CopyFrom(unpackTo<Engine> (holder));
             if (m_EngineStatus.action() != Engine_Action_RENDER_STOP)
                 return;
         } else {
