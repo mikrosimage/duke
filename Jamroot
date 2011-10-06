@@ -61,6 +61,8 @@ alias plugin-dpx	: src/plugins/io/dpx//dpx ;
 alias plugin-oiio	: src/plugins/io/oiio//oiio ;
 alias plugin-ogl	: src/plugins/renderer/ogl//ogl ;
 alias plugin-dx9	: src/plugins/renderer/dx9//dx9 ;
+alias mingw_runtime ;
+alias mingw_runtime : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
 
 install shader_prototypes :
@@ -71,6 +73,7 @@ install shader_prototypes :
 	;
 
 install dist :
+    mingw_runtime
 	applications
 	plugins
 	shader_prototypes
