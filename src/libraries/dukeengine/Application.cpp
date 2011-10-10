@@ -74,9 +74,9 @@ OfxHost buildHost(Application* pApplication) {
 } // namespace
 
 
-static void dump(const SharedHolder msg) {
+static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder) {
 #ifdef DEBUG_MESSAGES
-    cerr << HEADER + "pop " + MessageType_Type_Name(msg->type()) << "\t" << msg->message().ShortDebugString() << endl;
+    cerr << HEADER + "pop " + pDescriptor->name() << "\t" << unpack(holder)->ShortDebugString() << endl;
 #endif
 }
 
@@ -105,17 +105,21 @@ Application::~Application() {
 void Application::consumeUntilRenderOrQuit() {
     using ::duke::protocol::Renderer;
     SharedHolder pHolder;
-    m_IO.waitPop(pHolder);
-    if (handleQuitMessage(pHolder))
-        return;
+    while (true) {
+        m_IO.waitPop(pHolder);
 
-    const MessageHolder &holder = *pHolder;
-    const auto descriptor = descriptorFor(holder);
+        if (handleQuitMessage(pHolder))
+            return;
 
-    if (isType<Renderer> (descriptor))
-        m_Renderer.initRender(unpackTo<Renderer> (holder));
-    else
-        cerr << HEADER + "First message must be either InitRenderer or Quit, was " << descriptor->name() << endl;
+        const MessageHolder &holder = *pHolder;
+        const auto descriptor = descriptorFor(holder);
+
+        if (isType<Renderer> (descriptor)) {
+            m_Renderer.initRender(unpackTo<Renderer> (holder));
+            break;
+        }
+        cerr << HEADER + "First message must be either InitRenderer or Quit, ignoring message of type " << descriptor->name() << endl;
+    }
 }
 
 bool Application::handleQuitMessage(const ::google::protobuf::serialize::SharedHolder& pHolder) {
@@ -156,7 +160,7 @@ void Application::consumeTransport() {
         if (isType<Renderer> (descriptor)) {
             cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
         } else if (isType<Debug> (descriptor)) {
-            dump(pHolder);
+            dump(descriptor, holder);
             const Debug debug = unpackTo<Debug> (holder);
 #ifdef __linux__
             std::cout << "\e[J";
@@ -184,11 +188,11 @@ void Application::consumeTransport() {
             if (debug.has_pause())
                 ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
         } else if (isType<Playlist> (descriptor)) {
-            dump(pHolder);
+            dump(descriptor, holder);
             m_Playlist.swap(PlaylistHelper(unpackTo<Playlist> (holder)));
             m_Playback = create(m_Playlist);
         } else if (isType<Transport> (descriptor)) {
-            dump(pHolder);
+            dump(descriptor, holder);
             switch (pHolder->action()) {
                 case MessageHolder_Action_CREATE: {
                     const Transport transport = unpackTo<Transport> (holder);

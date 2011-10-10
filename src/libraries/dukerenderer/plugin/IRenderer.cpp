@@ -99,6 +99,12 @@ void IRenderer::loop() {
     }
 }
 
+static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder) {
+#ifdef DEBUG_MESSAGES
+    cerr << HEADER + "pop " + pDescriptor->name() << "\t" << unpack(holder)->ShortDebugString() << endl;
+#endif
+}
+
 void IRenderer::consumeUntilEngine() {
     // updating resources by popping all the pending messages
     const MessageHolder* pHolder;
@@ -106,9 +112,7 @@ void IRenderer::consumeUntilEngine() {
         const MessageHolder &holder(*pHolder);
         const auto descriptor(descriptorFor(holder));
         holder.CheckInitialized();
-#ifdef DEBUG_MESSAGES
-        cerr << HEADER + "pop " + MessageType_Type_Name(msgType.type()) << "\t" << msg.ShortDebugString() << endl;
-#endif
+        dump(descriptor, holder);
 
         if (isType<Shader> (descriptor)) {
             const auto shader = unpackTo<Shader> (holder); // fixme gchatelet : unpack to shared for addResource
@@ -176,6 +180,7 @@ bool IRenderer::simulationStep() {
         m_pSetup = &m_RendererSuite.getSetup();
         const bool renderRequested = m_EngineStatus.action() != Engine_Action_RENDER_STOP;
         const bool renderAvailable = m_pSetup && renderRequested && m_Window.IsOpened();
+
         if (renderAvailable) {
             try {
                 m_bRenderOccured = false;
@@ -342,9 +347,13 @@ void IRenderer::displayPass(const ::duke::protocol::RenderPass& pass) {
         }
 
         // dumpTexture
-        if (pRenderTargetTexture && pass.has_grab()) {
+        if (pass.has_grab()) {
             auto &images = m_Context.dumpedImages;
-            images[pass.grab().name()].reset(new Image(dumpTexture(pRenderTargetTexture)));
+            if (pRenderTargetTexture) {
+                images[pass.grab().name()].reset(new Image(dumpTexture(pRenderTargetTexture)));
+            } else {
+                cerr << "A grab is requested " << pass.name() << ", but render target is NULL" << endl;
+            }
         }
 
     } catch (exception &ex) {
