@@ -2,7 +2,6 @@
 #define RENDERERSUITE_H_
 
 #include "ofxRenderer.h"
-#include <dukeapi/protocol/player/protocol.pb.h>
 
 class RendererSuite {
     const OfxHost* m_pHost;
@@ -17,9 +16,9 @@ public:
 
     void verticalBlanking(bool presented) const;
 
-    void pushEvent(std::unique_ptr<google::protobuf::Message>&) const;
+    void pushEvent(const google::protobuf::serialize::MessageHolder&) const;
 
-    const ::google::protobuf::Message* popEvent(::duke::protocol::MessageType&) const;
+    const google::protobuf::serialize::MessageHolder * popEvent() const;
 
     bool renderEnd(unsigned msToPresent) const;
 

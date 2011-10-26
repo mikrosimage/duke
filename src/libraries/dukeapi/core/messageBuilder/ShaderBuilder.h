@@ -2,7 +2,7 @@
 #define SHADERBUILDER_H_
 
 #include "SimpleShaders.h"
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <iostream>
 
 namespace {

@@ -1,8 +1,8 @@
 #ifndef MESHBUILDER_H_
 #define MESHBUILDER_H_
 
-#include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <dukeapi/io/IMessageIO.h>
+#include <player.pb.h>
 #include <iostream>
 
 namespace {

@@ -11,7 +11,7 @@
 #include "RendererSuite.h"
 #include <dukerenderer/Setup.h>
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 
 #include <SFML/System.hpp>
 #include <SFML/Window/Event.hpp>
@@ -65,7 +65,7 @@ private:
     const ImageDescription& getImageDescriptionFromClip(const std::string &clipName) const;
 
     template<typename T>
-    inline void addResource(const ::google::protobuf::Message&);
+    inline void addResource(const ::google::protobuf::serialize::MessageHolder&);
 
     const duke::protocol::Renderer m_Renderer;
     const RendererSuite& m_RendererSuite;

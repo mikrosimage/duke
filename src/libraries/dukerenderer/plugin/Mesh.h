@@ -1,7 +1,7 @@
 #ifndef MESH_H_
 #define MESH_H_
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <boost/shared_ptr.hpp>
 
 class IFactory;

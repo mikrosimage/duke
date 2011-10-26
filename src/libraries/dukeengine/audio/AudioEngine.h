@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <SFML/Audio.hpp>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include "ISyncMethod.h"
 
 class AudioEngine {

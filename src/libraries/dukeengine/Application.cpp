@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "host/renderer/Renderer.h"
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
@@ -11,6 +11,7 @@
 #include <cassert>
 #include <set>
 
+using namespace ::google::protobuf::serialize;
 using namespace ::google::protobuf;
 using namespace ::duke::protocol;
 using namespace ::std;
@@ -25,12 +26,12 @@ void renderStart() {
     g_pApplication->renderStart();
 }
 
-void pushEvent(unique_ptr<Message>& event) {
+void pushEvent(const google::protobuf::serialize::MessageHolder&event) {
     g_pApplication->pushEvent(event);
 }
 
-const Message* popEvent(::MessageType& type) {
-    return g_pApplication->popEvent(type);
+const google::protobuf::serialize::MessageHolder * popEvent() {
+    return g_pApplication->popEvent();
 }
 
 bool renderFinished(unsigned msToPresent) {
@@ -140,9 +141,9 @@ public:
 } // namespace
 
 
-static void dump(const SharedMessage msg) {
+static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder) {
 #ifdef DEBUG_MESSAGES
-    cerr << HEADER + "pop " + MessageType_Type_Name(msg->type()) << "\t" << msg->message().ShortDebugString() << endl;
+    cerr << HEADER + "pop " + pDescriptor->name() << "\t" << unpack(holder)->ShortDebugString() << endl;
 #endif
 }
 
@@ -170,22 +171,35 @@ Application::~Application() {
 }
 
 void Application::consumeUntilRenderOrQuit() {
-    SharedMessage holder;
-    m_IO.waitPop(holder);
-    assert(holder);
-    const MessageType_Type type(holder->type());
-    if (type == MessageType_Type_INIT_RENDERER)
-        m_Renderer.initRender(holder->message<duke::protocol::Renderer> ());
-    else if (type == MessageType_Type_QUIT)
-        handleQuitMessage(holder->message<Quit> ());
-    else
-        cerr << HEADER + "First message must be either InitRenderer or Quit, was " << MessageType_Type_Name(holder->type()) << endl;
+    using ::duke::protocol::Renderer;
+    SharedHolder pHolder;
+    while (true) {
+        m_IO.waitPop(pHolder);
+
+        if (handleQuitMessage(pHolder))
+            return;
+
+        const MessageHolder &holder = *pHolder;
+        const auto descriptor = descriptorFor(holder);
+
+        if (isType<Renderer> (descriptor)) {
+            m_Renderer.initRender(unpackTo<Renderer> (holder));
+            break;
+        }
+        cerr << HEADER + "First message must be either InitRenderer or Quit, ignoring message of type " << descriptor->name() << endl;
+    }
 }
 
-void Application::handleQuitMessage(const Quit& quit) const {
-    for (int i = 0; i < quit.quitmessage_size(); ++i)
-        cout << quit.quitmessage(i) << endl;
-    m_iReturnCode = quit.returncode();
+bool Application::handleQuitMessage(const ::google::protobuf::serialize::SharedHolder& pHolder) {
+    if (!pHolder) {
+        m_iReturnCode = EXIT_FAILURE;
+        return true;
+    }
+    if (pHolder->action() == MessageHolder_Action_CLOSE_CONNECTION) {
+        m_iReturnCode = pHolder->return_value();
+        return true;
+    }
+    return false;
 }
 
 void* Application::fetchSuite(const char* suiteName, int suiteVersion) {
@@ -200,81 +214,76 @@ static inline playback::PlaybackState create(const PlaylistHelper &helper) {
 }
 
 void Application::consumeTransport() {
-    SharedMessage holder;
-    while (m_IO.tryPop(holder)) {
-        switch (holder->type()) {
-            case MessageType_Type_INIT_RENDERER:
-                cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
-                break;
-            case MessageType_Type_DEBUG_MSG: {
-                dump(holder);
-                const Debug& debug = holder->message<Debug> ();
-#ifdef __linux__
-                std::cout << "\e[J";
-#endif
-                for (int i = 0; i < debug.line_size(); ++i) {
-                    size_t found;
-                    std::string line = debug.line(i);
-                    found = line.find_first_of("%");
+    using ::duke::protocol::Renderer;
 
-                    while (found != string::npos) {
-                        std::stringstream ss;
-                        ss << line[found + 1];
-                        int contentID = atoi(ss.str().c_str());
-                        if (contentID < debug.content_size())
-                            line.replace(found, 2, dumpInfo(debug.content(contentID)));
-                        found = line.find_first_of("%", found + 1);
-                    }
-                    std::cout << line << std::endl;
-                }
+    SharedHolder pHolder;
+    while (m_IO.tryPop(pHolder)) {
+        if (handleQuitMessage(pHolder)) {
+            m_bRequestTermination = true;
+            cerr << "handling Quit message and quitting" << endl;
+            return;
+        }
+        const MessageHolder &holder = *pHolder;
+        const auto descriptor = descriptorFor(holder);
+        if (isType<Renderer> (descriptor)) {
+            cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
+        } else if (isType<Debug> (descriptor)) {
+            dump(descriptor, holder);
+            const Debug debug = unpackTo<Debug> (holder);
 #ifdef __linux__
-                std::stringstream ss;
-                ss << "\r\e[" << debug.line_size() + 1 << "A";
-                std::cout << ss.str() << std::endl;
+            std::cout << "\e[J";
 #endif
-                if (debug.has_pause())
-                    ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
-                break;
-            }
-            case MessageType_Type_INIT_PLAYLIST: {
-                dump(holder);
-                m_Playlist.swap(PlaylistHelper(holder->message<Playlist> ()));
-                m_Playback = create(m_Playlist);
-                //                m_AudioEngine.load(p);
-                break;
-            }
-            case MessageType_Type_QUIT: {
-                dump(holder);
-                m_bRequestTermination = true;
-                handleQuitMessage(holder->message<Quit> ());
-                return;
-            }
-            case MessageType_Type_TRANSPORT:
-                dump(holder);
-                switch (holder->operation()) {
-                    case MessageType_Action_SET: {
-                        const Transport transport = holder->message<Transport> ();
-                        applyTransport(transport);
-                        if (transport.has_autonotifyonframechange())
-                            m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
-                        if (transport.has_dorender() && transport.dorender())
-                            return;
-                        break;
-                    }
-                    case MessageType_Action_RETRIEVE: {
-                        Transport transport;
-                        transport.set_type(::Transport_TransportType_CUE);
-                        Transport_Cue *cue = transport.mutable_cue();
-                        cue->set_value(m_Playback.frame());
-                        push(m_IO, transport);
-                        break;
-                    }
-                    default:
-                        cerr << HEADER + "unknown action for transport message " << MessageType_Action_Name(holder->operation()) << endl;
+            for (int i = 0; i < debug.line_size(); ++i) {
+                size_t found;
+                std::string line = debug.line(i);
+                found = line.find_first_of("%");
+
+                while (found != string::npos) {
+                    std::stringstream ss;
+                    ss << line[found + 1];
+                    int contentID = atoi(ss.str().c_str());
+                    if (contentID < debug.content_size())
+                        line.replace(found, 2, dumpInfo(debug.content(contentID)));
+                    found = line.find_first_of("%", found + 1);
                 }
-                break;
-            default:
-                m_RendererMessages.push(holder);
+                std::cout << line << std::endl;
+            }
+#ifdef __linux__
+            std::stringstream ss;
+            ss << "\r\e[" << debug.line_size()+1 << "A";
+            std::cout << ss.str() << std::endl;
+#endif
+            if (debug.has_pause())
+                ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
+        } else if (isType<Playlist> (descriptor)) {
+            dump(descriptor, holder);
+            m_Playlist.swap(PlaylistHelper(unpackTo<Playlist> (holder)));
+            m_Playback = create(m_Playlist);
+        } else if (isType<Transport> (descriptor)) {
+            dump(descriptor, holder);
+            switch (pHolder->action()) {
+                case MessageHolder_Action_CREATE: {
+                    const Transport transport = unpackTo<Transport> (holder);
+                    applyTransport(transport);
+                    if (transport.has_autonotifyonframechange())
+                        m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
+                    if (transport.has_dorender() && transport.dorender())
+                        return;
+                    break;
+                }
+                case MessageHolder_Action_RETRIEVE: {
+                    Transport transport;
+                    transport.set_type(::Transport_TransportType_CUE);
+                    Transport_Cue *cue = transport.mutable_cue();
+                    cue->set_value(m_Playback.frame());
+                    push(m_IO, transport);
+                    break;
+                }
+                default:
+                    cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(holder.action()) << endl;
+            }
+        } else {
+            m_RendererMessages.push(pHolder);
         }
     }
 }
@@ -421,7 +430,7 @@ bool Application::renderFinished(unsigned msToPresent) {
         //            m_AudioEngine.rewind();
         //        }
         m_PreviousFrame = newFrame;
-        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS ";
+        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS";
         return m_bRequestTermination;
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while finishing simulation step : " << e.what() << endl;
@@ -429,15 +438,13 @@ bool Application::renderFinished(unsigned msToPresent) {
     }
 }
 
-void Application::pushEvent(unique_ptr<Message>& event) {
-    push(m_IO, event);
+void Application::pushEvent(const google::protobuf::serialize::MessageHolder& event) {
+    m_IO.push(makeSharedHolder(event));
 }
 
-const Message* Application::popEvent(MessageType& type) {
-    if (!m_RendererMessages.tryPop(m_RendererMessageHolder))
-        return NULL;
-    type = m_RendererMessageHolder->messageType();
-    return &m_RendererMessageHolder->message();
+const google::protobuf::serialize::MessageHolder * Application::popEvent() {
+    m_RendererMessages.tryPop(m_RendererMessageHolder);
+    return m_RendererMessageHolder.get();
 }
 
 std::string Application::dumpInfo(const Debug_Content& info) const {

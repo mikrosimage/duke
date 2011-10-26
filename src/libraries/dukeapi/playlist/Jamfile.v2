@@ -1,0 +1,21 @@
+
+project 
+    : requirements 
+        <library>/user-config//protobuf/<link>shared
+    : usage-requirements 
+        <library>/user-config//protobuf/<link>shared
+    ;
+
+explicit playlist_protocol_buffer ;
+lib playlist_protocol_buffer : playlist.proto ;
+
+explicit playlist ;
+alias playlist :   # sources
+                    playlist_protocol_buffer
+                :   # requirements
+                    <implicit-dependency>playlist_protocol_buffer
+                :   # default-build
+                :   # usage-requirements
+                    <implicit-dependency>playlist_protocol_buffer
+                    <library>playlist_protocol_buffer
+                ;

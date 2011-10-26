@@ -75,7 +75,8 @@ void Image::dump(Texture &texture) const {
     texture.set_width(description.width);
     texture.set_height(description.height);
     texture.set_depth(description.depth);
-    texture.set_format(Texture_TextureFormat_R8G8B8A8);//Enums::Get(description.format));
+    texture.set_format(Enums::Get(description.format));
+//    texture.set_format(Texture_TextureFormat_R8G8B8A8);//Enums::Get(description.format));
     texture.set_data(m_pImage->m_Pixels.data(), m_pImage->m_Pixels.size());
 }
 

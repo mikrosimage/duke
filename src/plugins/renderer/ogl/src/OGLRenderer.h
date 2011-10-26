@@ -2,7 +2,7 @@
 #define OGLRENDERER_H_
 
 #include <GL/glew.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <plugin/RendererSuite.h>
 #include <plugin/IRenderer.h>
 #include <plugin/IFactory.h>

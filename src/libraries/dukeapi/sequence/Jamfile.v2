@@ -1,0 +1,16 @@
+
+project 
+    : requirements 
+        <library>/boost//system
+        <library>/boost//filesystem
+        <library>/boost//regex
+    : usage-requirements
+        <library>/boost//system
+        <library>/boost//filesystem
+        <library>/boost//regex
+    ;
+
+explicit sequence ;
+lib sequence :  # sources
+                [ glob *.cpp ]
+             ;

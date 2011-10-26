@@ -11,9 +11,10 @@
 	#
 	#################
 
-		
 import os ;
 import set ;
+
+using pb : $(PROTOC) ;
 
 ## Configuration
 
@@ -53,13 +54,15 @@ explicit applications
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
-alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-dx9 : <os>NT ;
+alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-dx9 plugin-ogl : <os>NT ;
 alias tests 		: [ glob src/tests/* : src/tests/renderer src/tests/scripts ] ;
 alias plugin-jpg	: src/plugins/io/jpg//jpg ;
 alias plugin-dpx	: src/plugins/io/dpx//dpx ;
 alias plugin-oiio	: src/plugins/io/oiio//oiio ;
 alias plugin-ogl	: src/plugins/renderer/ogl//ogl ;
 alias plugin-dx9	: src/plugins/renderer/dx9//dx9 ;
+alias mingw_runtime ;
+alias mingw_runtime : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
 
 install shader_prototypes :
@@ -70,7 +73,7 @@ install shader_prototypes :
 	;
 
 install dist :
-	#src/applications/imagecache//imagecache
+    mingw_runtime
 	applications
 	plugins
 	shader_prototypes

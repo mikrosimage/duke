@@ -36,5 +36,5 @@ and have a look at the config/README file to get started.
 
 NB : When you're done, don't forget to uncomment the last line of the file
      and to specify its path on the command line, eg :
-    > ./build-platform-compiler.sh --user-config=/path/to/user-config.jam" ;
+    > ./build-{platform}-{compiler}.sh --user-config=/path/to/user-config.jam" ;
 }

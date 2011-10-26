@@ -11,8 +11,8 @@
 #include "image/ImageReader.h"
 #include "host/renderer/Renderer.h"
 #include "host/io/ImageDecoderFactory.h"
-#include <dukeapi/core/MessageHolder.h>
-#include <dukeapi/core/queue/MessageQueue.h>
+#include <protocol.pb.h>
+#include <dukeapi/io/MessageQueue.h>
 #include <dukerenderer/ofxRenderer.h>
 
 #include <boost/shared_ptr.hpp>
@@ -36,14 +36,14 @@ public:
     void verticalBlanking(bool presented);
     bool renderFinished(unsigned msToPresent);
     OfxRendererSuiteV1::PresentStatus getPresentStatus();
-    void pushEvent(std::unique_ptr<google::protobuf::Message>& event);
-    const ::google::protobuf::Message* popEvent(::duke::protocol::MessageType& type);
+    void pushEvent(const google::protobuf::serialize::MessageHolder&);
+    const google::protobuf::serialize::MessageHolder * popEvent();
 
 private:
     void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();
     void consumeTransport();
-    void handleQuitMessage(const ::duke::protocol::Quit&) const;
+    bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
     SharedPlaylistHelperPtr getSharedPlaylistHelper() const;
 
@@ -52,7 +52,7 @@ private:
     // order of variables are very important because of multi threading issues
     IMessageIO &m_IO;
     MessageQueue m_RendererMessages;
-    SharedMessage m_RendererMessageHolder;
+    ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
     ImageDecoderFactory m_ImageDecoderFactory;
     ImageReader m_ImageReader;
     PlaylistHelper m_Playlist;

@@ -40,7 +40,7 @@ static UINT getPresentationInterval(google::protobuf::uint32 interval) {
 
 Dx9Renderer::Dx9Renderer(const Renderer& renderer, sf::Window& window, const RendererSuite& suite) :
     IRenderer(renderer, window, suite), m_pD3d(Direct3DCreate9(D3D_SDK_VERSION)), m_iVertexCount(0), m_bEndSceneCalled(true) {
-    const HWND hWnd = FindWindow("SFML_Window", SFML_WINDOW_TITLE);
+    const HWND hWnd = renderer.has_handle() ? (HWND__*) renderer.handle() : FindWindow("SFML_Window", SFML_WINDOW_TITLE);
 
     const bool fullscreen = renderer.fullscreen();
 

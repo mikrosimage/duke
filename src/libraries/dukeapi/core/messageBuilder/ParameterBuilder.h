@@ -1,8 +1,8 @@
 #ifndef PARAMETERBUILDER_H_
 #define PARAMETERBUILDER_H_
 
-#include <dukeapi/core/IMessageIO.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <dukeapi/io/IMessageIO.h>
+#include <player.pb.h>
 #include <iostream>
 #include <stdexcept>
 

@@ -5,26 +5,10 @@
 project 
 	: requirements 
 		<include>..
-	    <library>/boost//thread
-	    <library>/boost//system
-	    <library>/boost//filesystem
-	    <library>/boost//regex
-		<os>NT:<find-shared-library>Ws2_32
     : usage-requirements 
     	<include>..
-	    <library>/boost//thread
-	    <library>/boost//system
-	    <library>/boost//filesystem
-	    <library>/boost//regex
-		<os>NT:<find-shared-library>Ws2_32
 	;
 
-explicit dukeapi ;
-lib dukeapi : 
-			  [ glob-tree *.cpp ]
-			  protocol//allpb
-			: <implicit-dependency>protocol//allpb
-			:
-			: <library>protocol//allpb
-			;
-
+alias dukeapi : #source
+                core//core
+              ;

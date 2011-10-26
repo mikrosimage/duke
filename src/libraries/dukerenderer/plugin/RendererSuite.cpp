@@ -34,13 +34,13 @@ const Setup& RendererSuite::getSetup() const {
     return m_pSuite->m_Setup;
 }
 
-void RendererSuite::pushEvent(unique_ptr<Message>& msg) const {
+void RendererSuite::pushEvent(const google::protobuf::serialize::MessageHolder& msg) const {
     assert(m_pSuite->pushEvent);
     (*m_pSuite->pushEvent)(msg);
 }
 
-const Message* RendererSuite::popEvent(MessageType& type) const {
+const google::protobuf::serialize::MessageHolder * RendererSuite::popEvent() const {
     assert(m_pSuite->popEvent);
-    return (*m_pSuite->popEvent)(type);
+    return (*m_pSuite->popEvent)();
 }
 

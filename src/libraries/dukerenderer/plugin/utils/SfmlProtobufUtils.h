@@ -1,7 +1,7 @@
 #ifndef SFMLPROTOBUFUTILS_H_
 #define SFMLPROTOBUFUTILS_H_
 
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <SFML/Window/Event.hpp>
 
 inline ::duke::protocol::Event_Type Get( const ::sf::Event::EventType& eventType )

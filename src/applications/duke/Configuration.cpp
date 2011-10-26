@@ -1,15 +1,16 @@
 #include "Configuration.h"
 #include <dukeengine/Application.h>
-#include <dukeapi/core/decoders/input/PlaybackReader.h>
-#include <dukeapi/core/decoders/input/PlaylistReader.h>
-#include <dukeapi/core/decoders/input/SequenceReader.h>
-#include <dukeapi/core/decoders/decorator/FileRecorder.h>
-#include <dukeapi/core/decoders/InteractiveMessageIO.h>
-#include <dukeapi/core/decoders/StreamMessageIO.h>
-#include <dukeapi/core/decoders/socket/SingleSocketServer.h>
-#include <dukeapi/core/MessageHolder.h>
-#include <dukeapi/core/queue/MessageQueue.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <dukeapi/core/messageBuilder/QuitBuilder.h>
+#include <dukeapi/core/PlaybackReader.h>
+#include <dukeapi/core/PlaylistReader.h>
+#include <dukeapi/core/SequenceReader.h>
+#include <dukeapi/core/FileRecorder.h>
+#include <dukeapi/core/InteractiveMessageIO.h>
+#include <dukeapi/io/SocketMessageIO.h>
+#include <dukeapi/io/QueueMessageIO.h>
+#include <dukeapi/serialize/ProtobufSocket.h>
+#include <player.pb.h>
+#include <protocol.pb.h>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <iostream>
@@ -53,9 +54,21 @@ void setDisplayOptions(boost::program_options::options_description& description,
     ;
 }
 
+struct SessionCreator {
+    SessionCreator(QueueMessageIO& _io) :
+        io(_io) {
+    }
+    google::protobuf::serialize::ISession* create(boost::asio::io_service& service) {
+        return new SocketSession(service, io.inputQueue, io.outputQueue);
+    }
+private:
+    QueueMessageIO& io;
+};
+
+
 Configuration::Configuration(int argc, char** argv) :
-    m_iReturnValue(0), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
-                    m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
+    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"),
+                    m_Interactive("interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
     using namespace ::duke::protocol;
 
@@ -120,11 +133,24 @@ Configuration::Configuration(int argc, char** argv) :
 
     // if port is specified turning into a server
     if (m_Vm.count(PORT)) {
-        const short port = m_Vm[PORT].as<short> ();
-        while (m_iReturnValue == 0) {
-            SingleSocketServer server(port);
-            StreamMessageIO decoder(server.getStream());
-            decorateAndRun(decoder);
+        using namespace boost::asio;
+        using namespace boost::asio::ip;
+        using google::protobuf::serialize::duke_server;
+
+        while (m_iReturnValue == EXIT_RELAUNCH) {
+            QueueMessageIO io;
+            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
+
+            // -> c++0x version, cool but need a gcc version > 4.4
+//            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
+//            duke_server server(endpoint, sessionCreator);
+            SessionCreator creator(io);
+            duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
+
+            boost::thread io_launcher(&duke_server::run, &server);
+            decorateAndRun(io);
+
+            io_launcher.join();
         }
         return;
     }

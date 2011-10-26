@@ -31,10 +31,10 @@ ClipHelper::ClipHelper(const ::duke::protocol::Clip& clip) :
             m_uStartIndex(m_Clip.filename().find_first_of('#')), //
             m_uEndIndex(m_Clip.filename().find_last_of('#')), //
             m_uPatternSize(m_uEndIndex - m_uStartIndex + 1), //
-            m_uClipHash(boost::hash_value(m_Clip.path()+m_Clip.filename())) {
+            m_uClipHash(boost::hash_value(m_Clip.path() + m_Clip.filename())) {
     if (!m_Clip.filename().empty())
         if (m_uStartIndex == string::npos || m_uEndIndex == string::npos)
-            throw std::logic_error(string("Invalid pattern for filename ") + m_Clip.filename());
+            throw std::logic_error(string("Invalid pattern for filename ") + m_Clip.filename() + string(" within clip ") + m_Clip.DebugString());
     if (m_Clip.recout() <= m_Clip.recin())
         throw std::logic_error("clip recout is less or equal than recin");
 }
@@ -55,7 +55,7 @@ bool ClipHelper::isSrcFrame(const size_t frame) const {
 }
 
 uint64_t ClipHelper::getHashAt(const size_t frame) const {
-    uint64_t hash = m_uClipHash ;
+    uint64_t hash = m_uClipHash;
     hash <<= 32;
     hash += getSourceFrame(frame);
     return hash;
