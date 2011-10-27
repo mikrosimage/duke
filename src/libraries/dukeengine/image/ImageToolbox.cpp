@@ -19,14 +19,14 @@ const char * reader = "READ   : ";
 const char * decoder = "DECODE : ";
 
 uint64_t getNextFilename(Chain &chain, TSlotDataPtr& pData) {
-    Slot::Shared shared = chain.getLoadHash();
-    assert(shared.m_ImageHash!=0);
+    Slot slot = chain.getLoadSlot();
+    assert(slot.m_ImageHash!=0);
     string filename;
-    chain.getFilenameForHash(shared.m_ImageHash, filename);
+    chain.getFilenameForHash(slot.m_ImageHash, filename);
     pData->m_Filename = filename;
     pData->m_FilenameExtension = boost::filesystem::path(filename).extension().string();
     //    cerr << reader << "hash " << shared.m_ImageHash << " filename " << pData->m_Filename << endl;
-    return shared.m_ImageHash;
+    return slot.m_ImageHash;
 }
 
 void getImageHandler(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
@@ -85,30 +85,30 @@ void loadOne(Chain &chain, const ImageDecoderFactory& factory) {
         getImageHandler(factory, pData);
         if (pData->m_bDelegateReadToHost)
             loadFileFromDisk(pData);
-//        chain.setLoaded(Slot::Shared(hash, pData));
+        //        chain.setLoaded(Slot::Shared(hash, pData));
     } catch (load_error &e) {
         cerr << e.what() << endl;
         if (hash == 0)
             return;
-        const Slot::Shared shared(hash);
-        chain.setDecoded(Slot::Shared(hash));
+        const Slot shared(hash);
+        chain.setDecodedSlot(Slot(hash));
     }
 }
 
 void decodeOne(Chain &chain, const ImageDecoderFactory& factory) {
-    Slot::Shared shared = chain.getDecodeHash();
-    const uint64_t hash = shared.m_ImageHash;
-    TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
+    Slot slot = chain.getDecodeSlot();
+    const uint64_t hash = slot.m_ImageHash;
+    TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
     try {
         readHeader(factory, pData);
         if (!isAlreadyUncompressed(pData))
             readImage(factory, pData);
-//        chain.setDecoded(Slot::Shared(hash, pData));
+        //        chain.setDecoded(Slot::Shared(hash, pData));
     } catch (load_error &e) {
         cerr << e.what() << endl;
         if (hash == 0)
             return;
-        chain.setDecoded(Slot::Shared(hash));
+        chain.setDecodedSlot(Slot(hash));
     }
 }
 

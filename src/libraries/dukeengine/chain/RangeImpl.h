@@ -3,8 +3,12 @@
 
 #include "Range.h"
 #include <cassert>
+#include <cstdint>
 
-template<typename T = unsigned long long>
+/**
+ * Double ended range
+ */
+template<typename T = uint64_t>
 struct SimpleIndexRange : public DoubleEndedRange<T> {
 private:
     typedef DoubleEndedRange<T> RANGE;
@@ -17,32 +21,32 @@ public:
     }
     virtual ~SimpleIndexRange() {
     }
-    bool empty() const {
+    virtual bool empty() const {
         assert(begin <= pastEnd);
         return begin == pastEnd;
     }
-    void popFront() {
-        assert(!empty());
-        ++begin;
+    virtual void popFront() {
+        if (!empty())
+            ++begin;
     }
-    T front() {
+    virtual T front() {
         assert(!empty());
         return begin;
     }
-    RANGE* save() const {
+    virtual RANGE* save() const {
         return new SimpleIndexRange(*this);
     }
-    T back() {
+    virtual T back() {
         assert(!empty());
         return pastEnd - 1;
     }
-    void popBack() {
-        assert(!empty());
-        --pastEnd;
+    virtual void popBack() {
+        if (!empty())
+            --pastEnd;
     }
 };
 
-template<typename T = unsigned long long>
+template<typename T = uint64_t>
 struct ConstantIndexRange : public ForwardRange<T> {
 private:
     typedef ForwardRange<T> RANGE;
@@ -59,8 +63,8 @@ public:
         return left == 0;
     }
     void popFront() {
-        assert(!empty());
-        --left;
+        if (!empty())
+            --left;
     }
     T front() {
         assert(!empty());
@@ -90,8 +94,8 @@ public:
         return m_Index == m_EndIndex;
     }
     void popFront() {
-        assert(!empty());
-        ++m_Index;
+        if (!empty())
+            ++m_Index;
     }
     std::ptrdiff_t front() {
         assert(!empty());
@@ -107,7 +111,7 @@ public:
     }
 };
 
-template<typename T = long long>
+template<typename T = int64_t>
 struct Negater : public ForwardRange<T> {
 private:
     typedef ForwardRange<T> RANGE;
@@ -136,7 +140,7 @@ public:
     }
 };
 
-template<typename T = unsigned long long>
+template<typename T = uint64_t>
 struct RetroRange : public DoubleEndedRange<T> {
 private:
     typedef DoubleEndedRange<T> RANGE;
@@ -171,7 +175,7 @@ public:
     }
 };
 
-template<typename T = unsigned long long>
+template<typename T = uint64_t>
 struct OffsetRange : public ForwardRange<T> {
 private:
     typedef ForwardRange<T> RANGE;
@@ -201,7 +205,7 @@ public:
     }
 };
 
-template<typename T = unsigned long long>
+template<typename T = uint64_t>
 struct ModuloIndexRange : public ForwardRange<T> {
 private:
     typedef ForwardRange<T> RANGE;
@@ -233,9 +237,9 @@ public:
         assert(!empty());
         T value = m_pDelegateRange->front();
 
-        while(value < m_LowerBound)
+        while (value < m_LowerBound)
             value += m_ModuloSize;
-        while(value > m_UpperBound)
+        while (value > m_UpperBound)
             value -= m_ModuloSize;
         return value;
     }

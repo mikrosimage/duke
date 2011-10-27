@@ -1,6 +1,6 @@
 #include <dukeengine/sequence/ClipHelper.h>
 #include <dukeengine/sequence/PlaylistHelper.h>
-#include <dukeapi/protocol/player/protocol.pb.h>
+#include <player.pb.h>
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #define BOOST_TEST_MODULE ClipHelper
