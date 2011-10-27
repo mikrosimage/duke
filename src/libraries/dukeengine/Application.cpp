@@ -74,9 +74,10 @@ OfxHost buildHost(Application* pApplication) {
 } // namespace
 
 
-static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder) {
+static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder, bool push = false) {
 #ifdef DEBUG_MESSAGES
-    cerr << HEADER + "pop " + pDescriptor->name() << "\t" << unpack(holder)->ShortDebugString() << endl;
+    const string debugString = pDescriptor == Texture::descriptor() ? "texture" : unpack(holder)->ShortDebugString();
+    cerr << HEADER + (push ? "push " : "pop  ") + pDescriptor->name() << "\t" << debugString << endl;
 #endif
 }
 
@@ -358,6 +359,7 @@ bool Application::renderFinished(unsigned msToPresent) {
 }
 
 void Application::pushEvent(const google::protobuf::serialize::MessageHolder& event) {
+    dump(descriptorFor(event), event, true);
     m_IO.push(makeSharedHolder(event));
 }
 
