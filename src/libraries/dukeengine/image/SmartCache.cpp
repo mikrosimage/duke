@@ -26,9 +26,9 @@ SmartCache::SmartCache(size_t limit, const ImageDecoderFactory& factory) :
         // TODO: step1: Complete the OpenFX implementation to introduce the getInstance() method
         // TODO: step2: Apply the thread local storage method on all shared data used in IO plugins
 
-        m_Chain.addWorker(boost::bind(&SmartCache::loadAndDecode, this, _1, boost::ref(factory)));
-        //m_Chain.addWorker(boost::bind(&SmartCache::load, this, _1, boost::ref(factory)));
-        //m_Chain.addWorker(boost::bind(&SmartCache::decode, this, _1, boost::ref(factory)));
+        //        m_Chain.addWorker(boost::bind(&SmartCache::loadAndDecode, this, _1, boost::ref(factory)));
+        m_Chain.addWorker(boost::bind(&SmartCache::load, this, _1, boost::ref(factory)));
+        m_Chain.addWorker(boost::bind(&SmartCache::decode, this, _1, boost::ref(factory)));
     } else {
         m_Terminate = true;
     }
@@ -56,7 +56,7 @@ bool SmartCache::get(const uint64_t& hash, ImageHolder &imageHolder) const {
     if (slot.m_pSlotData == NULL) {
         return false;
     }
-    const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
+    const TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(slot.m_pSlotData);
     imageHolder = pData->m_Holder;
     return true;
 }
@@ -73,16 +73,17 @@ bool SmartCache::computeTotalWeight(const TChain& _tchain, uint64_t& totalSize) 
                     switch (s.m_State) {
                         case NEW:
                         case LOADING:
+                        case UNDEFINED:
                             break;
                         case LOADED:
                         case DECODING: {
-                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
+                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(shared.m_pSlotData);
                             const ImageDescription &description = pData->m_TempImageDescription;
                             totalSize += description.imageDataSize;
                         }
                             break;
                         case READY: {
-                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
+                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(shared.m_pSlotData);
                             ImageHolder &holder = pData->m_Holder;
                             totalSize += holder.getImageDataSize();
                             break;
@@ -94,7 +95,7 @@ bool SmartCache::computeTotalWeight(const TChain& _tchain, uint64_t& totalSize) 
         // updating current cache size
         boost::mutex::scoped_lock lock(m_CacheStateMutex);
         m_CurrentMemory = totalSize;
-        //        cerr << "[" << (m_CurrentMemory / 1024.0) / 1024.0 << " Mo]" << endl;
+        //        cerr << "[" << (m_CurrentMemory / (1024.0*1024.))  << " Mo]" << endl;
     }
 
     return (totalSize < m_iSizeLimit);
@@ -106,12 +107,12 @@ void SmartCache::load(Chain& _c, const ImageDecoderFactory& factory) {
 
             uint64_t hash = 0;
             try {
-                TSlotDataPtr pData(new ASlotData());
-                hash = getNextFilename(_c, pData);
-                getImageHandler(factory, pData);
+                TSlotDataPtr pData(new DukeSlot());
+                hash = setupFilename(pData, _c);
+                setupLoaderInfo(pData, factory);
                 if (pData->m_bDelegateReadToHost)
                     loadFileFromDisk(pData);
-                readHeader(factory, pData);
+                loadFileAndDecodeHeader(pData, factory);
                 ImageDescription &imgDesc = pData->m_TempImageDescription;
                 const size_t incomingDataSize = imgDesc.imageDataSize;
                 {
@@ -170,7 +171,7 @@ void SmartCache::decode(Chain& _c, const ImageDecoderFactory& factory) {
             try {
                 const Slot slot = _c.getDecodeSlot();
                 hash = slot.m_ImageHash;
-                TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
+                TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(slot.m_pSlotData);
                 // readHeader(factory, pData);
                 if (!isAlreadyUncompressed(pData)) {
                     readImage(factory, pData);
@@ -216,12 +217,12 @@ void SmartCache::loadAndDecode(Chain& _c, const ImageDecoderFactory& factory) {
             try {
                 // load
                 {
-                    TSlotDataPtr pData(new ASlotData());
-                    hash = getNextFilename(_c, pData);
-                    getImageHandler(factory, pData);
+                    TSlotDataPtr pData(new DukeSlot());
+                    hash = setupFilename(pData, _c);
+                    setupLoaderInfo(pData, factory);
                     if (pData->m_bDelegateReadToHost)
                         loadFileFromDisk(pData);
-                    readHeader(factory, pData);
+                    loadFileAndDecodeHeader(pData, factory);
                     ImageDescription &imgDesc = pData->m_TempImageDescription;
                     const size_t incomingDataSize = imgDesc.imageDataSize;
                     {
@@ -248,7 +249,7 @@ void SmartCache::loadAndDecode(Chain& _c, const ImageDecoderFactory& factory) {
                 {
                     const Slot slot = _c.getDecodeSlot();
                     assert(slot.m_ImageHash == hash);
-                    TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
+                    TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(slot.m_pSlotData);
                     // readHeader(factory, pData);
                     if (!isAlreadyUncompressed(pData)) {
                         readImage(factory, pData);

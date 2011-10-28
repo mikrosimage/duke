@@ -59,7 +59,7 @@ struct Slot {
  * The slot state.
  */
 enum State {
-    NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4
+    NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4, UNDEFINED = 5
 };
 
 /**

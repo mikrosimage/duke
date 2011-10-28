@@ -92,6 +92,7 @@ void transferWorkUnit(TChain &from, TChain &to, bool avoidEviction) {
             case NEW:
             case READY:
             case LOADED:
+            case UNDEFINED:
                 break;
         }
     }
@@ -204,37 +205,23 @@ bool Chain::getResult(const uint64_t &imageHash, Slot &ptr) const {
 }
 
 void Chain::dump(ForwardRange<uint64_t> & range, const uint64_t imageHash) const {
-    TChain::const_iterator pSlot;
-
     boost::mutex::scoped_lock lock(m_ChainMutex);
     if (m_Terminate)
         return;
 
+    assert(NEW == 0 && LOADING == 1&&LOADED == 2&& DECODING == 3&& READY == 4&& UNDEFINED == 5);
+    const char stateChar[][2] = { { 'n', 'N' }, { 'n', 'N' }, { 'l', 'L' }, { 'l', 'L' }, { 'r', 'R' }, { 'x', 'X' } };
     const TChain::const_iterator end = m_Chain.end();
 
     std::stringstream ssdump;
     ssdump << '[';
-    for (; !range.empty(); range.popFront()) {
+
+    for (TChain::const_iterator pSlot; !range.empty(); range.popFront()) {
         const uint64_t index = range.front();
-        const bool isCursor = imageHash == index;
         pSlot = m_Chain.find(index);
-        if (pSlot == end) {
-            ssdump << (isCursor ? 'X' : 'x');
-            continue;
-        }
-        switch (pSlot->m_State) {
-            case NEW:
-            case LOADING:
-                ssdump << (isCursor ? 'N' : 'n');
-                break;
-            case LOADED:
-            case DECODING:
-                ssdump << (isCursor ? 'L' : 'l');
-                break;
-            case READY:
-                ssdump << (isCursor ? 'R' : 'r');
-                break;
-        }
+        const size_t stateIndex = pSlot == end ? UNDEFINED : pSlot->m_State;
+        const size_t isCursorIndex = imageHash == index ? 1 : 0;
+        ssdump << stateChar[stateIndex][isCursorIndex];
     }
     ssdump << "]\n";
 

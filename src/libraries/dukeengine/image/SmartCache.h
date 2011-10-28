@@ -27,8 +27,8 @@ private:
 
 private:
 	const size_t m_iSizeLimit;
-	uint64_t m_CurrentMemory;
-	bool m_Terminate;
+	size_t m_CurrentMemory; ///< shared
+	bool m_Terminate; ///< shared
 
     // All the following objects have to be initialized in this order
     boost::mutex m_CacheStateMutex;
