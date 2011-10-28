@@ -1,0 +1,9 @@
+body: "@0 = $0 * @0 + $2;\nreturn pow(@0, $1);\n"
+signature {
+	name: "gammaexposure"
+	returnType: "float4"
+	operandType: "float4"
+	parameterType: "float"
+	parameterType: "float"
+	parameterType: "float"
+}

@@ -54,6 +54,15 @@ void buildPixelShader(dk::Shader & _ps //
         f1->set_useprototypenamed("sample2d");
         f1->add_parametername("sampler");
         call1->add_operand(0);
+
+        //
+        dk::FunctionInstance_CallGraph_FunctionCall * call2 = g->add_call();
+        dk::FunctionInstance * f2 = call2->mutable_function();
+        f2->set_useprototypenamed("gammaexposure");
+        f2->add_parametername("exposure");
+        f2->add_parametername("invgamma");
+        f2->add_parametername("brightness");
+        call2->add_operand(1);
     }
 }
 
