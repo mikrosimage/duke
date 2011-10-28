@@ -26,13 +26,12 @@ struct SlotData {
     virtual ~SlotData()=0;
 };
 
+/**
+ * The Slot.
+ * It contains the image hash ( id ) and some private data in the form of a smart pointer.
+ */
 struct Slot {
-private:
     typedef boost::shared_ptr<SlotData> TSlotDataPtr;
-public:
-    enum State {
-        NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4
-    };
     /**
      * we cannot use a simple playlist index as an image identifier
      * because if playlist changes we have no way to say : "this is the same image slot"
@@ -43,41 +42,84 @@ public:
      * - image index in the sequence
      * this will guaranty no collision and fast computation
      */
-    struct Shared {
-        uint64_t m_ImageHash;
-        TSlotDataPtr m_pSlotData;
-        Shared() :
-            m_ImageHash(0) {
-        }
-        Shared(uint64_t hash) :
-            m_ImageHash(hash) {
-        }
-        Shared(uint64_t hash, const TSlotDataPtr &ptr) :
-            m_ImageHash(hash), m_pSlotData(ptr) {
-        }
-    } m_Shared;
+    uint64_t m_ImageHash;
+    TSlotDataPtr m_pSlotData;
+    Slot() :
+        m_ImageHash(0) {
+    }
+    Slot(uint64_t hash) :
+        m_ImageHash(hash) {
+    }
+    Slot(uint64_t hash, const TSlotDataPtr &ptr) :
+        m_ImageHash(hash), m_pSlotData(ptr) {
+    }
+};
+
+/**
+ * The slot state.
+ */
+enum State {
+    NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4
+};
+
+/**
+ * An internal structure needed to store the Slot state.
+ * This state is managed by the Chain and should not be
+ * accessed otherwise.
+ */
+struct InternalSlot {
     State m_State;
+    Slot m_Shared;
 
-    Slot();
-    Slot(uint64_t imageHash);
-    Slot(uint64_t imageHash, State state);
-    bool operator<(const Slot& other) const;
+    InternalSlot();
+    InternalSlot(uint64_t imageHash);
+    InternalSlot(uint64_t imageHash, State state);
+    bool operator<(const InternalSlot& other) const;
 
+    // ensuring the struct is aligned to maximize cache hit
 }__attribute__((aligned (32)));
-// ensuring the struct is aligned to maximize cache hit
 
-struct TChain : public std::vector<Slot> {
+/**
+ * The chain container. Basically a POD (Plain Old Data) structure
+ * with a few helper functions
+ */
+struct TChain : public std::vector<InternalSlot> {
     const static size_t InitialChainReserve = 100;
     TChain();
     TChain(OnePassRange<uint64_t> &iterator);
-    iterator quickFind(const Slot::State state, size_t &fromIndex);
+    /**
+     * Quickly finds a slot with the specified state from the specified
+     * index.
+     */
+    iterator quickFind(const State state, size_t &fromIndex);
+    /**
+     * Finds the slot with the specified hash
+     */
     iterator find(const uint64_t);
+    /**
+     * Finds the slot with the specified hash
+     */
     const_iterator find(const uint64_t) const;
+    /**
+     * Finds the slot with the specified hash, throws if not found
+     */
     const_iterator safeFind(const uint64_t) const;
+private:
+    template<typename ITR>
+    static inline ITR find(ITR begin, const ITR end, const uint64_t);
 };
 
+/**
+ * When a new job is posted we don't want to trash the already
+ * loaded and decoded slots. This function will be in charge of moving those
+ * slots from the old chain to the new one.
+ */
 void transferWorkUnit(TChain &from, TChain &to, bool avoidEviction);
 
+/**
+ * Iterates the range and checks if it contains any double
+ * This is just a check and might be omitted in production
+ */
 #include <set>
 template<typename T>
 inline bool hasDouble(const ForwardRange<T>&iterator) {
@@ -90,13 +132,8 @@ inline bool hasDouble(const ForwardRange<T>&iterator) {
 }
 
 /**
- * You can inherit from this struct to put data in the chain
- * data will be read/only but accessible from the workers
+ * The Chain interface
  */
-struct ChainContext : boost::noncopyable {
-    virtual ~ChainContext()=0;
-};
-
 class Chain : boost::noncopyable {
 public:
     typedef boost::function<std::string(uint64_t)> HashToFilenameFunction;
@@ -104,8 +141,11 @@ public:
     typedef boost::function<void(Chain&)> WorkerThreadFunction;
     typedef std::vector<WorkerThreadFunction> WorkerThreadFunctions;
 private:
+    /**
+     * Variables marked with '///< shared' are accessed across
+     * several threads and need special care to prevent data races.
+     */
     bool m_Terminate; ///< shared
-
     // The main structure gathering all the data
     TChain m_Chain; ///< shared
     // All the stuff to protect it and allow minimal synchronization
@@ -120,10 +160,10 @@ private:
     HashToFilenameFunction m_LoadFunction; ///< shared
     boost::thread_group m_ThreadGroup;
 
-    Slot::Shared getHash(const Slot::State, const Slot::State, boost::condition&);
-    void setData(const Slot::Shared &, const Slot::State, boost::condition&);
+    Slot getHash(const State, const State, boost::condition&);
+    void setData(const Slot &, const State, boost::condition&);
     void stopWorkers();
-    inline void cleanAccelerators() {
+    inline void resetAccelerators() {
         m_LastIndexAccelerator[0] = 0;
         m_LastIndexAccelerator[1] = 0;
     }
@@ -131,7 +171,15 @@ public:
     Chain();
     ~Chain();
     /**
-     * post a new job in the form of an index range
+     * Post a new job in the form of an index range.
+     * This range must be bounded.
+     *
+     * The range is iterated over to provided indices.
+     * Indices are actually hash that uniquely identifies an image to load.
+     *
+     * The worker threads can call the getFilenameForHash() function to
+     * retrieve the filename associated with the hash. See below.
+     *
      * /!\ !!! range must not contains twice the same index !!!
      * This precondition is checked in debug mode
      */
@@ -147,35 +195,59 @@ public:
     boost::posix_time::time_duration benchmark(const WorkerThreadFunctions &functions, const HashToFilenameFunction &function, const size_t count);
 
     /**
-     * worker functions to fill the chain
+     * Worker threads will call the following functions to fill the chain.
+     *
+     * Those functions are thread safe. A Slot object is copied back
+     * and forth to keep locking as low as possible. Slot object is very
+     * lightweight and copy will be cheap ( sizeof(Slot)==32 ).
+     *
+     * Those functions will block if no more work is available preventing
+     * threads from consuming system resources.
      */
-    inline Slot::Shared getLoadHash() {
-        return getHash(Slot::NEW, Slot::LOADING, m_condNewJob);
+    inline Slot getLoadSlot() {
+        return getHash(NEW, LOADING, m_condNewJob);
     }
-    inline Slot::Shared getDecodeHash() {
-        return getHash(Slot::LOADED, Slot::DECODING, m_condSlotLoaded);
+    inline Slot getDecodeSlot() {
+        return getHash(LOADED, DECODING, m_condSlotLoaded);
     }
-    inline void setLoaded(Slot::Shared shared) {
-        setData(shared, Slot::LOADED, m_condSlotLoaded);
+    inline void setLoadedSlot(Slot slot) {
+        setData(slot, LOADED, m_condSlotLoaded);
     }
-    inline void setDecoded(Slot::Shared shared) {
-        setData(shared, Slot::READY, m_condSlotDecoded);
+    inline void setDecodedSlot(Slot slot) {
+        setData(slot, READY, m_condSlotDecoded);
     }
+    /**
+     * This function is synchronized ( multiple readers / one writer )
+     * and is used to retrieve the filename corresponding to the hash.
+     *
+     * Delaying the creation of the filename to the very last moment
+     * will keep the Slot light and prevent unnecessary computation.
+     *
+     * NB : A worker might still be loading an image from a previous job.
+     * If this slot is not needed for the new job it will be gently discarded.
+     * otherwise it will be inserted in the chain at the updated position.
+     */
     void getFilenameForHash(const uint64_t &hash, std::string &filename) const;
 
     /**
-     * return true if slot is updated with the image
-     * return false if no worker can fulfill the job
-     * throw if asking for an image out the provided job's range
+     * Client function allowing to fetch already loaded image from the cache.
+     *
+     * - returns true if slot is in READY state
+     * - returns false if no worker could fulfill the job at that time
+     * - throws if asking for an image outside of the current job's range
      */
-    bool getResult(const uint64_t &imageHash, Slot::Shared &slot) const;
+    bool getResult(const uint64_t &imageHash, Slot &slot) const;
 
-    void dump(ForwardRange<uint64_t> & range, const uint64_t &imageHash) const;
+    /**
+     * /!\ this is synchronized and will degrade performance seriously
+     * use only for debugging purpose or once in a while.
+     */
+    void dump(ForwardRange<uint64_t> & range, const uint64_t imageHash) const;
 
     /**
      * code for this function is in ChainOStream.cpp
      * /!\ this is synchronized and will degrade performance seriously
-     * use only when debugging.
+     * use only for debugging purpose.
      */
     std::ostream& operator<<(std::ostream& stream) const;
 };

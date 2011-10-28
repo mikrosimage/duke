@@ -21,6 +21,16 @@ void displayRange(const ForwardRange<T>& range) {
 
 BOOST_AUTO_TEST_SUITE( RangeSuite )
 
+BOOST_AUTO_TEST_CASE( popEmpty )
+{
+    SimpleIndexRange<> itr(0,0);
+    BOOST_CHECK( itr.empty() );
+    itr.popBack();
+    BOOST_CHECK( itr.empty() );
+    itr.popFront();
+    BOOST_CHECK( itr.empty() );
+}
+
 BOOST_AUTO_TEST_CASE( simpleIterator )
 {
     const uint64_t values[]= {0,1,2,3,4,5,6};

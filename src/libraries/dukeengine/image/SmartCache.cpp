@@ -49,7 +49,7 @@ void SmartCache::seek(ForwardRange<uint64_t> &range, const Chain::HashToFilename
 }
 
 bool SmartCache::get(const uint64_t& hash, ImageHolder &imageHolder) const {
-    Slot::Shared slot;
+    Slot slot;
     if (!m_Chain.getResult(hash, slot)) {
         return false;
     }
@@ -67,34 +67,34 @@ void SmartCache::dump(ForwardRange<uint64_t>& range, const uint64_t &current) co
 
 bool SmartCache::computeTotalWeight(const TChain& _tchain, uint64_t& totalSize) {
     totalSize = 0;
-    BOOST_FOREACH(Slot s, _tchain)
-    {
-        const Slot::Shared shared = s.m_Shared;
-        switch (s.m_State) {
-            case Slot::NEW:
-            case Slot::LOADING:
-                break;
-            case Slot::LOADED:
-            case Slot::DECODING: {
-                const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
-                const ImageDescription &description = pData->m_TempImageDescription;
-                totalSize += description.imageDataSize;
-            }
-                break;
-            case Slot::READY: {
-                const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
-                ImageHolder &holder = pData->m_Holder;
-                totalSize += holder.getImageDataSize();
-                break;
-            }
-        }
-    }
+    BOOST_FOREACH(InternalSlot s, _tchain)
+                {
+                    const Slot shared = s.m_Shared;
+                    switch (s.m_State) {
+                        case NEW:
+                        case LOADING:
+                            break;
+                        case LOADED:
+                        case DECODING: {
+                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
+                            const ImageDescription &description = pData->m_TempImageDescription;
+                            totalSize += description.imageDataSize;
+                        }
+                            break;
+                        case READY: {
+                            const TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(shared.m_pSlotData);
+                            ImageHolder &holder = pData->m_Holder;
+                            totalSize += holder.getImageDataSize();
+                            break;
+                        }
+                    }
+                }
 
     {
         // updating current cache size
         boost::mutex::scoped_lock lock(m_CacheStateMutex);
         m_CurrentMemory = totalSize;
-//        cerr << "[" << (m_CurrentMemory / 1024.0) / 1024.0 << " Mo]" << endl;
+        //        cerr << "[" << (m_CurrentMemory / 1024.0) / 1024.0 << " Mo]" << endl;
     }
 
     return (totalSize < m_iSizeLimit);
@@ -128,12 +128,12 @@ void SmartCache::load(Chain& _c, const ImageDecoderFactory& factory) {
                     if (m_Terminate)
                         return;
                 }
-                _c.setLoaded(Slot::Shared(hash, pData));
+                _c.setLoadedSlot(Slot(hash, pData));
             } catch (load_error &e) {
                 cerr << e.what() << endl;
                 if (hash == 0)
                     return;
-                _c.setDecoded(Slot::Shared(hash));
+                _c.setDecodedSlot(Slot(hash));
             }
 
             //            // --- TEST
@@ -168,7 +168,7 @@ void SmartCache::decode(Chain& _c, const ImageDecoderFactory& factory) {
 
             uint64_t hash = 0;
             try {
-                const Slot::Shared slot = _c.getDecodeHash();
+                const Slot slot = _c.getDecodeSlot();
                 hash = slot.m_ImageHash;
                 TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
                 // readHeader(factory, pData);
@@ -181,12 +181,12 @@ void SmartCache::decode(Chain& _c, const ImageDecoderFactory& factory) {
                     boost::lock_guard<boost::mutex> lock(m_CacheStateMutex);
                     m_CurrentMemory += incomingDataSize;
                 }
-                _c.setDecoded(Slot::Shared(hash, pData));
+                _c.setDecodedSlot(Slot(hash, pData));
             } catch (load_error &e) {
                 cerr << e.what() << endl;
                 if (hash == 0)
                     return;
-                _c.setDecoded(Slot::Shared(hash));
+                _c.setDecodedSlot(Slot(hash));
             }
 
             //            // --- TEST
@@ -242,11 +242,11 @@ void SmartCache::loadAndDecode(Chain& _c, const ImageDecoderFactory& factory) {
                         if (m_Terminate)
                             return;
                     }
-                    _c.setLoaded(Slot::Shared(hash, pData));
+                    _c.setLoadedSlot(Slot(hash, pData));
                 }
                 // decode
                 {
-                    const Slot::Shared slot = _c.getDecodeHash();
+                    const Slot slot = _c.getDecodeSlot();
                     assert(slot.m_ImageHash == hash);
                     TSlotDataPtr pData = boost::dynamic_pointer_cast<ASlotData>(slot.m_pSlotData);
                     // readHeader(factory, pData);
@@ -259,13 +259,13 @@ void SmartCache::loadAndDecode(Chain& _c, const ImageDecoderFactory& factory) {
                         boost::lock_guard<boost::mutex> lock(m_CacheStateMutex);
                         m_CurrentMemory += incomingDataSize;
                     }
-                    _c.setDecoded(Slot::Shared(hash, pData));
+                    _c.setDecodedSlot(Slot(hash, pData));
                 }
             } catch (load_error &e) {
                 cerr << e.what() << endl;
                 if (hash == 0)
                     return;
-                _c.setDecoded(Slot::Shared(hash));
+                _c.setDecodedSlot(Slot(hash));
                 if (m_Terminate)
                     return;
             }
