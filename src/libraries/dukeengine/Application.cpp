@@ -87,13 +87,14 @@ public:
         if (!(last > 0))
             throw runtime_error("playlist size must be > 0");
         int bound = -1;
-        if (!playing){
+        if (!playing) {
             bound = -5;
-            while(abs(bound)>=last) bound--;
+            while (abs(bound) >= last)
+                bound--;
         }
         BalancingIndexRange balancing(0, last, bound);
         OffsetRange<ptrdiff_t> offsetRange(balancing, m_Helper.getIteratorIndexAtFrame(currentframe));
-        ModuloIndexRange<ptrdiff_t> range(offsetRange, 0, last-1);
+        ModuloIndexRange<ptrdiff_t> range(offsetRange, 0, last - 1);
         m_pDelegateRange.reset(range.save());
     }
     virtual ~PlaylistRange() {
@@ -149,18 +150,18 @@ static void dump(const google::protobuf::Descriptor* pDescriptor, const google::
 
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const size_t cacheSize) :
     m_IO(io), //
-    m_ImageReader(m_ImageDecoderFactory), //
-    // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
-    m_Cache(cacheSize, m_ImageDecoderFactory),//
-    m_FileBufferHolder(m_ImageReader), //
-    m_VbiTimings(TimingType::VBI, 120), //
-    m_FrameTimings(TimingType::FRAME, 10), //
-    m_PreviousFrame(-1), //
-    m_StoredFrame(-1), //
-    m_bRequestTermination(false), //
-    m_bAutoNotifyOnFrameChange(false), //
-    m_iReturnCode(returnCode), //
-    m_Renderer(buildHost(this), rendererFilename) {
+            m_ImageReader(m_ImageDecoderFactory), //
+            // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
+            m_Cache(cacheSize, m_ImageDecoderFactory),//
+            m_FileBufferHolder(m_ImageReader), //
+            m_VbiTimings(TimingType::VBI, 120), //
+            m_FrameTimings(TimingType::FRAME, 10), //
+            m_PreviousFrame(-1), //
+            m_StoredFrame(-1), //
+            m_bRequestTermination(false), //
+            m_bAutoNotifyOnFrameChange(false), //
+            m_iReturnCode(returnCode), //
+            m_Renderer(buildHost(this), rendererFilename) {
 
     consumeUntilRenderOrQuit();
 }
@@ -374,15 +375,15 @@ void Application::renderStart() {
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
 
-        if (m_Cache.isRunning()) {
+        if (m_Cache.isActive()) {
             PlaylistRange range(frame, m_Playback.isPlaying(), m_Playlist);
             m_Cache.seek(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
             m_FileBufferHolder.update(frame, m_Playlist, m_Cache);
 
             // dump --->
-            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
-            DumpRange fullrange(getSharedPlaylistHelper());
-            m_Cache.dump(fullrange, currentFrameHash);
+            //            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
+            //            DumpRange fullrange(getSharedPlaylistHelper());
+            //            m_Cache.dump(fullrange, currentFrameHash);
             // <--- dump
 
         } else {

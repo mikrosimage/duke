@@ -32,6 +32,10 @@ struct DukeSlot : public SlotData {
     FormatHandle m_FormatHandler;
     ::boost::posix_time::time_duration loadTime;
     ::boost::posix_time::time_duration decodeTime;
+
+    DukeSlot() :
+        m_bDelegateReadToHost(false), m_bFormatUncompressed(false) {
+    }
 };
 typedef boost::shared_ptr<DukeSlot> TSlotDataPtr;
 
@@ -77,5 +81,8 @@ void loadFileAndDecodeHeader(TSlotDataPtr& forSlot, const ImageDecoderFactory& w
 void loadFileFromDisk(TSlotDataPtr& pData);
 void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData);
 bool isAlreadyUncompressed(TSlotDataPtr &pData);
+
+void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
 
 #endif /* IMAGETOOLBOX_H_ */

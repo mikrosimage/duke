@@ -9,32 +9,25 @@
 
 class ImageDecoderFactory;
 
-class SmartCache : public boost::noncopyable {
+class SmartCache : private Chain {
 public:
-	SmartCache( size_t limit, const ImageDecoderFactory& factory);
-	~SmartCache();
+    SmartCache(size_t limit, const ImageDecoderFactory& factory);
 
-	inline const bool isRunning() const {return !m_Terminate;}
-	void seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function);
-	bool get(const uint64_t &hash, ImageHolder &imageHolder) const;
-	void dump(ForwardRange<uint64_t>& range, const uint64_t &current) const;
+    void seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function);
+    bool get(const uint64_t &hash, ImageHolder &imageHolder) const;
 
+    inline bool isActive() const {
+        return m_iSizeLimit > 0;
+    }
+
+    // reexporting visibility
+    inline void dump(ForwardRange<uint64_t> & range, const uint64_t imageHash) const {
+        return Chain::dump(range, imageHash);
+    }
 private:
-	bool computeTotalWeight(const TChain& _tchain, uint64_t& totalSize);
-	void load(Chain& _c, const ImageDecoderFactory& factory);
-	void decode(Chain& _c, const ImageDecoderFactory& factory);
-	void loadAndDecode(Chain& _c, const ImageDecoderFactory& factory);
+    virtual size_t getEvictionIterator(const TChain&) const;
 
-private:
-	const size_t m_iSizeLimit;
-	size_t m_CurrentMemory; ///< shared
-	bool m_Terminate; ///< shared
-
-    // All the following objects have to be initialized in this order
-    boost::mutex m_CacheStateMutex;
-    boost::mutex m_LoadingMutex;
-    boost::condition_variable m_LoadingCondition;
-	Chain m_Chain;
+    const size_t m_iSizeLimit;
 };
 
 #endif /* SMARTCACHE_H_ */

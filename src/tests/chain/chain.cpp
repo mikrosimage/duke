@@ -190,17 +190,38 @@ BOOST_AUTO_TEST_CASE( ChainGetIndex )
     Slot slot = chain.getLoadSlot();
     BOOST_CHECK_EQUAL( slot.m_ImageHash, 100U);
     slot.m_ImageHash = 0;
-    chain.setLoadedSlot(slot); // ok to give an unneeded data
+    BOOST_CHECK(!chain.setLoadedSlot(slot)); // ok to give an unneeded data
     slot.m_ImageHash = 100;
-    chain.setLoadedSlot(slot); // provisioning slot
+    BOOST_CHECK(chain.setLoadedSlot(slot)); // provisioning slot
     slot.m_ImageHash = 0;
-    chain.setDecodedSlot(slot); // ok to give an unneeded data
+    BOOST_CHECK(!chain.setDecodedSlot(slot)); // ok to give an unneeded data
     slot.m_ImageHash = 100;
-    chain.setDecodedSlot(slot); // provisioning slot
+    BOOST_CHECK(chain.setDecodedSlot(slot)); // provisioning slot
 
-    BOOST_CHECK_EQUAL( chain.getResult(100, Slot()), true );
+    BOOST_CHECK_EQUAL( chain.getResult(100, slot), true );
     // not allowing getting frame not in the current range
-    BOOST_CHECK_THROW( chain.getResult(0, Slot()), std::runtime_error );
+    BOOST_CHECK_THROW( chain.getResult(0, slot), std::runtime_error );
+}
+
+class EvictingChain : public Chain {
+protected:
+    virtual size_t getEvictionIterator(const TChain& chain) const {
+        return std::min(size_t(2),chain.size());
+    }
+};
+
+BOOST_AUTO_TEST_CASE( EvictingChainTest )
+{
+    SimpleIndexRange<uint64_t> iterator(0,100);
+    EvictingChain chain;
+    chain.postNewJob(iterator, &::hashToFilename);
+    Slot slot = chain.getLoadSlot();
+    slot.m_ImageHash = 0;
+    BOOST_CHECK(chain.setLoadedSlot(slot)); // value 0 is ok
+    slot.m_ImageHash = 1;
+    BOOST_CHECK(chain.setLoadedSlot(slot)); // value 1 is ok
+    slot.m_ImageHash = 2;
+    BOOST_CHECK(!chain.setLoadedSlot(slot)); // value 2 does not exist anymore
 }
 
 boost::posix_time::time_duration bench(const size_t decoderCount, Worker& worker) {
