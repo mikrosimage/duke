@@ -147,11 +147,15 @@ void PlaylistReader::parsePPL(ifstream & _file, Playlist & _playlist) {
         // ...pixel shader
         Shader pixelShader;
         buildPixelShader(pixelShader, "ps", NULL, pClip->name());
+        addStaticFloatParam(m_Queue, "invgamma", 1.f/2.2);
+        addStaticFloatParam(m_Queue, "exposure", 1.f);
+        addStaticFloatParam(m_Queue, "brightness", 0.f);
 
-        addShadingNode(pixelShader, "rgbatobgra", 1);
+        addShadingNode(pixelShader, "rgbatobgra", 2);
         if (path.extension() == ".dpx") {
-            addShadingNode(pixelShader, "tenbitunpackfloat", 2);
+            addShadingNode(pixelShader, "tenbitunpackfloat", 3);
         }
+
 
         push(m_Queue, pixelShader);
 
