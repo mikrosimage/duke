@@ -375,7 +375,7 @@ void Application::renderStart() {
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
 
-        if (m_Cache.isActive()) {
+        if (m_Cache.isActive() && frame != m_PreviousFrame) {
             PlaylistRange range(frame, m_Playback.isPlaying(), m_Playlist);
             m_Cache.seek(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
             m_FileBufferHolder.update(frame, m_Playlist, m_Cache);

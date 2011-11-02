@@ -2,7 +2,7 @@
 
 #include <iterator>
 #define __STDC_LIMIT_MACROS
-#include <stdint.h>
+#include <cstdint>
 
 using namespace std;
 
@@ -153,7 +153,6 @@ void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFun
 }
 
 boost::posix_time::time_duration Chain::benchmark(const WorkerThreadFunctions &functions, const HashToFilenameFunction &function, const size_t count) {
-    assert(count<SIZE_MAX);
     using namespace boost::posix_time;
     using namespace boost;
     SimpleIndexRange<uint64_t> iterator(0, count + 1);
