@@ -6,20 +6,31 @@
 #include <dukeio/ofxDukeIo.h>
 #include <iostream>
 
-bool _acceptFile(const char* filename, const bool isDirectory) {
-    return isDirectory || std::string(filename).find("plugin_io_") != std::string::npos;
+using namespace std;
+
+static bool _acceptFile(const char* filename, const bool isDirectory) {
+    return isDirectory || string(filename).find("plugin_io_") != string::npos;
 }
 
-bool _acceptPlug(const OfxPlugin* plug) {
-    if (std::string(kOfxDukeIoApi) != plug->pluginApi) {
-        std::cerr << "DukeIO API not handled by plugin " << plug->pluginIdentifier << std::endl;
+static bool _acceptPlug(const OfxPlugin* plug) {
+    if (string(kOfxDukeIoApi) != plug->pluginApi) {
+        cerr << "DukeIO API not handled by plugin " << plug->pluginIdentifier << endl;
         return false;
     }
     if (kOfxDukeIoApiVersion != plug->apiVersion) {
-        std::cerr << "DukeIO API version not handled by plugin " << plug->pluginIdentifier << std::endl;
+        cerr << "DukeIO API version not handled by plugin " << plug->pluginIdentifier << endl;
         return false;
     }
     return true;
+}
+
+static void displayPlugin(const string &extension, const IOPlugin& plugin) {
+    cout << "[DukeIO] " << plugin.m_Plugin << " \'" << extension << "\'";
+    if (plugin.uncompressedFormat())
+        cout << "\t[OPTIMIZED]";
+    if (plugin.delegateRead())
+        cout << "\t[DELEGATE_READ]";
+    cout << endl;
 }
 
 ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
@@ -30,21 +41,14 @@ ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
     const PluginManager::PluginVector plugins(m_PluginManager.getPlugins());
     for (PluginManager::PluginVector::const_iterator itr = plugins.begin(); itr != plugins.end(); ++itr) {
         boost::shared_ptr<IOPlugin> pPlugin(new IOPlugin(**itr));
-        typedef std::vector<std::string> Vector;
+        typedef vector<string> Vector;
         const Vector extensions = pPlugin->extensions();
         for (Vector::const_iterator itr = extensions.begin(); itr != extensions.end(); ++itr)
             m_Map[*itr] = pPlugin;
     }
     // display help
-    ExtensionToDecoderMap::const_iterator itr;
-    for (itr = m_Map.begin(); itr != m_Map.end(); ++itr) {
-        std::cout << "[DukeIO] " << itr->second->m_Plugin << " \'" << itr->first << "\'";
-        if (itr->second->uncompressedFormat())
-            std::cout << "\t[OPTIMIZED]";
-        if (itr->second->delegateRead())
-            std::cout << "\t[DELEGATE_READ]";
-        std::cout << std::endl;
-    }
+    for (ExtensionToDecoderMap::const_iterator itr = m_Map.begin(); itr != m_Map.end(); ++itr)
+        displayPlugin(itr->first, *itr->second);
 }
 
 ImageDecoderFactoryImpl::~ImageDecoderFactoryImpl() {
@@ -57,9 +61,10 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
     const ExtensionToDecoderMap::const_iterator mapEntry(m_Map.find(validExt));
     if (mapEntry == m_Map.end())
         return NULL;
-    isFormatUncompressed = mapEntry->second->uncompressedFormat();
-    delegateRead = mapEntry->second->delegateRead();
-    return mapEntry->second.get();
+    const SharedIOPlugin &pIOPlugin(mapEntry->second);
+    isFormatUncompressed = pIOPlugin->uncompressedFormat();
+    delegateRead = pIOPlugin->delegateRead();
+    return pIOPlugin.get();
 }
 
 #include <dukehost/suite/property/PropertySet.h>
@@ -68,11 +73,11 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
 
 OfxStatus perform(FormatHandle decoder, const char* action, const void* handle, OfxPropertySetHandle inArgs, OfxPropertySetHandle outArgs) {
     assert(decoder);
-    const IOPlugin* pPluginInstance = reinterpret_cast<const IOPlugin*> (decoder);
-    return ::openfx::host::perform(&pPluginInstance->m_Plugin, action, NULL, inArgs, outArgs);
+    const IOPlugin* pIOPlugin = reinterpret_cast<const IOPlugin*> (decoder);
+    return ::openfx::host::perform(&pIOPlugin->m_Plugin, action, NULL, inArgs, outArgs);
 }
 
-bool ImageDecoderFactoryImpl::readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const {
+bool ImageDecoderFactoryImpl::readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const {
     using namespace ::openfx::host;
     StringProperty filenameProp(kOfxDukeIoImageFilename, filename);
     PointerProperty fileDataProp(kOfxDukeIoImageFileDataPtr, const_cast<char*> (description.pFileData));

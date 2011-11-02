@@ -56,7 +56,7 @@ void loadFileFromDisk(TSlotDataPtr& pData) {
 }
 
 void loadFileAndDecodeHeader(TSlotDataPtr& pData, const ImageDecoderFactory& factory) {
-    if (!factory.readImageHeader(pData->m_Filename.c_str(), pData->m_FormatHandler, pData->m_TempImageDescription))
+    if (!factory.readImageHeader(pData->m_FormatHandler, pData->m_Filename.c_str(), pData->m_TempImageDescription))
         throw load_error("unable to open " + pData->m_Filename);
 }
 

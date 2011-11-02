@@ -32,8 +32,8 @@ class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl, public ImageDec
         }
     };
     // hash map
-    typedef boost::shared_ptr<IOPlugin> PluginInstancePtr;
-    typedef boost::unordered_map<std::string, PluginInstancePtr, ihash, iequal_to> ExtensionToDecoderMap;
+    typedef boost::shared_ptr<IOPlugin> SharedIOPlugin;
+    typedef boost::unordered_map<std::string, SharedIOPlugin, ihash, iequal_to> ExtensionToDecoderMap;
     ExtensionToDecoderMap m_Map;
 
 public:
@@ -41,7 +41,7 @@ public:
     virtual ~ImageDecoderFactoryImpl();
 
     virtual FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
-    virtual bool readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const;
+    virtual bool readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const;
     virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
 };
 

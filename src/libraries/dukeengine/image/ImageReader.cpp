@@ -49,7 +49,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 
     ImageDescription description;
     const std::string filename = path.string();
-    const char* cfilename = filename.c_str();
+    const char* c_filename = filename.c_str();
 
     if (delegateReadToHost) {
         // file reader
@@ -64,7 +64,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 
 //        StopWatch file(true);
         // reading file in memory
-        const MemoryBlockPtr pFileMemoryBlock = fileIO.read(cfilename);
+        const MemoryBlockPtr pFileMemoryBlock = fileIO.read(c_filename);
 //        m_TimeReadFile = file.splitTime();
         if (pFileMemoryBlock == NULL) {
             std::cerr << "unable to read " << path << std::endl;
@@ -77,7 +77,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 
 //        StopWatch header(true);
         // reading header
-        if (!m_ImageFactory.readImageHeader(cfilename, formatHandler, description)) {
+        if (!m_ImageFactory.readImageHeader(formatHandler, c_filename, description)) {
             std::cerr << "unable to open " << path << std::endl;
             return false;
         }
@@ -99,7 +99,7 @@ bool ImageReader::load(const boost::filesystem::path &path, ImageHolder &holder)
 //        m_TimeDecode = decode.splitTime();
     } else {
 //        StopWatch header(true);
-        if (!m_ImageFactory.readImageHeader(cfilename, formatHandler, description)) {
+        if (!m_ImageFactory.readImageHeader(formatHandler, c_filename, description)) {
             std::cerr << "unable to open " << path << std::endl;
             return false;
         }
