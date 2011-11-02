@@ -72,7 +72,7 @@ OfxStatus DpxDecoder::noOp() {
 }
 
 OfxStatus DpxDecoder::describe(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(out);
+    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(OfxPropertySetHandle(handle));
     helper.setString(kOfxDukeIoSupportedExtensions, "dpx");
     helper.setInt(kOfxDukeIoUncompressedFormat, 1);
     helper.setInt(kOfxDukeIoDelegateRead, 1);

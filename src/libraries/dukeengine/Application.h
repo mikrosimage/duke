@@ -10,7 +10,7 @@
 #include "image/SmartCache.h"
 #include "image/ImageReader.h"
 #include "host/renderer/Renderer.h"
-#include "host/io/ImageDecoderFactory.h"
+#include "host/io/ImageDecoderFactoryImpl.h"
 #include <protocol.pb.h>
 #include <dukeapi/io/MessageQueue.h>
 #include <dukerenderer/ofxRenderer.h>
@@ -53,7 +53,7 @@ private:
     IMessageIO &m_IO;
     MessageQueue m_RendererMessages;
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
-    ImageDecoderFactory m_ImageDecoderFactory;
+    ImageDecoderFactoryImpl m_ImageDecoderFactory;
     ImageReader m_ImageReader;
     PlaylistHelper m_Playlist;
     playback::PlaybackState m_Playback;

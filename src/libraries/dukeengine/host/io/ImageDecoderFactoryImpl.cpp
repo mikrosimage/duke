@@ -29,7 +29,7 @@ ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
     using ::openfx::host::PluginManager;
     const PluginManager::PluginVector plugins(m_PluginManager.getPlugins());
     for (PluginManager::PluginVector::const_iterator itr = plugins.begin(); itr != plugins.end(); ++itr) {
-        boost::shared_ptr<PluginInstance> pPlugin(new PluginInstance(**itr));
+        boost::shared_ptr<IOPlugin> pPlugin(new IOPlugin(**itr));
         typedef std::vector<std::string> Vector;
         const Vector extensions = pPlugin->extensions();
         for (Vector::const_iterator itr = extensions.begin(); itr != extensions.end(); ++itr)
@@ -68,7 +68,7 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
 
 OfxStatus perform(FormatHandle decoder, const char* action, const void* handle, OfxPropertySetHandle inArgs, OfxPropertySetHandle outArgs) {
     assert(decoder);
-    const PluginInstance* pPluginInstance = reinterpret_cast<const PluginInstance*> (decoder);
+    const IOPlugin* pPluginInstance = reinterpret_cast<const IOPlugin*> (decoder);
     return ::openfx::host::perform(&pPluginInstance->m_Plugin, action, NULL, inArgs, outArgs);
 }
 

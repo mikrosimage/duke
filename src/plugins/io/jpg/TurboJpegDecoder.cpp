@@ -21,7 +21,7 @@ OfxStatus TurboJpegDecoder::noOp() {
 }
 
 OfxStatus TurboJpegDecoder::describe(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(out);
+    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(OfxPropertySetHandle(handle));
     helper.setString(kOfxDukeIoSupportedExtensions, "jpeg,jpg");
     helper.setInt(kOfxDukeIoUncompressedFormat, 0);
     helper.setInt(kOfxDukeIoDelegateRead, 1);

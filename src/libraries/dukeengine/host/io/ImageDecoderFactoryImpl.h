@@ -1,7 +1,7 @@
 #ifndef IMAGEDECODERFACTORYIMPL_H_
 #define IMAGEDECODERFACTORYIMPL_H_
 
-#include "PluginInstance.h"
+#include "IOPlugin.h"
 #include "ImageDecoderFactory.h"
 
 #include <dukehost/PluginManager.h>
@@ -13,7 +13,7 @@
 
 #include <string>
 
-class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl{
+class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl, public ImageDecoderFactory {
     ::openfx::host::PluginManager m_PluginManager;
 
     struct iequal_to : std::binary_function<std::string, std::string, bool> {
@@ -32,7 +32,7 @@ class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl{
         }
     };
     // hash map
-    typedef boost::shared_ptr<PluginInstance> PluginInstancePtr;
+    typedef boost::shared_ptr<IOPlugin> PluginInstancePtr;
     typedef boost::unordered_map<std::string, PluginInstancePtr, ihash, iequal_to> ExtensionToDecoderMap;
     ExtensionToDecoderMap m_Map;
 
@@ -40,9 +40,9 @@ public:
     ImageDecoderFactoryImpl();
     virtual ~ImageDecoderFactoryImpl();
 
-    FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
-    bool readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const;
-    bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
+    virtual FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
+    virtual bool readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const;
+    virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
 };
 
 #endif /* IMAGEDECODERFACTORYIMPL_H_ */
