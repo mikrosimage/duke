@@ -32,7 +32,7 @@ SmartCache::SmartCache(uint64_t limit, const ImageDecoderFactory& factory) :
 }
 
 void SmartCache::seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function) {
-    postNewJob(range, function/*, boost::bind(&SmartCache::computeTotalWeight, this, _1, _2)*/);
+    postNewJob(range, function);
 }
 
 bool SmartCache::get(const uint64_t& hash, ImageHolder &imageHolder) const {
