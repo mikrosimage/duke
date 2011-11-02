@@ -7,16 +7,7 @@
 
 using namespace std;
 
-IOPlugin::IOPlugin(const OfxPlugin &plugin) :
-    m_Plugin(plugin), m_ExtensionProperty(kOfxDukeIoSupportedExtensions, ""), m_UncompressedFormat(kOfxDukeIoUncompressedFormat, 0), m_DelegateRead(kOfxDukeIoDelegateRead, 0) {
-    m_DescribeProperty << m_ExtensionProperty << m_UncompressedFormat << m_DelegateRead;
-    ::openfx::host::perform(&m_Plugin, kOfxActionDescribe, &m_DescribeProperty, NULL, NULL);
-}
-
-IOPlugin::~IOPlugin() {
-}
-
-void split(const string& s, char c, vector<string>& v) {
+static inline void split(const string& s, char c, vector<string>& v) {
     string::size_type i = 0;
     string::size_type j = s.find(c);
     while (j != string::npos) {
@@ -30,10 +21,19 @@ void split(const string& s, char c, vector<string>& v) {
         v.push_back(s);
 }
 
-vector<string> IOPlugin::extensions() const {
-    vector<string> extensions;
-    split(m_ExtensionProperty.value[0], ',', extensions);
-    return extensions;
+IOPlugin::IOPlugin(const OfxPlugin &plugin) :
+    m_Plugin(plugin), m_ExtensionProperty(kOfxDukeIoSupportedExtensions, ""), m_UncompressedFormat(kOfxDukeIoUncompressedFormat, 0), m_DelegateRead(kOfxDukeIoDelegateRead, 0) {
+    m_DescribeProperty << m_ExtensionProperty << m_UncompressedFormat << m_DelegateRead;
+    ::openfx::host::perform(&m_Plugin, kOfxActionDescribe, &m_DescribeProperty, NULL, NULL);
+    split(m_ExtensionProperty.value[0], ',', m_Extensions);
+}
+
+IOPlugin::~IOPlugin() {
+}
+
+
+const vector<string>& IOPlugin::extensions() const {
+    return m_Extensions;
 }
 
 bool IOPlugin::uncompressedFormat() const {

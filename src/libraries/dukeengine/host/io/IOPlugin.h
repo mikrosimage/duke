@@ -11,7 +11,7 @@ public:
     IOPlugin(const OfxPlugin &plugin);
     virtual ~IOPlugin();
 
-    std::vector<std::string> extensions() const;
+    const std::vector<std::string>& extensions() const;
     bool delegateRead() const;
     bool uncompressedFormat() const;
 private:
@@ -19,6 +19,7 @@ private:
     ::openfx::host::StringProperty m_ExtensionProperty;
     ::openfx::host::IntProperty m_UncompressedFormat;
     ::openfx::host::IntProperty m_DelegateRead;
+    std::vector<std::string> m_Extensions;
 };
 
 #endif /* IOPLUGIN_H_ */
