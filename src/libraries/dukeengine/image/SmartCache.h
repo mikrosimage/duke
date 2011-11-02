@@ -11,7 +11,7 @@ class ImageDecoderFactory;
 
 class SmartCache : public boost::noncopyable {
 public:
-	SmartCache( size_t limit, const ImageDecoderFactory& factory);
+	SmartCache( uint64_t limit, const ImageDecoderFactory& factory);
 	~SmartCache();
 
 	inline const bool isRunning() const {return !m_Terminate;}
@@ -26,7 +26,7 @@ private:
 	void loadAndDecode(Chain& _c, const ImageDecoderFactory& factory);
 
 private:
-	const size_t m_iSizeLimit;
+	const uint64_t m_iSizeLimit;
 	uint64_t m_CurrentMemory;
 	bool m_Terminate;
 

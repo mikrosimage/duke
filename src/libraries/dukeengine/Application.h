@@ -28,7 +28,7 @@ class Message;
 
 class Application {
 public:
-    Application(const char* rendererFilename, IMessageIO &IO, int &returnCode, const size_t cacheSize = 0);
+    Application(const char* rendererFilename, IMessageIO &IO, int &returnCode, const uint64_t cacheSize = 0);
     ~Application();
 
     void* fetchSuite(const char* suiteName, int suiteVersion);

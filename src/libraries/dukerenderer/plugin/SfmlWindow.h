@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 #include <memory>
 
-#define SFML_WINDOW_TITLE "MikrosImage Player"
+#define SFML_WINDOW_TITLE "Duke Player"
 
 // forward declaration
 class RendererSuite;

@@ -147,7 +147,7 @@ static void dump(const google::protobuf::Descriptor* pDescriptor, const google::
 #endif
 }
 
-Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const size_t cacheSize) :
+Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize) :
     m_IO(io), //
     m_ImageReader(m_ImageDecoderFactory), //
     // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//

@@ -17,8 +17,6 @@ private:
     MessageQueue &m_ToApplicationQueue;
     bool m_bPlay;
     unsigned int m_iFitMode;
-    float m_fGamma;
-    float m_fExposure;
     std::stringstream m_ssSeek;
 };
 

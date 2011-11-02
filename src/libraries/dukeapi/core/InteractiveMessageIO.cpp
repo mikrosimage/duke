@@ -34,7 +34,7 @@ Transport MAKE(const Transport_TransportType type //
 } // namespace
 
 InteractiveMessageIO::InteractiveMessageIO(MessageQueue& initialMessages) :
-    m_ToApplicationQueue(initialMessages), m_bPlay(false), m_iFitMode(0), m_fGamma(1.f/2.2), m_fExposure(1.f) {
+    m_ToApplicationQueue(initialMessages), m_bPlay(false), m_iFitMode(0) {
 }
 
 InteractiveMessageIO::~InteractiveMessageIO() {
@@ -143,64 +143,6 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                     d.add_content(Debug_Content_FILENAMES);
                     d.add_content(Debug_Content_FPS);
                     PUSH(d);
-                    break;
-                }
-                case KeyEvent_KeyCode_A: {
-                    m_fGamma -= 0.01;
-                    if(m_fGamma < 0)
-                        m_fGamma = 0.f;
-                    StaticParameter gamma;
-                    gamma.set_name("invgamma");
-                    gamma.set_type(StaticParameter_Type_FLOAT);
-                    gamma.add_floatvalue(m_fGamma);
-                    PUSH(gamma);
-                    break;
-                }
-                case KeyEvent_KeyCode_Q: {
-                    m_fGamma = 1.f/2.2;
-                    StaticParameter gamma;
-                    gamma.set_name("invgamma");
-                    gamma.set_type(StaticParameter_Type_FLOAT);
-                    gamma.add_floatvalue(m_fGamma);
-                    PUSH(gamma);
-                    break;
-                }
-                case KeyEvent_KeyCode_W: {
-                    m_fGamma += 0.01;
-                    StaticParameter gamma;
-                    gamma.set_name("invgamma");
-                    gamma.set_type(StaticParameter_Type_FLOAT);
-                    gamma.add_floatvalue(m_fGamma);
-                    PUSH(gamma);
-                    break;
-                }
-                case KeyEvent_KeyCode_Z: {
-                    m_fExposure += 0.1;
-                    if(m_fExposure < 0)
-                        m_fExposure = 0.f;
-                    StaticParameter exposure;
-                    exposure.set_name("exposure");
-                    exposure.set_type(StaticParameter_Type_FLOAT);
-                    exposure.add_floatvalue(m_fExposure);
-                    PUSH(exposure);
-                    break;
-                }
-                case KeyEvent_KeyCode_S: {
-                    m_fExposure = 1.f;
-                    StaticParameter exposure;
-                    exposure.set_name("exposure");
-                    exposure.set_type(StaticParameter_Type_FLOAT);
-                    exposure.add_floatvalue(m_fExposure);
-                    PUSH(exposure);
-                    break;
-                }
-                case KeyEvent_KeyCode_X: {
-                    m_fExposure -= 0.1;
-                    StaticParameter exposure;
-                    exposure.set_name("exposure");
-                    exposure.set_type(StaticParameter_Type_FLOAT);
-                    exposure.add_floatvalue(m_fExposure);
-                    PUSH(exposure);
                     break;
                 }
                 case KeyEvent_KeyCode_Num0:

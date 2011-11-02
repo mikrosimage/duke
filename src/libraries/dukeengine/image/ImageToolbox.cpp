@@ -1,5 +1,6 @@
 #include "ImageToolbox.h"
 #include <dukeengine/file/StreamedFileIO.h>
+#include <dukeengine/file/DmaFileIO.h>
 #include <iostream>
 
 using namespace ::mikrosimage::alloc;
@@ -37,7 +38,12 @@ void getImageHandler(const ImageDecoderFactory& factory, TSlotDataPtr& pData) {
 
 void loadFileFromDisk(TSlotDataPtr& pData) {
     // file reader
-    StreamedFileIO fileIO(&_alignedMallocAlloc);
+	::mikrosimage::alloc::Allocator *pAllocator = &_alignedMallocAlloc;
+#ifdef WIN32
+        DmaFileIO fileIO(pAllocator);
+#else
+        MappedFileIO fileIO(pAllocator);
+#endif
     MemoryBlockPtr &pFile = pData->m_pFileMemoryBlock;
     pFile = fileIO.read(pData->m_Filename.c_str());
     if (pFile == NULL)

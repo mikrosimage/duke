@@ -16,7 +16,7 @@ namespace { //empty
 
 } //empty
 
-SmartCache::SmartCache(size_t limit, const ImageDecoderFactory& factory) :
+SmartCache::SmartCache(uint64_t limit, const ImageDecoderFactory& factory) :
     m_iSizeLimit(limit), m_CurrentMemory(0), m_Terminate(false) {
 
     if (limit != 0) {
