@@ -11,7 +11,7 @@ class ImageDecoderFactory;
 
 class SmartCache : private Chain {
 public:
-    SmartCache(size_t limit, const ImageDecoderFactory& factory);
+    SmartCache(uint64_t limit, const ImageDecoderFactory& factory);
 
     void seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function);
     bool get(const uint64_t &hash, ImageHolder &imageHolder) const;
@@ -27,7 +27,7 @@ public:
 private:
     virtual size_t getEvictionIterator(const TChain&) const;
 
-    const size_t m_iSizeLimit;
+    const uint64_t m_iSizeLimit;
 };
 
 #endif /* SMARTCACHE_H_ */

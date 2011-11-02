@@ -16,7 +16,7 @@ namespace { //empty
 
 } //empty
 
-SmartCache::SmartCache(size_t limit, const ImageDecoderFactory& factory) :
+SmartCache::SmartCache(uint64_t limit, const ImageDecoderFactory& factory) :
     m_iSizeLimit(limit) {
     if (isActive()) {
         cout << "[ImageCache] Running image cache limited to " << (limit / 1024) / 1024 << "Mo\n";

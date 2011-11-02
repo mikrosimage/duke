@@ -239,7 +239,7 @@ void Configuration::decorateAndRun(IMessageIO& io) {
 }
 void Configuration::run(IMessageIO& io) {
     const std::string rendererFilename = m_Vm[RENDERER].as<string> ();
-    const size_t cacheSize = m_Vm[CACHE_SIZE].as<size_t> () * 1024 * 1024;
+    const uint64_t cacheSize = (((uint64_t)m_Vm[CACHE_SIZE].as<size_t> ()) * 1024) * 1024;
     Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize);
 }
 
