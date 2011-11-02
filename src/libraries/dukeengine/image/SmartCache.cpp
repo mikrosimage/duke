@@ -61,7 +61,7 @@ static inline size_t weight(const InternalSlot& slot) {
     return pData->m_TempImageDescription.fileDataSize + pData->m_TempImageDescription.imageDataSize;
 }
 
-size_t SmartCache::getEvictionIterator(const TChain& chain) const {
+size_t SmartCache::getNewEndIndex(const TChain& chain) const {
     size_t currentIndex = 0;
     size_t memory = 0;
     for (TChain::const_iterator itr = chain.begin(); itr != chain.end(); ++itr, ++currentIndex) {

@@ -25,7 +25,7 @@ public:
         return Chain::dump(range, imageHash);
     }
 private:
-    virtual size_t getEvictionIterator(const TChain&) const;
+    virtual size_t getNewEndIndex(const TChain&) const;
 
     const uint64_t m_iSizeLimit;
 };

@@ -167,7 +167,7 @@ private:
         m_LastIndexAccelerator[1] = 0;
     }
     inline bool shrinkChain() {
-        const size_t newSize = getEvictionIterator(m_Chain);
+        const size_t newSize = getNewEndIndex(m_Chain);
         if (newSize < m_Chain.size()) {
             m_Chain.resize(newSize);
             resetAccelerators();
@@ -185,7 +185,7 @@ protected:
      * /!\ This function must be reentrant, it will be called from many threads
      * at the same time.
      */
-    virtual size_t getEvictionIterator(const TChain& chain) const {
+    virtual size_t getNewEndIndex(const TChain& chain) const {
         return chain.size();
     }
 public:

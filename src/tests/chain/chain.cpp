@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( ChainGetIndex )
 
 class EvictingChain : public Chain {
 protected:
-    virtual size_t getEvictionIterator(const TChain& chain) const {
+    virtual size_t getNewEndIndex(const TChain& chain) const {
         return std::min(size_t(2),chain.size());
     }
 };

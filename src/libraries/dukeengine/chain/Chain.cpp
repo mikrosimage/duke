@@ -143,9 +143,6 @@ void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFun
         // now working on the new chain
         m_Chain.swap(newJobChain);
 
-        // evicting unneeded elements
-        shrinkChain();
-
         // reseting the chain accelerators
         resetAccelerators();
     }
@@ -192,7 +189,7 @@ bool Chain::setData(const Slot &shared, const State stateToSet, boost::condition
     pSlot->m_State = stateToSet;
     pSlot->m_Shared = shared;
 
-    // shrinking the chain to maintain resources
+    // shrinking the chain to maintain resources low
     shrinkChain();
 
     // unlocking
