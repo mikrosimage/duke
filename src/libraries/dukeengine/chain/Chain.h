@@ -59,7 +59,7 @@ struct Slot {
  * The slot state.
  */
 enum State {
-    NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4
+    NEW = 0, LOADING = 1, LOADED = 2, DECODING = 3, READY = 4, UNDEFINED = 5
 };
 
 /**
@@ -84,7 +84,7 @@ struct InternalSlot {
  * with a few helper functions
  */
 struct TChain : public std::vector<InternalSlot> {
-    const static size_t InitialChainReserve = 100;
+    const static size_t InitialChainReserve = 200;
     TChain();
     TChain(OnePassRange<uint64_t> &iterator);
     /**
@@ -114,7 +114,7 @@ private:
  * loaded and decoded slots. This function will be in charge of moving those
  * slots from the old chain to the new one.
  */
-void transferWorkUnit(TChain &from, TChain &to, bool avoidEviction);
+void transferWorkUnit(TChain &from, TChain &to);
 
 /**
  * Iterates the range and checks if it contains any double
@@ -137,7 +137,6 @@ inline bool hasDouble(const ForwardRange<T>&iterator) {
 class Chain : boost::noncopyable {
 public:
     typedef boost::function<std::string(uint64_t)> HashToFilenameFunction;
-    typedef boost::function<bool(const TChain &, uint64_t &)> ComputeTotalWeightFunction;
     typedef boost::function<void(Chain&)> WorkerThreadFunction;
     typedef std::vector<WorkerThreadFunction> WorkerThreadFunctions;
 private:
@@ -161,15 +160,37 @@ private:
     boost::thread_group m_ThreadGroup;
 
     Slot getHash(const State, const State, boost::condition&);
-    void setData(const Slot &, const State, boost::condition&);
+    bool setData(const Slot &, const State, boost::condition&);
     void stopWorkers();
     inline void resetAccelerators() {
         m_LastIndexAccelerator[0] = 0;
         m_LastIndexAccelerator[1] = 0;
     }
+    inline bool shrinkChain() {
+        const size_t newSize = getEvictionIterator(m_Chain);
+        if (newSize < m_Chain.size()) {
+            m_Chain.resize(newSize);
+            resetAccelerators();
+            return true;
+        }
+        return false;
+    }
+protected:
+    /**
+     * This method is used to restrict resource usage within the Chain.
+     * This method will be called by the chain when elements are inserted or updated.
+     * The return value will be used to evict elements from the chain and keep
+     * the resources low. Default policy is to evict nothing.
+     *
+     * /!\ This function must be reentrant, it will be called from many threads
+     * at the same time.
+     */
+    virtual size_t getEvictionIterator(const TChain& chain) const {
+        return chain.size();
+    }
 public:
     Chain();
-    ~Chain();
+    virtual ~Chain();
     /**
      * Post a new job in the form of an index range.
      * This range must be bounded.
@@ -180,10 +201,10 @@ public:
      * The worker threads can call the getFilenameForHash() function to
      * retrieve the filename associated with the hash. See below.
      *
-     * /!\ !!! range must not contains twice the same index !!!
+     * /!\ !!! range must not contain twice the same index !!!
      * This precondition is checked in debug mode
      */
-    void postNewJob(ForwardRange<uint64_t> &range, const HashToFilenameFunction &function, const ComputeTotalWeightFunction &weighfunction);
+    void postNewJob(ForwardRange<uint64_t> &range, const HashToFilenameFunction &function);
 
     /**
      * append workers to this Chain to multithread load and decode
@@ -210,11 +231,13 @@ public:
     inline Slot getDecodeSlot() {
         return getHash(LOADED, DECODING, m_condSlotLoaded);
     }
-    inline void setLoadedSlot(Slot slot) {
-        setData(slot, LOADED, m_condSlotLoaded);
+    // returns true if the slot was actually added, false if not needed any more
+    inline bool setLoadedSlot(Slot slot) {
+        return setData(slot, LOADED, m_condSlotLoaded);
     }
-    inline void setDecodedSlot(Slot slot) {
-        setData(slot, READY, m_condSlotDecoded);
+    // returns true if the slot was actually added, false if not needed any more
+    inline bool setDecodedSlot(Slot slot) {
+        return setData(slot, READY, m_condSlotDecoded);
     }
     /**
      * This function is synchronized ( multiple readers / one writer )
