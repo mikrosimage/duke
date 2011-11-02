@@ -3,8 +3,8 @@
 
 #include "Chain.h"
 
-std::ostream& operator<<(std::ostream& stream, const Slot::State& state);
-std::ostream& operator<<(std::ostream& stream, const Slot& slot);
+std::ostream& operator<<(std::ostream& stream, const State& state);
+std::ostream& operator<<(std::ostream& stream, const InternalSlot& slot);
 std::ostream& operator<<(std::ostream& stream, const TChain& chain);
 std::ostream& operator<<(std::ostream& stream, const Chain& chain);
 

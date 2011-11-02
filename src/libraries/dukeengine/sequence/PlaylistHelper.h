@@ -42,6 +42,7 @@ public:
     size_t getIteratorIndexAtFrame(const size_t frame) const;
     boost::filesystem::path getPathAtIterator(const size_t) const;
     boost::filesystem::path getPathAtHash(const uint64_t) const;
+    std::string getPathStringAtHash(const uint64_t) const;
     uint64_t getHashAtIterator(const size_t) const;
     size_t getWrappedFrame(size_t frame) const;
     size_t getClampedFrame(size_t frame) const;

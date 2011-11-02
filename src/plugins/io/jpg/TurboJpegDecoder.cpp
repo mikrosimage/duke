@@ -4,9 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 
-
 TurboJpegDecoder::TurboJpegDecoder() :
-	m_PropertySuite(*this), m_jpeghandle(tjInitDecompress()) {
+    m_PropertySuite(*this) {
     registerAction(kOfxActionLoad, boost::bind(&TurboJpegDecoder::noOp, this));
     registerAction(kOfxActionUnload, boost::bind(&TurboJpegDecoder::noOp, this));
     registerAction(kOfxActionDescribe, boost::bind(&TurboJpegDecoder::describe, this, _1, _2, _3));
@@ -15,7 +14,6 @@ TurboJpegDecoder::TurboJpegDecoder() :
 }
 
 TurboJpegDecoder::~TurboJpegDecoder() {
-    tjDestroy(m_jpeghandle);
 }
 
 OfxStatus TurboJpegDecoder::noOp() {
@@ -32,20 +30,24 @@ OfxStatus TurboJpegDecoder::describe(const void* handle, OfxPropertySetHandle in
 
 OfxStatus TurboJpegDecoder::readHeader(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
     try {
+        const tjhandle jpeghandle = tjInitDecompress();
         openfx::plugin::PropertyHelper inArgHelper = m_PropertySuite.getHelper(in);
         int width = 0;
         int height = 0;
         int depth = 1;
         int jpegsubsamp;
-//        int format = kOfxDukeIoImageFormatR8G8B8;
+        tjDecompressHeader2(jpeghandle, (unsigned char*) inArgHelper.getPointer(kOfxDukeIoImageFileDataPtr), inArgHelper.getInt(kOfxDukeIoImageFileDataSize), &width, &height,
+                            &jpegsubsamp);
+        //        int format = kOfxDukeIoImageFormatR8G8B8;
         int format = kOfxDukeIoImageFormatR8G8B8A8;
-        tjDecompressHeader2(m_jpeghandle, (unsigned char*)inArgHelper.getPointer(kOfxDukeIoImageFileDataPtr), inArgHelper.getInt(kOfxDukeIoImageFileDataSize), &width, &height, &jpegsubsamp);
+
         openfx::plugin::PropertyHelper outArgHelper = m_PropertySuite.getHelper(out);
         outArgHelper.setInt(kOfxDukeIoImageFormat, format);
         outArgHelper.setInt(kOfxDukeIoImageWidth, width);
         outArgHelper.setInt(kOfxDukeIoImageHeight, height);
         outArgHelper.setInt(kOfxDukeIoImageDepth, depth);
-        outArgHelper.setInt(kOfxDukeIoBufferSize, width*height*4*8);
+        outArgHelper.setInt(kOfxDukeIoBufferSize, width * height * 4);
+        tjDestroy(jpeghandle);
         return kOfxStatOK;
     } catch (std::exception& e) {
         std::cerr << "unhandled exception in Jpeg plugin : " << e.what() << std::endl;
@@ -56,13 +58,15 @@ OfxStatus TurboJpegDecoder::readHeader(const void* handle, OfxPropertySetHandle 
 
 OfxStatus TurboJpegDecoder::decodeImage(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
     try {
+        const tjhandle jpeghandle = tjInitDecompress();
         openfx::plugin::PropertyHelper inArgHelper = m_PropertySuite.getHelper(in);
         void * pFileData = inArgHelper.getPointer(kOfxDukeIoImageFileDataPtr);
         void * pData = inArgHelper.getPointer(kOfxDukeIoBufferPtr);
         int fileSize = inArgHelper.getInt(kOfxDukeIoImageFileDataSize);
         int width = inArgHelper.getInt(kOfxDukeIoImageWidth);
         int height = inArgHelper.getInt(kOfxDukeIoImageHeight);
-        tjDecompress(m_jpeghandle, (unsigned char*)pFileData, fileSize, (unsigned char*)pData, width, 0, height, 4, TJ_FASTUPSAMPLE);
+        tjDecompress(jpeghandle, (unsigned char*) pFileData, fileSize, (unsigned char*) pData, width, 0, height, 4, TJ_FASTUPSAMPLE);
+        tjDestroy(jpeghandle);
     } catch (std::exception& e) {
         std::cerr << "unhandled exception in Jpeg plugin: " << e.what() << std::endl;
         return kOfxStatFailed;

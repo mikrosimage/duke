@@ -21,7 +21,7 @@ struct PlaylistHashToName {
  * Our implementation of slot data, it simply holds an ImageHolder
  * but we can put more data in it if needed.
  */
-struct ASlotData : public SlotData {
+struct DukeSlot : public SlotData {
     MemoryBlockPtr m_pFileMemoryBlock;
     ImageDescription m_TempImageDescription;
     ImageHolder m_Holder;
@@ -32,12 +32,56 @@ struct ASlotData : public SlotData {
     FormatHandle m_FormatHandler;
     ::boost::posix_time::time_duration loadTime;
     ::boost::posix_time::time_duration decodeTime;
+
+    DukeSlot() :
+        m_bDelegateReadToHost(false), m_bFormatUncompressed(false) {
+    }
 };
-typedef boost::shared_ptr<ASlotData> TSlotDataPtr;
+typedef boost::shared_ptr<DukeSlot> TSlotDataPtr;
 
 /**
  * Definition of the workers
  */
+//void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+//void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+
+/**
+ * A load_error exception will be thrown if something happens
+ * during image loading
+ */
+struct load_error : public std::runtime_error {
+    load_error(std::string what) :
+        std::runtime_error(what) {
+    }
+};
+
+/**
+ * This function will pick a slot to load from the chain
+ * and fill the filename, filename extension and hash
+ * of the provided slot.
+ */
+uint64_t setupFilename(TSlotDataPtr& forSlot, Chain &withChain);
+
+/**
+ * This function will try to find a loader for the format.
+ * It will then setup the Slot accordingly, setting the fields
+ * m_bDelegateReadToHost and m_bFormatUncompressed
+ */
+void setupLoaderInfo(TSlotDataPtr& forSlot, const ImageDecoderFactory& withFactory);
+
+/**
+ * This function will use the set ImageLoader to load the file
+ * and set the pFileData and fileDataSize fields of m_TempImageDescription
+ */
+void loadFileAndDecodeHeader(TSlotDataPtr& forSlot, const ImageDecoderFactory& withFactory);
+
+/**
+ * Combines setupFilename and setupLoaderInfo with some
+ */
+void loadFileFromDisk(TSlotDataPtr& pData);
+void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData);
+bool isAlreadyUncompressed(TSlotDataPtr &pData);
+
 void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
 void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
 

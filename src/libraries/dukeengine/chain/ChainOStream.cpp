@@ -2,21 +2,21 @@
 
 using namespace std;
 
-ostream& operator<<(ostream& stream, const Slot::State& state) {
+ostream& operator<<(ostream& stream, const State& state) {
     switch (state) {
-        case Slot::NEW:
+        case NEW:
             stream << "_";
             break;
-        case Slot::LOADING:
+        case LOADING:
             stream << "l";
             break;
-        case Slot::LOADED:
+        case LOADED:
             stream << "L";
             break;
-        case Slot::DECODING:
+        case DECODING:
             stream << "d";
             break;
-        case Slot::READY:
+        case READY:
             stream << "D";
             break;
         default:
@@ -26,8 +26,9 @@ ostream& operator<<(ostream& stream, const Slot::State& state) {
     return stream;
 }
 
-ostream& operator<<(ostream& stream, const Slot& slot) {
-    stream << '[' << slot.m_Shared.m_ImageHash << '|' << slot.m_State << ']';
+ostream& operator<<(ostream& stream, const InternalSlot& slot) {
+//    stream << '[' << slot.m_Shared.m_ImageHash << '|' << slot.m_State << ']';
+    stream << slot.m_State;
     return stream;
 }
 
@@ -41,6 +42,7 @@ ostream& Chain::operator<<(ostream& stream) const {
     stream << m_Chain;
     return stream;
 }
+
 ostream& operator<<(ostream& stream, const Chain& chain) {
     return chain.operator <<(stream);
 }

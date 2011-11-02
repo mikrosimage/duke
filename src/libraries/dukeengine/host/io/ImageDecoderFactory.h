@@ -3,6 +3,8 @@
 
 #include <dukeio/ImageDescription.h>
 #include <memory>
+#include <boost/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 typedef void* FormatHandle;
 class ImageDecoderFactoryImpl;
@@ -10,6 +12,8 @@ class ImageDecoderFactoryImpl;
 class ImageDecoderFactory {
 private:
     std::auto_ptr<ImageDecoderFactoryImpl> m_pImpl;
+    mutable boost::mutex m_Mutex;
+
 public:
     ImageDecoderFactory();
     ~ImageDecoderFactory();

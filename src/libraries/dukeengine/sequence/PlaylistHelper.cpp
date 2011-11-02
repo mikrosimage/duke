@@ -182,6 +182,10 @@ boost::filesystem::path PlaylistHelper::getPathAtHash(const uint64_t hash) const
     return boost::filesystem::path();
 }
 
+std::string PlaylistHelper::getPathStringAtHash(const uint64_t hash) const {
+    return getPathAtHash(hash).string();
+}
+
 PlaylistHelper::FrameToIndices::iterator PlaylistHelper::ensureKey(const size_t key) {
     assert(key >= 0);
     // container is empty ?

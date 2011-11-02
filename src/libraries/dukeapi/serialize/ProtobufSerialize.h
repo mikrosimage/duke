@@ -138,7 +138,7 @@ inline bool writeDelimitedAndFlushTo(ostream &s, const Message &msg) {
 inline bool parseDelimitedFrom(istream &s, Message &msg) {
     using namespace google::protobuf::io;
     msg.Clear();
-    size_t size;
+    uint32_t size;
     {
         IstreamInputStream iis(&s, 1);
         CodedInputStream cis(&iis);

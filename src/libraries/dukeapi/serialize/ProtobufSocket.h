@@ -120,8 +120,8 @@ private:
             reader.ReadVarint32(&messageSize);
             headerbuffer_.consume(headerSize);
 
-            const size_t availableData = headerbuffer_.size();
-            const size_t byteToTransfer = std::min(availableData, messageSize);
+            const uint32_t availableData = headerbuffer_.size();
+            const uint32_t byteToTransfer = std::min(availableData, messageSize);
             rcv_msg_buffer_.resize(messageSize);
             std::copy(headerBufferPtr(), headerBufferPtr() + byteToTransfer, rcv_msg_buffer_.begin());
             headerbuffer_.consume(byteToTransfer);

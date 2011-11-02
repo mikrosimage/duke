@@ -54,9 +54,21 @@ void setDisplayOptions(boost::program_options::options_description& description,
     ;
 }
 
+struct SessionCreator {
+    SessionCreator(QueueMessageIO& _io) :
+        io(_io) {
+    }
+    google::protobuf::serialize::ISession* create(boost::asio::io_service& service) {
+        return new SocketSession(service, io.inputQueue, io.outputQueue);
+    }
+private:
+    QueueMessageIO& io;
+};
+
+
 Configuration::Configuration(int argc, char** argv) :
-    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive("interactive mode options"),
-            m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
+    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"),
+                    m_Interactive("interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
     using namespace ::duke::protocol;
 
@@ -127,14 +139,15 @@ Configuration::Configuration(int argc, char** argv) :
 
         while (m_iReturnValue == EXIT_RELAUNCH) {
             QueueMessageIO io;
-
-            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
-
             tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
-            duke_server server(endpoint, sessionCreator);
+
+            // -> c++0x version, cool but need a gcc version > 4.4
+//            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
+//            duke_server server(endpoint, sessionCreator);
+            SessionCreator creator(io);
+            duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
 
             boost::thread io_launcher(&duke_server::run, &server);
-
             decorateAndRun(io);
 
             io_launcher.join();
@@ -226,7 +239,7 @@ void Configuration::decorateAndRun(IMessageIO& io) {
 }
 void Configuration::run(IMessageIO& io) {
     const std::string rendererFilename = m_Vm[RENDERER].as<string> ();
-    const size_t cacheSize = m_Vm[CACHE_SIZE].as<size_t> () * 1024 * 1024;
+    const uint64_t cacheSize = (((uint64_t)m_Vm[CACHE_SIZE].as<size_t> ()) * 1024) * 1024;
     Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize);
 }
 

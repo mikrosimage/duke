@@ -26,7 +26,7 @@ OfxStatus OIIODecoder::noOp() {
 
 OfxStatus OIIODecoder::describe(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
     openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(out);
-    helper.setString(kOfxDukeIoSupportedExtensions, "bmp,dds,hdr,ico,jp2,j2k,exr,png,pbm,pgm,ppm,pnm,sgi,rgb,pic,tpic,tif,tiff");
+    helper.setString(kOfxDukeIoSupportedExtensions, "bmp,dds,hdr,ico,jp2,j2k,exr,png,pbm,pgm,ppm,pnm,sgi,rgb,pic,tga,tpic,tif,tiff");
     helper.setInt(kOfxDukeIoUncompressedFormat, 0);
     helper.setInt(kOfxDukeIoDelegateRead, 0);
     return kOfxStatOK;
