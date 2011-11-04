@@ -8,7 +8,6 @@
 #include "playback/Timings.h"
 #include "sequence/PlaylistHelper.h"
 #include "image/SmartCache.h"
-#include "image/ImageReader.h"
 #include "host/renderer/Renderer.h"
 #include "host/io/ImageDecoderFactoryImpl.h"
 #include <protocol.pb.h>
@@ -45,7 +44,6 @@ private:
     void consumeTransport();
     bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
-    SharedPlaylistHelperPtr getSharedPlaylistHelper() const;
 
 
 private:
@@ -54,7 +52,6 @@ private:
     MessageQueue m_RendererMessages;
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
     ImageDecoderFactoryImpl m_ImageDecoderFactory;
-    ImageReader m_ImageReader;
     PlaylistHelper m_Playlist;
     playback::PlaybackState m_Playback;
     //    AudioEngine m_AudioEngine;

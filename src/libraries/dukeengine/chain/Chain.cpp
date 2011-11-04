@@ -126,9 +126,8 @@ void transferWorkUnit(TChain &from, TChain &to) {
     }
 }
 
-void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFunction &function) {
-
-    assert( !hasDouble(iterator) ); // ensuring no index doubles
+void Chain::postNewJob(OnePassRange<uint64_t> &iterator, const HashToFilenameFunction &function) {
+    //    assert( !hasDouble(iterator) ); // ensuring no index doubles
     TChain newJobChain(iterator);
     {// locking the chain for reordering
         boost::mutex::scoped_lock lock(m_ChainMutex);
@@ -152,15 +151,16 @@ void Chain::postNewJob(ForwardRange<uint64_t> &iterator, const HashToFilenameFun
 boost::posix_time::time_duration Chain::benchmark(const WorkerThreadFunctions &functions, const HashToFilenameFunction &function, const size_t count) {
     using namespace boost::posix_time;
     using namespace boost;
-    SimpleIndexRange<uint64_t> iterator(0, count + 1);
-    addWorker(functions);
-    ptime start = microsec_clock::local_time();
-    postNewJob(iterator, function);
-    Slot slot;
-    for (size_t i = 0; i <= count; ++i)
-        getResult(i, slot);
-    stopWorkers();
-    return microsec_clock::local_time() - start;
+    //    SimpleIndexRange<uint64_t> iterator(0, count + 1);
+    //    addWorker(functions);
+    //    ptime start = microsec_clock::local_time();
+    //    postNewJob(iterator, function);
+    //    Slot slot;
+    //    for (size_t i = 0; i <= count; ++i)
+    //        getResult(i, slot);
+    //    stopWorkers();
+    //    return microsec_clock::local_time() - start;
+    return milliseconds(0);
 }
 
 Slot Chain::getHash(const State stateToFind, const State stateToSet, boost::condition &conditionToCheck) {
@@ -233,9 +233,9 @@ void Chain::dump(ForwardRange<uint64_t> & range, const uint64_t imageHash) const
         const size_t isCursorIndex = imageHash == index ? 1 : 0;
         ssdump << stateChar[stateIndex][isCursorIndex];
     }
-    ssdump << "]\r";
+    ssdump << "]";
 
-    cout << ssdump.str();
+    cout << '\r' << ssdump.str();
 }
 
 void Chain::getFilenameForHash(const uint64_t &hash, std::string &filename) const {

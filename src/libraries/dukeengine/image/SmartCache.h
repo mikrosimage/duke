@@ -8,16 +8,18 @@
 #include <string>
 
 class ImageDecoderFactory;
+struct PlaylistHelper;
 
 class SmartCache : private Chain {
 public:
     SmartCache(uint64_t limit, const ImageDecoderFactory& factory);
 
-    void seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function);
-    bool get(const uint64_t &hash, ImageHolder &imageHolder) const;
+    void seek(std::size_t frame, uint32_t speed, const PlaylistHelper *);
+
+    bool get(std::size_t playlistItr, ImageHolder &imageHolder) const;
 
     inline bool isActive() const {
-        return m_iSizeLimit > 0;
+        return m_CacheSizeLimit > 0;
     }
 
     // reexporting visibility
@@ -27,7 +29,9 @@ public:
 private:
     virtual size_t getNewEndIndex(const TChain&) const;
 
-    const uint64_t m_iSizeLimit;
+    const uint64_t m_CacheSizeLimit;
+    const ImageDecoderFactory& m_ImageDecoderFactory;
+    const PlaylistHelper *m_pCurrentHelper;
 };
 
 #endif /* SMARTCACHE_H_ */

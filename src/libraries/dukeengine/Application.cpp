@@ -1,11 +1,16 @@
 #include "Application.h"
+
 #include "host/renderer/Renderer.h"
+#include "chain/PlaylistRange.h"
+
 #include <player.pb.h>
+
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/chrono.hpp>
+
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -71,48 +76,6 @@ OfxHost buildHost(Application* pApplication) {
     return ofxHost;
 }
 
-struct PlaylistRange : public ForwardRange<uint64_t> {
-private:
-    typedef ForwardRange<uint64_t> RANGE;
-    auto_ptr<ForwardRange<ptrdiff_t> > m_pDelegateRange;
-    const PlaylistHelper & m_Helper;
-
-public:
-    PlaylistRange(const PlaylistRange& other) :
-        m_pDelegateRange(other.m_pDelegateRange->save()), m_Helper(other.m_Helper) {
-    }
-    PlaylistRange(size_t currentframe, bool playing, const PlaylistHelper &helper) :
-        m_Helper(helper) {
-        size_t last = m_Helper.getEndIterator();
-        if (!(last > 0))
-            throw runtime_error("playlist size must be > 0");
-        int bound = -1;
-        if (!playing) {
-            bound = -5;
-            while (abs(bound) >= last)
-                bound--;
-        }
-        BalancingIndexRange balancing(0, last, bound);
-        OffsetRange<ptrdiff_t> offsetRange(balancing, m_Helper.getIteratorIndexAtFrame(currentframe));
-        ModuloIndexRange<ptrdiff_t> range(offsetRange, 0, last - 1);
-        m_pDelegateRange.reset(range.save());
-    }
-    virtual ~PlaylistRange() {
-    }
-    bool empty() const {
-        return m_pDelegateRange->empty();
-    }
-    void popFront() {
-        m_pDelegateRange->popFront();
-    }
-    uint64_t front() {
-        return m_Helper.getHashAtIterator(m_pDelegateRange->front());
-    }
-    RANGE* save() const {
-        return new PlaylistRange(*this);
-    }
-};
-
 struct DumpRange : public SimpleIndexRange<uint64_t> {
 private:
     typedef SimpleIndexRange<uint64_t> RANGE;
@@ -151,10 +114,9 @@ static void dump(const google::protobuf::Descriptor* pDescriptor, const google::
 
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize) :
     m_IO(io), //
-            m_ImageReader(m_ImageDecoderFactory), //
             // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
             m_Cache(cacheSize, m_ImageDecoderFactory),//
-            m_FileBufferHolder(m_ImageReader), //
+            m_FileBufferHolder(), //
             m_VbiTimings(TimingType::VBI, 120), //
             m_FrameTimings(TimingType::FRAME, 10), //
             m_PreviousFrame(-1), //
@@ -376,20 +338,13 @@ void Application::renderStart() {
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
 
-        if (m_Cache.isActive() && frame != m_PreviousFrame) {
-            PlaylistRange range(frame, m_Playback.isPlaying(), m_Playlist);
-            m_Cache.seek(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
-            m_FileBufferHolder.update(frame, m_Playlist, m_Cache);
-
-            // dump --->
-            //            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
-            //            DumpRange fullrange(getSharedPlaylistHelper());
-            //            m_Cache.dump(fullrange, currentFrameHash);
-            // <--- dump
-
-        } else {
-            m_FileBufferHolder.update(frame, m_Playlist);
-        }
+        // dump --->
+        //            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
+        //            DumpRange fullrange(getSharedPlaylistHelper());
+        //            m_Cache.dump(fullrange, currentFrameHash);
+        // <--- dump
+        m_Cache.seek(frame, m_Playback.getSpeed(), &m_Playlist);
+        m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
                         setup.m_Images.push_back(image.getImageDescription());
@@ -432,7 +387,7 @@ bool Application::renderFinished(unsigned msToPresent) {
         //            m_AudioEngine.rewind();
         //        }
         m_PreviousFrame = newFrame;
-        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS";
+        //        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS";
         return m_bRequestTermination;
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while finishing simulation step : " << e.what() << endl;
@@ -474,6 +429,3 @@ std::string Application::dumpInfo(const Debug_Content& info) const {
     return ss.str();
 }
 
-SharedPlaylistHelperPtr Application::getSharedPlaylistHelper() const {
-    return SharedPlaylistHelperPtr(new PlaylistHelper(m_Playlist.getPlaylist()));
-}

@@ -10,6 +10,7 @@
  */
 template<typename T = uint64_t>
 struct SimpleIndexRange : public DoubleEndedRange<T> {
+    typedef T value_type;
 private:
     typedef DoubleEndedRange<T> RANGE;
     T begin;
@@ -48,6 +49,7 @@ public:
 
 template<typename T = uint64_t>
 struct ConstantIndexRange : public ForwardRange<T> {
+    typedef T value_type;
 private:
     typedef ForwardRange<T> RANGE;
     std::size_t left;

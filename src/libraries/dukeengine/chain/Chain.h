@@ -121,13 +121,13 @@ void transferWorkUnit(TChain &from, TChain &to);
  * This is just a check and might be omitted in production
  */
 #include <set>
-template<typename T>
-inline bool hasDouble(const ForwardRange<T>&iterator) {
-    std::auto_ptr<ForwardRange<T> > pCopy(iterator.save());
-    std::set<T> aSet;
+template<typename RANGE>
+inline bool hasDouble(const RANGE &range) {
+    RANGE copy(range);
+    std::set<typename RANGE::value_type> aSet;
     std::size_t count = 0;
-    for (; !pCopy->empty(); pCopy->popFront(), ++count)
-        aSet.insert(pCopy->front());
+    for (; !copy.empty(); copy.popFront(), ++count)
+        aSet.insert(copy.front());
     return aSet.size() != count;
 }
 
@@ -204,7 +204,7 @@ public:
      * /!\ !!! range must not contain twice the same index !!!
      * This precondition is checked in debug mode
      */
-    void postNewJob(ForwardRange<uint64_t> &range, const HashToFilenameFunction &function);
+    void postNewJob(OnePassRange<uint64_t> &range, const HashToFilenameFunction &function);
 
     /**
      * append workers to this Chain to multithread load and decode

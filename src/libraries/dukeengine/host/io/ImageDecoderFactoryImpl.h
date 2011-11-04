@@ -10,6 +10,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/thread/tss.hpp>
 
 #include <string>
 
@@ -36,6 +37,12 @@ class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl, public ImageDec
     typedef boost::unordered_map<std::string, SharedIOPlugin, ihash, iequal_to> ExtensionToDecoderMap;
     ExtensionToDecoderMap m_Map;
 
+    typedef boost::shared_ptr<IOPluginInstance> SharedIOPluginInstance;
+    typedef boost::unordered_map<const IOPlugin*, SharedIOPluginInstance> PluginToInstance;
+
+    mutable boost::thread_specific_ptr<PluginToInstance> m_pPluginToInstance;
+
+    SharedIOPluginInstance getTLSPluginInstance(FormatHandle decoder) const;
 public:
     ImageDecoderFactoryImpl();
     virtual ~ImageDecoderFactoryImpl();

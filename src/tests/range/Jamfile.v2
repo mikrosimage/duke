@@ -1,0 +1,24 @@
+run    	ranges.cpp
+		/duke/lib/engine//dukeengine
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+	
+run    	templated_ranges.cpp
+		/duke/lib/engine//dukeengine
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+	
+run    	playlist_iterator.cpp
+		/duke/lib/engine//dukeengine
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;
+	

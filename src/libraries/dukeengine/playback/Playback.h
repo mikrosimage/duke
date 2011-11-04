@@ -60,7 +60,8 @@ struct PlaybackState {
     }
 
     inline bool shouldPresent() const {
-        return isPlaying() ? m_State.frameOverrun() : true;
+        return true;
+        //        return isPlaying() ? m_State.frameOverrun() : true;
     }
 
     inline uint32_t frame() const {
@@ -97,6 +98,10 @@ struct PlaybackState {
 
     inline bool isPlaying() const {
         return m_Speed != 0;
+    }
+
+    inline int32_t getSpeed() const {
+        return m_Speed;
     }
 
 private:

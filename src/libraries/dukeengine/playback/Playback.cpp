@@ -33,7 +33,8 @@ ContinuousPlaybackState::ContinuousPlaybackState(size_t newFrame, high_resolutio
 }
 
 bool ContinuousPlaybackState::frameOverrun() const {
-    return presentationTimeFor(m_Frame) < s_Clock.now();
+    return false;
+//    return presentationTimeFor(m_Frame) < s_Clock.now();
 }
 
 high_resolution_clock::time_point ContinuousPlaybackState::presentationTimeFor(uint32_t newFrame) const {

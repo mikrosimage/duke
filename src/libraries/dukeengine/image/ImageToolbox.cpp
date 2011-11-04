@@ -38,11 +38,12 @@ void setupLoaderInfo(TSlotDataPtr& pData, const ImageDecoderFactory& factory) {
 void loadFileFromDisk(TSlotDataPtr& pData) {
     assert(!pData->m_Filename.empty());
     // file reader
-	::mikrosimage::alloc::Allocator *pAllocator = &_alignedMallocAlloc;
+    ::mikrosimage::alloc::Allocator *pAllocator = &_alignedMallocAlloc;
 #ifdef WIN32
-        DmaFileIO fileIO(pAllocator);
+    //        DmaFileIO fileIO(pAllocator);
+    StreamedFileIO fileIO(pAllocator);
 #else
-        MappedFileIO fileIO(pAllocator);
+    MappedFileIO fileIO(pAllocator);
 #endif
     MemoryBlockPtr &pFile = pData->m_pFileMemoryBlock;
     pFile = fileIO.read(pData->m_Filename.c_str());

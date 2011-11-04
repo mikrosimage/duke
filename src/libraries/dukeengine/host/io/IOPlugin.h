@@ -5,6 +5,20 @@
 #include <dukehost/suite/property/PropertySet.h>
 #include <dukehost/suite/property/Property.h>
 
+struct ImageDescription;
+class IOPlugin;
+
+class IOPluginInstance {
+public:
+    IOPluginInstance(const IOPlugin &);
+    virtual ~IOPluginInstance();
+    virtual bool readImageHeader(const char* filename, ImageDescription& description) const;
+    virtual bool decodeImage(const ImageDescription& description) const;
+private:
+    const OfxPlugin &m_Plugin;
+    ::openfx::host::PropertySet m_InstanceProperty;
+};
+
 class IOPlugin {
 public:
     const OfxPlugin &m_Plugin;
