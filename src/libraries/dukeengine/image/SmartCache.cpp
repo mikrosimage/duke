@@ -40,8 +40,8 @@ void SmartCache::seek(std::size_t frame, uint32_t speed, const PlaylistHelper *p
     m_pCurrentHelper = pHelper;
     if(!isActive()) // TODO if same frame don't post a new job
         return;
-    using range::PlaylistFrameRange;
-    const ptrdiff_t balancingBound = speed == 0 ? 0 : (speed > 0 ? -5 : 5);
+//    using range::PlaylistFrameRange;
+//    const ptrdiff_t balancingBound = speed == 0 ? 0 : (speed > 0 ? -5 : 5);
 //    PlaylistFrameRange range(m_pCurrentHelper->getFrameCount(), frame, balancingBound, speed < 0);
 //    Chain::postNewJob<PlaylistFrameRange>(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
 }

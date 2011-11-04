@@ -107,17 +107,17 @@ public:
 };
 
 template<typename RANGE>
-struct Reverser : public ::OnePassRange<typename RANGE::value_type> {
+struct Negater : public ::OnePassRange<typename RANGE::value_type> {
     typedef typename RANGE::value_type value_type;
 private:
     RANGE m_Delegate;
-    const bool m_Reverse;
+    const bool m_Negate;
 public:
-    explicit Reverser(const Reverser& other) :
-        m_Delegate(other.m_Delegate), m_Reverse(other.m_Reverse) {
+    explicit Negater(const Negater& other) :
+        m_Delegate(other.m_Delegate), m_Negate(other.m_Negate) {
     }
-    explicit Reverser(const RANGE &rangeToConsume, bool reverse = true) :
-        m_Delegate(rangeToConsume), m_Reverse(reverse) {
+    explicit Negater(const RANGE &rangeToConsume, bool doNegate = true) :
+        m_Delegate(rangeToConsume), m_Negate(doNegate) {
     }
     bool empty() const {
         return m_Delegate.empty();
@@ -126,7 +126,7 @@ public:
         m_Delegate.popFront();
     }
     value_type front() {
-        return m_Reverse ? -m_Delegate.front() : m_Delegate.front();
+        return m_Negate ? -m_Delegate.front() : m_Delegate.front();
     }
 };
 
@@ -192,9 +192,9 @@ public:
     }
 };
 
-struct PlaylistFrameRange : public ModuloIndexRange<OffsetRange<Reverser<BalancingIndexRange> > > {
-    typedef Reverser<BalancingIndexRange> REVERSED;
-    typedef OffsetRange<REVERSED> OFFSET;
+struct PlaylistFrameRange : public ModuloIndexRange<OffsetRange<Negater<BalancingIndexRange> > > {
+    typedef Negater<BalancingIndexRange> NEGATER;
+    typedef OffsetRange<NEGATER> OFFSET;
     typedef ModuloIndexRange<OFFSET> MODULO;
 public:
     static ptrdiff_t adjustBound(ptrdiff_t keepFrame) {
@@ -203,7 +203,7 @@ public:
         return keepFrame>0 ? keepFrame+1 : keepFrame-1;
     }
     PlaylistFrameRange(ptrdiff_t firstFrame, ptrdiff_t lastFrame, ptrdiff_t readFromFrame, ptrdiff_t keepFrame, bool isReverse) :
-        MODULO(OFFSET(REVERSED(BalancingIndexRange(adjustBound(keepFrame)), isReverse), readFromFrame), firstFrame, lastFrame) {
+        MODULO(OFFSET(NEGATER(BalancingIndexRange(adjustBound(keepFrame)), isReverse), readFromFrame), firstFrame, lastFrame) {
         assert(firstFrame<=lastFrame);
         if (lastFrame - firstFrame <= 0)
             throw std::runtime_error("playlist size must be >0");
