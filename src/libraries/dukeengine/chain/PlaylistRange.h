@@ -19,63 +19,72 @@
 
 namespace range {
 
-struct SimpleIndexRange : public ::OnePassRange<std::ptrdiff_t> {
+struct UnlimitedForwardRange : public ::OnePassRange<std::ptrdiff_t> {
 public:
     typedef std::ptrdiff_t value_type;
 private:
-    value_type begin;
-    value_type pastEnd;
+    value_type m_Current;
 public:
-    SimpleIndexRange(value_type begin, value_type end) :
-        begin(begin), pastEnd(end) {
-        assert(begin <= pastEnd);
+    UnlimitedForwardRange() :
+        m_Current(0) {
     }
     virtual bool empty() const {
-        assert(begin <= pastEnd);
-        return begin == pastEnd;
+        return false;
     }
     virtual void popFront() {
-        if (!empty())
-            ++begin;
+        ++m_Current;
     }
     virtual value_type front() {
-        assert(!empty());
-        return begin;
-    }
-    virtual value_type back() {
-        assert(!empty());
-        return pastEnd - 1;
-    }
-    virtual void popBack() {
-        if (!empty())
-            --pastEnd;
+        return m_Current;
     }
 };
 
-struct BalancingIndexRange : public ::OnePassRange<std::ptrdiff_t> {
+struct BalancingRange : public ::OnePassRange<std::ptrdiff_t> {
 public:
     typedef std::ptrdiff_t value_type;
 private:
-    const std::size_t m_InternalBound;
-    std::size_t m_Index;
+    std::size_t m_Current;
 
 public:
-    explicit BalancingIndexRange(const value_type bound) :
-        m_InternalBound(bound == 0 ? -1 : bound > 0 ? 2 * (bound - 1) : -(2 * bound + 1)), m_Index(0) {
+    BalancingRange() :
+        m_Current(0) {
     }
     bool empty() const {
         return false;
     }
     void popFront() {
-        if (!empty())
-            ++m_Index;
+        ++m_Current;
     }
     value_type front() {
-        const std::size_t virtualIndex = m_Index < m_InternalBound ? m_Index : m_InternalBound + 2 * (m_Index - m_InternalBound);
-        const std::size_t modulo = virtualIndex & 0x1;
-        const std::size_t step = (virtualIndex >> 1) + modulo;
-        assert(step <= std::size_t((void*) (-1)));
+        const std::size_t modulo = m_Current & 0x1;
+        const std::size_t step = (m_Current >> 1) + modulo;
         return modulo ? step : -step;
+    }
+};
+
+struct DrivingRange : public ::OnePassRange<std::ptrdiff_t> {
+public:
+    typedef std::ptrdiff_t value_type;
+private:
+    const int32_t m_Speed;
+    UnlimitedForwardRange m_Forward;
+    BalancingRange m_Balancing;
+
+public:
+    DrivingRange(int32_t speed) :
+        m_Speed(speed) {
+    }
+    bool empty() const {
+        return false;
+    }
+    void popFront() {
+        if (m_Speed == 0)
+            m_Balancing.popFront();
+        else
+            m_Forward.popFront();
+    }
+    value_type front() {
+        return m_Speed == 0 ? m_Balancing.front() : m_Speed > 0 ? m_Forward.front() : -m_Forward.front();
     }
 };
 
@@ -103,30 +112,6 @@ public:
     value_type front() {
         assert(!empty());
         return m_Delegate.front();
-    }
-};
-
-template<typename RANGE>
-struct Negater : public ::OnePassRange<typename RANGE::value_type> {
-    typedef typename RANGE::value_type value_type;
-private:
-    RANGE m_Delegate;
-    const bool m_Negate;
-public:
-    explicit Negater(const Negater& other) :
-        m_Delegate(other.m_Delegate), m_Negate(other.m_Negate) {
-    }
-    explicit Negater(const RANGE &rangeToConsume, bool doNegate = true) :
-        m_Delegate(rangeToConsume), m_Negate(doNegate) {
-    }
-    bool empty() const {
-        return m_Delegate.empty();
-    }
-    void popFront() {
-        m_Delegate.popFront();
-    }
-    value_type front() {
-        return m_Negate ? -m_Delegate.front() : m_Delegate.front();
     }
 };
 
@@ -192,33 +177,30 @@ public:
     }
 };
 
-struct PlaylistFrameRange : public ModuloIndexRange<OffsetRange<Negater<BalancingIndexRange> > > {
-    typedef Negater<BalancingIndexRange> NEGATER;
-    typedef OffsetRange<NEGATER> OFFSET;
+struct PlaylistFrameRange : public ModuloIndexRange<OffsetRange<DrivingRange> > {
+    typedef OffsetRange<DrivingRange> OFFSET;
     typedef ModuloIndexRange<OFFSET> MODULO;
 public:
-    static ptrdiff_t adjustBound(ptrdiff_t keepFrame) {
-        if(keepFrame==0)
+    static std::ptrdiff_t adjustBound(std::ptrdiff_t keepFrame) {
+        if (keepFrame == 0)
             return 0;
-        return keepFrame>0 ? keepFrame+1 : keepFrame-1;
+        return keepFrame > 0 ? keepFrame + 1 : keepFrame - 1;
     }
-    PlaylistFrameRange(ptrdiff_t firstFrame, ptrdiff_t lastFrame, ptrdiff_t readFromFrame, ptrdiff_t keepFrame, bool isReverse) :
-        MODULO(OFFSET(NEGATER(BalancingIndexRange(adjustBound(keepFrame)), isReverse), readFromFrame), firstFrame, lastFrame) {
+    PlaylistFrameRange(std::ptrdiff_t firstFrame, std::ptrdiff_t lastFrame, std::ptrdiff_t readFromFrame, int32_t speed) :
+        MODULO(OFFSET(DrivingRange(speed), readFromFrame), firstFrame, lastFrame) {
         assert(firstFrame<=lastFrame);
         if (lastFrame - firstFrame <= 0)
             throw std::runtime_error("playlist size must be >0");
         if (readFromFrame < firstFrame || readFromFrame > lastFrame)
             throw std::runtime_error("the cursor must be between firstFrame and lastFrame");
-        if (std::abs(keepFrame) >= lastFrame - firstFrame)
-            throw std::runtime_error("balancing bound must be within playlist size");
     }
 };
 
 struct LimitedPlaylistFrameRange : public Limiter<PlaylistFrameRange> {
     typedef Limiter<PlaylistFrameRange> LIMITED;
 public:
-    LimitedPlaylistFrameRange(ptrdiff_t firstFrame, ptrdiff_t lastFrame, ptrdiff_t readFromFrame, ptrdiff_t balancingBound, bool isReverse) :
-        LIMITED(PlaylistFrameRange(firstFrame, lastFrame, readFromFrame, balancingBound, isReverse), lastFrame - firstFrame + 1) {
+    LimitedPlaylistFrameRange(std::ptrdiff_t firstFrame, std::ptrdiff_t lastFrame, std::ptrdiff_t readFromFrame, int32_t speed) :
+        LIMITED(PlaylistFrameRange(firstFrame, lastFrame, readFromFrame, speed), lastFrame - firstFrame + 1) {
     }
 };
 

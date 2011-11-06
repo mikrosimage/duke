@@ -1,6 +1,7 @@
 #include "ImageToolbox.h"
 #include <dukeengine/file/StreamedFileIO.h>
 #include <dukeengine/file/DmaFileIO.h>
+#include <dukeengine/file/MappedFileIO.h>
 #include <iostream>
 
 using namespace ::mikrosimage::alloc;

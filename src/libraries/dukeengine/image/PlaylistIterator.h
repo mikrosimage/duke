@@ -13,8 +13,8 @@
 #include <dukeengine/sequence/PlaylistHelper.h>
 
 struct PlaylistIterator : public OnePassRange<uint64_t> {
-    PlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed, int32_t security = 5) :
-        m_Helper(helper), m_FrameRange(helper.getFirstFrame(), helper.getLastFrame(), fromFrame, speed == 0 ? 0 : (speed > 0 ? -security : security), speed < 0) {
+    PlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
+        m_Helper(helper), m_FrameRange(helper.getFirstFrame(), helper.getLastFrame(), fromFrame, speed) {
         advanceFrame();
     }
 

@@ -31,7 +31,23 @@ BOOST_AUTO_TEST_CASE( playlistIterator0 )
 
     {
         const int32_t frame = 1005;
-        const int32_t speed = 1;
+        const int32_t speed = 1; // forward
+        PlaylistIterator itr(helper,frame,speed);
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1007");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1008");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1009");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1000");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1001");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1002");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1003");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1004");
+        BOOST_CHECK(itr.empty());
+    }
+    {
+        const int32_t frame = 1005;
+        const int32_t speed = 0; // stopped
         PlaylistIterator itr(helper,frame,speed);
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
@@ -47,29 +63,10 @@ BOOST_AUTO_TEST_CASE( playlistIterator0 )
     }
     {
         const int32_t frame = 1005;
-        const int32_t speed = 1; // forward
-        const int32_t security = 1; // keeping one frame backward
-        PlaylistIterator itr(helper,frame,speed, security);
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1004");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1007");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1008");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1009");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1000");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1001");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1002");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1003");
-        BOOST_CHECK(itr.empty());
-    }
-    {
-        const int32_t frame = 1005;
         const int32_t speed = -1; // reverse
-        const int32_t security = 1; // keeping one frame forward
-        PlaylistIterator itr(helper,frame,speed, security);
+        PlaylistIterator itr(helper,frame,speed);
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1004");
-        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1003");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1002");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1001");
@@ -77,6 +74,7 @@ BOOST_AUTO_TEST_CASE( playlistIterator0 )
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1009");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1008");
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1007");
+        BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
         BOOST_CHECK(itr.empty());
     }
 }

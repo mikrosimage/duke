@@ -8,240 +8,145 @@
 using namespace std;
 using namespace range;
 
-#define CHECK_AND_POP(itr,value) BOOST_CHECK_EQUAL( itr.front(), value );itr.popFront();
+#define CHECK_AND_POP(itr,value) BOOST_CHECK_EQUAL( itr.front(), value );itr.popFront()
+#define CHECK_EMPTY(itr) BOOST_CHECK( itr.empty() )
+#define CHECK_NOT_EMPTY(itr) BOOST_CHECK( !itr.empty() )
 
 BOOST_AUTO_TEST_SUITE( TemplatedRangeSuite )
 
-BOOST_AUTO_TEST_CASE( simple )
+BOOST_AUTO_TEST_CASE( forward )
 {
-    SimpleIndexRange itr(0,11);
+    UnlimitedForwardRange itr;
     for(ptrdiff_t v : {0,1,2,3,4,5,6,7,8,9,10}) {
         CHECK_AND_POP( itr, v );
     }
-    BOOST_CHECK( itr.empty() );
+    CHECK_NOT_EMPTY(itr);
 }
 
 BOOST_AUTO_TEST_CASE( limiter )
 {
-    Limiter<SimpleIndexRange> itr(SimpleIndexRange(0,11),3);
+    Limiter<UnlimitedForwardRange> itr(UnlimitedForwardRange(),3);
     for(ptrdiff_t v : {0,1,2}) {
         CHECK_AND_POP( itr, v );
     }
-    BOOST_CHECK( itr.empty() );
+    CHECK_EMPTY(itr);
 }
 
 BOOST_AUTO_TEST_CASE( alternating )
 {
-    BalancingIndexRange itr( 0);
+    BalancingRange itr;
     for(ptrdiff_t v : {0,1,-1,2,-2,3,-3,4,-4,5,-5}) {
         CHECK_AND_POP( itr, v );
     }
-    BOOST_CHECK( !itr.empty() );
-}
-
-BOOST_AUTO_TEST_CASE( boundAlternating )
-{
-    {
-        BalancingIndexRange itr( -1);
-        for(ptrdiff_t v : {0,1,2,3,4,5,6,7,8,9}) {
-            CHECK_AND_POP( itr, v );
-        }
-        BOOST_CHECK( !itr.empty() );
-    }
-    {
-        BalancingIndexRange itr( 1);
-        for(ptrdiff_t v : {0,-1,-2,-3,-4,-5,-6,-7,-8,-9}) {
-            CHECK_AND_POP( itr, v );
-        }
-        BOOST_CHECK( !itr.empty() );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( negater )
-{
-    {
-        Negater<SimpleIndexRange> itr(SimpleIndexRange(0,11),false);
-        for(ptrdiff_t v : {0,1,2,3,4,5,6,7,8,9,10}) {
-            CHECK_AND_POP( itr, v );
-        }
-        BOOST_CHECK( itr.empty() );
-    }
-    {
-        Negater<SimpleIndexRange> itr(SimpleIndexRange(0,11));
-        for(ptrdiff_t v : {0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10}) {
-            CHECK_AND_POP( itr, v );
-        }
-        BOOST_CHECK( itr.empty() );
-    }
-    {
-        Negater<BalancingIndexRange> itr(BalancingIndexRange( 0));
-        for(ptrdiff_t v : {0,-1,1,-2,2,-3,3,-4,4,-5,5}) {
-            CHECK_AND_POP( itr, v );
-        }
-        BOOST_CHECK( !itr.empty() );
-    }
+    CHECK_NOT_EMPTY(itr);
 }
 
 BOOST_AUTO_TEST_CASE( offset )
 {
     {
-        OffsetRange<SimpleIndexRange> itr(SimpleIndexRange(0,11),-5);
+        OffsetRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-5);
         for(ptrdiff_t v : {-5,-4,-3,-2,-1,0,1,2,3,4,5}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
     {
-        OffsetRange<BalancingIndexRange> itr(BalancingIndexRange( 0),-5);
+        OffsetRange<BalancingRange> itr(BalancingRange(),-5);
         for(ptrdiff_t v : {-5,-4,-6,-3,-7,-2,-8,-1,-9,0,-10}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( !itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
 }
 
 BOOST_AUTO_TEST_CASE( modulo )
 {
     {
-        ModuloIndexRange<SimpleIndexRange> itr(SimpleIndexRange(0,11),0,1);
+        ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),0,1);
         for(ptrdiff_t v : {0,1,0,1,0,1,0,1,0,1,0}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
     {
-        ModuloIndexRange<SimpleIndexRange> itr(SimpleIndexRange(0,11),-1,0);
+        ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-1,0);
         for(ptrdiff_t v : {0,-1,0,-1,0,-1,0,-1,0,-1,0}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
     {
-        ModuloIndexRange<SimpleIndexRange> itr(SimpleIndexRange(0,11),0,3);
+        ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),0,3);
         for(ptrdiff_t v : {0,1,2,3,0,1,2,3,0,1,2}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
     {
-        ModuloIndexRange<SimpleIndexRange> itr(SimpleIndexRange(0,11),-2,2);
+        ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-2,2);
         for(ptrdiff_t v : {0,1,2,-2,-1,0,1,2,-2,-1,0}) {
             CHECK_AND_POP( itr, v );
         }
-        BOOST_CHECK( itr.empty() );
+        CHECK_NOT_EMPTY(itr);
     }
 }
 
-BOOST_AUTO_TEST_CASE( playlistFrameRange0 )
+BOOST_AUTO_TEST_CASE( empty )
 {
-    PlaylistFrameRange range(0,1,0,0, false);
+    BOOST_CHECK_THROW( LimitedPlaylistFrameRange(0,0,0,0), std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( outOfBound )
+{
+    BOOST_CHECK_THROW( PlaylistFrameRange(0,2,3,1), std::runtime_error );
+}
+
+BOOST_AUTO_TEST_CASE( limitedForwardPlaylist )
+{
+    LimitedPlaylistFrameRange range(0,1,0,1);
     CHECK_AND_POP(range, 0 );
+    CHECK_AND_POP(range, 1 );
+    CHECK_EMPTY(range);
 }
 
-BOOST_AUTO_TEST_CASE( playlistFrameRange1 )
+BOOST_AUTO_TEST_CASE( limitedForwardPlaylistLooping )
 {
-    PlaylistFrameRange range(0,2,0,0, false);
-
-    CHECK_AND_POP( range, 0 );
-    CHECK_AND_POP( range, 1 );
-    CHECK_AND_POP( range, 2 );
-}
-
-BOOST_AUTO_TEST_CASE( playlistFrameRange2 )
-{
-    BOOST_CHECK_THROW( PlaylistFrameRange(0,2,3,0, false), runtime_error );
-    PlaylistFrameRange range(0,2,2,0, false);
+    LimitedPlaylistFrameRange range(0,2,2,1);
 
     CHECK_AND_POP( range, 2 );
     CHECK_AND_POP( range, 0 );
     CHECK_AND_POP( range, 1 );
+    CHECK_EMPTY(range);
 }
 
-BOOST_AUTO_TEST_CASE( playlistFrameRange3 )
+BOOST_AUTO_TEST_CASE( limitedStoppedPlaylist )
 {
-    PlaylistFrameRange range(0,4,2,0, false);
+    LimitedPlaylistFrameRange range(0,4,2,0);
 
     CHECK_AND_POP( range, 2 );
     CHECK_AND_POP( range, 3 );
     CHECK_AND_POP( range, 1 );
     CHECK_AND_POP( range, 4 );
     CHECK_AND_POP( range, 0 );
+    CHECK_EMPTY(range);
 }
 
-BOOST_AUTO_TEST_CASE( playlistFrameRange4 )
+BOOST_AUTO_TEST_CASE( limitedBackwardPlaylist )
 {
-    { // forward
-        PlaylistFrameRange range(0,4,2,-1, false);
+    LimitedPlaylistFrameRange range(0,4,2,-1);
 
-        CHECK_AND_POP( range, 2 );
-        CHECK_AND_POP( range, 3 );
-        CHECK_AND_POP( range, 1 );
-        CHECK_AND_POP( range, 4 );
-        CHECK_AND_POP( range, 0 );
-    }
-    { // reverse
-        PlaylistFrameRange range(0,4,2,-1, true);
-
-        CHECK_AND_POP( range, 2 );
-        CHECK_AND_POP( range, 1 );
-        CHECK_AND_POP( range, 3 );
-        CHECK_AND_POP( range, 0 );
-        CHECK_AND_POP( range, 4 );
-    }
+    CHECK_AND_POP( range, 2 );
+    CHECK_AND_POP( range, 1 );
+    CHECK_AND_POP( range, 0 );
+    CHECK_AND_POP( range, 4 );
+    CHECK_AND_POP( range, 3 );
+    CHECK_EMPTY(range);
 }
 
-BOOST_AUTO_TEST_CASE( playlistFrameRange5 )
+BOOST_AUTO_TEST_CASE( frameOutsideRange )
 {
-    { // forward
-        PlaylistFrameRange range(0,8,2,1, false);
-
-        CHECK_AND_POP( range, 2 );
-        CHECK_AND_POP( range, 3 );
-        CHECK_AND_POP( range, 1 );
-        CHECK_AND_POP( range, 0 );
-        CHECK_AND_POP( range, 8 );
-        CHECK_AND_POP( range, 7 );
-        CHECK_AND_POP( range, 6 );
-        CHECK_AND_POP( range, 5 );
-        CHECK_AND_POP( range, 4 );
-    }
-    { // forward
-        PlaylistFrameRange range(0,4,2,1, false);
-
-        CHECK_AND_POP( range, 2 );
-        CHECK_AND_POP( range, 3 );
-        CHECK_AND_POP( range, 1 );
-        CHECK_AND_POP( range, 0 );
-        CHECK_AND_POP( range, 4 );
-    }
-    { // reverse
-        PlaylistFrameRange range(0,4,2,1, true);
-
-        CHECK_AND_POP( range, 2 );
-        CHECK_AND_POP( range, 1 );
-        CHECK_AND_POP( range, 3 );
-        CHECK_AND_POP( range, 4 );
-        CHECK_AND_POP( range, 0 );
-    }
-}
-
-BOOST_AUTO_TEST_CASE( playlistFrameRange6 )
-{
-    // frame outside range
-    BOOST_CHECK_THROW(PlaylistFrameRange(0,1,2,0, false), std::runtime_error);
-    BOOST_CHECK_THROW(PlaylistFrameRange(0,1,-1,0, false), std::runtime_error);
-    // empty
-    BOOST_CHECK_THROW(LimitedPlaylistFrameRange(0,0,0,0, false), std::runtime_error);
-}
-
-BOOST_AUTO_TEST_CASE( playlistFrameRange7 )
-{
-    { // reverse
-        LimitedPlaylistFrameRange range(0,1,0,0, false);
-        CHECK_AND_POP( range, 0 );
-        CHECK_AND_POP( range, 1 );
-        BOOST_CHECK( range.empty() );
-    }
+    BOOST_CHECK_THROW(PlaylistFrameRange(0,1,2,1), std::runtime_error);
+    BOOST_CHECK_THROW(PlaylistFrameRange(0,1,-1,1), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
