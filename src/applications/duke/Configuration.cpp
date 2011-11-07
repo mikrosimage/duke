@@ -21,39 +21,55 @@
 
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "no information available - don't use in production"
-#endif // BUILD_INFORMATION
+#endif
+
+// namespace
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 
-const string HEADER = "[Configuration] ";
-const char* NO_FRAMERATE = "no-framerate";
-const char* REFRESHRATE = "refreshrate";
-const char* FULLSCREEN = "fullscreen";
-const char* RESOLUTION = "resolution";
-const char* CACHE_SIZE = "cache-size";
-const char* FRAMERATE = "framerate";
-const char* BLANKING = "blanking";
-const char* PLAYLIST = "playlist";
-const char* RENDERER = "renderer";
-const char* PLAYBACK = "playback";
-const char* SEQUENCE = "sequence";
-const char* NO_SKIP = "no-skip";
-const char* RECORD = "record";
-const char* PORT = "port";
+// command line options
+#define NOFRAMERATE         "no-framerate"
+#define NOFRAMERATE_OPT     "no-framerate"
+#define REFRESHRATE         "refreshrate"
+#define REFRESHRATE_OPT     "refreshrate"
+#define FULLSCREEN          "fullscreen"
+#define FULLSCREEN_OPT      "fullscreen,f"
+#define RESOLUTION          "resolution"
+#define RESOLUTION_OPT      "resolution"
+#define CACHESIZE           "cache-size"
+#define CACHESIZE_OPT       "cache-size,c"
+#define FRAMERATE           "framerate"
+#define FRAMERATE_OPT       "framerate"
+#define BLANKING            "blanking"
+#define BLANKING_OPT        "blanking"
+#define PLAYLIST            "playlist"
+#define PLAYLIST_OPT        "playlist,p"
+#define RENDERER            "renderer"
+#define RENDERER_OPT        "renderer"
+#define PLAYBACK            "playback"
+#define PLAYBACK_OPT        "playback"
+#define SEQUENCE            "sequence"
+#define SEQUENCE_OPT        "sequence,s"
+#define NOSKIP              "no-skip"
+#define NOSKIP_OPT          "no-skip"
+#define RECORD              "record"
+#define RECORD_OPT          "record"
+#define PORT                "port"
+#define PORT_OPT            "port"
+
+namespace { // empty namespace
 
 void setDisplayOptions(boost::program_options::options_description& description, const ::duke::protocol::Renderer& Renderer) {
     ostringstream resolution;
     resolution << Renderer.width() << 'x' << Renderer.height();
-
     description.add_options() //
-    (FULLSCREEN, "Sets the application to run fullscreen") //
-    (BLANKING, po::value<unsigned int>()->default_value(1), "Blanking count before presentation, up to 4, 0 means immediate and results in tearing effect.") //
-    (REFRESHRATE, po::value<unsigned int>()->default_value(Renderer.refreshrate()), "Forces the screen refresh rate (fullscreen mode)") //
-    (RESOLUTION, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
+    (FULLSCREEN_OPT, "Sets the application to run fullscreen") //
+    (BLANKING_OPT, po::value<unsigned int>()->default_value(1), "Blanking count before presentation, up to 4, 0 means immediate and results in tearing effect.") //
+    (REFRESHRATE_OPT, po::value<unsigned int>()->default_value(Renderer.refreshrate()), "Forces the screen refresh rate (fullscreen mode)") //
+    (RESOLUTION_OPT, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
     ;
 }
-
 struct SessionCreator {
     SessionCreator(QueueMessageIO& _io) :
         io(_io) {
@@ -64,6 +80,9 @@ struct SessionCreator {
 private:
     QueueMessageIO& io;
 };
+const string HEADER = "[Configuration] ";
+
+} // empty namespace
 
 
 Configuration::Configuration(int argc, char** argv) :
@@ -72,6 +91,7 @@ Configuration::Configuration(int argc, char** argv) :
 
     using namespace ::duke::protocol;
 
+    // retrieving configuration file
     std::string configuration_filename;
     if (argc >= 1) {
         fs::path p(argv[0]);
@@ -84,23 +104,26 @@ Configuration::Configuration(int argc, char** argv) :
     m_CmdLineOnly.add_options() //
     ("help,h", "Displays this help") //
     ("version", "Displays the version informations");
+
     // available in the configuration file and command line
     m_Config.add_options() //
-    (RENDERER, po::value<string>(), "Sets the renderer to be used") //
-    (PLAYBACK, po::value<string>(), "Play a recorded session back from file") //
-    (RECORD, po::value<string>(), "Record a session to file") //
-    (PORT, po::value<short>(), "Sets the port number to be used") //
-    (CACHE_SIZE, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.");
+    (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
+    (PLAYBACK_OPT, po::value<string>(), "Play a recorded session back from file") //
+    (RECORD_OPT, po::value<string>(), "Record a session to file") //
+    (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
+    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.");
+
     // adding display settings
     ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
+
     // adding interactive mode options
     m_Interactive.add_options() //
-    (PLAYLIST, po::value<string>(), "Adds a playlist file as input (.ppl, .ppl2)") //
-    (SEQUENCE, po::value<string>(), "Adds a sequence directory as input") //
-    (FRAMERATE, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
-    (NO_FRAMERATE, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
-    (NO_SKIP, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
+    (PLAYLIST_OPT, po::value<string>(), "Adds a playlist file as input (.ppl, .ppl2)") //
+    (SEQUENCE_OPT, po::value<string>(), "Adds a sequence directory as input") //
+    (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
+    (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
+    (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
 
     // parsing the command line
     m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive);
@@ -122,39 +145,39 @@ Configuration::Configuration(int argc, char** argv) :
         displayHelp();
         return;
     }
-
     if (m_Vm.count("version")) {
         displayVersion();
         return;
     }
-
     if (m_Vm.count(RENDERER) == 0)
         throw runtime_error("No renderer specified. Aborting.");
 
+    /**
+     * Server mode
+     */
     // if port is specified turning into a server
     if (m_Vm.count(PORT)) {
         using namespace boost::asio;
         using namespace boost::asio::ip;
         using google::protobuf::serialize::duke_server;
-
         while (m_iReturnValue == EXIT_RELAUNCH) {
             QueueMessageIO io;
             tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
-
             // -> c++0x version, cool but need a gcc version > 4.4
-//            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
-//            duke_server server(endpoint, sessionCreator);
+            //            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
+            //            duke_server server(endpoint, sessionCreator);
             SessionCreator creator(io);
             duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
-
             boost::thread io_launcher(&duke_server::run, &server);
             decorateAndRun(io);
-
             io_launcher.join();
         }
         return;
     }
 
+    /**
+     * Playback mode
+     */
     if (m_Vm.count(PLAYBACK)) {
         const string filename = m_Vm[PLAYBACK].as<string> ();
         cout << HEADER + "Reading protocol buffer script: " << filename << endl;
@@ -189,12 +212,11 @@ Configuration::Configuration(int argc, char** argv) :
         throw runtime_error(string(BLANKING) + " must be between 0 an 4");
 
     Playlist playlist;
-
     const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int> ();
     playlist.set_frameratenumerator((int) framerate);
-    if (m_Vm.count(NO_FRAMERATE) > 0)
+    if (m_Vm.count(NOFRAMERATE) > 0)
         playlist.set_playbackmode(Playlist::RENDER);
-    else if (m_Vm.count(NO_SKIP) > 0)
+    else if (m_Vm.count(NOSKIP) > 0)
         playlist.set_playbackmode(Playlist::NO_SKIP);
     else
         playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
@@ -216,7 +238,10 @@ Configuration::Configuration(int argc, char** argv) :
         cout << HEADER + "Reading playlist: " << file << endl;
         PlaylistReader(file, queue, playlist);
     } else {
-        throw runtime_error("You should specify an input (sequence directory or playlist file) in interactive mode. Aborting.");
+        cout << "- ! -" << endl;
+        cout << "You should specify an input (sequence directory or playlist file) in interactive mode. See help below.\n" << endl;
+        displayHelp();
+        return;
     }
 
     Engine start;
@@ -237,14 +262,15 @@ void Configuration::decorateAndRun(IMessageIO& io) {
         run(io);
     }
 }
+
 void Configuration::run(IMessageIO& io) {
     const std::string rendererFilename = m_Vm[RENDERER].as<string> ();
-    const uint64_t cacheSize = (((uint64_t)m_Vm[CACHE_SIZE].as<size_t> ()) * 1024) * 1024;
+    const uint64_t cacheSize = ((uint64_t) m_Vm[CACHESIZE].as<size_t> ()) * 1024 * 1024;
     Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize);
 }
 
 void Configuration::displayVersion() {
-    cout << "Mikros Image Player - (C) Copyright 2007-2011 Mikros Image" << endl;
+    cout << "Duke Player" << endl;
     cout << BUILD_INFORMATION;
 #if defined DEBUG
     cout << " - DEBUG" << endl;
@@ -256,4 +282,3 @@ void Configuration::displayVersion() {
 void Configuration::displayHelp() {
     cout << m_CmdlineOptionsGroup << endl;
 }
-

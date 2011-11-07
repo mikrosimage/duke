@@ -57,7 +57,7 @@ private:
     ImageReader m_ImageReader;
     PlaylistHelper m_Playlist;
     playback::PlaybackState m_Playback;
-    //    AudioEngine m_AudioEngine;
+    AudioEngine m_AudioEngine;
     SmartCache m_Cache;
     FileBufferHolder m_FileBufferHolder;
     Timings m_VbiTimings;

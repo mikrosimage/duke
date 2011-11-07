@@ -152,7 +152,7 @@ static void dump(const google::protobuf::Descriptor* pDescriptor, const google::
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize) :
     m_IO(io), //
             m_ImageReader(m_ImageDecoderFactory), //
-            // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
+            m_AudioEngine(),//
             m_Cache(cacheSize, m_ImageDecoderFactory),//
             m_FileBufferHolder(m_ImageReader), //
             m_VbiTimings(TimingType::VBI, 120), //
@@ -260,6 +260,7 @@ void Application::consumeTransport() {
         } else if (isType<Playlist> (descriptor)) {
             dump(descriptor, holder);
             m_Playlist.swap(PlaylistHelper(unpackTo<Playlist> (holder)));
+            m_AudioEngine.load(unpackTo<Playlist> (holder));
             m_Playback = create(m_Playlist);
         } else if (isType<Transport> (descriptor)) {
             dump(descriptor, holder);
@@ -340,24 +341,31 @@ void Application::applyTransport(const Transport& transport) {
     switch (transport.type()) {
         case Transport_TransportType_PLAY:
             m_Playback.play(currentFrame, 1);
+            m_AudioEngine.sync(m_Playback.playlistTime());
+            m_AudioEngine.play();
             break;
         case Transport_TransportType_STOP:
             m_Playback.cue(currentFrame);
+            m_AudioEngine.pause();
             break;
         case Transport_TransportType_STORE:
             m_StoredFrame = currentFrame;
             break;
         case Transport_TransportType_CUE:
             m_Playback.cue(getFrameFromCueMessage(transport.cue(), m_Playlist, currentFrame));
+            m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_FIRST:
             m_Playback.cue(m_Playlist.getFirstFrame());
+            m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_LAST:
             m_Playback.cue(m_Playlist.getLastFrame());
+            m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_STORED:
             m_Playback.cue(m_StoredFrame);
+            m_AudioEngine.pause();
             break;
     }
 }
@@ -370,27 +378,27 @@ void Application::renderStart() {
         // update current frame
         if (m_Playback.adjustCurrentFrame())
             cout << "unstable" << endl;
-
         const size_t frame = m_Playback.frame();
 
+        // sync audio
+        if(m_Playback.isPlaying())
+            m_AudioEngine.checksync(m_Playback.playlistTime());
+
+        // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
-
         if (m_Cache.isActive() && frame != m_PreviousFrame) {
             PlaylistRange range(frame, m_Playback.isPlaying(), m_Playlist);
             m_Cache.seek(range, boost::bind(&PlaylistHelper::getPathStringAtHash, getSharedPlaylistHelper(), _1));
             m_FileBufferHolder.update(frame, m_Playlist, m_Cache);
-
             // dump --->
             //            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
             //            DumpRange fullrange(getSharedPlaylistHelper());
             //            m_Cache.dump(fullrange, currentFrameHash);
             // <--- dump
-
         } else {
             m_FileBufferHolder.update(frame, m_Playlist);
         }
-
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
                         setup.m_Images.push_back(image.getImageDescription());
 
@@ -399,7 +407,6 @@ void Application::renderStart() {
 
         // set current frame
         setup.m_iFrame = frame;
-
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while starting simulation step : " << e.what() << endl;
     }

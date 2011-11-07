@@ -1,5 +1,6 @@
 #include "ImageToolbox.h"
 #include <dukeengine/file/StreamedFileIO.h>
+#include <dukeengine/file/MappedFileIO.h>
 #include <dukeengine/file/DmaFileIO.h>
 #include <iostream>
 
