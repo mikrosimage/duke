@@ -10,11 +10,7 @@ using namespace std;
 using namespace cache;
 
 struct StringCache : public Cache<size_t, string, CacheKey> {
-    virtual bool limit(Map &cache) {
-        return false;
-    }
-
-    virtual void cacheFull() {
+    virtual void limit(Map &cache) {
     }
 };
 typedef StringCache::WorkUnit WorkUnit;
@@ -99,12 +95,8 @@ BOOST_AUTO_TEST_CASE( limitingCache )
         MyCache() : full(false) {
         }
     protected:
-        virtual bool limit(Map &cache) {
+        virtual void limit(Map &cache) {
             cache.clear();
-            return true;
-        }
-
-        virtual void cacheFull() {
             full = true;
         }
     }cache;

@@ -1,10 +1,11 @@
 #ifndef FILEBUFFERHOLDER_H_
 #define FILEBUFFERHOLDER_H_
 
+#include "ImageHolder.h"
+
 #include <boost/noncopyable.hpp>
 #include <vector>
 
-class ImageHolder;
 class SmartCache;
 struct PlaylistHelper;
 

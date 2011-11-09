@@ -1,16 +1,18 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
-#include "audio/AudioEngine.h"
-#include "file/FileBufferHolder.h"
-#include "playback/Playback.h"
 #include "time_statistics/Durations.h"
+#include "audio/AudioEngine.h"
+#include "playback/Playback.h"
 #include "playback/Timings.h"
 #include "sequence/PlaylistHelper.h"
 #include "image/SmartCache.h"
+#include "image/FileBufferHolder.h"
 #include "host/renderer/Renderer.h"
 #include "host/io/ImageDecoderFactoryImpl.h"
+
 #include <protocol.pb.h>
+
 #include <dukeapi/io/MessageQueue.h>
 #include <dukerenderer/ofxRenderer.h>
 

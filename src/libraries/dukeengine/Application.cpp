@@ -76,31 +76,31 @@ OfxHost buildHost(Application* pApplication) {
     return ofxHost;
 }
 
-struct DumpRange : public SimpleIndexRange<uint64_t> {
-private:
-    typedef SimpleIndexRange<uint64_t> RANGE;
-    SharedPlaylistHelperPtr m_Helper;
-
-public:
-    DumpRange(SharedPlaylistHelperPtr helper) :
-        SimpleIndexRange<uint64_t> (helper->getRecIn(), helper->getRecOut() - 1), m_Helper(helper) {
-    }
-    virtual ~DumpRange() {
-    }
-    bool empty() const {
-        return RANGE::empty();
-    }
-    void popFront() {
-        RANGE::popFront();
-    }
-    uint64_t front() {
-        size_t index = m_Helper->getIteratorIndexAtFrame(RANGE::front());
-        return m_Helper->getHashAtIterator(index);
-    }
-    RANGE* save() const {
-        return new DumpRange(*this);
-    }
-};
+//struct DumpRange : public SimpleIndexRange<uint64_t> {
+//private:
+//    typedef SimpleIndexRange<uint64_t> RANGE;
+//    SharedPlaylistHelperPtr m_Helper;
+//
+//public:
+//    DumpRange(SharedPlaylistHelperPtr helper) :
+//        SimpleIndexRange<uint64_t> (helper->getRecIn(), helper->getRecOut() - 1), m_Helper(helper) {
+//    }
+//    virtual ~DumpRange() {
+//    }
+//    bool empty() const {
+//        return RANGE::empty();
+//    }
+//    void popFront() {
+//        RANGE::popFront();
+//    }
+//    uint64_t front() {
+//        size_t index = m_Helper->getIteratorIndexAtFrame(RANGE::front());
+//        return m_Helper->getHashAtIterator(index);
+//    }
+//    RANGE* save() const {
+//        return new DumpRange(*this);
+//    }
+//};
 
 } // namespace
 

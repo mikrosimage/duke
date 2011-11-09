@@ -95,9 +95,8 @@ private:
     /**
      * Ask for a clean of the map
      */
-    void cleanup() {
-        if (limit(m_Cache))
-            cacheFull();
+    inline void cleanup() {
+        limit(m_Cache);
     }
 
 public:
@@ -114,13 +113,22 @@ public:
         return true;
     }
 
+    /**
+     * You can feed this cache either by manually pushing jobs in it
+     * or by inheriting and push one or more WorkUnit directly into
+     * the m_ReadyQueue from one or more worker threads.
+     */
     inline void manual_push(const WorkUnit& unit) {
         m_ReadyQueue.push(unit);
     }
 protected:
-    virtual bool limit(Map &cache) = 0;
-
-    virtual void cacheFull() = 0;
+    /**
+     * Gives the implementor an opportunity to limit the cache
+     * in some ways. If the cache is considered full it's the
+     * implementor's responsibility to clean up the m_ReadyQueue
+     * and stop further WorkUnit supplying.
+     */
+    virtual void limit(Map &cache) = 0;
 };
 
 } // namespace cache
