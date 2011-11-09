@@ -1,0 +1,13 @@
+import testing ;
+
+project : requirements 
+            <threading>multi
+            <toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT)
+            <define>BOOST_TEST_MAIN
+            <define>BOOST_TEST_DYN_LINK
+            <include>../../libraries
+            <library>/boost//unit_test_framework
+            ;
+
+unit-test cache_tests : cache_tests.cpp ;
+unit-test cache_key_tests : cache_key_tests.cpp ;
