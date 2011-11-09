@@ -1,6 +1,6 @@
 #include "SmartCache.h"
 
-#include <dukeengine/chain/PlaylistRange.h>
+#include <dukeengine/range/PlaylistRange.h>
 #include <dukeengine/sequence/PlaylistHelper.h>
 #include <dukeengine/image/ImageToolbox.h>
 #include <dukeengine/file/DmaFileIO.h>

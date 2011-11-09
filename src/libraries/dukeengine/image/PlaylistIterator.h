@@ -8,8 +8,8 @@
 #ifndef PLAYLISTITERATOR_H_
 #define PLAYLISTITERATOR_H_
 
-#include <dukeengine/chain/Range.h>
-#include <dukeengine/chain/PlaylistRange.h>
+#include <dukeengine/range/Range.h>
+#include <dukeengine/range/PlaylistRange.h>
 #include <dukeengine/sequence/PlaylistHelper.h>
 
 struct PlaylistIterator : public OnePassRange<uint64_t> {

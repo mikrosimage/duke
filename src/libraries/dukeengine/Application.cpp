@@ -1,7 +1,7 @@
 #include "Application.h"
 
 #include "host/renderer/Renderer.h"
-#include "chain/PlaylistRange.h"
+#include "range/PlaylistRange.h"
 
 #include <player.pb.h>
 

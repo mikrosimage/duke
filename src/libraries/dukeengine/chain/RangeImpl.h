@@ -1,7 +1,7 @@
 #ifndef SIMPLEITERATORS_H_
 #define SIMPLEITERATORS_H_
 
-#include "Range.h"
+#include <dukeengine/range/Range.h>
 #include <cassert>
 #include <cstdint>
 

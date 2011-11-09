@@ -1,6 +1,8 @@
-#include <dukeengine/chain/PlaylistRange.h>
+#include <dukeengine/range/PlaylistRange.h>
 
 #include <iostream>
+
+#include <boost/foreach.hpp>
 
 #define BOOST_TEST_MODULE RangeTest
 #include <boost/test/unit_test.hpp>
@@ -17,7 +19,8 @@ BOOST_AUTO_TEST_SUITE( TemplatedRangeSuite )
 BOOST_AUTO_TEST_CASE( forward )
 {
     UnlimitedForwardRange itr;
-    for(ptrdiff_t v : {0,1,2,3,4,5,6,7,8,9,10}) {
+    const ptrdiff_t array[] {0,1,2,3,4,5,6,7,8,9,10};
+    BOOST_FOREACH(ptrdiff_t v , array) {
         CHECK_AND_POP( itr, v );
     }
     CHECK_NOT_EMPTY(itr);
@@ -26,7 +29,8 @@ BOOST_AUTO_TEST_CASE( forward )
 BOOST_AUTO_TEST_CASE( limiter )
 {
     Limiter<UnlimitedForwardRange> itr(UnlimitedForwardRange(),3);
-    for(ptrdiff_t v : {0,1,2}) {
+    const ptrdiff_t array[] {0,1,2};
+    BOOST_FOREACH(ptrdiff_t v , array) {
         CHECK_AND_POP( itr, v );
     }
     CHECK_EMPTY(itr);
@@ -35,7 +39,8 @@ BOOST_AUTO_TEST_CASE( limiter )
 BOOST_AUTO_TEST_CASE( alternating )
 {
     BalancingRange itr;
-    for(ptrdiff_t v : {0,1,-1,2,-2,3,-3,4,-4,5,-5}) {
+    const ptrdiff_t array[] {0,1,-1,2,-2,3,-3,4,-4,5,-5};
+    BOOST_FOREACH(ptrdiff_t v , array) {
         CHECK_AND_POP( itr, v );
     }
     CHECK_NOT_EMPTY(itr);
@@ -45,14 +50,16 @@ BOOST_AUTO_TEST_CASE( offset )
 {
     {
         OffsetRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-5);
-        for(ptrdiff_t v : {-5,-4,-3,-2,-1,0,1,2,3,4,5}) {
+        const ptrdiff_t array[] {-5,-4,-3,-2,-1,0,1,2,3,4,5};
+        BOOST_FOREACH(ptrdiff_t v , array) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
     }
     {
         OffsetRange<BalancingRange> itr(BalancingRange(),-5);
-        for(ptrdiff_t v : {-5,-4,-6,-3,-7,-2,-8,-1,-9,0,-10}) {
+        const ptrdiff_t array[] {-5,-4,-6,-3,-7,-2,-8,-1,-9,0,-10};
+        BOOST_FOREACH(ptrdiff_t v , array) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
@@ -63,28 +70,32 @@ BOOST_AUTO_TEST_CASE( modulo )
 {
     {
         ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),0,1);
-        for(ptrdiff_t v : {0,1,0,1,0,1,0,1,0,1,0}) {
+        const ptrdiff_t array[] {0,1,0,1,0,1,0,1,0,1,0};
+        BOOST_FOREACH(ptrdiff_t v , array) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
     }
     {
         ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-1,0);
-        for(ptrdiff_t v : {0,-1,0,-1,0,-1,0,-1,0,-1,0}) {
+        const ptrdiff_t array[] {0,-1,0,-1,0,-1,0,-1,0,-1,0};
+        BOOST_FOREACH(ptrdiff_t v , array) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
     }
     {
         ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),0,3);
-        for(ptrdiff_t v : {0,1,2,3,0,1,2,3,0,1,2}) {
+        const ptrdiff_t array[] {0,1,2,3,0,1,2,3,0,1,2};
+        BOOST_FOREACH(ptrdiff_t v , array ) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
     }
     {
         ModuloIndexRange<UnlimitedForwardRange> itr(UnlimitedForwardRange(),-2,2);
-        for(ptrdiff_t v : {0,1,2,-2,-1,0,1,2,-2,-1,0}) {
+        const ptrdiff_t array[] {0,1,2,-2,-1,0,1,2,-2,-1,0};
+        BOOST_FOREACH(ptrdiff_t v , array) {
             CHECK_AND_POP( itr, v );
         }
         CHECK_NOT_EMPTY(itr);
