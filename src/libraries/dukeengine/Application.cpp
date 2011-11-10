@@ -76,32 +76,6 @@ OfxHost buildHost(Application* pApplication) {
     return ofxHost;
 }
 
-//struct DumpRange : public SimpleIndexRange<uint64_t> {
-//private:
-//    typedef SimpleIndexRange<uint64_t> RANGE;
-//    SharedPlaylistHelperPtr m_Helper;
-//
-//public:
-//    DumpRange(SharedPlaylistHelperPtr helper) :
-//        SimpleIndexRange<uint64_t> (helper->getRecIn(), helper->getRecOut() - 1), m_Helper(helper) {
-//    }
-//    virtual ~DumpRange() {
-//    }
-//    bool empty() const {
-//        return RANGE::empty();
-//    }
-//    void popFront() {
-//        RANGE::popFront();
-//    }
-//    uint64_t front() {
-//        size_t index = m_Helper->getIteratorIndexAtFrame(RANGE::front());
-//        return m_Helper->getHashAtIterator(index);
-//    }
-//    RANGE* save() const {
-//        return new DumpRange(*this);
-//    }
-//};
-
 } // namespace
 
 
@@ -338,12 +312,7 @@ void Application::renderStart() {
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
 
-        // dump --->
-        //            uint64_t currentFrameHash = m_Playlist.getHashAtIterator(m_Playlist.getIteratorIndexAtFrame(frame));
-        //            DumpRange fullrange(getSharedPlaylistHelper());
-        //            m_Cache.dump(fullrange, currentFrameHash);
-        // <--- dump
-        m_Cache.seek(frame, m_Playback.getSpeed(), &m_Playlist);
+        m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
         m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )

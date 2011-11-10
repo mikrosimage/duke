@@ -22,9 +22,9 @@ private:
     typedef LookAheadCache<CACHE_ID_TYPE, DATA_TYPE, JOB_ID_TYPE> ME;
     boost::thread_group m_Threads;
 protected:
+    typedef typename UP::WorkUnit WorkUnit;
     typedef typename UP::WorkQueue WorkQueue;
     typedef typename UP::Map Map;
-    WorkQueue m_IncomingJobs;
 
     /**
      * Inherited from Cache, see definition
@@ -39,7 +39,6 @@ protected:
     virtual void workerThreadEntry() = 0;
 
 public:
-    using UP::WorkUnit;
     virtual ~LookAheadCache() {
         m_Threads.join_all();
     }

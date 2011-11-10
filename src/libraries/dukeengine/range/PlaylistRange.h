@@ -66,11 +66,15 @@ struct DrivingRange : public ::OnePassRange<std::ptrdiff_t> {
 public:
     typedef std::ptrdiff_t value_type;
 private:
-    const int32_t m_Speed;
+    int32_t m_Speed; // should be const but would prevent operator=()
+
     UnlimitedForwardRange m_Forward;
     BalancingRange m_Balancing;
 
 public:
+    DrivingRange(const DrivingRange &other) :
+        m_Speed(other.m_Speed), m_Forward(other.m_Forward), m_Balancing(other.m_Balancing) {
+    }
     DrivingRange(int32_t speed) :
         m_Speed(speed) {
     }
@@ -119,7 +123,7 @@ template<typename RANGE>
 struct OffsetRange : public ::OnePassRange<typename RANGE::value_type> {
     typedef typename RANGE::value_type value_type;
 private:
-    const value_type m_Offset;
+    value_type m_Offset; // should be const but would prevent operator=()
     RANGE m_Delegate;
 
 public:
@@ -144,9 +148,9 @@ template<typename RANGE>
 struct ModuloIndexRange : public ::OnePassRange<typename RANGE::value_type> {
     typedef typename RANGE::value_type value_type;
 private:
-    const value_type m_LowerBound;
-    const value_type m_UpperBound;
-    const value_type m_ModuloSize;
+    value_type m_LowerBound; // should be const but would prevent operator=()
+    value_type m_UpperBound; // should be const but would prevent operator=()
+    value_type m_ModuloSize; // should be const but would prevent operator=()
     RANGE m_Delegate;
 
 public:
@@ -189,8 +193,6 @@ public:
     PlaylistFrameRange(std::ptrdiff_t firstFrame, std::ptrdiff_t lastFrame, std::ptrdiff_t readFromFrame, int32_t speed) :
         MODULO(OFFSET(DrivingRange(speed), readFromFrame), firstFrame, lastFrame) {
         assert(firstFrame<=lastFrame);
-        if (lastFrame - firstFrame <= 0)
-            throw std::runtime_error("playlist size must be >0");
         if (readFromFrame < firstFrame || readFromFrame > lastFrame)
             throw std::runtime_error("the cursor must be between firstFrame and lastFrame");
     }
@@ -198,9 +200,9 @@ public:
 
 struct LimitedPlaylistFrameRange : public Limiter<PlaylistFrameRange> {
     typedef Limiter<PlaylistFrameRange> LIMITED;
-public:
     LimitedPlaylistFrameRange(std::ptrdiff_t firstFrame, std::ptrdiff_t lastFrame, std::ptrdiff_t readFromFrame, int32_t speed) :
         LIMITED(PlaylistFrameRange(firstFrame, lastFrame, readFromFrame, speed), lastFrame - firstFrame + 1) {
+        assert(firstFrame<=lastFrame);
     }
 };
 

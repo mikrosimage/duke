@@ -55,8 +55,7 @@ void FileBufferHolder::update(const std::size_t currentFrame, const SmartCache& 
     BOOST_FOREACH( const uint32_t &itr, m_Iterators )
                 {
                     m_Images.push_back(ImageHolder()); // pushing an empty description
-
-                    if (!cache.get(itr, m_Images.back()))
+                    if (!cache.get(helper.getHashAtIterator(itr), m_Images.back()))
                         std::cerr << "unable to get frame " << currentFrame << " (image data not available)" << std::endl;
                 }
     m_LastFrame = currentFrame;

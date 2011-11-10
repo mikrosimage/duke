@@ -21,9 +21,8 @@ struct SmartCacheImpl; // PImpl idiom
 
 struct SmartCache : private boost::noncopyable {
     SmartCache(uint64_t limit, const ImageDecoderFactory& factory);
-    ~SmartCache();
-    void seek(std::size_t frame, uint32_t speed, const PlaylistHelper *);
-    bool get(std::size_t playlistItr, ImageHolder &imageHolder) const;
+    void seek(std::size_t frame, uint32_t speed, const PlaylistHelper &);
+    bool get(uint64_t hash, ImageHolder &imageHolder) const;
 private:
     const std::auto_ptr<SmartCacheImpl> m_pImpl;
 };

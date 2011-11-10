@@ -77,6 +77,30 @@ BOOST_AUTO_TEST_CASE( playlistIterator0 )
         BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
         BOOST_CHECK(itr.empty());
     }
+    { // same as previous but with indexed
+        const int32_t frame = 1005;
+        const int32_t speed = -1; // reverse
+        IndexedPlaylistIterator itr(helper,frame,speed);
+        BOOST_CHECK_EQUAL(itr.index(), 0U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
+        BOOST_CHECK_EQUAL(itr.index(), 1U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1004");
+        BOOST_CHECK_EQUAL(itr.index(), 2U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1003");
+        BOOST_CHECK_EQUAL(itr.index(), 3U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1002");
+        BOOST_CHECK_EQUAL(itr.index(), 4U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1001");
+        BOOST_CHECK_EQUAL(itr.index(), 5U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1000");
+        BOOST_CHECK_EQUAL(itr.index(), 6U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1009");
+        BOOST_CHECK_EQUAL(itr.index(), 7U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1008");
+        BOOST_CHECK_EQUAL(itr.index(), 8U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1007");
+        BOOST_CHECK_EQUAL(itr.index(), 9U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1006");
+        BOOST_CHECK(itr.empty());
+    }
+    { // limited
+        const int32_t frame = 1005;
+        const int32_t speed = -1; // reverse
+        IndexedPlaylistIterator itr(helper,frame,speed);
+        BOOST_CHECK_EQUAL(itr.index(), 0U);BOOST_CHECK_EQUAL(doStep(itr, helper), "f1005");
+        itr.limitHere();
+        BOOST_CHECK(itr.empty());
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

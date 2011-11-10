@@ -14,7 +14,7 @@
 
 struct PlaylistIterator : public OnePassRange<uint64_t> {
     PlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
-        m_Helper(helper), m_FrameRange(helper.getFirstFrame(), helper.getLastFrame(), fromFrame, speed) {
+        m_Helper(helper), m_FrameRange(build(helper, fromFrame, speed)) {
         advanceFrame();
     }
 
@@ -37,6 +37,12 @@ struct PlaylistIterator : public OnePassRange<uint64_t> {
     }
 
 private:
+    inline static range::LimitedPlaylistFrameRange build(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) {
+        if (helper.getEndIterator() == 0)
+            return range::LimitedPlaylistFrameRange(0, 0, fromFrame, speed);
+        return range::LimitedPlaylistFrameRange(helper.getFirstFrame(), helper.getLastFrame(), fromFrame, speed);
+    }
+
     inline void advanceFrame() {
         m_CurrentFrame = SENTINEL;
         m_CurrentFrameIteratorIndex = SENTINEL;
@@ -53,7 +59,7 @@ private:
     }
 
     static const size_t SENTINEL = -1;
-    const PlaylistHelper& m_Helper;
+    PlaylistHelper m_Helper;
     range::LimitedPlaylistFrameRange m_FrameRange;
 
     std::size_t m_CurrentFrame;
@@ -61,4 +67,29 @@ private:
     std::size_t m_CurrentFrameIteratorIndex;
 };
 
+struct IndexedPlaylistIterator : public PlaylistIterator {
+    IndexedPlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
+        PlaylistIterator(helper, fromFrame, speed), m_CurrentIndex(0), m_Limited(false) {
+    }
+
+    virtual bool empty() const {
+        return m_Limited || PlaylistIterator::empty();
+    }
+
+    virtual void popFront() {
+        PlaylistIterator::popFront();
+        ++m_CurrentIndex;
+    }
+
+    size_t index() const {
+        return m_CurrentIndex;
+    }
+
+    void limitHere() {
+        m_Limited = true;
+    }
+private:
+    size_t m_CurrentIndex;
+    bool m_Limited;
+};
 #endif /* PLAYLISTITERATOR_H_ */

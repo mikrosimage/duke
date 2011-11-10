@@ -102,16 +102,6 @@ BOOST_AUTO_TEST_CASE( modulo )
     }
 }
 
-BOOST_AUTO_TEST_CASE( empty )
-{
-    BOOST_CHECK_THROW( LimitedPlaylistFrameRange(0,0,0,0), std::runtime_error );
-}
-
-BOOST_AUTO_TEST_CASE( outOfBound )
-{
-    BOOST_CHECK_THROW( PlaylistFrameRange(0,2,3,1), std::runtime_error );
-}
-
 BOOST_AUTO_TEST_CASE( limitedForwardPlaylist )
 {
     LimitedPlaylistFrameRange range(0,1,0,1);

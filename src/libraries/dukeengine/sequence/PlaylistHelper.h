@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-struct PlaylistHelper : boost::noncopyable {
+struct PlaylistHelper {
 private:
     ::duke::protocol::Playlist m_Playlist;
     size_t m_uRecIn;
