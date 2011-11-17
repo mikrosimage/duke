@@ -78,7 +78,6 @@ OfxHost buildHost(Application* pApplication) {
 
 } // namespace
 
-
 static void dump(const google::protobuf::Descriptor* pDescriptor, const google::protobuf::serialize::MessageHolder &holder, bool push = false) {
 #ifdef DEBUG_MESSAGES
     const string debugString = pDescriptor == Texture::descriptor() ? "texture" : unpack(holder)->ShortDebugString();
@@ -87,18 +86,18 @@ static void dump(const google::protobuf::Descriptor* pDescriptor, const google::
 }
 
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize) :
-    m_IO(io), //
-            // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
-            m_Cache(cacheSize, m_ImageDecoderFactory),//
-            m_FileBufferHolder(), //
-            m_VbiTimings(TimingType::VBI, 120), //
-            m_FrameTimings(TimingType::FRAME, 10), //
-            m_PreviousFrame(-1), //
-            m_StoredFrame(-1), //
-            m_bRequestTermination(false), //
-            m_bAutoNotifyOnFrameChange(false), //
-            m_iReturnCode(returnCode), //
-            m_Renderer(buildHost(this), rendererFilename) {
+        m_IO(io), //
+                  // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
+        m_Cache(4, cacheSize, m_ImageDecoderFactory), //
+        m_FileBufferHolder(), //
+        m_VbiTimings(TimingType::VBI, 120), //
+        m_FrameTimings(TimingType::FRAME, 10), //
+        m_PreviousFrame(-1), //
+        m_StoredFrame(-1), //
+        m_bRequestTermination(false), //
+        m_bAutoNotifyOnFrameChange(false), //
+        m_iReturnCode(returnCode), //
+        m_Renderer(buildHost(this), rendererFilename) {
 
     consumeUntilRenderOrQuit();
 }
@@ -120,8 +119,8 @@ void Application::consumeUntilRenderOrQuit() {
         const MessageHolder &holder = *pHolder;
         const auto descriptor = descriptorFor(holder);
 
-        if (isType<Renderer> (descriptor)) {
-            m_Renderer.initRender(unpackTo<Renderer> (holder));
+        if (isType<Renderer>(descriptor)) {
+            m_Renderer.initRender(unpackTo<Renderer>(holder));
             break;
         }
         cerr << HEADER + "First message must be either InitRenderer or Quit, ignoring message of type " << descriptor->name() << endl;
@@ -163,11 +162,11 @@ void Application::consumeTransport() {
         }
         const MessageHolder &holder = *pHolder;
         const auto descriptor = descriptorFor(holder);
-        if (isType<Renderer> (descriptor)) {
+        if (isType<Renderer>(descriptor)) {
             cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
-        } else if (isType<Debug> (descriptor)) {
+        } else if (isType<Debug>(descriptor)) {
             dump(descriptor, holder);
-            const Debug debug = unpackTo<Debug> (holder);
+            const Debug debug = unpackTo<Debug>(holder);
 #ifdef __linux__
             std::cout << "\e[J";
 #endif
@@ -193,15 +192,15 @@ void Application::consumeTransport() {
 #endif
             if (debug.has_pause())
                 ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
-        } else if (isType<Playlist> (descriptor)) {
+        } else if (isType<Playlist>(descriptor)) {
             dump(descriptor, holder);
-            m_Playlist.swap(PlaylistHelper(unpackTo<Playlist> (holder)));
+            m_Playlist.swap(PlaylistHelper(unpackTo<Playlist>(holder)));
             m_Playback = create(m_Playlist);
-        } else if (isType<Transport> (descriptor)) {
+        } else if (isType<Transport>(descriptor)) {
             dump(descriptor, holder);
             switch (pHolder->action()) {
                 case MessageHolder_Action_CREATE: {
-                    const Transport transport = unpackTo<Transport> (holder);
+                    const Transport transport = unpackTo<Transport>(holder);
                     applyTransport(transport);
                     if (transport.has_autonotifyonframechange())
                         m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
@@ -217,8 +216,10 @@ void Application::consumeTransport() {
                     push(m_IO, transport);
                     break;
                 }
-                default:
+                default: {
                     cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(holder.action()) << endl;
+                    break;
+                }
             }
         } else {
             m_RendererMessages.push(pHolder);
@@ -234,7 +235,7 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
     const Playlist &p(helper.getPlaylist());
     const auto loop = p.loop();
     if (isCueClip) { // cueing clips
-        const auto clipSize(p.clip_size());
+        const auto clipSize = p.clip_size();
         if (isCueRelative) { // cueing clips relative
             if (clipSize == 0)
                 return newFrame;
@@ -251,7 +252,7 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
             } else {
                 newFrame = *it;
             }
-        } else {// cueing clips absolute
+        } else { // cueing clips absolute
             if ((value < clipSize) && (value >= 0))
                 newFrame = p.clip(value).recin();
         }
@@ -315,8 +316,8 @@ void Application::renderStart() {
         m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
         m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
 
-        BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
-                        setup.m_Images.push_back(image.getImageDescription());
+        for (const ImageHolder &image : m_FileBufferHolder.getImages())
+            setup.m_Images.push_back(image.getImageDescription());
 
         // populate clips
         m_Playlist.getClipsAtFrame(frame, setup.m_Clips);
@@ -336,7 +337,7 @@ OfxRendererSuiteV1::PresentStatus Application::getPresentStatus() {
 }
 
 void Application::verticalBlanking(bool presented) {
-    const auto now(playback::s_Clock.now());
+    const auto now = playback::s_Clock.now();
     m_VbiTimings.push(now);
     if (presented)
         m_FrameTimings.push(now);
@@ -360,8 +361,8 @@ bool Application::renderFinished(unsigned msToPresent) {
         return m_bRequestTermination;
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while finishing simulation step : " << e.what() << endl;
-        return true;
     }
+    return true;
 }
 
 void Application::pushEvent(const google::protobuf::serialize::MessageHolder& event) {
@@ -384,10 +385,8 @@ std::string Application::dumpInfo(const Debug_Content& info) const {
         case Debug_Content_FILENAMES: {
             std::vector<size_t> indices;
             m_Playlist.getIteratorsAtFrame(m_Playback.frame(), indices);
-            BOOST_FOREACH(size_t i, indices)
-                        {
-                            ss << m_Playlist.getPathAtIterator(i).filename() << " ";
-                        }
+            for (size_t i : indices)
+                ss << m_Playlist.getPathAtIterator(i).filename() << " ";
             break;
         }
         case Debug_Content_FPS: {

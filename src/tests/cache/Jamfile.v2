@@ -9,5 +9,8 @@ project : requirements
             <library>/boost//unit_test_framework
             ;
 
-unit-test cache_tests : cache_tests.cpp ;
 unit-test cache_key_tests : cache_key_tests.cpp ;
+unit-test cache_tests : cache_tests.cpp ;
+unit-test job_producer_tests : job_producer_tests.cpp : <library>/boost//thread ;
+explicit cache_benchmark_tests ;
+unit-test cache_benchmark_tests : cache_benchmark_tests.cpp : <library>/boost//thread ;

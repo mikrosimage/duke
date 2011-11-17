@@ -204,6 +204,12 @@ struct LimitedPlaylistFrameRange : public Limiter<PlaylistFrameRange> {
         LIMITED(PlaylistFrameRange(firstFrame, lastFrame, readFromFrame, speed), lastFrame - firstFrame + 1) {
         assert(firstFrame<=lastFrame);
     }
+
+    static LimitedPlaylistFrameRange EMPTY() {
+        LimitedPlaylistFrameRange tmp(0, 0, 0, 0);
+        tmp.popFront();
+        return tmp;
+    }
 };
 
 } // namespace range

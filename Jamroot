@@ -30,7 +30,7 @@ use-project /duke/sub/duke.plugins		: src/submodules/duke.plugins ;
 
 project : requirements 
 			<threading>multi
-			<include>$(BOOST_ROOT)
+			<toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
 			<toolset>gcc:<cxxflags>-std=gnu++0x
 			<os>NT:<define>WIN32_LEAN_AND_MEAN
 			<os>NT:<define>VC_EXTRALEAN

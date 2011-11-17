@@ -1,7 +1,0 @@
-run    	chain.cpp
-		/duke/lib/engine//dukeengine
-		/boost//unit_test_framework
-	: : :
-    	<define>BOOST_TEST_MAIN
-		<define>BOOST_TEST_DYN_LINK
-	;

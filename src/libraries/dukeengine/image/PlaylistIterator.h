@@ -14,7 +14,7 @@
 
 struct PlaylistIterator : public OnePassRange<uint64_t> {
     PlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
-        m_Helper(helper), m_FrameRange(build(helper, fromFrame, speed)) {
+            m_Helper(helper), m_FrameRange(build(helper, fromFrame, speed)) {
         advanceFrame();
     }
 
@@ -30,10 +30,15 @@ struct PlaylistIterator : public OnePassRange<uint64_t> {
     }
 
     virtual uint64_t front() {
+        assert(!empty());
         assert(m_CurrentFrame!=size_t(-1));
         assert(m_CurrentFrameIteratorIndex!=size_t(-1));
         assert(m_CurrentFrameIteratorIndex<m_IteratorsAtCurrentFrame.size());
         return m_Helper.getHashAtIterator(m_IteratorsAtCurrentFrame[m_CurrentFrameIteratorIndex]);
+    }
+
+    std::string frontFilename() {
+        return m_Helper.getPathAtHash(front()).string();
     }
 
 private:
@@ -67,29 +72,29 @@ private:
     std::size_t m_CurrentFrameIteratorIndex;
 };
 
-struct IndexedPlaylistIterator : public PlaylistIterator {
-    IndexedPlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
-        PlaylistIterator(helper, fromFrame, speed), m_CurrentIndex(0), m_Limited(false) {
-    }
-
-    virtual bool empty() const {
-        return m_Limited || PlaylistIterator::empty();
-    }
-
-    virtual void popFront() {
-        PlaylistIterator::popFront();
-        ++m_CurrentIndex;
-    }
-
-    size_t index() const {
-        return m_CurrentIndex;
-    }
-
-    void limitHere() {
-        m_Limited = true;
-    }
-private:
-    size_t m_CurrentIndex;
-    bool m_Limited;
-};
+//struct IndexedPlaylistIterator : public PlaylistIterator {
+//    IndexedPlaylistIterator(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) :
+//        PlaylistIterator(helper, fromFrame, speed), m_CurrentIndex(0), m_Limited(false) {
+//    }
+//
+//    virtual bool empty() const {
+//        return m_Limited || PlaylistIterator::empty();
+//    }
+//
+//    virtual void popFront() {
+//        PlaylistIterator::popFront();
+//        ++m_CurrentIndex;
+//    }
+//
+//    size_t index() const {
+//        return m_CurrentIndex;
+//    }
+//
+//    void limitHere() {
+//        m_Limited = true;
+//    }
+//private:
+//    size_t m_CurrentIndex;
+//    bool m_Limited;
+//};
 #endif /* PLAYLISTITERATOR_H_ */

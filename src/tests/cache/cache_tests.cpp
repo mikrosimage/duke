@@ -1,7 +1,5 @@
-#include <dukeengine/cache/CacheKey.hpp>
+#include <dukeengine/cache/JobPriority.hpp>
 #include <dukeengine/cache/Cache.hpp>
-
-#include <boost/assign/list_of.hpp>
 
 #define BOOST_TEST_MODULE CacheTestModule
 #include <boost/test/unit_test.hpp>
@@ -9,106 +7,124 @@
 using namespace std;
 using namespace cache;
 
-struct StringCache : public Cache<size_t, string, CacheKey> {
-    virtual void limit(Map &cache) {
-    }
-};
-typedef StringCache::WorkUnit WorkUnit;
+typedef WorkUnit<bool, size_t, JobPriority, size_t> WORK_UNIT;
+typedef Cache<WORK_UNIT> CACHE;
 
 BOOST_AUTO_TEST_SUITE( CacheTestSuite )
 
-BOOST_AUTO_TEST_CASE( orderWorkUnit )
+/**
+ * WorkUnit tests
+ */
+
+BOOST_AUTO_TEST_CASE( workUnit )
 {
-    const WorkUnit a(72,CacheKey(1,2));
-    const WorkUnit b(55,CacheKey(1,0));
-    const WorkUnit c(23,CacheKey(1,5));
-    const WorkUnit d(56,CacheKey(0,1));
-
-    typedef std::vector<WorkUnit> WorkUnits;
-    WorkUnits jobs = boost::assign::list_of(a)(b)(c)(d);
-
-    {
-        sort(jobs.begin(), jobs.end(), &WorkUnit::keyOrdering);
-        WorkUnits::const_iterator itr = jobs.begin();
-        BOOST_CHECK( *itr++ == b );
-        BOOST_CHECK( *itr++ == a );
-        BOOST_CHECK( *itr++ == c );
-        BOOST_CHECK( *itr++ == d );
-        BOOST_CHECK( itr == jobs.end());
-    }
-
-    {
-        sort(jobs.begin(), jobs.end(), &WorkUnit::idOrdering);
-        WorkUnits::const_iterator itr = jobs.begin();
-        BOOST_CHECK( *itr++ == c );
-        BOOST_CHECK( *itr++ == b );
-        BOOST_CHECK( *itr++ == d );
-        BOOST_CHECK( *itr++ == a );
-        BOOST_CHECK( itr == jobs.end());
-    }
+    const WORK_UNIT wu(0,JobPriority(1,2));
+    BOOST_CHECK_EQUAL( wu.id, 0U);
+    BOOST_CHECK_EQUAL( wu.priority.jobId, 1U);
+    BOOST_CHECK_EQUAL( wu.priority.index, 2U);
+    BOOST_CHECK_EQUAL( wu.metric, 0U);
 }
 
-BOOST_AUTO_TEST_CASE( basic )
+/**
+ * Testing get and push on cache
+ */
+
+BOOST_AUTO_TEST_CASE( basicCache )
 {
-    StringCache cache;
-    StringCache::data_type data;
+    CACHE cache(-1);
+    WORK_UNIT wu;
+    BOOST_CHECK( ! cache.get(0,wu) );
 
-    // Queue is empty
-    BOOST_CHECK( !cache.get(0, data) );
+    wu.id = 0;
+    wu.priority=JobPriority(0,0);
+    wu.metric=1;
+    BOOST_CHECK( cache.push(wu) );
 
-    // pushing an element
-    cache.manual_push(WorkUnit(5, CacheKey(0,2), "something here"));
-
-    // Checking element in cache
-    BOOST_CHECK( cache.get(5, data) );
-    BOOST_CHECK_EQUAL( data, "something here" );
+    BOOST_CHECK( cache.get(0,wu) );
+    BOOST_CHECK_EQUAL( wu.id, 0U);
+    BOOST_CHECK_EQUAL( wu.priority.jobId, 0U);
+    BOOST_CHECK_EQUAL( wu.priority.index, 0U);
+    BOOST_CHECK_EQUAL( wu.metric, 1U);
 }
 
-BOOST_AUTO_TEST_CASE( pushingSameIdOverridesOnlyIfNewerJob )
+BOOST_AUTO_TEST_CASE( unitDoesntFit )
 {
-    StringCache cache;
-    StringCache::data_type data;
-
-    // pushing an element
-    const StringCache::cacheid_type id(42);
-
-    // first push will be ok
-    cache.manual_push(WorkUnit(id, CacheKey(1,5), "1"));
-    BOOST_CHECK( cache.get(id, data) && data == "1" );
-
-    // this one has a higher priority (index == 2 < 5)
-    // so it will be updated
-    cache.manual_push(WorkUnit(id, CacheKey(1,2), "2"));
-    BOOST_CHECK( cache.get(id, data) && data == "2" );
-
-    // this one comes from an old job ( jobId == 0 < 1 )
-    // it will be discarded
-    cache.manual_push(WorkUnit(id, CacheKey(0,0), "3"));
-    BOOST_CHECK( cache.get(id, data) && data == "2" );
+    CACHE cache(0); // max cache size = 0
+    WORK_UNIT wu(0,JobPriority(0,0),1);
+    BOOST_CHECK( ! cache.push(wu) );// unit of size 1 wont fit
 }
 
-BOOST_AUTO_TEST_CASE( limitingCache )
+BOOST_AUTO_TEST_CASE( secondUnitDoesntFit )
 {
-    struct MyCache : public Cache<size_t, string, CacheKey> {
-        bool full;
+    CACHE cache(1);
+    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) ); // first ok
+    BOOST_CHECK( ! cache.push(WORK_UNIT(1,JobPriority(0,1),1)) );// second can't fit
 
-        MyCache() : full(false) {
-        }
-    protected:
-        virtual void limit(Map &cache) {
-            cache.clear();
-            full = true;
-        }
-    }cache;
+    WORK_UNIT wu;
+    BOOST_CHECK( cache.get(0,wu) );
+    BOOST_CHECK( ! cache.get(1,wu) );
+}
 
-    const MyCache::cacheid_type id(42);
-    MyCache::data_type data;
+BOOST_AUTO_TEST_CASE( higherPriority )
+{
+    CACHE cache(1);
+    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) );
+    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(1,0),1)) );
 
-    BOOST_CHECK( !cache.full );
+    WORK_UNIT wu;
+    BOOST_CHECK( ! cache.get(0,wu) ); // index 0 was replaced
+    BOOST_CHECK( cache.get(1,wu) );// by index 1 with higher priority
+}
 
-    cache.manual_push(MyCache::WorkUnit(id, CacheKey(0,0), "something"));
-    BOOST_CHECK( !cache.get(id,data) );
-    BOOST_CHECK( cache.full );
+BOOST_AUTO_TEST_CASE( lowerPriorityButStillSomeSpaceLeft )
+{
+    CACHE cache(2);
+    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) );
+    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(0,1),1)) );
+
+    WORK_UNIT wu;
+    BOOST_CHECK( cache.get(0,wu) );
+    BOOST_CHECK( cache.get(1,wu) );
+}
+
+/**
+ * Testing query
+ */
+BOOST_AUTO_TEST_CASE( updatePriorityNotInCache )
+{
+    CACHE cache(2);
+    const size_t id = 0;
+    const WORK_UNIT wu(id,JobPriority(0,0),1);
+    BOOST_CHECK_EQUAL( cache.query(wu) , REQUIRED);
+
+    // now putting in the cache
+    BOOST_CHECK( cache.push(wu) );
+
+    // updating with higher priority
+    BOOST_CHECK_EQUAL( cache.query(WORK_UNIT(id,JobPriority(1,0),5)) , DONE);
+
+    WORK_UNIT temp;
+    BOOST_CHECK( cache.get(id,temp) );
+    BOOST_CHECK_EQUAL( temp.priority.jobId, 1U);// priority should be updated
+    BOOST_CHECK_EQUAL( temp.metric, 1U);// metric should  NOT be updated
+
+    // updating with lowest priority
+    const WORK_UNIT lowestPriority(id,JobPriority(0,0),1);
+    BOOST_CHECK_EQUAL( cache.query(lowestPriority) , DONE);
+
+    BOOST_CHECK( cache.get(id,temp) );
+    BOOST_CHECK_EQUAL( temp.priority.jobId, 1U);// priority should NOT be updated
+    BOOST_CHECK_EQUAL( temp.metric, 1U);// metric should NOT be updated
+
+    // making cache full
+    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(1,1),1)) );
+
+    // asking for a new item
+    BOOST_CHECK_EQUAL( cache.query(WORK_UNIT(2,JobPriority(1,2),1)) , CACHE_FULL);
+}
+
+BOOST_AUTO_TEST_CASE( test ){
+    WorkUnit<bool, size_t, JobPriority, uint64_t> wu;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
