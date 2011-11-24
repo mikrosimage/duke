@@ -30,7 +30,7 @@ struct PriorityCache : private boost::noncopyable {
     BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<metric_type>)); //
 
     PriorityCache(metric_type limit) :
-            m_CurrentWeight(0), m_CacheLimit(limit) {
+        m_CurrentWeight(0), m_CacheLimit(limit) {
     }
 
     inline bool isFull() const {
@@ -97,10 +97,6 @@ struct PriorityCache : private boost::noncopyable {
         return true;
     }
 private:
-    void addToCache(const id_type &id, const metric_type weight, const data_type &data) {
-        m_CurrentWeight += weight;
-        m_Cache.insert(std::make_pair(id, DataElement { weight, data }));
-    }
 
     bool hasDiscardable(const id_type value) {
         return std::find(m_DiscardableIds.begin(), m_DiscardableIds.end(), value) != m_DiscardableIds.end();
@@ -131,11 +127,16 @@ private:
     }
 
     inline void removeFromCache(id_type id) {
-        assert(contains(id));
         auto itr = m_Cache.find(id);
-        assert(itr!=m_Cache.end());
+        if (itr == m_Cache.end())
+            return; // not found
         m_CurrentWeight -= itr->second.metric;
         m_Cache.erase(itr);
+    }
+
+    void addToCache(const id_type &id, const metric_type weight, const data_type &data) {
+        m_CurrentWeight += weight;
+        m_Cache.insert(std::make_pair(id, DataElement { weight, data }));
     }
 
     inline bool canFit(const metric_type weight) const {
