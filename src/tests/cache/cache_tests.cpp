@@ -1,5 +1,4 @@
-#include <dukeengine/cache/JobPriority.hpp>
-#include <dukeengine/cache/Cache.hpp>
+#include <dukeengine/cache/PriorityCache.hpp>
 
 #define BOOST_TEST_MODULE CacheTestModule
 #include <boost/test/unit_test.hpp>
@@ -7,124 +6,128 @@
 using namespace std;
 using namespace cache;
 
-typedef WorkUnit<bool, size_t, JobPriority, size_t> WORK_UNIT;
-typedef Cache<WORK_UNIT> CACHE;
+typedef PriorityCache<size_t, size_t, int> CACHE;
 
 BOOST_AUTO_TEST_SUITE( CacheTestSuite )
 
-/**
- * WorkUnit tests
- */
-
-BOOST_AUTO_TEST_CASE( workUnit )
+BOOST_AUTO_TEST_CASE( cacheFullness )
 {
-    const WORK_UNIT wu(0,JobPriority(1,2));
-    BOOST_CHECK_EQUAL( wu.id, 0U);
-    BOOST_CHECK_EQUAL( wu.priority.jobId, 1U);
-    BOOST_CHECK_EQUAL( wu.priority.index, 2U);
-    BOOST_CHECK_EQUAL( wu.metric, 0U);
+    BOOST_CHECK( CACHE(0).isFull() );
+    BOOST_CHECK( ! CACHE(1).isFull() );
 }
 
-/**
- * Testing get and push on cache
- */
-
-BOOST_AUTO_TEST_CASE( basicCache )
+BOOST_AUTO_TEST_CASE( cacheBasics )
 {
-    CACHE cache(-1);
-    WORK_UNIT wu;
-    BOOST_CHECK( ! cache.get(0,wu) );
+    CACHE cache(10);
+    BOOST_CHECK( ! cache.isPending(0) );
+    BOOST_CHECK( ! cache.contains(0) );
+    BOOST_CHECK( ! cache.update(0) ); // creating
+    BOOST_CHECK( cache.update(0) );// updating
+    BOOST_CHECK( cache.isPending(0) );// now pending
+    BOOST_CHECK( ! cache.contains(0) );// but still not present
+    BOOST_CHECK( cache.put(0,1,-1) );// putting
+    BOOST_CHECK( cache.contains(0) );// now present
+    BOOST_CHECK_EQUAL( cache.cacheSize(),1 );// now present
 
-    wu.id = 0;
-    wu.priority=JobPriority(0,0);
-    wu.metric=1;
-    BOOST_CHECK( cache.push(wu) );
-
-    BOOST_CHECK( cache.get(0,wu) );
-    BOOST_CHECK_EQUAL( wu.id, 0U);
-    BOOST_CHECK_EQUAL( wu.priority.jobId, 0U);
-    BOOST_CHECK_EQUAL( wu.priority.index, 0U);
-    BOOST_CHECK_EQUAL( wu.metric, 1U);
+    CACHE::data_type data;
+    BOOST_CHECK( cache.get(0, data) );// getting is ok
+    BOOST_CHECK_EQUAL( data, -1 );// data is correct
 }
 
-BOOST_AUTO_TEST_CASE( unitDoesntFit )
-{
-    CACHE cache(0); // max cache size = 0
-    WORK_UNIT wu(0,JobPriority(0,0),1);
-    BOOST_CHECK( ! cache.push(wu) );// unit of size 1 wont fit
-}
-
-BOOST_AUTO_TEST_CASE( secondUnitDoesntFit )
+BOOST_AUTO_TEST_CASE( noWeight )
 {
     CACHE cache(1);
-    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) ); // first ok
-    BOOST_CHECK( ! cache.push(WORK_UNIT(1,JobPriority(0,1),1)) );// second can't fit
-
-    WORK_UNIT wu;
-    BOOST_CHECK( cache.get(0,wu) );
-    BOOST_CHECK( ! cache.get(1,wu) );
+    BOOST_CHECK_THROW( cache.put(0,0,-1), std::logic_error ); // no weight
 }
 
-BOOST_AUTO_TEST_CASE( higherPriority )
+BOOST_AUTO_TEST_CASE( putEvenIfNotRequestedCanFit )
 {
     CACHE cache(1);
-    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) );
-    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(1,0),1)) );
+    // putting an unneeded element
+    BOOST_CHECK( cache.put(5,1,-1) );
+    BOOST_CHECK( cache.contains(5) );// now present
 
-    WORK_UNIT wu;
-    BOOST_CHECK( ! cache.get(0,wu) ); // index 0 was replaced
-    BOOST_CHECK( cache.get(1,wu) );// by index 1 with higher priority
+    // a new request would be priority and discard the previous one
+    cache.update(0);// requesting 0
+    BOOST_CHECK( cache.put(0,1,2) );// should be accepted
+    BOOST_CHECK( cache.contains(0) );// should be present
+    BOOST_CHECK( ! cache.contains(5) );// should be discarded
 }
 
-BOOST_AUTO_TEST_CASE( lowerPriorityButStillSomeSpaceLeft )
+BOOST_AUTO_TEST_CASE( putEvenIfNotRequestedButCantFit )
+{
+    CACHE cache(1);
+    cache.update(0); // requesting 0
+    BOOST_CHECK( cache.put(0,1,2) );// should be accepted
+    BOOST_CHECK( cache.contains(0) );// should be present
+
+    // putting an unneeded element that can't fit
+    BOOST_CHECK( ! cache.put(5,1,-1) );// not added
+    BOOST_CHECK( ! cache.contains(5) );// not present
+}
+
+BOOST_AUTO_TEST_CASE( alreadyInCache )
+{
+    CACHE cache(1);
+    cache.update(0);
+    cache.put(0,1,-1);
+    BOOST_CHECK_THROW( cache.put(0,1,-1), std::logic_error ); // already in cache
+}
+
+BOOST_AUTO_TEST_CASE( cacheFull )
+{
+    CACHE cache(10);
+    cache.update(0);
+    cache.update(1);
+    BOOST_CHECK( ! cache.isFull() ); // not yet full
+    BOOST_CHECK( cache.put(0,11,-1) );
+    BOOST_CHECK( cache.isFull() );// full
+    BOOST_CHECK_EQUAL( cache.cacheSize(),11 );// now present
+    BOOST_CHECK( ! cache.put(1,1,1) );// can't put, we're full here
+    BOOST_CHECK( ! cache.contains(1) );// data is not here
+    CACHE::data_type data;
+    BOOST_CHECK( !cache.get(1, data) );// can't get 1
+}
+
+BOOST_AUTO_TEST_CASE( fullButHigherPriorityDiscardsRequested )
 {
     CACHE cache(2);
-    BOOST_CHECK( cache.push(WORK_UNIT(0,JobPriority(0,0),1)) );
-    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(0,1),1)) );
 
-    WORK_UNIT wu;
-    BOOST_CHECK( cache.get(0,wu) );
-    BOOST_CHECK( cache.get(1,wu) );
+    cache.update(1);
+    cache.update(0);
+
+    BOOST_CHECK( cache.put(0,3,-1) ); // pushing 0 fills the cache
+    BOOST_CHECK( cache.isFull() );// full
+
+    BOOST_CHECK( cache.put(1,1,-1) );// 1 has higher priority and must remove 0
+    BOOST_CHECK( ! cache.isFull() );// no more full
+    BOOST_CHECK( ! cache.contains(0) );
+    BOOST_CHECK( cache.contains(1) );
+
 }
 
-/**
- * Testing query
- */
-BOOST_AUTO_TEST_CASE( updatePriorityNotInCache )
+BOOST_AUTO_TEST_CASE( swap )
 {
-    CACHE cache(2);
-    const size_t id = 0;
-    const WORK_UNIT wu(id,JobPriority(0,0),1);
-    BOOST_CHECK_EQUAL( cache.query(wu) , REQUIRED);
+    CACHE cache(10);
 
-    // now putting in the cache
-    BOOST_CHECK( cache.push(wu) );
+    cache.update(0);
+    cache.update(1);
+    cache.update(3);
+    cache.put(1,2,42);
 
-    // updating with higher priority
-    BOOST_CHECK_EQUAL( cache.query(WORK_UNIT(id,JobPriority(1,0),5)) , DONE);
+    cache.discardPending();
 
-    WORK_UNIT temp;
-    BOOST_CHECK( cache.get(id,temp) );
-    BOOST_CHECK_EQUAL( temp.priority.jobId, 1U);// priority should be updated
-    BOOST_CHECK_EQUAL( temp.metric, 1U);// metric should  NOT be updated
+    BOOST_CHECK_EQUAL( cache.cacheSize() ,2U);
+    // jobs are not pending anymore
+    BOOST_CHECK( ! cache.isPending(0) );
+    BOOST_CHECK( ! cache.isPending(1) );
+    BOOST_CHECK( ! cache.isPending(3) );
+    // but content is here
+    BOOST_CHECK( cache.contains(1) );
 
-    // updating with lowest priority
-    const WORK_UNIT lowestPriority(id,JobPriority(0,0),1);
-    BOOST_CHECK_EQUAL( cache.query(lowestPriority) , DONE);
-
-    BOOST_CHECK( cache.get(id,temp) );
-    BOOST_CHECK_EQUAL( temp.priority.jobId, 1U);// priority should NOT be updated
-    BOOST_CHECK_EQUAL( temp.metric, 1U);// metric should NOT be updated
-
-    // making cache full
-    BOOST_CHECK( cache.push(WORK_UNIT(1,JobPriority(1,1),1)) );
-
-    // asking for a new item
-    BOOST_CHECK_EQUAL( cache.query(WORK_UNIT(2,JobPriority(1,2),1)) , CACHE_FULL);
-}
-
-BOOST_AUTO_TEST_CASE( test ){
-    WorkUnit<bool, size_t, JobPriority, uint64_t> wu;
+    CACHE::data_type data;
+    BOOST_CHECK( cache.get(1, data) );
+    BOOST_CHECK_EQUAL( data, 42 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

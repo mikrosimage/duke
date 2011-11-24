@@ -9,6 +9,7 @@ typedef void* FormatHandle;
  * Interface to load and decode images.
  */
 struct ImageDecoderFactory {
+    virtual ~ImageDecoderFactory() = 0;
     /**
      * Will return a per thread instance of the image decoder
      * NULL if no decoder found for this format

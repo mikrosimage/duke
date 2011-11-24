@@ -9,54 +9,33 @@
 
 #include "ImageHolder.h"
 #include "PlaylistIterator.h"
+#include "ImageToolbox.h"
 
-#include <dukeengine/cache/JobPriority.hpp>
-#include <dukeengine/cache/Cache.hpp>
+#include <dukeapi/io/ConcurrentQueue.h>
 
+#include <dukeengine/cache/LookAheadCache.hpp>
 #include <dukeengine/host/io/ImageDecoderFactory.h>
 #include <dukeengine/sequence/PlaylistHelper.h>
 
 #include <boost/thread.hpp>
 
 #include <cassert>
+#include <cinttypes>
 
 using namespace std;
 using namespace cache;
 
-struct WorkUnitData {
-    string filename;
-    ImageHolder imageHolder;
-};
-
-typedef uint64_t id_type;
-typedef WorkUnitData data_type;
-typedef JobPriority job_type;
+typedef image::WorkUnitId id_type;
+typedef image::WorkUnitData data_type;
 typedef uint64_t metric_type;
-
-typedef WorkUnit<data_type, id_type, job_type, metric_type> WORK_UNIT;
-
-inline static void decode(WORK_UNIT&unit) {
-    // decode unit and send to ready queue
-    ostringstream msg;
-    msg << "thread " << boost::this_thread::get_id() << " : " << unit.id << " READY !";
-    printf("%s\n", msg.str().c_str());
-}
-
-inline static bool load(WORK_UNIT&unit) {
-    // load unit and send to ready or loaded queue
-    ostringstream msg;
-    msg << "thread " << boost::this_thread::get_id() << " is loading " << unit.id;
-    printf("%s\n", msg.str().c_str());
-    return false;
-}
 
 struct Job {
     Job() :
-            m_PlaylistIterator(PlaylistHelper(), 0, 0), m_JobKey(0, 0), m_Limited(true) {
+            m_PlaylistIterator(PlaylistHelper(), 0, 0), m_Limited(true) {
     }
 
-    Job(const PlaylistIterator playlistItr, size_t job) :
-            m_PlaylistIterator(playlistItr), m_JobKey(job, 0), m_Limited(false) {
+    Job(const PlaylistHelper &helper, size_t frame, uint32_t speed) :
+            m_PlaylistIterator(helper, frame, speed), m_Limited(false) {
     }
 
     inline void clear() {
@@ -67,90 +46,121 @@ struct Job {
         return m_Limited || m_PlaylistIterator.empty();
     }
 
-    inline WORK_UNIT next() {
-        WORK_UNIT wu(front());
-        popFront();
-        return wu;
-    }
-private:
-    void popFront() {
+    inline id_type next() {
+        const id_type id { m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename() };
         m_PlaylistIterator.popFront();
-        ++m_JobKey.index;
+        return id;
     }
 
-    WORK_UNIT front() {
-        WORK_UNIT wu(m_JobKey.index, m_JobKey);
-        wu.id = m_PlaylistIterator.front();
-        wu.data.filename = m_PlaylistIterator.frontFilename();
-        return wu;
+    inline const PlaylistHelper& helper() const {
+        return m_PlaylistIterator.helper();
     }
 
-    PlaylistIterator m_PlaylistIterator;
-    JobPriority m_JobKey;bool m_Limited;
+private:
+    PlaylistIterator m_PlaylistIterator;bool m_Limited;
 };
 
-typedef JobProducer<WORK_UNIT, Job> CACHE;
-typedef ConcurrentQueue<WORK_UNIT> QUEUE;
+typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
+typedef ConcurrentQueue<data_type> QUEUE;
 
-
-static void worker(CACHE &jobProducer, QUEUE &decodeQueue) {
-    WORK_UNIT unit;
-    try {
-        while (true) {
-            if (decodeQueue.tryPop(unit)) {
-                decode(unit);
-                jobProducer.push(unit);
-            } else {
-                jobProducer.waitAndPop(unit);
-                if (load(unit))
-                    jobProducer.push(unit);
-                else
-                    decodeQueue.push(unit);
-            }
-        }
-    } catch (chain_terminated &e) {
-    }
-    while (decodeQueue.tryPop(unit)) {
-        decode(unit);
-        jobProducer.push(unit);
-    }
+static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
+    if (!unit.error.empty())
+        printf("error while loading '%s' : %s\n", unit.id.filename.c_str(), unit.error.c_str());
+    jobProducer.offer(unit.id, weight == 0 ? 1 : weight, unit);
 }
 
-struct SmartCache::Impl {
+static inline void decodeAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, data_type &unit) {
+    metric_type weight;
+    image::decode(factory, unit, weight);
+    checkValidAndPush(jobProducer, weight, unit);
+}
+
+static inline void waitLoadAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
+    id_type id;
+    jobProducer.waitAndPop(id);
+//    printf(">> popping job %s\n", id.filename.c_str());
+    metric_type weight;
+    data_type data(id);
+    const bool isReady = image::load(factory, data, weight);
+    if (isReady)
+        checkValidAndPush(jobProducer, weight, data);
+    else
+        decodeQueue.push(data);
+}
+
+static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
+    printf(">> worker launched\n");
+    data_type data;
+    try {
+        while (true) {
+            if (decodeQueue.tryPop(data))
+                decodeAndPush(factory, jobProducer, data);
+            else
+                waitLoadAndPush(factory, jobProducer, decodeQueue);
+        }
+    } catch (terminated &e) {
+    }
+    while (decodeQueue.tryPop(data))
+        decodeAndPush(factory, jobProducer, data);
+    printf(">> worker stopped\n");
+}
+
+struct SmartCache::Impl : private boost::noncopyable {
     Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
-            m_ImageFactory(factory), m_LoadedQueue(), m_JobProducer(limit), m_CurrentJob(0) {
+            m_ImageFactory(factory), m_LookAheadCache(limit), m_LastFrame(-1), m_LastSpeed(-1), m_pLastHelper(NULL) {
         using boost::bind;
-        for (size_t i = 0; i < threads; ++i)
-            m_ThreadGroup.create_thread(bind(&::worker, boost::ref(m_JobProducer), boost::ref(m_LoadedQueue)));
+        if (limit > 0)
+            for (size_t i = 0; i < threads; ++i)
+                m_ThreadGroup.create_thread(bind(&::worker, boost::cref(m_ImageFactory), boost::ref(m_LookAheadCache), boost::ref(m_LoadedQueue)));
     }
 
     ~Impl() {
-        m_JobProducer.terminate();
+        m_LookAheadCache.terminate();
         m_ThreadGroup.join_all();
     }
 
-    inline void seek(size_t frame, uint32_t speed, const PlaylistHelper &helper) {
-        m_JobProducer.pushJob(Job(PlaylistIterator(helper, frame, speed), m_CurrentJob++));
+    inline void seek(const size_t frame, const uint32_t speed, const PlaylistHelper &helper) {
+        if (frame == m_LastFrame && speed == m_LastSpeed && m_pLastHelper == &helper)
+            return;
+        m_LastFrame = frame;
+        m_LastSpeed = speed;
+        m_pLastHelper = &helper;
+        m_LastJob = Job(helper, frame, speed);
+//        cout << "posting new job ";
+        m_LookAheadCache.pushJob(m_LastJob);
     }
 
-    inline bool get(uint64_t hash, ImageHolder & imageHolder) {
-        WORK_UNIT tmp;
-        if (!m_JobProducer.get(hash, tmp))
+    inline bool get(uint64_t hash, ImageHolder & imageHolder) const {
+        const image::WorkUnitId id(hash, m_LastJob.helper().getPathStringAtHash(hash));
+        if (id.filename.empty())
             return false;
-        imageHolder = tmp.data.imageHolder;
-        return true;
+        image::WorkUnitData data(id);
+        if (!m_LookAheadCache.get(id, data)) {
+            cout << "image not in cache, loading in main thread" << endl;
+            metric_type weight;
+            if (!image::load(m_ImageFactory, data, weight))
+                image::decode(m_ImageFactory, data, weight);
+        }
+        imageHolder = data.imageHolder;
+        return data.error.empty();
     }
-private:
 
+private:
     const ImageDecoderFactory& m_ImageFactory;
     QUEUE m_LoadedQueue;
-    CACHE m_JobProducer;
-    size_t m_CurrentJob;
+    CACHE m_LookAheadCache;
+    Job m_LastJob;
+    size_t m_LastFrame;
+    uint32_t m_LastSpeed;
+    const PlaylistHelper * m_pLastHelper;
     boost::thread_group m_ThreadGroup;
 };
 
 SmartCache::SmartCache(uint8_t threads, uint64_t limit, const ImageDecoderFactory& factory) :
-        m_pImpl(new Impl(threads, limit, factory)) {
+        m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
+}
+
+SmartCache::~SmartCache() {
 }
 
 bool SmartCache::get(uint64_t hash, ImageHolder & imageHolder) const {

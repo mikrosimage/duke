@@ -1,88 +1,62 @@
+/*
+ * ImageToolbox.h
+ *
+ *  Created on: 21 nov. 2011
+ *      Author: Guillaume Chatelet
+ */
+
 #ifndef IMAGETOOLBOX_H_
 #define IMAGETOOLBOX_H_
 
-#include <dukeengine/chain/Chain.h>
-#include <dukeengine/image/ImageHolder.h>
-#include <dukeengine/sequence/PlaylistHelper.h>
-#include <dukeengine/host/io/ImageDecoderFactory.h>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/shared_ptr.hpp>
+#include "ImageHolder.h"
 
-/**
- * This struct converts a hash back to a filename
- */
-struct PlaylistHashToName {
-    const SharedPlaylistHelperPtr playlistHelper;
-    PlaylistHashToName(const SharedPlaylistHelperPtr &playlistHelper);
-    std::string getFilename(uint64_t hash) const;
+#include <string>
+
+struct ImageDecoderFactory;
+
+namespace image {
+
+struct WorkUnitId {
+    uint64_t hash;
+    std::string filename;
+
+    WorkUnitId() {}
+    WorkUnitId(uint64_t hash, const std::string &filename) : hash(hash), filename(filename) {}
+    inline bool operator<(const WorkUnitId &other) const { return hash < other.hash; }
+    inline bool operator==(const WorkUnitId &other) const { return hash == other.hash; }
+    inline bool operator!=(const WorkUnitId &other) const { return hash != other.hash; }
 };
 
-/**
- * Our implementation of slot data, it simply holds an ImageHolder
- * but we can put more data in it if needed.
- */
-struct DukeSlot : public SlotData {
-    MemoryBlockPtr m_pFileMemoryBlock;
-    ImageDescription m_TempImageDescription;
-    ImageHolder m_Holder;
-    std::string m_Filename;
-    std::string m_FilenameExtension;
-    bool m_bDelegateReadToHost;
-    bool m_bFormatUncompressed;
-    FormatHandle m_FormatHandler;
-    ::boost::posix_time::time_duration loadTime;
-    ::boost::posix_time::time_duration decodeTime;
+struct WorkUnitData {
+    WorkUnitId id;
+    std::string error;
+    void* pFormatHandler;
+    MemoryBlockPtr pFileContent;
+    ImageDescription imageDescription;
+    ImageHolder imageHolder;
 
-    DukeSlot() :
-        m_bDelegateReadToHost(false), m_bFormatUncompressed(false) {
+    WorkUnitData(const WorkUnitId &id) :
+            id(id), pFormatHandler(NULL) {
     }
-};
-typedef boost::shared_ptr<DukeSlot> TSlotDataPtr;
 
-/**
- * Definition of the workers
- */
-//void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
-//void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
-
-/**
- * A load_error exception will be thrown if something happens
- * during image loading
- */
-struct load_error : public std::runtime_error {
-    load_error(std::string what) :
-        std::runtime_error(what) {
+    WorkUnitData() :
+            pFormatHandler(NULL) {
     }
 };
 
 /**
- * This function will pick a slot to load from the chain
- * and fill the filename, filename extension and hash
- * of the provided slot.
+ * Loads an image and sets the allocated size
+ * returns true, if the image is ready.
+ * returns false, if the image needs decoding.
  */
-uint64_t setupFilename(TSlotDataPtr& forSlot, Chain &withChain);
+bool load(const ImageDecoderFactory&, WorkUnitData &, uint64_t& size);
 
 /**
- * This function will try to find a loader for the format.
- * It will then setup the Slot accordingly, setting the fields
- * m_bDelegateReadToHost and m_bFormatUncompressed
+ * Decode a previously loaded image and sets
+ * the allocated size.
  */
-void setupLoaderInfo(TSlotDataPtr& forSlot, const ImageDecoderFactory& withFactory);
+void decode(const ImageDecoderFactory&, WorkUnitData &, uint64_t& size);
 
-/**
- * This function will use the set ImageLoader to load the file
- * and set the pFileData and fileDataSize fields of m_TempImageDescription
- */
-void loadFileAndDecodeHeader(TSlotDataPtr& forSlot, const ImageDecoderFactory& withFactory);
-
-/**
- * Combines setupFilename and setupLoaderInfo with some
- */
-void loadFileFromDisk(TSlotDataPtr& pData);
-void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData);
-bool isAlreadyUncompressed(TSlotDataPtr &pData);
-
-void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
-void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu);
+} // namespace image
 
 #endif /* IMAGETOOLBOX_H_ */

@@ -38,9 +38,12 @@ struct PlaylistIterator : public OnePassRange<uint64_t> {
     }
 
     std::string frontFilename() {
-        return m_Helper.getPathAtHash(front()).string();
+        return m_Helper.getPathStringAtHash(front());
     }
 
+    inline const PlaylistHelper& helper() const {
+        return m_Helper;
+    }
 private:
     inline static range::LimitedPlaylistFrameRange build(const PlaylistHelper& helper, uint32_t fromFrame, int32_t speed) {
         if (helper.getEndIterator() == 0)

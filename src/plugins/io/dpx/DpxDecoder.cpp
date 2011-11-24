@@ -60,6 +60,8 @@ DpxDecoder::DpxDecoder() :
     registerAction(kOfxActionLoad, boost::bind(&DpxDecoder::noOp, this));
     registerAction(kOfxActionUnload, boost::bind(&DpxDecoder::noOp, this));
     registerAction(kOfxActionDescribe, boost::bind(&DpxDecoder::describe, this, _1, _2, _3));
+    registerAction(kOfxActionCreateInstance, boost::bind(&DpxDecoder::noOp, this));
+    registerAction(kOfxActionDestroyInstance, boost::bind(&DpxDecoder::noOp, this));
     registerAction(kOfxDukeIoActionReadHeader, boost::bind(&DpxDecoder::readHeader, this, _1, _2, _3));
     registerAction(kOfxDukeIoActionDecodeImage, boost::bind(&DpxDecoder::noOp, this));
 }

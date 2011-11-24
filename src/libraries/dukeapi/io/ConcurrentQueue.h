@@ -17,8 +17,9 @@ public:
 
     void push(const T& holder) {
         // locking the shared object
-        ::boost::lock_guard<boost::mutex> lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
         m_Container.push_back(holder);
+        lock.unlock();
         // notifying shared structure is updated
         m_Condition.notify_one();
     }
@@ -28,15 +29,15 @@ public:
         if (collection.empty())
             return;
         // locking the shared object
-        ::boost::lock_guard<boost::mutex> lock(m_Mutex);
-        drain<CompatibleContainer, Container> (collection, m_Container);
+        boost::mutex::scoped_lock lock(m_Mutex);
+        drain<CompatibleContainer, Container>(collection, m_Container);
 
         // notifying shared structure is updated
         m_Condition.notify_one();
     }
 
     void waitPop(T& holder) {
-        ::boost::unique_lock<boost::mutex> lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
 
         // blocking until at least one element in the list
         while (m_Container.empty())
@@ -50,7 +51,7 @@ public:
 
     bool tryPop(T& holder) {
         // locking the shared object
-        ::boost::lock_guard<boost::mutex> lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
 
         if (m_Container.empty())
             return false;
@@ -65,20 +66,20 @@ public:
     template<typename CompatibleContainer>
     bool drainTo(CompatibleContainer& collection) {
         // locking the shared object
-        ::boost::lock_guard<boost::mutex> lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
 
         if (m_Container.empty())
             return false;
 
         assert(!m_Container.empty());
-        drain<Container, CompatibleContainer> (m_Container, collection);
+        drain<Container, CompatibleContainer>(m_Container, collection);
 
         return true;
     }
 
     void clear() {
         // locking the shared object
-        ::boost::lock_guard<boost::mutex> lock(m_Mutex);
+        boost::mutex::scoped_lock lock(m_Mutex);
         m_Container.clear();
     }
 protected:
@@ -100,7 +101,7 @@ struct QueueAdapter {
     typedef typename Queue::value_type value_type;
     typedef typename Queue::const_reference const_reference;
     QueueAdapter(Queue& q) :
-        _q(q) {
+            _q(q) {
     }
     void push_back(const_reference & t) {
         _q.push(t);

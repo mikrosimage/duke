@@ -182,7 +182,7 @@ boost::filesystem::path PlaylistHelper::getPathAtHash(const uint64_t hash) const
 }
 
 std::string PlaylistHelper::getPathStringAtHash(const uint64_t hash) const {
-    return getPathAtHash(hash).string();
+    return getPathAtHash(hash).normalize().string();
 }
 
 PlaylistHelper::FrameToIndices::iterator PlaylistHelper::ensureKey(const size_t key) {
