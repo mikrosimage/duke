@@ -15,6 +15,11 @@
 
 using namespace std;
 
+ostream& operator<<(ostream& stream, const image::WorkUnitId &id) {
+    stream << id.filename;
+    return stream;
+}
+
 namespace image {
 
 using namespace ::mikrosimage::alloc;

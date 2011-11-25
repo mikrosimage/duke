@@ -30,7 +30,12 @@ struct PriorityCache : private boost::noncopyable {
     BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<metric_type>)); //
 
     PriorityCache(metric_type limit) :
-        m_CurrentWeight(0), m_CacheLimit(limit) {
+            m_CurrentWeight(0), m_CacheLimit(limit) {
+    }
+
+    void dumpAvailableKeys(std::vector<id_type> &keys) const {
+        keys.clear();
+        std::for_each(m_Cache.begin(), m_Cache.end(), [&keys](const std::pair<id_type, DataElement> &pair){keys.push_back(pair.first);});
     }
 
     inline bool isFull() const {

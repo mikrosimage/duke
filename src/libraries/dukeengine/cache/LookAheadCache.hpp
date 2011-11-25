@@ -34,8 +34,17 @@ struct LookAheadCache {
             m_SharedCache(cache_limit), m_PendingJob(WorkUnitRange()) {
     }
 
+    inline void dumpAvailableKeys(std::vector<id_type> &keys) const {
+        boost::mutex::scoped_lock lock(m_CacheMutex);
+        m_SharedCache.dumpAvailableKeys(keys);
+    }
+
     inline bool offer(const id_type &id, const metric_type weight, const data_type &data) {
         boost::mutex::scoped_lock lock(m_CacheMutex);
+        if (m_SharedCache.contains(id)) {
+            std::cout << "did some work for nothing, " << id << " was already in the cache" << std::endl;
+            return false;
+        }
         return m_SharedCache.put(id, weight, data);
     }
 
@@ -55,10 +64,10 @@ struct LookAheadCache {
                 m_SharedWorkUnitItr.clear();
             } else if (m_SharedCache.update(unit)) {
 //                std::cout << "unit updated, checking another one" << std::endl;
-                continue; // trying next one
+                continue;// trying next one
             } else {
 //                std::cout << "serving this one" << std::endl;
-                break; // serving this one
+                break;// serving this one
             }
         } while (true);
     }
@@ -76,7 +85,7 @@ private:
         if (updateJob()) {
             boost::mutex::scoped_lock lock(m_CacheMutex);
             m_SharedCache.discardPending();
-            std::cout << "received new Job" << std::endl;
+//            std::cout << "received new Job" << std::endl;
         }
         return m_SharedWorkUnitItr.next();
     }

@@ -19,6 +19,8 @@
 
 #include <boost/thread.hpp>
 
+#include <iterator>
+
 #include <cassert>
 #include <cinttypes>
 
@@ -141,11 +143,19 @@ struct SmartCache::Impl : private boost::noncopyable {
             if (!image::load(m_ImageFactory, data, weight))
                 image::decode(m_ImageFactory, data, weight);
         }
+        dump();
         imageHolder = data.imageHolder;
         return data.error.empty();
     }
 
 private:
+    void dump() const {
+        vector<id_type> ids;
+        m_LookAheadCache.dumpAvailableKeys(ids);
+//        copy(ids.begin(), ids.end(), ostream_iterator<id_type>(cout, " "));
+        cout << ids[0] << endl;
+    }
+
     const ImageDecoderFactory& m_ImageFactory;
     QUEUE m_LoadedQueue;
     CACHE m_LookAheadCache;

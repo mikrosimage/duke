@@ -11,6 +11,7 @@
 #include "ImageHolder.h"
 
 #include <string>
+#include <ostream>
 
 struct ImageDecoderFactory;
 
@@ -26,6 +27,7 @@ struct WorkUnitId {
     inline bool operator==(const WorkUnitId &other) const { return hash == other.hash; }
     inline bool operator!=(const WorkUnitId &other) const { return hash != other.hash; }
 };
+
 
 struct WorkUnitData {
     WorkUnitId id;
@@ -58,5 +60,7 @@ bool load(const ImageDecoderFactory&, WorkUnitData &, uint64_t& size);
 void decode(const ImageDecoderFactory&, WorkUnitData &, uint64_t& size);
 
 } // namespace image
+
+std::ostream& operator<<(std::ostream&, const image::WorkUnitId &id);
 
 #endif /* IMAGETOOLBOX_H_ */
