@@ -31,12 +31,10 @@ OfxStatus TurboJpegDecoder::describe(const void* handle, OfxPropertySetHandle in
 }
 
 OfxStatus TurboJpegDecoder::createInstance(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    std::cout << "Creating instance" << std::endl;
     return kOfxStatOK;
 }
 
 OfxStatus TurboJpegDecoder::destroyInstance(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    std::cout << "Destroying instance" << std::endl;
     return kOfxStatOK;
 }
 

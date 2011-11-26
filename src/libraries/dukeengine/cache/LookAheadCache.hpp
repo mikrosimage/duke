@@ -31,12 +31,7 @@ struct LookAheadCache {
     typedef WORK_UNIT_RANGE WorkUnitRange;
 
     LookAheadCache(const metric_type cache_limit) :
-            m_SharedCache(cache_limit), m_PendingJob(WorkUnitRange()) {
-    }
-
-    inline void dumpAvailableKeys(std::vector<id_type> &keys) const {
-        boost::mutex::scoped_lock lock(m_CacheMutex);
-        m_SharedCache.dumpAvailableKeys(keys);
+        m_SharedCache(cache_limit), m_PendingJob(WorkUnitRange()) {
     }
 
     inline bool offer(const id_type &id, const metric_type weight, const data_type &data) {
@@ -48,6 +43,12 @@ struct LookAheadCache {
         return m_SharedCache.put(id, weight, data);
     }
 
+    inline bool get(const id_type &id, data_type &data, std::vector<id_type> &allKeys) const {
+        boost::mutex::scoped_lock lock(m_CacheMutex);
+        m_SharedCache.dumpKeys(allKeys);
+        return m_SharedCache.get(id, data);
+    }
+
     inline bool get(const id_type &id, data_type &data) const {
         boost::mutex::scoped_lock lock(m_CacheMutex);
         return m_SharedCache.get(id, data);
@@ -57,17 +58,19 @@ struct LookAheadCache {
         boost::mutex::scoped_lock lock(m_PopMutex);
         do {
             unit = nextWorkUnit();
-//            std::cout << "next unit is : " << unit.filename << std::endl;
+            COUT("next unit is : " << unit.filename << std::endl);
             boost::mutex::scoped_lock lock(m_CacheMutex);
-            if (m_SharedCache.isFull()) {
-//                std::cout << "cache is full, emptying job" << std::endl;
-                m_SharedWorkUnitItr.clear();
-            } else if (m_SharedCache.update(unit)) {
-//                std::cout << "unit updated, checking another one" << std::endl;
-                continue;// trying next one
-            } else {
-//                std::cout << "serving this one" << std::endl;
-                break;// serving this one
+            switch (m_SharedCache.update(unit)) {
+                case FULL:
+                    COUT("cache is full, emptying current job" << std::endl);
+                    m_SharedWorkUnitItr.clear();
+                    break;
+                case NOT_NEEDED:
+                    COUT("unit updated, checking another one" << std::endl);
+                    break;
+                case NEEDED:
+                    COUT("serving " << unit << std::endl);
+                    return;
             }
         } while (true);
     }
@@ -80,6 +83,7 @@ struct LookAheadCache {
         m_PendingJob.terminate();
     }
 
+    mutable boost::mutex m_CacheMutex;
 private:
     inline id_type nextWorkUnit() {
         if (updateJob()) {
@@ -100,7 +104,6 @@ private:
     }
 
     mutable boost::mutex m_PopMutex;
-    mutable boost::mutex m_CacheMutex;
     PriorityCache<id_type, metric_type, data_type> m_SharedCache;
     BlockingAccessor<WorkUnitRange> m_PendingJob;
     WorkUnitRange m_SharedWorkUnitItr;

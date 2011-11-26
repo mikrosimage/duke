@@ -18,7 +18,7 @@ struct PlaylistHelper;
 class ImageHolder;
 
 struct SmartCache : private boost::noncopyable {
-    SmartCache(uint8_t threads, uint64_t limit, const ImageDecoderFactory& factory);
+    SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory);
     ~SmartCache();
     void seek(const std::size_t frame, const uint32_t speed, const PlaylistHelper &);
     bool get(uint64_t hash, ImageHolder &imageHolder) const;

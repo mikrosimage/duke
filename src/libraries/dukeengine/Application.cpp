@@ -85,19 +85,19 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize) :
-        m_IO(io), //
-                  // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
-        m_Cache(4, cacheSize, m_ImageDecoderFactory), //
-        m_FileBufferHolder(), //
-        m_VbiTimings(TimingType::VBI, 120), //
-        m_FrameTimings(TimingType::FRAME, 10), //
-        m_PreviousFrame(-1), //
-        m_StoredFrame(-1), //
-        m_bRequestTermination(false), //
-        m_bAutoNotifyOnFrameChange(false), //
-        m_iReturnCode(returnCode), //
-        m_Renderer(buildHost(this), rendererFilename) {
+Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
+    m_IO(io), //
+              // m_AudioEngine(AudioEngine::CurrentVideoFrameCallback(boost::bind(&PlaybackState::getCurrentFrame, &m_PlaybackState))) ,//
+    m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
+    m_FileBufferHolder(), //
+    m_VbiTimings(TimingType::VBI, 120), //
+    m_FrameTimings(TimingType::FRAME, 10), //
+    m_PreviousFrame(-1), //
+    m_StoredFrame(-1), //
+    m_bRequestTermination(false), //
+    m_bAutoNotifyOnFrameChange(false), //
+    m_iReturnCode(returnCode), //
+    m_Renderer(buildHost(this), rendererFilename) {
 
     consumeUntilRenderOrQuit();
 }
@@ -187,7 +187,7 @@ void Application::consumeTransport() {
             }
 #ifdef __linux__
             std::stringstream ss;
-            ss << "\r\e[" << debug.line_size()+1 << "A";
+            ss << "\r\e[" << debug.line_size() + 1 << "A";
             std::cout << ss.str() << std::endl;
 #endif
             if (debug.has_pause())

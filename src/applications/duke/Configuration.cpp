@@ -38,6 +38,7 @@ const char* PLAYLIST = "playlist";
 const char* RENDERER = "renderer";
 const char* PLAYBACK = "playback";
 const char* SEQUENCE = "sequence";
+const char* THREADS = "threads";
 const char* NO_SKIP = "no-skip";
 const char* RECORD = "record";
 const char* PORT = "port";
@@ -50,8 +51,7 @@ void setDisplayOptions(boost::program_options::options_description& description,
     (FULLSCREEN, "Sets the application to run fullscreen") //
     (BLANKING, po::value<unsigned int>()->default_value(1), "Blanking count before presentation, up to 4, 0 means immediate and results in tearing effect.") //
     (REFRESHRATE, po::value<unsigned int>()->default_value(Renderer.refreshrate()), "Forces the screen refresh rate (fullscreen mode)") //
-    (RESOLUTION, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
-    ;
+    (RESOLUTION, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display");
 }
 
 struct SessionCreator {
@@ -65,10 +65,9 @@ private:
     QueueMessageIO& io;
 };
 
-
 Configuration::Configuration(int argc, char** argv) :
-    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"),
-                    m_Interactive("interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
+    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive(
+        "interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
 
     using namespace ::duke::protocol;
 
@@ -90,7 +89,8 @@ Configuration::Configuration(int argc, char** argv) :
     (PLAYBACK, po::value<string>(), "Play a recorded session back from file") //
     (RECORD, po::value<string>(), "Record a session to file") //
     (PORT, po::value<short>(), "Sets the port number to be used") //
-    (CACHE_SIZE, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.");
+    (CACHE_SIZE, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
+    (THREADS, po::value<size_t>()->default_value(1), "Number of load/decode threads. Caching must be on.");
     // adding display settings
     ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
@@ -139,7 +139,7 @@ Configuration::Configuration(int argc, char** argv) :
 
         while (m_iReturnValue == EXIT_RELAUNCH) {
             QueueMessageIO io;
-            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
+            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short>());
 
             // -> c++0x version, cool but need a gcc version > 4.4
 //            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
@@ -156,7 +156,7 @@ Configuration::Configuration(int argc, char** argv) :
     }
 
     if (m_Vm.count(PLAYBACK)) {
-        const string filename = m_Vm[PLAYBACK].as<string> ();
+        const string filename = m_Vm[PLAYBACK].as<string>();
         cout << HEADER + "Reading protocol buffer script: " << filename << endl;
         PlaybackReader decoder(filename.c_str());
         decorateAndRun(decoder);
@@ -166,11 +166,11 @@ Configuration::Configuration(int argc, char** argv) :
     /**
      * Interactive mode
      */
-    renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned> ());
+    renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());
     renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
-    renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned> ());
+    renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned>());
     if (m_Vm.count(RESOLUTION) != 0) {
-        std::string res = m_Vm[RESOLUTION].as<string> ();
+        std::string res = m_Vm[RESOLUTION].as<string>();
         std::replace(res.begin(), res.end(), 'x', ' ');
         std::replace(res.begin(), res.end(), 'X', ' ');
         istringstream stream(res);
@@ -190,7 +190,7 @@ Configuration::Configuration(int argc, char** argv) :
 
     Playlist playlist;
 
-    const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int> ();
+    const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
     playlist.set_frameratenumerator((int) framerate);
     if (m_Vm.count(NO_FRAMERATE) > 0)
         playlist.set_playbackmode(Playlist::RENDER);
@@ -208,11 +208,11 @@ Configuration::Configuration(int argc, char** argv) :
     push(queue, stop);
 
     if (m_Vm.count(SEQUENCE)) {
-        const string directory = m_Vm[SEQUENCE].as<string> ();
+        const string directory = m_Vm[SEQUENCE].as<string>();
         cout << HEADER + "Reading directory: " << directory << endl;
         SequenceReader(directory, queue, playlist);
     } else if (m_Vm.count(PLAYLIST)) {
-        const string file = m_Vm[PLAYLIST].as<string> ();
+        const string file = m_Vm[PLAYLIST].as<string>();
         cout << HEADER + "Reading playlist: " << file << endl;
         PlaylistReader(file, queue, playlist);
     } else {
@@ -229,7 +229,7 @@ Configuration::Configuration(int argc, char** argv) :
 
 void Configuration::decorateAndRun(IMessageIO& io) {
     if (m_Vm.count(RECORD) > 0) {
-        const std::string recordFilename = m_Vm[RECORD].as<string> ();
+        const std::string recordFilename = m_Vm[RECORD].as<string>();
         FileRecorder recorder(recordFilename.c_str(), io);
         cout << HEADER + "recording session to " << recordFilename << endl;
         run(recorder);
@@ -238,9 +238,9 @@ void Configuration::decorateAndRun(IMessageIO& io) {
     }
 }
 void Configuration::run(IMessageIO& io) {
-    const std::string rendererFilename = m_Vm[RENDERER].as<string> ();
-    const uint64_t cacheSize = (((uint64_t)m_Vm[CACHE_SIZE].as<size_t> ()) * 1024) * 1024;
-    Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize);
+    const std::string rendererFilename = m_Vm[RENDERER].as<string>();
+    const uint64_t cacheSize = (((uint64_t) m_Vm[CACHE_SIZE].as<size_t>()) * 1024) * 1024;
+    Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t>());
 }
 
 void Configuration::displayVersion() {
