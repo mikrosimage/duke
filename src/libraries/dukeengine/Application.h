@@ -29,7 +29,7 @@ class Message;
 
 class Application {
 public:
-    Application(const char* rendererFilename, IMessageIO &IO, int &returnCode, const uint64_t cacheSize = 0);
+    Application(const char* rendererFilename, IMessageIO &IO, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads);
     ~Application();
 
     void* fetchSuite(const char* suiteName, int suiteVersion);
@@ -46,7 +46,6 @@ private:
     void consumeTransport();
     bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
-
 
 private:
     // order of variables are very important because of multi threading issues
