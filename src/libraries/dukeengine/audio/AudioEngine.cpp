@@ -1,13 +1,13 @@
 #include "AudioEngine.h"
-#include <math.h>
+//#include <math.h>
 
 using namespace ::duke::protocol;
 using namespace ::std;
 #define MAXMSOFFSET 100
 
-namespace { // empty namespace
+namespace {
     const string HEADER = "[AudioEngine] ";
-} // empty namespace
+} // private namespace
 
 
 AudioEngine::AudioEngine() :
