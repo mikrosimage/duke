@@ -79,7 +79,7 @@ public:
     }
     const ClipHelper* getClipHelperFrom(const size_t index, size_t &frameInClip) const;
 
-    inline void swap(PlaylistHelper&& other) {
+    inline void swap(PlaylistHelper& other) {
         std::swap(m_Playlist, other.m_Playlist);
         std::swap(m_uRecIn, other.m_uRecIn);
         std::swap(m_uRecOut, other.m_uRecOut);

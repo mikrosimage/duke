@@ -10,8 +10,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <boost/foreach.hpp>
 
 #include <vector>
 #include <deque>
@@ -47,13 +46,18 @@ struct PriorityCache : private boost::noncopyable {
     BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<metric_type>)); //
 
 private:
-    typedef std::deque<id_type> IdContainer;
+    typedef std::deque<id_type>                  IdContainer;
+    typedef typename IdContainer::const_iterator IdsConstItr;
+    typedef typename IdContainer::iterator       IdsItr;
 
     struct DataElement {
         metric_type metric;
         data_type data;
+        DataElement(const metric_type &metric, const data_type &data) : metric(metric), data(data){}
     };
-    typedef std::map<id_type, DataElement> CacheContainer;
+    typedef std::map<id_type, DataElement>          CacheContainer;
+    typedef typename CacheContainer::const_iterator CacheConstItr;
+    typedef typename CacheContainer::iterator       CacheItr;
 
 public:
     PriorityCache(metric_type limit) :
@@ -64,7 +68,7 @@ public:
     void dumpKeys(std::vector<id_type> &key_container) const {
         key_container.clear();
         key_container.reserve(m_Cache.size());
-        for (const typename CacheContainer::value_type& pair : m_Cache)
+        BOOST_FOREACH(const typename CacheContainer::value_type& pair, m_Cache)
             key_container.push_back(pair.first);
     }
 
@@ -125,7 +129,7 @@ public:
     }
 
     bool get(const id_type &id, data_type &data) const {
-        const auto itr = m_Cache.find(id);
+        const CacheConstItr itr = m_Cache.find(id);
         if (itr == m_Cache.end())
             return false;
         data = itr->second.data;
@@ -166,7 +170,7 @@ private:
     }
 
     inline static bool remove(IdContainer &container, const id_type &value) {
-        auto itr = std::remove(container.begin(), container.end(), value);
+        IdsItr itr = std::remove(container.begin(), container.end(), value);
         if (itr == container.end())
             return false;
         container.erase(itr, container.end());
@@ -179,9 +183,9 @@ private:
 
     inline metric_type contiguousWeight() const {
         metric_type sum = 0;
-        const auto &end = m_Cache.end();
-        for (const id_type& id : m_PendingIds) {
-            const auto &itr = m_Cache.find(id);
+        const CacheConstItr &end = m_Cache.end();
+        BOOST_FOREACH (const id_type& id, m_PendingIds) {
+            const CacheConstItr &itr = m_Cache.find(id);
             if (itr == end)
                 return sum;
             sum += itr->second.metric;
@@ -191,7 +195,7 @@ private:
 
     metric_type currentWeight() const {
         metric_type sum = 0;
-        for (const typename CacheContainer::value_type &pair : m_Cache)
+        BOOST_FOREACH(const typename CacheContainer::value_type &pair, m_Cache)
             sum += pair.second.metric;
         return sum;
     }
@@ -203,20 +207,28 @@ private:
         return currentWeight() <= maxWeight;
     }
 
+    struct ContainsPredicate : public std::unary_function<bool, id_type> {
+        ContainsPredicate(const CacheContainer &container) :
+                cache(container) {
+        }
+        bool operator()(const id_type& id) {
+            return cache.find(id) == cache.end();
+        }
+        const CacheContainer &cache;
+    };
+
     void makeRoomFor(const id_type currentId, const metric_type weight) {
         typedef typename IdContainer::reverse_iterator reverse_itr;
         D_( std::cout << "{ " << currentWeight() << std::endl);
 
-        auto firstNonContiguous = std::find_if(m_PendingIds.begin(), m_PendingIds.end(), [this](const id_type &id) {
-            return m_Cache.find(id)==m_Cache.end();
-        });
+        IdsItr firstNonContiguous = std::find_if(m_PendingIds.begin(), m_PendingIds.end(), ContainsPredicate(m_Cache));
 
         IdContainer allDiscardable;
         std::copy(m_DiscardableIds.rbegin(), m_DiscardableIds.rend(), back_inserter(allDiscardable));
         std::copy(m_PendingIds.rbegin(), reverse_itr(firstNonContiguous), back_inserter(allDiscardable));
 
         const metric_type maxWeight = m_CacheLimit - weight;
-        for (const auto &id : allDiscardable) {
+        BOOST_FOREACH(const id_type &id, allDiscardable) {
             evict(id);
             if (currentWeight() <= maxWeight)
                 break;
@@ -225,7 +237,7 @@ private:
     }
 
     inline void evict(id_type id) {
-        auto itr = m_Cache.find(id);
+        CacheItr itr = m_Cache.find(id);
         if (itr == m_Cache.end())
             return; // not found
         m_Cache.erase(itr);
@@ -236,7 +248,7 @@ private:
     inline void addToCache(const id_type &id, const metric_type weight, const data_type &data) {
         if (!(in(m_PendingIds, id) || in(m_DiscardableIds, id)))
             m_DiscardableIds.push_back(id);
-        m_Cache.insert(std::make_pair(id, DataElement { weight, data }));
+        m_Cache.insert(std::make_pair(id, DataElement ( weight, data )));
         D_( std::cout << "+ " << id << std::endl);
     }
 

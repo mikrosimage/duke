@@ -86,18 +86,18 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 }
 
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
-    m_IO(io), //
-    m_AudioEngine(),//
-    m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
-    m_FileBufferHolder(), //
-    m_VbiTimings(TimingType::VBI, 120), //
-    m_FrameTimings(TimingType::FRAME, 10), //
-    m_PreviousFrame(-1), //
-    m_StoredFrame(-1), //
-    m_bRequestTermination(false), //
-    m_bAutoNotifyOnFrameChange(false), //
-    m_iReturnCode(returnCode), //
-    m_Renderer(buildHost(this), rendererFilename) {
+        m_IO(io), //
+        m_AudioEngine(), //
+        m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
+        m_FileBufferHolder(), //
+        m_VbiTimings(VBI, 120), //
+        m_FrameTimings(FRAME, 10), //
+        m_PreviousFrame(-1), //
+        m_StoredFrame(-1), //
+        m_bRequestTermination(false), //
+        m_bAutoNotifyOnFrameChange(false), //
+        m_iReturnCode(returnCode), //
+        m_Renderer(buildHost(this), rendererFilename) {
 
     consumeUntilRenderOrQuit();
 }
@@ -117,7 +117,7 @@ void Application::consumeUntilRenderOrQuit() {
             return;
 
         const MessageHolder &holder = *pHolder;
-        const auto descriptor = descriptorFor(holder);
+        const Descriptor* descriptor = descriptorFor(holder);
 
         if (isType<Renderer>(descriptor)) {
             m_Renderer.initRender(unpackTo<Renderer>(holder));
@@ -144,7 +144,7 @@ void* Application::fetchSuite(const char* suiteName, int suiteVersion) {
 }
 
 static inline playback::PlaybackState create(const PlaylistHelper &helper) {
-    const auto &playlist = helper.getPlaylist();
+    const Playlist &playlist = helper.getPlaylist();
     const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     cout << HEADER << nsPerFrame << endl;
     return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
@@ -161,11 +161,11 @@ void Application::consumeTransport() {
             return;
         }
         const MessageHolder &holder = *pHolder;
-        const auto descriptor = descriptorFor(holder);
-        if (isType<Renderer>(descriptor)) {
+        const Descriptor* pDescriptor = descriptorFor(holder);
+        if (isType<Renderer>(pDescriptor)) {
             cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
-        } else if (isType<Debug>(descriptor)) {
-            dump(descriptor, holder);
+        } else if (isType<Debug>(pDescriptor)) {
+            dump(pDescriptor, holder);
             const Debug debug = unpackTo<Debug>(holder);
 #ifdef __linux__
             std::cout << "\e[J";
@@ -192,13 +192,14 @@ void Application::consumeTransport() {
 #endif
             if (debug.has_pause())
                 ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
-        } else if (isType<Playlist>(descriptor)) {
-            dump(descriptor, holder);
-            m_Playlist.swap(PlaylistHelper(unpackTo<Playlist>(holder)));
-            m_AudioEngine.load(unpackTo<Playlist> (holder));
+        } else if (isType<Playlist>(pDescriptor)) {
+            dump(pDescriptor, holder);
+            PlaylistHelper temporary(unpackTo<Playlist>(holder));
+            m_Playlist.swap(temporary);
+            m_AudioEngine.load(unpackTo<Playlist>(holder));
             m_Playback = create(m_Playlist);
-        } else if (isType<Transport>(descriptor)) {
-            dump(descriptor, holder);
+        } else if (isType<Transport>(pDescriptor)) {
+            dump(pDescriptor, holder);
             switch (pHolder->action()) {
                 case MessageHolder_Action_CREATE: {
                     const Transport transport = unpackTo<Transport>(holder);
@@ -231,12 +232,12 @@ void Application::consumeTransport() {
 static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, uint32_t newFrame) {
     const bool isCueClip = cue.cueclip();
     const bool isCueRelative = cue.cuerelative();
-    const auto value = cue.value();
+    const int32_t value = cue.value();
 
     const Playlist &p(helper.getPlaylist());
-    const auto loop = p.loop();
+    const bool loop = p.loop();
     if (isCueClip) { // cueing clips
-        const auto clipSize = p.clip_size();
+        const int clipSize = p.clip_size();
         if (isCueRelative) { // cueing clips relative
             if (clipSize == 0)
                 return newFrame;
@@ -247,7 +248,7 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
             std::advance(it, value);
             if (it == clips.end()) {
                 if (loop) {
-                    const auto clipIndex = value < 0 ? clipSize - 1 : 0;
+                    const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
                     newFrame = p.clip(clipIndex).recin();
                 }
             } else {
@@ -318,7 +319,7 @@ void Application::renderStart() {
         const size_t frame = m_Playback.frame();
 
         // sync audio
-        if(m_Playback.isPlaying())
+        if (m_Playback.isPlaying())
             m_AudioEngine.checksync(m_Playback.playlistTime());
 
         // retrieve images
@@ -326,8 +327,10 @@ void Application::renderStart() {
         setup.m_Images.clear();
         m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
         m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
-        for (const ImageHolder &image : m_FileBufferHolder.getImages())
+
+        BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() ) {
             setup.m_Images.push_back(image.getImageDescription());
+        }
 
         // populate clips
         m_Playlist.getClipsAtFrame(frame, setup.m_Clips);
@@ -340,13 +343,11 @@ void Application::renderStart() {
 }
 
 OfxRendererSuiteV1::PresentStatus Application::getPresentStatus() {
-    const bool present = m_Playback.shouldPresent();
-    //        cout << (present ? 'X' : '_');
-    return present ? OfxRendererSuiteV1::PRESENT_NEXT_BLANKING : OfxRendererSuiteV1::SKIP_NEXT_BLANKING;
+    return m_Playback.shouldPresent() ? OfxRendererSuiteV1::PRESENT_NEXT_BLANKING : OfxRendererSuiteV1::SKIP_NEXT_BLANKING;
 }
 
 void Application::verticalBlanking(bool presented) {
-    const auto now = playback::s_Clock.now();
+    const boost::chrono::high_resolution_clock::time_point now( playback::s_Clock.now() );
     m_VbiTimings.push(now);
     if (presented)
         m_FrameTimings.push(now);
@@ -394,8 +395,10 @@ std::string Application::dumpInfo(const Debug_Content& info) const {
         case Debug_Content_FILENAMES: {
             std::vector<size_t> indices;
             m_Playlist.getIteratorsAtFrame(m_Playback.frame(), indices);
-            for (size_t i : indices)
+
+            BOOST_FOREACH(size_t i, indices) {
                 ss << m_Playlist.getPathAtIterator(i).filename() << " ";
+            }
             break;
         }
         case Debug_Content_FPS: {

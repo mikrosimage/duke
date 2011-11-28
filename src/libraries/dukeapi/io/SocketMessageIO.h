@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <memory>
 
 struct SocketSession : public google::protobuf::serialize::DukeSession {
     SocketSession(boost::asio::io_service& io_service, MessageQueue &in, MessageQueue &out) :
@@ -83,7 +84,7 @@ protected:
 private:
     MessageQueue &inputQueue;
     MessageQueue &outputQueue;
-    std::unique_ptr<boost::thread> sendLoopThread;
+    std::auto_ptr<boost::thread> sendLoopThread;
     bool closing;
 };
 

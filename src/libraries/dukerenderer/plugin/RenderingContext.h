@@ -53,7 +53,7 @@ public:
 
     void set(const ImageDescriptions& images, size_t displayedFrameCount, unsigned renderTargetWidth, unsigned renderTargetHeight) {
         pImages = &images;
-        displayedFrameCount = displayedFrameCount;
+        frameCount = displayedFrameCount;
         setRenderTarget(renderTargetWidth, renderTargetHeight);
     }
 

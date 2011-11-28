@@ -1,5 +1,5 @@
 #include "AudioEngine.h"
-//#include <math.h>
+#include <cmath>
 
 using namespace ::duke::protocol;
 using namespace ::std;

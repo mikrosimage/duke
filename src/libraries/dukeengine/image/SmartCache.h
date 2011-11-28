@@ -11,7 +11,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include <cinttypes>
+// uint64_t is defined in <cstdint> for C++11 or in <stdint.h> for C99
+#include <stdint.h> // uint64_t
 
 struct ImageDecoderFactory;
 struct PlaylistHelper;

@@ -276,7 +276,8 @@ void Dx9Renderer::setTexture(const CGparameter sampler, const RepeatedPtrField<S
 
     //    cout << "Sampler " << cgGetParameterName(sampler) << " setting texture " << pD3DTexture << endl;
 
-    for (auto itr = samplerStates.begin(); itr != samplerStates.end(); ++itr)
+    typedef RepeatedPtrField<SamplerState>::const_iterator Itr;
+    for (Itr itr = samplerStates.begin(); itr != samplerStates.end(); ++itr)
         CHECK(cgD3D9SetSamplerState(sampler, Get(itr->type()), Get(itr->value())));
 }
 

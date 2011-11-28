@@ -2,10 +2,8 @@
 #include "IFactory.h"
 #include "Enums.h"
 #include <iostream>
-#include <ostream>
+#include <fstream>
 #include <sstream>
-
-//#include <Windows.h>
 
 using namespace std;
 using namespace ::duke::protocol;
@@ -62,7 +60,7 @@ void Image::dump(const string& filename) const {
     //    WriteFile(file, header.data(), header.size(), &read, NULL);
     //    WriteFile(file, data.data(), data.size(), &read, NULL);
     //    CloseHandle(file);
-    ofstream file(filename, ios_base::binary | ios_base::out | ios_base::trunc);
+    ofstream file(filename.c_str(), ios_base::binary | ios_base::out | ios_base::trunc);
     file.write(header.data(), header.size());
     file.write(reinterpret_cast<char*> (data.data()), data.size());
     file.close();

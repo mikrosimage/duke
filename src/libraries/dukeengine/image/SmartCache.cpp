@@ -24,7 +24,6 @@
 #include <iostream>
 
 #include <cassert>
-#include <cinttypes>
 
 using namespace std;
 using namespace cache;
@@ -51,7 +50,7 @@ struct Job {
     }
 
     inline id_type next() {
-        const id_type id { m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename() };
+        const id_type id ( m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename() );
         m_PlaylistIterator.popFront();
         return id;
     }
@@ -174,9 +173,10 @@ private:
     inline void displayQueueState(const uint64_t &currentHash) const {
         const PlaylistHelper &helper = m_LastJob.helper();
         m_QueryKeys.clear();
-        for (const id_type& id : m_AvailableKeys)
+        BOOST_FOREACH (const id_type& id, m_AvailableKeys) {
             m_QueryKeys.insert(id.hash);
-        const auto end = m_QueryKeys.end();
+        }
+        const set<uint64_t>::const_iterator end = m_QueryKeys.end();
         cout << '[';
         for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
             const uint64_t hash = helper.getHashAtIterator(itr);
@@ -203,8 +203,8 @@ private:
     const PlaylistHelper * m_pLastHelper;
     boost::thread_group m_ThreadGroup;
 
-    mutable std::vector<id_type> m_AvailableKeys;
-    mutable std::set<uint64_t> m_QueryKeys;
+    mutable vector<id_type> m_AvailableKeys;
+    mutable set<uint64_t> m_QueryKeys;
 };
 
 SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory) :

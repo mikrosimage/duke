@@ -20,12 +20,12 @@ using namespace ::duke::protocol;
 using namespace ::shader_factory;
 
 ShaderFactory::ShaderFactory(IRenderer& renderer, const ::duke::protocol::Shader& shader, RenderingContext& context, const TShaderType type) :
-    m_Renderer(renderer), m_Shader(shader), m_RenderingContext(context), m_Images(context.images()), m_Type(type), m_ResourceManager(m_Renderer.getResourceManager()) {
+        m_Renderer(renderer), m_Shader(shader), m_RenderingContext(context), m_Images(context.images()), m_Type(type), m_ResourceManager(m_Renderer.getResourceManager()) {
     const string name = m_Shader.name();
     const bool isPersistent = !name.empty();
 
     if (isPersistent)
-        m_pShader = m_ResourceManager.get<IShaderBase> (::resource::SHADER, name);
+        m_pShader = m_ResourceManager.get<IShaderBase>(::resource::SHADER, name);
     if (!m_pShader) {
         string code;
         if (m_Type == SHADER_VERTEX || shader.has_code())
@@ -39,14 +39,14 @@ ShaderFactory::ShaderFactory(IRenderer& renderer, const ::duke::protocol::Shader
         if (isPersistent)
             m_ResourceManager.add(name, m_pShader);
     }
-    assert( m_pShader->getType() == m_Type );
+    assert( m_pShader->getType() == m_Type);
 //    cout << "set shader with name " << name << endl;
     m_Renderer.setShader(m_pShader.get());
     applyParameters();
 }
 
 void ShaderFactory::applyParameters() {
-    assert( m_pShader );
+    assert( m_pShader);
     const vector<string> &params = m_pShader->getParameterNames();
     for (vector<string>::const_iterator itr = params.begin(); itr != params.end(); ++itr)
         applyParameter(*itr);
@@ -55,24 +55,24 @@ void ShaderFactory::applyParameters() {
 TResourcePtr ShaderFactory::getParam(const string &name) const {
     for (ScopesRItr it = m_RenderingContext.scopes.rbegin(); it < m_RenderingContext.scopes.rend(); ++it) {
         const string scopedParamName = *it + "|" + name;
-        TResourcePtr pParam = m_ResourceManager.get<ProtoBufResource> (::resource::PROTOBUF, scopedParamName);
+        TResourcePtr pParam = m_ResourceManager.get<ProtoBufResource>(::resource::PROTOBUF, scopedParamName);
         if (pParam != NULL)
             return pParam;
     }
-    return m_ResourceManager.safeGet<ProtoBufResource> (::resource::PROTOBUF, name);
+    return m_ResourceManager.safeGet<ProtoBufResource>(::resource::PROTOBUF, name);
 }
 
 void ShaderFactory::applyParameter(const string& paramName) {
     const TResourcePtr pParam = getParam(paramName);
-    const Descriptor* pDescriptor = pParam->getRef<Message> ().GetDescriptor();
+    const Descriptor* pDescriptor = pParam->getRef<Message>().GetDescriptor();
 
     if (pDescriptor == StaticParameter::descriptor())
-        applyParameter(paramName, pParam->getRef<StaticParameter> ());
+        applyParameter(paramName, pParam->getRef<StaticParameter>());
     else if (pDescriptor == AutomaticParameter::descriptor())
-        applyParameter(paramName, pParam->getRef<AutomaticParameter> ());
+        applyParameter(paramName, pParam->getRef<AutomaticParameter>());
     else {
         cerr << "got unknown parameter type named : " << endl;
-        pParam->getRef<Message> ().PrintDebugString();
+        pParam->getRef<Message>().PrintDebugString();
     }
 }
 
@@ -120,8 +120,10 @@ void ShaderFactory::applyParameter(const string& paramName, const AutomaticParam
             data[2] = 0;
             break;
         }
-        default:
+        default: {
             assert(!"not yet implemented");
+            break;
+        }
     }
     m_pShader->setParameter(paramName, data, sizeof(data) / sizeof(float));
 }
@@ -149,7 +151,7 @@ void ShaderFactory::applyParameter(const string& paramName, const StaticParamete
                     break;
                 case SamplingSource_Type_SURFACE: {
                     const RenderTargets &targets = m_RenderingContext.renderTargets;
-                    auto itr = targets.find(sourceName);
+                    const RenderTargets::const_iterator itr = targets.find(sourceName);
                     if (itr == targets.end())
                         throw runtime_error("unknown render target '" + sourceName + "' to sample from");
                     pTexture = itr->second;
@@ -161,13 +163,15 @@ void ShaderFactory::applyParameter(const string& paramName, const StaticParamete
             }
 //            debugString << " '" << sourceName << "'" << endl;
 //            cout << debugString.str();
-            assert( pTexture );
+            assert( pTexture);
             m_Renderer.setTexture(m_pShader->getParameter(paramName), param.samplerstate(), pTexture->getTexture());
             m_RenderingContext.textures.push_back(pTexture);
             break;
         }
-        default:
+        default: {
             assert(!"not yet implemented");
+            break;
+        }
     }
 }
 
@@ -177,11 +181,11 @@ CGprogram ShaderFactory::createProgram(const string& code, const string &name) c
     const char** pProgramOptions = m_Renderer.getShaderOptions(m_Type);
     const CGprofile profile = m_Renderer.getShaderProfile(m_Type);
     const CGprogram cgProgram = cgCreateProgram(m_Renderer.getCgContext(), //context
-                                                CG_SOURCE, // compiling source
-                                                code.c_str(), // program
-                                                profile, // CG profile
-                                                "main", //entry point
-                                                pProgramOptions //args
+            CG_SOURCE, // compiling source
+            code.c_str(), // program
+            profile, // CG profile
+            "main", //entry point
+            pProgramOptions //args
             );
 
     if (!cgIsProgramCompiled(cgProgram)) {
@@ -206,8 +210,8 @@ CGprogram ShaderFactory::createProgram(const string& code, const string &name) c
         tokenizer tokens(compiled, sep);
         size_t instructions = 0;
         for (tokenizer::iterator beg = tokens.begin(); beg != tokens.end(); ++beg, ++instructions)
-            if (boost::starts_with(*beg, "//"))
-                instructions = 0;
+        if (boost::starts_with(*beg, "//"))
+        instructions = 0;
         cout << name << " compiled to " << instructions << " instructions" << endl;
         cout << "========================================" << endl;
 #endif

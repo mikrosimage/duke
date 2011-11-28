@@ -19,7 +19,7 @@ string doStep(PlaylistIterator& itr, const PlaylistHelper& helper) {
 BOOST_AUTO_TEST_CASE( playlistIterator0 )
 {
     ::duke::protocol::Playlist playlist;
-    const auto pClip = playlist.add_clip();
+    ::duke::protocol::Clip * const pClip = playlist.add_clip();
     pClip->set_filename("f####");
     pClip->set_srcin(1000);
     pClip->set_recin(1000);

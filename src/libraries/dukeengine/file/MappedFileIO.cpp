@@ -17,7 +17,7 @@ MappedFileIO::~MappedFileIO() {
 MemoryBlockPtr MappedFileIO::read(const char* filename) {
     using namespace boost::iostreams;
 
-    mapped_file file(filename, mapped_file::mapmode::readonly);
+    mapped_file file(filename, mapped_file::readonly);
     if (!file.is_open())
         return MemoryBlockPtr();
 

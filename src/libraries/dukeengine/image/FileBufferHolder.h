@@ -11,8 +11,7 @@ struct PlaylistHelper;
 
 class FileBufferHolder : public boost::noncopyable {
 private:
-    typedef std::vector<ImageHolder> Images;
-    Images m_Images;
+    std::vector<ImageHolder> m_Images;
     std::vector<std::size_t> m_Iterators;
     std::size_t m_LastFrame;
 
@@ -21,7 +20,7 @@ public:
 
     void update(const std::size_t frame, const SmartCache& cache, const PlaylistHelper& helper);
 
-    const Images& getImages() const;
+    const std::vector<ImageHolder>& getImages() const;
 };
 
 #endif /* FILEBUFFERHOLDER_H_ */

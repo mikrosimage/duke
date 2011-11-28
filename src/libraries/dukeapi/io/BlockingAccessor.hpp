@@ -14,7 +14,6 @@
 
 #include <cassert>
 #include <stdexcept>
-#include <atomic>
 
 struct terminated : public std::exception {
 };
@@ -22,7 +21,7 @@ struct terminated : public std::exception {
 template<typename T>
 struct BlockingAccessor : private boost::noncopyable {
     BlockingAccessor(const T&object) :
-            m_Terminate(false) {
+            m_SharedTerminate(false) {
         internal_set(object);
     }
 
@@ -36,7 +35,9 @@ struct BlockingAccessor : private boost::noncopyable {
     }
 
     void terminate() {
-        m_Terminate = true;
+        ::boost::unique_lock<boost::mutex> lock(m_TerminateMutex);
+        m_SharedTerminate = true;
+        lock.unlock();
         m_Condition.notify_all();
     }
 
@@ -67,7 +68,8 @@ struct BlockingAccessor : private boost::noncopyable {
     }
 private:
     inline void checkTermination() const {
-        if (m_Terminate)
+        ::boost::lock_guard<boost::mutex> lock(m_TerminateMutex);
+        if (m_SharedTerminate)
             throw terminated();
     }
 
@@ -82,9 +84,10 @@ private:
         m_SharedObjectSet = false;
     }
 
-    ::boost::mutex m_Mutex;
+    mutable ::boost::mutex m_Mutex;
     ::boost::condition_variable m_Condition;
-    std::atomic<bool> m_Terminate;
+    mutable ::boost::mutex m_TerminateMutex;
+    bool m_SharedTerminate;
     T m_SharedObject;
     bool m_SharedObjectSet;
 };
