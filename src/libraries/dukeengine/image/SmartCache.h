@@ -1,33 +1,30 @@
+/*
+ * SmartCache.h
+ *
+ *  Created on: 9 nov. 2011
+ *      Author: Guillaume Chatelet
+ */
+
 #ifndef SMARTCACHE_H_
 #define SMARTCACHE_H_
 
-#include <dukeengine/image/ImageHolder.h>
-#include <dukeengine/chain/RangeImpl.h>
-#include <dukeengine/chain/Chain.h>
 #include <boost/noncopyable.hpp>
-#include <string>
+#include <boost/scoped_ptr.hpp>
 
-class ImageDecoderFactory;
+#include <cinttypes>
 
-class SmartCache : private Chain {
-public:
-    SmartCache(uint64_t limit, const ImageDecoderFactory& factory);
+struct ImageDecoderFactory;
+struct PlaylistHelper;
+class ImageHolder;
 
-    void seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function);
-    bool get(const uint64_t &hash, ImageHolder &imageHolder) const;
-
-    inline bool isActive() const {
-        return m_iSizeLimit > 0;
-    }
-
-    // reexporting visibility
-    inline void dump(ForwardRange<uint64_t> & range, const uint64_t imageHash) const {
-        return Chain::dump(range, imageHash);
-    }
+struct SmartCache : private boost::noncopyable {
+    SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory);
+    ~SmartCache();
+    void seek(const std::size_t frame, const uint32_t speed, const PlaylistHelper &);
+    bool get(uint64_t hash, ImageHolder &imageHolder) const;
 private:
-    virtual size_t getNewEndIndex(const TChain&) const;
-
-    const uint64_t m_iSizeLimit;
+    struct Impl;
+    const boost::scoped_ptr<Impl> m_pImpl;
 };
 
 #endif /* SMARTCACHE_H_ */

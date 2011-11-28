@@ -9,6 +9,8 @@ TurboJpegDecoder::TurboJpegDecoder() :
     registerAction(kOfxActionLoad, boost::bind(&TurboJpegDecoder::noOp, this));
     registerAction(kOfxActionUnload, boost::bind(&TurboJpegDecoder::noOp, this));
     registerAction(kOfxActionDescribe, boost::bind(&TurboJpegDecoder::describe, this, _1, _2, _3));
+    registerAction(kOfxActionCreateInstance, boost::bind(&TurboJpegDecoder::createInstance, this, _1, _2, _3));
+    registerAction(kOfxActionDestroyInstance, boost::bind(&TurboJpegDecoder::destroyInstance, this, _1, _2, _3));
     registerAction(kOfxDukeIoActionReadHeader, boost::bind(&TurboJpegDecoder::readHeader, this, _1, _2, _3));
     registerAction(kOfxDukeIoActionDecodeImage, boost::bind(&TurboJpegDecoder::decodeImage, this, _1, _2, _3));
 }
@@ -21,10 +23,18 @@ OfxStatus TurboJpegDecoder::noOp() {
 }
 
 OfxStatus TurboJpegDecoder::describe(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(out);
+    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(OfxPropertySetHandle(handle));
     helper.setString(kOfxDukeIoSupportedExtensions, "jpeg,jpg");
     helper.setInt(kOfxDukeIoUncompressedFormat, 0);
     helper.setInt(kOfxDukeIoDelegateRead, 1);
+    return kOfxStatOK;
+}
+
+OfxStatus TurboJpegDecoder::createInstance(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
+    return kOfxStatOK;
+}
+
+OfxStatus TurboJpegDecoder::destroyInstance(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
     return kOfxStatOK;
 }
 

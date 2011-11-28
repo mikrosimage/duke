@@ -1,74 +1,224 @@
+/*
+ * SmartCache.cpp
+ *
+ *  Created on: 9 nov. 2011
+ *      Author: Guillaume Chatelet
+ */
+
 #include "SmartCache.h"
-#include <dukeengine/image/ImageToolbox.h>
-#include <dukeengine/memory/alloc/MemoryBlock.h> //todelete
-#include <dukeengine/memory/alloc/Allocators.h> //todelete
-#include <boost/foreach.hpp>
+
+#include "ImageHolder.h"
+#include "PlaylistIterator.h"
+#include "ImageToolbox.h"
+
+#include <dukeapi/io/ConcurrentQueue.h>
+
+#include <dukeengine/cache/LookAheadCache.hpp>
+#include <dukeengine/host/io/ImageDecoderFactory.h>
+#include <dukeengine/sequence/PlaylistHelper.h>
+
+#include <boost/thread.hpp>
+
+#include <set>
+#include <iterator>
 #include <iostream>
-#include <sstream>
+
+#include <cassert>
+#include <cinttypes>
 
 using namespace std;
-using namespace ::boost::this_thread;
-using namespace ::boost::posix_time;
+using namespace cache;
 
-namespace { //empty
+typedef image::WorkUnitId id_type;
+typedef image::WorkUnitData data_type;
+typedef uint64_t metric_type;
 
-::mikrosimage::alloc::AlignedMallocAllocator alignedMallocAlloc;
-
-} //empty
-
-SmartCache::SmartCache(uint64_t limit, const ImageDecoderFactory& factory) :
-    m_iSizeLimit(limit) {
-    if (isActive()) {
-        cout << "[ImageCache] Running image cache limited to " << (limit / 1024) / 1024 << "Mo\n";
-
-        // Running 1:N load and 1:N decode thread separately isn't safe yet.
-        // TODO: step1: Complete the OpenFX implementation to introduce the getInstance() method
-        // TODO: step2: Apply the thread local storage method on all shared data used in IO plugins
-
-        //        m_Chain.addWorker(boost::bind(&SmartCache::loadAndDecode, this, _1, boost::ref(factory)));
-        addWorker(boost::bind(&loadWorker, _1, boost::ref(factory), 0));
-        addWorker(boost::bind(&decodeWorker, _1, boost::ref(factory), 0));
+struct Job {
+    Job() :
+        m_PlaylistIterator(PlaylistHelper(), 0, 0), m_Limited(true) {
     }
-}
 
-void SmartCache::seek(ForwardRange<uint64_t> &range, const Chain::HashToFilenameFunction &function) {
-    postNewJob(range, function);
-}
-
-bool SmartCache::get(const uint64_t& hash, ImageHolder &imageHolder) const {
-    Slot slot;
-    if (!getResult(hash, slot) || slot.m_pSlotData == NULL)
-        return false;
-
-    const TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(slot.m_pSlotData);
-    imageHolder = pData->m_Holder;
-    return true;
-}
-
-static inline size_t weight(const InternalSlot& slot) {
-    const Slot shared = slot.m_Shared;
-    switch (slot.m_State) {
-        case NEW:
-        case LOADING:
-        case UNDEFINED:
-            return 0;
-        default:
-            break;
+    Job(const PlaylistHelper &helper, size_t frame, uint32_t speed) :
+        m_PlaylistIterator(helper, frame, speed), m_Limited(false) {
     }
-    const TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(shared.m_pSlotData);
-    if (!pData)
-        return 0;
-    return pData->m_TempImageDescription.fileDataSize + pData->m_TempImageDescription.imageDataSize;
+
+    inline void clear() {
+        m_Limited = true;
+    }
+
+    inline bool empty() const {
+        return m_Limited || m_PlaylistIterator.empty();
+    }
+
+    inline id_type next() {
+        const id_type id { m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename() };
+        m_PlaylistIterator.popFront();
+        return id;
+    }
+
+    inline const PlaylistHelper& helper() const {
+        return m_PlaylistIterator.helper();
+    }
+
+private:
+    PlaylistIterator m_PlaylistIterator;bool m_Limited;
+};
+
+typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
+typedef ConcurrentQueue<data_type> QUEUE;
+
+static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
+    if (!unit.error.empty())
+        printf("error while loading '%s' : %s\n", unit.id.filename.c_str(), unit.error.c_str());
+    jobProducer.put(unit.id, weight == 0 ? 1 : weight, unit);
 }
 
-size_t SmartCache::getNewEndIndex(const TChain& chain) const {
-    size_t currentIndex = 0;
-    size_t memory = 0;
-    for (TChain::const_iterator itr = chain.begin(); itr != chain.end(); ++itr, ++currentIndex) {
-        const size_t currentWeight = weight(*itr);
-        memory += currentWeight;
-        if (memory > m_iSizeLimit)
-            return currentIndex;
-    }
-    return chain.size();
+static inline void decodeAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, data_type &unit) {
+    metric_type weight;
+    image::decode(factory, unit, weight);
+    checkValidAndPush(jobProducer, weight, unit);
 }
+
+static inline void waitLoadAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
+    id_type id;
+    jobProducer.waitAndPop(id);
+    metric_type weight;
+    data_type data(id);
+    const bool isReady = image::load(factory, data, weight);
+    if (isReady)
+        checkValidAndPush(jobProducer, weight, data);
+    else
+        decodeQueue.push(data);
+}
+
+static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
+    data_type data;
+    try {
+        while (true) {
+            if (decodeQueue.tryPop(data))
+                decodeAndPush(factory, jobProducer, data);
+            else
+                waitLoadAndPush(factory, jobProducer, decodeQueue);
+        }
+    } catch (terminated &e) {
+    }
+    while (decodeQueue.tryPop(data))
+        decodeAndPush(factory, jobProducer, data);
+}
+
+struct SmartCache::Impl : private boost::noncopyable {
+    Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
+        m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit), m_LastFrame(-1), m_LastSpeed(-1), m_pLastHelper(NULL) {
+
+        if (threads == 0) {
+            cerr << "[Cache] cache disabled, because threads = 0" << endl;
+            return;
+        }
+
+        if (!m_CacheActivated) {
+            cout << "[Cache] disabled" << endl;
+            return;
+        }
+
+        cout << "[Cache] " << (limit / 1024 / 1024) << "MiB with " << threads << " threads" << endl;
+        using boost::bind;
+        for (uint8_t i = 0; i < threads; ++i)
+            m_ThreadGroup.create_thread(bind(&::worker, boost::cref(m_ImageFactory), boost::ref(m_LookAheadCache), boost::ref(m_LoadedQueue)));
+    }
+
+    ~Impl() {
+        m_LookAheadCache.terminate();
+        m_ThreadGroup.join_all();
+    }
+
+    inline void seek(const size_t frame, const uint32_t speed, const PlaylistHelper &helper) {
+        if (frame == m_LastFrame && speed == m_LastSpeed && m_pLastHelper == &helper)
+            return;
+        m_LastFrame = frame;
+        m_LastSpeed = speed;
+        m_pLastHelper = &helper;
+        m_LastJob = Job(helper, frame, speed);
+        m_LookAheadCache.pushJob(m_LastJob);
+    }
+
+    inline bool get(uint64_t hash, ImageHolder & imageHolder) const {
+        const PlaylistHelper &helper = m_LastJob.helper();
+        const image::WorkUnitId id(hash, helper.getPathStringAtHash(hash));
+        if (id.filename.empty())
+            return false;
+        image::WorkUnitData data(id);
+        bool loaded = false;
+        if (m_CacheActivated) {
+            m_LookAheadCache.dumpKeys(m_AvailableKeys);
+            displayQueueState(hash);
+            if (m_LookAheadCache.get(id, data))
+                loaded = true;
+            else
+                cout << "image not in cache, loading in main thread" << endl;
+        }
+        if (!loaded)
+            loadOne(data);
+
+        imageHolder = data.imageHolder;
+        return data.error.empty();
+    }
+
+private:
+
+    inline void loadOne(image::WorkUnitData &data) const {
+        metric_type weight;
+        if (!image::load(m_ImageFactory, data, weight))
+            image::decode(m_ImageFactory, data, weight);
+    }
+
+    inline void displayQueueState(const uint64_t &currentHash) const {
+        const PlaylistHelper &helper = m_LastJob.helper();
+        m_QueryKeys.clear();
+        for (const id_type& id : m_AvailableKeys)
+            m_QueryKeys.insert(id.hash);
+        const auto end = m_QueryKeys.end();
+        cout << '[';
+        for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
+            const uint64_t hash = helper.getHashAtIterator(itr);
+            if (hash == currentHash)
+                cout << '#';
+            else {
+                if (m_QueryKeys.find(hash) == end)
+                    cout << '_';
+                else
+                    cout << 'o';
+            }
+        }
+        cout << "] " << m_QueryKeys.size() << '\r';
+        cout.flush();
+    }
+
+    const bool m_CacheActivated;
+    const ImageDecoderFactory& m_ImageFactory;
+    QUEUE m_LoadedQueue;
+    CACHE m_LookAheadCache;
+    Job m_LastJob;
+    size_t m_LastFrame;
+    uint32_t m_LastSpeed;
+    const PlaylistHelper * m_pLastHelper;
+    boost::thread_group m_ThreadGroup;
+
+    mutable std::vector<id_type> m_AvailableKeys;
+    mutable std::set<uint64_t> m_QueryKeys;
+};
+
+SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory) :
+    m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
+}
+
+SmartCache::~SmartCache() {
+}
+
+bool SmartCache::get(uint64_t hash, ImageHolder & imageHolder) const {
+    return m_pImpl->get(hash, imageHolder);
+}
+
+void SmartCache::seek(size_t frame, uint32_t speed, const PlaylistHelper &helper) {
+    m_pImpl->seek(frame, speed, helper);
+}
+

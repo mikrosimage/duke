@@ -6,20 +6,33 @@
 #include <dukeio/ofxDukeIo.h>
 #include <iostream>
 
-bool _acceptFile(const char* filename, const bool isDirectory) {
-    return isDirectory || std::string(filename).find("plugin_io_") != std::string::npos;
+#include <cassert>
+
+using namespace std;
+
+static bool _acceptFile(const char* filename, const bool isDirectory) {
+    return isDirectory || string(filename).find("plugin_io_") != string::npos;
 }
 
-bool _acceptPlug(const OfxPlugin* plug) {
-    if (std::string(kOfxDukeIoApi) != plug->pluginApi) {
-        std::cerr << "DukeIO API not handled by plugin " << plug->pluginIdentifier << std::endl;
+static bool _acceptPlug(const OfxPlugin* plug) {
+    if (string(kOfxDukeIoApi) != plug->pluginApi) {
+        cerr << "DukeIO API not handled by plugin " << plug->pluginIdentifier << endl;
         return false;
     }
     if (kOfxDukeIoApiVersion != plug->apiVersion) {
-        std::cerr << "DukeIO API version not handled by plugin " << plug->pluginIdentifier << std::endl;
+        cerr << "DukeIO API version not handled by plugin " << plug->pluginIdentifier << endl;
         return false;
     }
     return true;
+}
+
+static void displayPlugin(const string &extension, const IOPlugin& plugin) {
+    cout << "[DukeIO] " << plugin.m_Plugin << " \'" << extension << "\'";
+    if (plugin.uncompressedFormat())
+        cout << "\t[OPTIMIZED]";
+    if (plugin.delegateRead())
+        cout << "\t[DELEGATE_READ]";
+    cout << endl;
 }
 
 ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
@@ -28,23 +41,15 @@ ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
 
     using ::openfx::host::PluginManager;
     const PluginManager::PluginVector plugins(m_PluginManager.getPlugins());
-    for (PluginManager::PluginVector::const_iterator itr = plugins.begin(); itr != plugins.end(); ++itr) {
-        boost::shared_ptr<PluginInstance> pPlugin(new PluginInstance(**itr));
-        typedef std::vector<std::string> Vector;
-        const Vector extensions = pPlugin->extensions();
-        for (Vector::const_iterator itr = extensions.begin(); itr != extensions.end(); ++itr)
+    for (PluginManager::PluginVector::const_iterator itr = plugins.begin(), end = plugins.end(); itr != end; ++itr) {
+        assert(*itr!=NULL); // itr must not be NULL
+        boost::shared_ptr<IOPlugin> pPlugin(new IOPlugin(**itr));
+        for (vector<string>::const_iterator itr = pPlugin->extensions().begin(), e = pPlugin->extensions().end(); itr != e; ++itr)
             m_Map[*itr] = pPlugin;
     }
     // display help
-    ExtensionToDecoderMap::const_iterator itr;
-    for (itr = m_Map.begin(); itr != m_Map.end(); ++itr) {
-        std::cout << "[DukeIO] " << itr->second->m_Plugin << " \'" << itr->first << "\'";
-        if (itr->second->uncompressedFormat())
-            std::cout << "\t[OPTIMIZED]";
-        if (itr->second->delegateRead())
-            std::cout << "\t[DELEGATE_READ]";
-        std::cout << std::endl;
-    }
+    for (ExtensionToDecoderMap::const_iterator itr = m_Map.begin(); itr != m_Map.end(); ++itr)
+        displayPlugin(itr->first, *itr->second);
 }
 
 ImageDecoderFactoryImpl::~ImageDecoderFactoryImpl() {
@@ -57,64 +62,33 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
     const ExtensionToDecoderMap::const_iterator mapEntry(m_Map.find(validExt));
     if (mapEntry == m_Map.end())
         return NULL;
-    isFormatUncompressed = mapEntry->second->uncompressedFormat();
-    delegateRead = mapEntry->second->delegateRead();
-    return mapEntry->second.get();
+    const SharedIOPlugin &pIOPlugin(mapEntry->second);
+    isFormatUncompressed = pIOPlugin->uncompressedFormat();
+    delegateRead = pIOPlugin->delegateRead();
+    return pIOPlugin.get();
 }
 
-#include <dukehost/suite/property/PropertySet.h>
-#include <dukehost/suite/property/Property.h>
-#include <dukehost/suite/property/OstreamHelpers.h>
-
-OfxStatus perform(FormatHandle decoder, const char* action, const void* handle, OfxPropertySetHandle inArgs, OfxPropertySetHandle outArgs) {
+ImageDecoderFactoryImpl::SharedIOPluginInstance ImageDecoderFactoryImpl::getTLSPluginInstance(FormatHandle decoder) const {
     assert(decoder);
-    const PluginInstance* pPluginInstance = reinterpret_cast<const PluginInstance*> (decoder);
-    return ::openfx::host::perform(&pPluginInstance->m_Plugin, action, NULL, inArgs, outArgs);
+    const IOPlugin* const pPlugin = reinterpret_cast<const IOPlugin*> (decoder);
+    if (m_pPluginToInstance.get() == NULL)
+        m_pPluginToInstance.reset(new PluginToInstance());
+    const PluginToInstance::const_iterator itr = m_pPluginToInstance->find(pPlugin);
+    if (itr == m_pPluginToInstance->end()) {
+        SharedIOPluginInstance pInstance(new IOPluginInstance(*pPlugin));
+        m_pPluginToInstance->insert(std::make_pair(pPlugin, pInstance));
+        return pInstance;
+    }
+    return itr->second;
 }
 
-bool ImageDecoderFactoryImpl::readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const {
-    using namespace ::openfx::host;
-    StringProperty filenameProp(kOfxDukeIoImageFilename, filename);
-    PointerProperty fileDataProp(kOfxDukeIoImageFileDataPtr, const_cast<char*> (description.pFileData));
-    IntProperty fileSizeProp(kOfxDukeIoImageFileDataSize, description.fileDataSize);
-    ::openfx::host::PropertySet inArgs;
-    inArgs << filenameProp << fileDataProp << fileSizeProp;
-
-    IntProperty imageFormatProp(kOfxDukeIoImageFormat, kOfxDukeIoImageFormatUndefined);
-    IntProperty imageWidthProp(kOfxDukeIoImageWidth, 0);
-    IntProperty imageHeightProp(kOfxDukeIoImageHeight, 0);
-    IntProperty imageDepthProp(kOfxDukeIoImageDepth, 0);
-    PointerProperty imageDataProp(kOfxDukeIoBufferPtr, NULL);
-    IntProperty imageSizeProp(kOfxDukeIoBufferSize, 0);
-    ::openfx::host::PropertySet outArgs;
-    outArgs << imageFormatProp << imageWidthProp << imageHeightProp << imageDepthProp;
-    outArgs << imageDataProp << imageSizeProp;
-
-    OfxStatus status = perform(decoder, kOfxDukeIoActionReadHeader, NULL, &inArgs, &outArgs);
-    // TPixelFormat are guaranteed to match exactly the DukeIO Format thanks to the enum definition
-    // taking DukeIO API values as initialization.
-    description.format = static_cast<TPixelFormat> (imageFormatProp.value[0]);
-    description.width = imageWidthProp.value[0];
-    description.height = imageHeightProp.value[0];
-    description.depth = imageDepthProp.value[0];
-    description.pImageData = static_cast<char const*> (const_cast<void const*> (imageDataProp.value[0]));
-    description.imageDataSize = imageSizeProp.value[0];
-    return status == kOfxStatOK;
+bool ImageDecoderFactoryImpl::readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const {
+    assert(decoder);
+    return getTLSPluginInstance(decoder)->readImageHeader(filename, description);
 }
 
 bool ImageDecoderFactoryImpl::decodeImage(FormatHandle decoder, const ImageDescription& description) const {
-    assert(description.pImageData);
-    using namespace ::openfx::host;
-    PointerProperty imageDataProp(kOfxDukeIoBufferPtr, const_cast<char*> (description.pImageData));
-    IntProperty imageSizeProp(kOfxDukeIoBufferSize, description.imageDataSize);
-    IntProperty imageWidthProp(kOfxDukeIoImageWidth, description.width);
-    IntProperty imageHeightProp(kOfxDukeIoImageHeight, description.height);
-    IntProperty imageDepthProp(kOfxDukeIoImageDepth, description.depth);
-    PointerProperty fileDataProp(kOfxDukeIoImageFileDataPtr, const_cast<char*> (description.pFileData));
-    IntProperty fileSizeProp(kOfxDukeIoImageFileDataSize, description.fileDataSize);
-
-    ::openfx::host::PropertySet inArgs;
-    inArgs << imageDataProp << imageSizeProp << imageWidthProp << imageHeightProp << imageDepthProp << fileDataProp << fileSizeProp;
-    return perform(decoder, kOfxDukeIoActionDecodeImage, NULL, &inArgs, NULL) == kOfxStatOK;
+    assert(decoder);
+    return getTLSPluginInstance(decoder)->decodeImage(description);
 }
 

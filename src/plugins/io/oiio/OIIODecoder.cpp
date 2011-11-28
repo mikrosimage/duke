@@ -8,8 +8,7 @@
 using namespace OpenImageIO::v0;
 
 OIIODecoder::OIIODecoder() :
-    m_pImageInput(NULL),
-    m_PropertySuite(*this) {
+    m_pImageInput(NULL), m_PropertySuite(*this) {
     registerAction(kOfxActionLoad, boost::bind(&OIIODecoder::noOp, this));
     registerAction(kOfxActionUnload, boost::bind(&OIIODecoder::noOp, this));
     registerAction(kOfxActionDescribe, boost::bind(&OIIODecoder::describe, this, _1, _2, _3));
@@ -25,7 +24,7 @@ OfxStatus OIIODecoder::noOp() {
 }
 
 OfxStatus OIIODecoder::describe(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
-    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(out);
+    openfx::plugin::PropertyHelper helper = m_PropertySuite.getHelper(OfxPropertySetHandle(handle));
     helper.setString(kOfxDukeIoSupportedExtensions, "bmp,dds,hdr,ico,jp2,j2k,exr,png,pbm,pgm,ppm,pnm,sgi,rgb,pic,tga,tpic,tif,tiff");
     helper.setInt(kOfxDukeIoUncompressedFormat, 0);
     helper.setInt(kOfxDukeIoDelegateRead, 0);
@@ -40,10 +39,10 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
 
         ImageSpec spec;
         m_pImageInput = ImageInput::create(filename);
-        if(!m_pImageInput)
-          return kOfxStatFailed;
+        if (!m_pImageInput)
+            return kOfxStatFailed;
 
-        if(!m_pImageInput->open(filename, spec)) {
+        if (!m_pImageInput->open(filename, spec)) {
             delete m_pImageInput;
             return kOfxStatFailed;
         }
@@ -52,9 +51,9 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
         height = spec.height;
         //TODO depth
 
-        if(spec.nchannels == 3)
+        if (spec.nchannels == 3)
             format = kOfxDukeIoImageFormatR16G16B16F;
-        else if(spec.nchannels == 4)
+        else if (spec.nchannels == 4)
             format = kOfxDukeIoImageFormatR16G16B16A16F;
         else {
             std::cerr << "OIIO plugin: image format not handled yet (nchannels must be 3 or 4) \n";
@@ -63,28 +62,28 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
             return kOfxStatFailed;
         }
 
-//        // ------- DUMP
-//        std::cerr << "width: " << spec.width << std::endl;
-//        std::cerr << "full_width: " << spec.full_width << std::endl;
-//        std::cerr << "height: " << spec.height << std::endl;
-//        std::cerr << "full_height: " << spec.full_height << std::endl;
-//        std::cerr << "x: " << spec.x << std::endl;
-//        std::cerr << "y: " << spec.y << std::endl;
-//        std::cerr << "z: " << spec.z << std::endl;
-//        std::cerr << "full_x: " << spec.full_x << std::endl;
-//        std::cerr << "full_y: " << spec.full_y << std::endl;
-//        std::cerr << "full_z: " << spec.full_z << std::endl;
-//        std::cerr << "tile_width: " << spec.tile_width << std::endl;
-//        std::cerr << "tile_height: " << spec.tile_height << std::endl;
-//        std::cerr << "tile_depth: " << spec.tile_depth << std::endl;
-//        std::cerr << "nchannels: " << spec.nchannels << std::endl;
-//        std::cerr << "alpha_channel: " << spec.alpha_channel << std::endl;
-//        std::cerr << "z_channel: " << spec.z_channel << std::endl;
-//        std::cerr << "channelnames: " ;
-//        BOOST_FOREACH(std::string s, spec.channelnames){std::cerr << s << ", ";}
-//        std::cerr << std::endl ;
+        //        // ------- DUMP
+        //        std::cerr << "width: " << spec.width << std::endl;
+        //        std::cerr << "full_width: " << spec.full_width << std::endl;
+        //        std::cerr << "height: " << spec.height << std::endl;
+        //        std::cerr << "full_height: " << spec.full_height << std::endl;
+        //        std::cerr << "x: " << spec.x << std::endl;
+        //        std::cerr << "y: " << spec.y << std::endl;
+        //        std::cerr << "z: " << spec.z << std::endl;
+        //        std::cerr << "full_x: " << spec.full_x << std::endl;
+        //        std::cerr << "full_y: " << spec.full_y << std::endl;
+        //        std::cerr << "full_z: " << spec.full_z << std::endl;
+        //        std::cerr << "tile_width: " << spec.tile_width << std::endl;
+        //        std::cerr << "tile_height: " << spec.tile_height << std::endl;
+        //        std::cerr << "tile_depth: " << spec.tile_depth << std::endl;
+        //        std::cerr << "nchannels: " << spec.nchannels << std::endl;
+        //        std::cerr << "alpha_channel: " << spec.alpha_channel << std::endl;
+        //        std::cerr << "z_channel: " << spec.z_channel << std::endl;
+        //        std::cerr << "channelnames: " ;
+        //        BOOST_FOREACH(std::string s, spec.channelnames){std::cerr << s << ", ";}
+        //        std::cerr << std::endl ;
 
-        int dataSize = height * width * spec.nchannels * sizeof(float)/2 ;
+        int dataSize = height * width * spec.nchannels * sizeof(float) / 2;
         openfx::plugin::PropertyHelper outArgHelper = m_PropertySuite.getHelper(out);
         outArgHelper.setInt(kOfxDukeIoImageFormat, format);
         outArgHelper.setInt(kOfxDukeIoImageWidth, width);

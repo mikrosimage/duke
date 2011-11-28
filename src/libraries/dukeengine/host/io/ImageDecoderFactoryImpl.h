@@ -1,7 +1,7 @@
 #ifndef IMAGEDECODERFACTORYIMPL_H_
 #define IMAGEDECODERFACTORYIMPL_H_
 
-#include "PluginInstance.h"
+#include "IOPlugin.h"
 #include "ImageDecoderFactory.h"
 
 #include <dukehost/PluginManager.h>
@@ -10,10 +10,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/thread/tss.hpp>
 
 #include <string>
 
-class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl{
+class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl, public ImageDecoderFactory {
     ::openfx::host::PluginManager m_PluginManager;
 
     struct iequal_to : std::binary_function<std::string, std::string, bool> {
@@ -32,17 +33,23 @@ class ImageDecoderFactoryImpl : public ::openfx::host::HostImpl{
         }
     };
     // hash map
-    typedef boost::shared_ptr<PluginInstance> PluginInstancePtr;
-    typedef boost::unordered_map<std::string, PluginInstancePtr, ihash, iequal_to> ExtensionToDecoderMap;
+    typedef boost::shared_ptr<IOPlugin> SharedIOPlugin;
+    typedef boost::unordered_map<std::string, SharedIOPlugin, ihash, iequal_to> ExtensionToDecoderMap;
     ExtensionToDecoderMap m_Map;
 
+    typedef boost::shared_ptr<IOPluginInstance> SharedIOPluginInstance;
+    typedef boost::unordered_map<const IOPlugin*, SharedIOPluginInstance> PluginToInstance;
+
+    mutable boost::thread_specific_ptr<PluginToInstance> m_pPluginToInstance;
+
+    SharedIOPluginInstance getTLSPluginInstance(FormatHandle decoder) const;
 public:
     ImageDecoderFactoryImpl();
     virtual ~ImageDecoderFactoryImpl();
 
-    FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
-    bool readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const;
-    bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
+    virtual FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
+    virtual bool readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const;
+    virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
 };
 
 #endif /* IMAGEDECODERFACTORYIMPL_H_ */

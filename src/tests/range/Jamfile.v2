@@ -1,0 +1,13 @@
+import testing ;
+
+project : requirements 
+            <threading>multi
+            <define>BOOST_TEST_MAIN
+            <define>BOOST_TEST_DYN_LINK
+            <include>../../libraries
+            <library>/duke/lib/engine//dukeengine
+            <library>/boost//unit_test_framework
+            ;
+
+unit-test templated_ranges : templated_ranges.cpp ;
+unit-test playlist_iterator : playlist_iterator.cpp ;

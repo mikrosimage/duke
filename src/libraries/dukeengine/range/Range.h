@@ -26,6 +26,8 @@ struct OnePassRange {
  */
 template<typename T>
 struct ForwardRange : public OnePassRange<T> {
+    virtual ~ForwardRange() {
+    }
     virtual ForwardRange* save() const = 0;
 };
 
@@ -34,6 +36,8 @@ struct ForwardRange : public OnePassRange<T> {
  */
 template<typename T>
 struct DoubleEndedRange : public ForwardRange<T> {
+    virtual ~DoubleEndedRange() {
+    }
     virtual T back() = 0;
     virtual void popBack() = 0;
     virtual DoubleEndedRange* save() const = 0;
@@ -44,6 +48,8 @@ struct DoubleEndedRange : public ForwardRange<T> {
  */
 template<typename T>
 struct RandomAccessInfiniteRange : ForwardRange<T> {
+    virtual ~RandomAccessInfiniteRange() {
+    }
     virtual T at(std::size_t index) = 0;
     virtual RandomAccessInfiniteRange slice(std::size_t fromIndex, std::size_t toIndex) const = 0;
 };
@@ -53,6 +59,8 @@ struct RandomAccessInfiniteRange : ForwardRange<T> {
  */
 template<typename T>
 struct RandomAccessFiniteRange : DoubleEndedRange<T> {
+    virtual ~RandomAccessFiniteRange() {
+    }
     virtual T at(std::size_t index) = 0;
     virtual RandomAccessFiniteRange slice(std::size_t fromIndex, std::size_t toIndex) const = 0;
 };

@@ -1,150 +1,128 @@
+/*
+ * ImageToolbox.cpp
+ *
+ *  Created on: 21 nov. 2011
+ *      Author: Guillaume Chatelet
+ */
+
 #include "ImageToolbox.h"
+
 #include <dukeengine/file/StreamedFileIO.h>
 #include <dukeengine/file/MappedFileIO.h>
 #include <dukeengine/file/DmaFileIO.h>
-#include <iostream>
+#include <dukeengine/file/MappedFileIO.h>
+
+#include <dukeengine/host/io/ImageDecoderFactory.h>
+
+using namespace std;
+
+ostream& operator<<(ostream& stream, const image::WorkUnitId &id) {
+    stream << id.filename;
+    return stream;
+}
+
+namespace image {
 
 using namespace ::mikrosimage::alloc;
 AlignedMallocAllocator _alignedMallocAlloc;
 
-using namespace std;
-
-PlaylistHashToName::PlaylistHashToName(const SharedPlaylistHelperPtr &playlistHelper) :
-    playlistHelper(playlistHelper) {
+static inline const char* extension(const string &filename) {
+    const size_t found = filename.find_last_of(".");
+    if (found == string::npos)
+        return NULL;
+    return filename.c_str() + found + 1;
 }
 
-string PlaylistHashToName::getFilename(uint64_t hash) const {
-    return playlistHelper->getPathAtHash(hash).string();
-}
-
-const char * reader = "READ   : ";
-const char * decoder = "DECODE : ";
-
-uint64_t setupFilename(TSlotDataPtr& pData, Chain &chain) {
-    Slot slot = chain.getLoadSlot();
-    assert(slot.m_ImageHash!=0);
-    chain.getFilenameForHash(slot.m_ImageHash, pData->m_Filename);
-    pData->m_FilenameExtension = boost::filesystem::path(pData->m_Filename).extension().string();
-    //    cerr << reader << "hash " << shared.m_ImageHash << " filename " << pData->m_Filename << endl;
-    return slot.m_ImageHash;
-}
-
-void setupLoaderInfo(TSlotDataPtr& pData, const ImageDecoderFactory& factory) {
-    assert(!pData->m_FilenameExtension.empty());
-    pData->m_FormatHandler = factory.getImageDecoder(pData->m_FilenameExtension.c_str(), pData->m_bDelegateReadToHost, pData->m_bFormatUncompressed);
-    if (pData->m_FormatHandler == NULL)
-        throw load_error("no decoder for extension \"" + pData->m_FilenameExtension + "\"");
-}
-
-void loadFileFromDisk(TSlotDataPtr& pData) {
-    assert(!pData->m_Filename.empty());
+/**
+ * return true if file loaded
+ */
+static inline bool doLoadFile(WorkUnitData &unit) {
     // file reader
-	::mikrosimage::alloc::Allocator *pAllocator = &_alignedMallocAlloc;
+    ::mikrosimage::alloc::Allocator *pAllocator = &_alignedMallocAlloc;
 #ifdef WIN32
-        DmaFileIO fileIO(pAllocator);
+    DmaFileIO fileIO(pAllocator);
+//    StreamedFileIO fileIO(pAllocator);
 #else
-        MappedFileIO fileIO(pAllocator);
+    MappedFileIO fileIO(pAllocator);
 #endif
-    MemoryBlockPtr &pFile = pData->m_pFileMemoryBlock;
-    pFile = fileIO.read(pData->m_Filename.c_str());
+    MemoryBlockPtr &pFile = unit.pFileContent;
+    pFile = fileIO.read(unit.id.filename.c_str());
     if (pFile == NULL)
-        throw load_error("unable to read " + pData->m_Filename);
-    ImageDescription &imgDesc = pData->m_TempImageDescription;
-    imgDesc.pFileData = pFile->getPtr<char> ();
+        return false;
+    ImageDescription &imgDesc = unit.imageDescription;
+    imgDesc.pFileData = pFile->getPtr<char>();
     imgDesc.fileDataSize = pFile->size();
     assert(imgDesc.pImageData == NULL);
     assert(imgDesc.imageDataSize == 0);
+    return true;
 }
 
-void loadFileAndDecodeHeader(TSlotDataPtr& pData, const ImageDecoderFactory& factory) {
-    if (!factory.readImageHeader(pData->m_Filename.c_str(), pData->m_FormatHandler, pData->m_TempImageDescription))
-        throw load_error("unable to open " + pData->m_Filename);
-}
-
-void readImage(const ImageDecoderFactory& imageFactory, TSlotDataPtr& pData) {
-    const ImageDescription &description = pData->m_TempImageDescription;
-    ImageHolder &holder = pData->m_Holder;
-    assert( description.imageDataSize > 0 );
-    MemoryBlockPtr pImageMemoryBlock(new MemoryBlock(&_alignedMallocAlloc, description.imageDataSize));
-    holder.setImageData(description, pImageMemoryBlock);
-    assert( pData->m_FormatHandler );
-    if (!imageFactory.decodeImage(pData->m_FormatHandler, holder.getImageDescription()))
-        throw load_error(string("unable to decode ") + pData->m_Filename);
+bool load(const ImageDecoderFactory& factory, WorkUnitData &unit, uint64_t& size) {
+    size = 0;
+    const string& filename = unit.id.filename;
+    if (filename.empty()) {
+        unit.error = "filename is empty";
+        return true; // image is unreachable
+    }
+    const char* pExtension = extension(filename);
+    if (pExtension == NULL) {
+        unit.error = "filename has no extension";
+        return true;
+    }
+    bool delegateReadToHost, isUncompressed;
+    FormatHandle &pHandle = unit.pFormatHandler;
+    pHandle = factory.getImageDecoder(pExtension, delegateReadToHost, isUncompressed);
+    if (pHandle == NULL) {
+        unit.error = "no decoder found";
+        return true;
+    }
+    if (!delegateReadToHost)
+        return false; // the decoder will have to load it
+    if (!doLoadFile(unit)) {
+        unit.error = "unable to read file";
+        return true;
+    }
+    return false; // still need to decode it
 }
 
 // if pImageData is set, it means the uncompressed data was in the file in which case we must
 // save the allocated memory along with the image ( ie : in the ImageHolder )
-bool isAlreadyUncompressed(TSlotDataPtr &pData) {
-    const ImageDescription &description = pData->m_TempImageDescription;
+static inline bool isAlreadyUncompressed(WorkUnitData &unit, uint64_t& size) {
+    const ImageDescription &description = unit.imageDescription;
     if (description.pImageData == NULL)
         return false;
-    const MemoryBlockPtr &pFileMemoryBlock = pData->m_pFileMemoryBlock;
-    assert( pData->m_bFormatUncompressed );
-    assert( pFileMemoryBlock->hold(description.pImageData) );
-    assert( pFileMemoryBlock->hold(description.pImageData + description.imageDataSize) );
-    pData->m_Holder.setImageData(description, pFileMemoryBlock);
+    const MemoryBlockPtr &pFileMemoryBlock = unit.pFileContent;
+    assert( pFileMemoryBlock->hold(description.pImageData));
+    assert( pFileMemoryBlock->hold(description.pImageData + description.imageDataSize));
+    unit.imageHolder.setImageData(description, pFileMemoryBlock);
+    size = pFileMemoryBlock->size();
     return true;
 }
 
-void loadOne(Chain &chain, const ImageDecoderFactory& factory) {
-    TSlotDataPtr pData(new DukeSlot());
-    uint64_t hash = 0;
-    try {
-        hash = setupFilename(pData, chain);
-        setupLoaderInfo(pData, factory);
-        if (pData->m_bDelegateReadToHost)
-            loadFileFromDisk(pData);
-        chain.setLoadedSlot(Slot(hash, pData));
-    } catch (load_error &e) {
-        cerr << e.what() << endl;
-        if (hash == 0)
-            return;
-        const Slot shared(hash);
-        chain.setDecodedSlot(Slot(hash));
+static inline void readImage(const ImageDecoderFactory& imageFactory, WorkUnitData& unit, uint64_t& size) {
+    const ImageDescription &description = unit.imageDescription;
+    ImageHolder &holder = unit.imageHolder;
+    assert( description.imageDataSize > 0);
+    MemoryBlockPtr pImageMemoryBlock(new MemoryBlock(&_alignedMallocAlloc, description.imageDataSize));
+    holder.setImageData(description, pImageMemoryBlock);
+    assert( unit.pFormatHandler);
+    if (imageFactory.decodeImage(unit.pFormatHandler, holder.getImageDescription())) {
+        size = holder.getImageDataSize();
+    } else {
+        unit.error = "unable to decode '" + unit.id.filename + "'";
     }
+    // we can release the file's memory
+    unit.pFileContent.reset();
 }
 
-void decodeOne(Chain &chain, const ImageDecoderFactory& factory) {
-    Slot slot = chain.getDecodeSlot();
-    const uint64_t hash = slot.m_ImageHash;
-    TSlotDataPtr pData = boost::dynamic_pointer_cast<DukeSlot>(slot.m_pSlotData);
-    try {
-        loadFileAndDecodeHeader(pData, factory);
-        if (!isAlreadyUncompressed(pData))
-            readImage(factory, pData);
-        chain.setDecodedSlot(Slot(hash, pData));
-    } catch (load_error &e) {
-        cerr << e.what() << endl;
-        if (hash == 0)
-            return;
-        chain.setDecodedSlot(Slot(hash));
+void decode(const ImageDecoderFactory &factory, WorkUnitData &unit, uint64_t& size) {
+    // trying to decode header
+    if (!factory.readImageHeader(unit.pFormatHandler, unit.id.filename.c_str(), unit.imageDescription)) {
+        unit.error = "unable to decode header for '" + unit.id.filename + "'";
+        return;
     }
+    if (!isAlreadyUncompressed(unit, size))
+        readImage(factory, unit, size);
 }
 
-#if defined (WIN32)
-void setCpuAffinity(unsigned cpu) {
-    SetThreadAffinityMask(GetCurrentThread(), 1 << cpu);
-}
-#else
-void setCpuAffinity(unsigned cpu) {
-}
-#endif
-
-void loadWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
-    setCpuAffinity(cpu);
-    try {
-        while (true) {
-            loadOne(chain, factory);
-        }
-    } catch (chain_terminated &e) {
-    }
-}
-
-void decodeWorker(Chain &chain, const ImageDecoderFactory& factory, const unsigned cpu) {
-    setCpuAffinity(cpu);
-    try {
-        while (true)
-            decodeOne(chain, factory);
-    } catch (chain_terminated &e) {
-    }
-}
+} // namespace image

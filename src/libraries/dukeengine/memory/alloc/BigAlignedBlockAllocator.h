@@ -53,11 +53,11 @@ public:
 class ThreadSafeBigAlignedBlockAllocator : public BigAlignedBlockAllocator {
     boost::mutex m_Mutex;
 public:
-    void* malloc(size_t size){
+    void* malloc(size_t size) {
         boost::mutex::scoped_lock lock(m_Mutex);
         return BigAlignedBlockAllocator::malloc(size);
     }
-    void free(void* pData){
+    void free(void* pData) {
         boost::mutex::scoped_lock lock(m_Mutex);
         BigAlignedBlockAllocator::free(pData);
     }

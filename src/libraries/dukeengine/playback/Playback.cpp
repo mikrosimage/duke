@@ -28,11 +28,12 @@ nanoseconds nsPerFrame(double frameRate) {
 }
 
 ContinuousPlaybackState::ContinuousPlaybackState(size_t newFrame, high_resolution_clock::duration nsPerFrame, uint32_t minFrame, uint32_t maxFrame) :
-    m_NsPerFrame(nsPerFrame), m_EpochFrame(newFrame), m_EpochTime(s_Clock.now()), m_MinFrame(std::min(minFrame, maxFrame)), m_MaxFrame(std::max(minFrame, maxFrame)),
-            m_Frame(newFrame) {
+    m_NsPerFrame(nsPerFrame), m_EpochFrame(newFrame), m_EpochTime(s_Clock.now()), m_MinFrame(std::min(minFrame, maxFrame)), m_MaxFrame(std::max(minFrame, maxFrame)), m_Frame(
+        newFrame) {
 }
 
 bool ContinuousPlaybackState::frameOverrun() const {
+//    return false;
     return presentationTimeFor(m_Frame) < s_Clock.now();
 }
 
@@ -60,7 +61,8 @@ bool ContinuousPlaybackState::adjustCurrentFrame(bool &frameMissed) {
  * return true if a bound is reached
  */
 inline bool ContinuousPlaybackState::stepFrame() {
-    assert(m_NsPerFrame!=zero); // stop state is not allowed, must be either forward or backward here
+    assert(m_NsPerFrame!=zero);
+    // stop state is not allowed, must be either forward or backward here
     if (m_NsPerFrame > zero) { // forward
         if (m_Frame >= m_MaxFrame)
             return true;

@@ -2,25 +2,29 @@
 #define IMAGEDECODERFACTORY_H_
 
 #include <dukeio/ImageDescription.h>
-#include <memory>
-#include <boost/thread.hpp>
-#include <boost/thread/condition.hpp>
 
 typedef void* FormatHandle;
-class ImageDecoderFactoryImpl;
 
-class ImageDecoderFactory {
-private:
-    std::auto_ptr<ImageDecoderFactoryImpl> m_pImpl;
-    mutable boost::mutex m_Mutex;
+/**
+ * Interface to load and decode images.
+ */
+struct ImageDecoderFactory {
+    virtual ~ImageDecoderFactory() = 0;
+    /**
+     * Will return a per thread instance of the image decoder
+     * NULL if no decoder found for this format
+     */
+    virtual FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const = 0;
 
-public:
-    ImageDecoderFactory();
-    ~ImageDecoderFactory();
+    /**
+     *
+     */
+    virtual bool readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const = 0;
 
-    FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
-    bool readImageHeader(const char* filename, FormatHandle decoder, ImageDescription& description) const;
-    bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
+    /**
+     *
+     */
+    virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const = 0;
 };
 
 #endif /* IMAGEDECODERFACTORY_H_ */

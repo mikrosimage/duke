@@ -110,7 +110,6 @@ PlaylistHelper::FrameToIndices::const_iterator PlaylistHelper::getRangeContainin
 }
 
 PlaylistHelper::FrameToIndices::const_iterator PlaylistHelper::getRangeContainingItr(const size_t iteratorIndex) const {
-    const IteratorToFrame::const_iterator end = m_mIteratorToFrame.end();
     if (iteratorIndex > m_uEndIterator)
         return m_mFrameToClipIndices.end();
     IteratorToFrame::const_iterator lower = m_mIteratorToFrame.lower_bound(iteratorIndex);
@@ -119,7 +118,7 @@ PlaylistHelper::FrameToIndices::const_iterator PlaylistHelper::getRangeContainin
     // we are on the next value
     // lower!=end() because m_uEndIterator is in the map and iteratorIndex<=m_uEndIterator
     // so last statement would have returned
-    assert(lower != end);
+    assert(lower != m_mIteratorToFrame.end());
     // we can safely return the previous value because
     // iteratorIndex >= 0 && 0 is in the map
     // so last statement would have returned
@@ -183,7 +182,7 @@ boost::filesystem::path PlaylistHelper::getPathAtHash(const uint64_t hash) const
 }
 
 std::string PlaylistHelper::getPathStringAtHash(const uint64_t hash) const {
-    return getPathAtHash(hash).string();
+    return getPathAtHash(hash).normalize().string();
 }
 
 PlaylistHelper::FrameToIndices::iterator PlaylistHelper::ensureKey(const size_t key) {

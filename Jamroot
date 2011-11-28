@@ -30,7 +30,7 @@ use-project /duke/sub/duke.plugins		: src/submodules/duke.plugins ;
 
 project : requirements 
 			<threading>multi
-			<include>$(BOOST_ROOT)
+			<toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
 			<toolset>gcc:<cxxflags>-std=gnu++0x
 			<os>NT:<define>WIN32_LEAN_AND_MEAN
 			<os>NT:<define>VC_EXTRALEAN
@@ -54,7 +54,7 @@ explicit applications
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
-alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-dx9 plugin-ogl : <os>NT ;
+alias plugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
 alias tests 		: [ glob src/tests/* : src/tests/renderer src/tests/scripts ] ;
 alias plugin-jpg	: src/plugins/io/jpg//jpg ;
 alias plugin-dpx	: src/plugins/io/dpx//dpx ;
