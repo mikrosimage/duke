@@ -13,6 +13,9 @@
 #include <string>
 #include <ostream>
 
+// uint64_t is defined in <cstdint> for C++11 or in <stdint.h> for C99
+#include <stdint.h> // uint64_t
+
 struct ImageDecoderFactory;
 
 namespace image {

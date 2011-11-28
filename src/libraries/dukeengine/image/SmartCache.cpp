@@ -50,7 +50,7 @@ struct Job {
     }
 
     inline id_type next() {
-        const id_type id ( m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename() );
+        const id_type id(m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename());
         m_PlaylistIterator.popFront();
         return id;
     }
@@ -60,7 +60,8 @@ struct Job {
     }
 
 private:
-    PlaylistIterator m_PlaylistIterator;bool m_Limited;
+    PlaylistIterator m_PlaylistIterator;
+    bool m_Limited;
 };
 
 typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
@@ -68,7 +69,7 @@ typedef ConcurrentQueue<data_type> QUEUE;
 
 static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
     if (!unit.error.empty())
-        printf("error while loading '%s' : %s\n", unit.id.filename.c_str(), unit.error.c_str());
+        cerr << "error while loading '" << unit.id.filename << "' : " << unit.error << endl;
     jobProducer.put(unit.id, weight == 0 ? 1 : weight, unit);
 }
 
@@ -173,9 +174,10 @@ private:
     inline void displayQueueState(const uint64_t &currentHash) const {
         const PlaylistHelper &helper = m_LastJob.helper();
         m_QueryKeys.clear();
-        BOOST_FOREACH (const id_type& id, m_AvailableKeys) {
-            m_QueryKeys.insert(id.hash);
-        }
+        BOOST_FOREACH (const id_type& id, m_AvailableKeys)
+                {
+                    m_QueryKeys.insert(id.hash);
+                }
         const set<uint64_t>::const_iterator end = m_QueryKeys.end();
         cout << '[';
         for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
