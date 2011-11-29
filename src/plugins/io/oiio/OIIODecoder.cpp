@@ -118,11 +118,11 @@ OfxStatus OIIODecoder::decodeImage(const void* handle, OfxPropertySetHandle in, 
         void * pData = inArgHelper.getPointer(kOfxDukeIoBufferPtr);
         m_pImageInput->read_image(TypeDesc::HALF, pData);
         safeClose();
+        return kOfxStatOK;
     } catch (exception& e) {
         cerr << "unhandled exception in OIIO plugin: " << e.what() << endl;
-        return safeClose();
     }
-    return kOfxStatOK;
+    return safeClose();
 }
 
 //
