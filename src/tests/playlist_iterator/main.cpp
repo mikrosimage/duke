@@ -187,4 +187,23 @@ BOOST_AUTO_TEST_CASE( accelerators_iterators_at_frame )
     BOOST_CHECK( indices.empty() );
 }
 
+BOOST_AUTO_TEST_CASE( failingIterator )
+{
+    ::duke::protocol::Playlist playlist;
+    ::duke::protocol::Clip* pClip = playlist.add_clip();
+    pClip->set_name("clip0");
+    pClip->set_filename( "CE_Voiture_Master_VF_HD.####.jpg" );
+    pClip->set_recin( 1 );
+    pClip->set_recout( 101 );
+    pClip->set_srcin( 1 );
+
+    PlaylistHelper accelerator(playlist);
+
+    const size_t end = accelerator.getEndIterator();
+    for( size_t i = 0; i!=end;++i){
+        const uint64_t hash = accelerator.getHashAtIterator(i);
+        BOOST_CHECK( ! accelerator.getPathStringAtHash(hash).empty() );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -60,26 +60,27 @@ static inline bool doLoadFile(WorkUnitData &unit) {
 bool load(const ImageDecoderFactory& factory, WorkUnitData &unit, uint64_t& size) {
     size = 0;
     const string& filename = unit.id.filename;
+    string &error = unit.imageHolder.error;
     if (filename.empty()) {
-        unit.error = "filename is empty";
+        error = "filename is empty";
         return true; // image is unreachable
     }
     const char* pExtension = extension(filename);
     if (pExtension == NULL) {
-        unit.error = "filename has no extension";
+        error = "filename has no extension";
         return true;
     }
     bool delegateReadToHost, isUncompressed;
     FormatHandle &pHandle = unit.pFormatHandler;
     pHandle = factory.getImageDecoder(pExtension, delegateReadToHost, isUncompressed);
     if (pHandle == NULL) {
-        unit.error = "no decoder found";
+        error = "no decoder found";
         return true;
     }
     if (!delegateReadToHost)
         return false; // the decoder will have to load it
     if (!doLoadFile(unit)) {
-        unit.error = "unable to read file";
+        error = "unable to read file";
         return true;
     }
     return false; // still need to decode it
@@ -109,7 +110,7 @@ static inline void readImage(const ImageDecoderFactory& imageFactory, WorkUnitDa
     if (imageFactory.decodeImage(unit.pFormatHandler, holder.getImageDescription())) {
         size = holder.getImageDataSize();
     } else {
-        unit.error = "unable to decode '" + unit.id.filename + "'";
+        unit.imageHolder.error = "unable to decode '" + unit.id.filename + "'";
     }
     // we can release the file's memory
     unit.pFileContent.reset();
@@ -118,7 +119,7 @@ static inline void readImage(const ImageDecoderFactory& imageFactory, WorkUnitDa
 void decode(const ImageDecoderFactory &factory, WorkUnitData &unit, uint64_t& size) {
     // trying to decode header
     if (!factory.readImageHeader(unit.pFormatHandler, unit.id.filename.c_str(), unit.imageDescription)) {
-        unit.error = "unable to decode header for '" + unit.id.filename + "'";
+        unit.imageHolder.error = "unable to decode header for '" + unit.id.filename + "'";
         return;
     }
     if (!isAlreadyUncompressed(unit, size))

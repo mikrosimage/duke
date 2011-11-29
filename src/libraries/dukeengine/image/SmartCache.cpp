@@ -34,11 +34,11 @@ typedef uint64_t metric_type;
 
 struct Job {
     Job() :
-        m_PlaylistIterator(PlaylistHelper(), 0, 0), m_Limited(true) {
+            m_PlaylistIterator(PlaylistHelper(), 0, 0), m_Limited(true) {
     }
 
     Job(const PlaylistHelper &helper, size_t frame, uint32_t speed) :
-        m_PlaylistIterator(helper, frame, speed), m_Limited(false) {
+            m_PlaylistIterator(helper, frame, speed), m_Limited(false) {
     }
 
     inline void clear() {
@@ -68,8 +68,9 @@ typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
 typedef ConcurrentQueue<data_type> QUEUE;
 
 static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
-    if (!unit.error.empty())
-        cerr << "error while loading '" << unit.id.filename << "' : " << unit.error << endl;
+    const string &error = unit.imageHolder.error;
+    if (!error.empty())
+        cerr << "error while loading '" << unit.id.filename << "' : " << error << endl;
     jobProducer.put(unit.id, weight == 0 ? 1 : weight, unit);
 }
 
@@ -108,7 +109,7 @@ static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE
 
 struct SmartCache::Impl : private boost::noncopyable {
     Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
-        m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit), m_LastFrame(-1), m_LastSpeed(-1), m_pLastHelper(NULL) {
+            m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit) {
 
         if (threads == 0) {
             cerr << "[Cache] cache disabled, because threads = 0" << endl;
@@ -132,11 +133,6 @@ struct SmartCache::Impl : private boost::noncopyable {
     }
 
     inline void seek(const size_t frame, const uint32_t speed, const PlaylistHelper &helper) {
-        if (frame == m_LastFrame && speed == m_LastSpeed && m_pLastHelper == &helper)
-            return;
-        m_LastFrame = frame;
-        m_LastSpeed = speed;
-        m_pLastHelper = &helper;
         m_LastJob = Job(helper, frame, speed);
         m_LookAheadCache.pushJob(m_LastJob);
     }
@@ -144,40 +140,35 @@ struct SmartCache::Impl : private boost::noncopyable {
     inline bool get(uint64_t hash, ImageHolder & imageHolder) const {
         const PlaylistHelper &helper = m_LastJob.helper();
         const image::WorkUnitId id(hash, helper.getPathStringAtHash(hash));
-        if (id.filename.empty())
-            return false;
         image::WorkUnitData data(id);
         bool loaded = false;
         if (m_CacheActivated) {
-            m_LookAheadCache.dumpKeys(m_AvailableKeys);
             displayQueueState(hash);
-            if (m_LookAheadCache.get(id, data))
+            if (m_LookAheadCache.get(id, data)) {
                 loaded = true;
-            else
+            } else {
                 cout << "image not in cache, loading in main thread" << endl;
+            }
         }
-        if (!loaded)
-            loadOne(data);
+
+        if (!loaded) {
+            metric_type weight;
+            if (!image::load(m_ImageFactory, data, weight))
+                image::decode(m_ImageFactory, data, weight);
+        }
 
         imageHolder = data.imageHolder;
-        return data.error.empty();
+        return imageHolder.error.empty();
     }
 
 private:
-
-    inline void loadOne(image::WorkUnitData &data) const {
-        metric_type weight;
-        if (!image::load(m_ImageFactory, data, weight))
-            image::decode(m_ImageFactory, data, weight);
-    }
-
     inline void displayQueueState(const uint64_t &currentHash) const {
+        m_LookAheadCache.dumpKeys(m_AvailableKeys);
         const PlaylistHelper &helper = m_LastJob.helper();
         m_QueryKeys.clear();
-        BOOST_FOREACH (const id_type& id, m_AvailableKeys)
-                {
-                    m_QueryKeys.insert(id.hash);
-                }
+        BOOST_FOREACH (const id_type& id, m_AvailableKeys) {
+            m_QueryKeys.insert(id.hash);
+        }
         const set<uint64_t>::const_iterator end = m_QueryKeys.end();
         cout << '[';
         for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
@@ -200,9 +191,9 @@ private:
     QUEUE m_LoadedQueue;
     CACHE m_LookAheadCache;
     Job m_LastJob;
-    size_t m_LastFrame;
-    uint32_t m_LastSpeed;
-    const PlaylistHelper * m_pLastHelper;
+//    size_t m_LastFrame;
+//    uint32_t m_LastSpeed;
+//    const PlaylistHelper * m_pLastHelper;
     boost::thread_group m_ThreadGroup;
 
     mutable vector<id_type> m_AvailableKeys;
@@ -210,7 +201,7 @@ private:
 };
 
 SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory) :
-    m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
+        m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
 }
 
 SmartCache::~SmartCache() {

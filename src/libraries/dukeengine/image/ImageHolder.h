@@ -4,13 +4,16 @@
 #include <dukeengine/memory/alloc/MemoryBlock.h>
 #include <dukeio/ImageDescription.h>
 
+#include <string>
+
 class ImageHolder
 {
 private:
 	ImageDescription m_ImageDescription;
 	MemoryBlockPtr m_pImageData;
-
 public:
+	std::string error;
+
 	ImageHolder();
 	~ImageHolder();
 

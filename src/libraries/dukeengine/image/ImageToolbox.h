@@ -34,7 +34,6 @@ struct WorkUnitId {
 
 struct WorkUnitData {
     WorkUnitId id;
-    std::string error;
     void* pFormatHandler;
     MemoryBlockPtr pFileContent;
     ImageDescription imageDescription;

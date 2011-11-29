@@ -6,7 +6,7 @@ using namespace ::std;
 #define MAXMSOFFSET 100
 
 namespace {
-    const string HEADER = "[AudioEngine] ";
+    const string HEADER = "[Audio] ";
 } // private namespace
 
 

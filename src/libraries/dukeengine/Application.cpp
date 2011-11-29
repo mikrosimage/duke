@@ -85,6 +85,57 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
+static inline playback::PlaybackState create(const PlaylistHelper &helper) {
+    const Playlist &playlist = helper.getPlaylist();
+    const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
+    cout << HEADER << nsPerFrame << endl;
+    return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
+}
+
+static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, uint32_t newFrame) {
+    const bool isCueClip = cue.cueclip();
+    const bool isCueRelative = cue.cuerelative();
+    const int32_t value = cue.value();
+
+    const Playlist &p(helper.getPlaylist());
+    const bool loop = p.loop();
+    if (isCueClip) { // cueing clips
+        const int clipSize = p.clip_size();
+        if (isCueRelative) { // cueing clips relative
+            if (clipSize == 0)
+                return newFrame;
+            std::set<size_t> clips;
+            for (int i = 0; i < clipSize; ++i)
+                clips.insert(p.clip(i).recin());
+            std::set<size_t>::const_iterator it = clips.lower_bound(newFrame);
+            std::advance(it, value);
+            if (it == clips.end()) {
+                if (loop) {
+                    const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
+                    newFrame = p.clip(clipIndex).recin();
+                }
+            } else {
+                newFrame = *it;
+            }
+        } else { // cueing clips absolute
+            if ((value < clipSize) && (value >= 0))
+                newFrame = p.clip(value).recin();
+        }
+    } else { // cueing frames
+        if (isCueRelative)
+            newFrame += value;
+        else
+            newFrame = value;
+        if (!loop && newFrame < 0)
+            newFrame = helper.getFirstFrame();
+    }
+
+    if (loop && newFrame < 0)
+        newFrame = helper.getLastFrame() + newFrame;
+
+    return newFrame;
+}
+
 Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
         m_IO(io), //
         m_AudioEngine(), //
@@ -104,7 +155,6 @@ Application::Application(const char* rendererFilename, IMessageIO &io, int &retu
 
 Application::~Application() {
     g_pApplication = NULL;
-    cout << HEADER + "engine stopped" << endl;
 }
 
 void Application::consumeUntilRenderOrQuit() {
@@ -143,11 +193,39 @@ void* Application::fetchSuite(const char* suiteName, int suiteVersion) {
     return &g_ApplicationRendererSuite;
 }
 
-static inline playback::PlaybackState create(const PlaylistHelper &helper) {
-    const Playlist &playlist = helper.getPlaylist();
-    const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
-    cout << HEADER << nsPerFrame << endl;
-    return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
+void Application::applyTransport(const Transport& transport) {
+    //                        m_AudioEngine.applyTransport(transport);
+    const uint32_t currentFrame = m_Playback.frame();
+    switch (transport.type()) {
+        case Transport_TransportType_PLAY:
+            m_Playback.play(currentFrame, 1);
+            m_AudioEngine.sync(m_Playback.playlistTime());
+            m_AudioEngine.play();
+            break;
+        case Transport_TransportType_STOP:
+            m_Playback.cue(currentFrame);
+            m_AudioEngine.pause();
+            break;
+        case Transport_TransportType_STORE:
+            m_StoredFrame = currentFrame;
+            break;
+        case Transport_TransportType_CUE:
+            m_Playback.cue(getFrameFromCueMessage(transport.cue(), m_Playlist, currentFrame));
+            m_AudioEngine.pause();
+            break;
+        case Transport_TransportType_CUE_FIRST:
+            m_Playback.cue(m_Playlist.getFirstFrame());
+            m_AudioEngine.pause();
+            break;
+        case Transport_TransportType_CUE_LAST:
+            m_Playback.cue(m_Playlist.getLastFrame());
+            m_AudioEngine.pause();
+            break;
+        case Transport_TransportType_CUE_STORED:
+            m_Playback.cue(m_StoredFrame);
+            m_AudioEngine.pause();
+            break;
+    }
 }
 
 void Application::consumeTransport() {
@@ -229,85 +307,6 @@ void Application::consumeTransport() {
     }
 }
 
-static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, uint32_t newFrame) {
-    const bool isCueClip = cue.cueclip();
-    const bool isCueRelative = cue.cuerelative();
-    const int32_t value = cue.value();
-
-    const Playlist &p(helper.getPlaylist());
-    const bool loop = p.loop();
-    if (isCueClip) { // cueing clips
-        const int clipSize = p.clip_size();
-        if (isCueRelative) { // cueing clips relative
-            if (clipSize == 0)
-                return newFrame;
-            std::set<size_t> clips;
-            for (int i = 0; i < clipSize; ++i)
-                clips.insert(p.clip(i).recin());
-            std::set<size_t>::const_iterator it = clips.lower_bound(newFrame);
-            std::advance(it, value);
-            if (it == clips.end()) {
-                if (loop) {
-                    const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
-                    newFrame = p.clip(clipIndex).recin();
-                }
-            } else {
-                newFrame = *it;
-            }
-        } else { // cueing clips absolute
-            if ((value < clipSize) && (value >= 0))
-                newFrame = p.clip(value).recin();
-        }
-    } else { // cueing frames
-        if (isCueRelative)
-            newFrame += value;
-        else
-            newFrame = value;
-        if (!loop && newFrame < 0)
-            newFrame = helper.getFirstFrame();
-    }
-
-    if (loop && newFrame < 0)
-        newFrame = helper.getLastFrame() + newFrame;
-
-    return newFrame;
-}
-
-void Application::applyTransport(const Transport& transport) {
-    //                        m_AudioEngine.applyTransport(transport);
-    const uint32_t currentFrame = m_Playback.frame();
-    switch (transport.type()) {
-        case Transport_TransportType_PLAY:
-            m_Playback.play(currentFrame, 1);
-            m_AudioEngine.sync(m_Playback.playlistTime());
-            m_AudioEngine.play();
-            break;
-        case Transport_TransportType_STOP:
-            m_Playback.cue(currentFrame);
-            m_AudioEngine.pause();
-            break;
-        case Transport_TransportType_STORE:
-            m_StoredFrame = currentFrame;
-            break;
-        case Transport_TransportType_CUE:
-            m_Playback.cue(getFrameFromCueMessage(transport.cue(), m_Playlist, currentFrame));
-            m_AudioEngine.pause();
-            break;
-        case Transport_TransportType_CUE_FIRST:
-            m_Playback.cue(m_Playlist.getFirstFrame());
-            m_AudioEngine.pause();
-            break;
-        case Transport_TransportType_CUE_LAST:
-            m_Playback.cue(m_Playlist.getLastFrame());
-            m_AudioEngine.pause();
-            break;
-        case Transport_TransportType_CUE_STORED:
-            m_Playback.cue(m_StoredFrame);
-            m_AudioEngine.pause();
-            break;
-    }
-}
-
 void Application::renderStart() {
     try {
         // consume message
@@ -325,12 +324,15 @@ void Application::renderStart() {
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         setup.m_Images.clear();
-        m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
-        m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
-
-        BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() ) {
-            setup.m_Images.push_back(image.getImageDescription());
+        if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
+            m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
+            m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
         }
+
+        BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
+                {
+                    setup.m_Images.push_back(image.getImageDescription());
+                }
 
         // populate clips
         m_Playlist.getClipsAtFrame(frame, setup.m_Clips);
@@ -347,7 +349,7 @@ OfxRendererSuiteV1::PresentStatus Application::getPresentStatus() {
 }
 
 void Application::verticalBlanking(bool presented) {
-    const boost::chrono::high_resolution_clock::time_point now( playback::s_Clock.now() );
+    const boost::chrono::high_resolution_clock::time_point now(playback::s_Clock.now());
     m_VbiTimings.push(now);
     if (presented)
         m_FrameTimings.push(now);
@@ -367,7 +369,7 @@ bool Application::renderFinished(unsigned msToPresent) {
         //            m_AudioEngine.rewind();
         //        }
         m_PreviousFrame = newFrame;
-        //        cout << '\r' << round(m_FrameTimings.frequency()) << "FPS";
+        // cout << round(m_FrameTimings.frequency()) << "FPS";
         return m_bRequestTermination;
     } catch (exception& e) {
         cerr << HEADER + "Unexpected error while finishing simulation step : " << e.what() << endl;
@@ -396,9 +398,10 @@ std::string Application::dumpInfo(const Debug_Content& info) const {
             std::vector<size_t> indices;
             m_Playlist.getIteratorsAtFrame(m_Playback.frame(), indices);
 
-            BOOST_FOREACH(size_t i, indices) {
-                ss << m_Playlist.getPathAtIterator(i).filename() << " ";
-            }
+            BOOST_FOREACH(size_t i, indices)
+                    {
+                        ss << m_Playlist.getPathAtIterator(i).filename() << " ";
+                    }
             break;
         }
         case Debug_Content_FPS: {

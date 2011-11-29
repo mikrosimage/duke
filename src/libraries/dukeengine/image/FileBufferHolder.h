@@ -13,7 +13,6 @@ class FileBufferHolder : public boost::noncopyable {
 private:
     std::vector<ImageHolder> m_Images;
     std::vector<std::size_t> m_Iterators;
-    std::size_t m_LastFrame;
 
 public:
     FileBufferHolder();
