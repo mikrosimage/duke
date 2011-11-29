@@ -12,6 +12,8 @@ OIIODecoder::OIIODecoder() :
     registerAction(kOfxActionLoad, boost::bind(&OIIODecoder::noOp, this));
     registerAction(kOfxActionUnload, boost::bind(&OIIODecoder::noOp, this));
     registerAction(kOfxActionDescribe, boost::bind(&OIIODecoder::describe, this, _1, _2, _3));
+    registerAction(kOfxActionCreateInstance, boost::bind(&OIIODecoder::noOp, this));
+    registerAction(kOfxActionDestroyInstance, boost::bind(&OIIODecoder::noOp, this));
     registerAction(kOfxDukeIoActionReadHeader, boost::bind(&OIIODecoder::readHeader, this, _1, _2, _3));
     registerAction(kOfxDukeIoActionDecodeImage, boost::bind(&OIIODecoder::decodeImage, this, _1, _2, _3));
 }
