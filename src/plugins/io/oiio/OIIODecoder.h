@@ -5,17 +5,26 @@
 #include <dukeplugin/IBoostPlugin.h>
 #include <dukeplugin/suite/property/PropertySuiteImpl.h>
 
+#include <boost/thread/tss.hpp>
+
+
 namespace OpenImageIO{
-namespace v0{
+namespace v0_11{
 	class ImageInput;
 } // namespace v0
 } // namespace OpenImageIO
 
 class OIIODecoder : public IBoostPlugin
 {
-	OpenImageIO::v0::ImageInput * m_pImageInput;
+public:
+    typedef OpenImageIO::v0_11::ImageInput ImageInput;
+    typedef boost::thread_specific_ptr<ImageInput> ImageInputPtr;
+private:
+    ImageInputPtr m_pImageInput;
     openfx::plugin::PropertySuiteImpl m_PropertySuite;
 
+    OfxStatus safeClose();
+    void safeSet(ImageInput *pImage);
 public:
     OIIODecoder();
 	virtual ~OIIODecoder();

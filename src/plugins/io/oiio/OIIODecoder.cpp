@@ -5,7 +5,8 @@
 #include <imageio.h>
 #include <iostream>
 
-using namespace OpenImageIO::v0;
+using namespace std;
+using namespace OpenImageIO::v0_11;
 
 OIIODecoder::OIIODecoder() :
     m_pImageInput(NULL), m_PropertySuite(*this) {
@@ -21,6 +22,18 @@ OIIODecoder::OIIODecoder() :
 OIIODecoder::~OIIODecoder() {
 }
 
+OfxStatus OIIODecoder::safeClose() {
+    if (m_pImageInput.get()) {
+        m_pImageInput->close();
+        m_pImageInput.release();
+    }
+    return kOfxStatFailed;
+}
+
+void OIIODecoder::safeSet(ImageInput *pImage) {
+    safeClose();
+    m_pImageInput.reset(pImage);
+}
 OfxStatus OIIODecoder::noOp() {
     return kOfxStatOK;
 }
@@ -37,17 +50,16 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
     try {
         int width = 0, height = 0, depth = 0, format = 0;
         openfx::plugin::PropertyHelper inArgHelper = m_PropertySuite.getHelper(in);
-        std::string filename = inArgHelper.getString(kOfxDukeIoImageFilename);
+        string filename = inArgHelper.getString(kOfxDukeIoImageFilename);
+
+        safeSet(ImageInput::create(filename));
+
+        if (m_pImageInput.get() == NULL)
+            return kOfxStatFailed;
 
         ImageSpec spec;
-        m_pImageInput = ImageInput::create(filename);
-        if (!m_pImageInput)
-            return kOfxStatFailed;
-
-        if (!m_pImageInput->open(filename, spec)) {
-            delete m_pImageInput;
-            return kOfxStatFailed;
-        }
+        if (!m_pImageInput->open(filename, spec))
+            return safeClose();
 
         width = spec.width;
         height = spec.height;
@@ -58,32 +70,30 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
         else if (spec.nchannels == 4)
             format = kOfxDukeIoImageFormatR16G16B16A16F;
         else {
-            std::cerr << "OIIO plugin: image format not handled yet (nchannels must be 3 or 4) \n";
-            m_pImageInput->close();
-            delete m_pImageInput;
-            return kOfxStatFailed;
+            cerr << "OIIO plugin: image format not handled yet (nchannels must be 3 or 4) \n";
+            return safeClose();
         }
 
         //        // ------- DUMP
-        //        std::cerr << "width: " << spec.width << std::endl;
-        //        std::cerr << "full_width: " << spec.full_width << std::endl;
-        //        std::cerr << "height: " << spec.height << std::endl;
-        //        std::cerr << "full_height: " << spec.full_height << std::endl;
-        //        std::cerr << "x: " << spec.x << std::endl;
-        //        std::cerr << "y: " << spec.y << std::endl;
-        //        std::cerr << "z: " << spec.z << std::endl;
-        //        std::cerr << "full_x: " << spec.full_x << std::endl;
-        //        std::cerr << "full_y: " << spec.full_y << std::endl;
-        //        std::cerr << "full_z: " << spec.full_z << std::endl;
-        //        std::cerr << "tile_width: " << spec.tile_width << std::endl;
-        //        std::cerr << "tile_height: " << spec.tile_height << std::endl;
-        //        std::cerr << "tile_depth: " << spec.tile_depth << std::endl;
-        //        std::cerr << "nchannels: " << spec.nchannels << std::endl;
-        //        std::cerr << "alpha_channel: " << spec.alpha_channel << std::endl;
-        //        std::cerr << "z_channel: " << spec.z_channel << std::endl;
-        //        std::cerr << "channelnames: " ;
-        //        BOOST_FOREACH(std::string s, spec.channelnames){std::cerr << s << ", ";}
-        //        std::cerr << std::endl ;
+        //        cerr << "width: " << spec.width << endl;
+        //        cerr << "full_width: " << spec.full_width << endl;
+        //        cerr << "height: " << spec.height << endl;
+        //        cerr << "full_height: " << spec.full_height << endl;
+        //        cerr << "x: " << spec.x << endl;
+        //        cerr << "y: " << spec.y << endl;
+        //        cerr << "z: " << spec.z << endl;
+        //        cerr << "full_x: " << spec.full_x << endl;
+        //        cerr << "full_y: " << spec.full_y << endl;
+        //        cerr << "full_z: " << spec.full_z << endl;
+        //        cerr << "tile_width: " << spec.tile_width << endl;
+        //        cerr << "tile_height: " << spec.tile_height << endl;
+        //        cerr << "tile_depth: " << spec.tile_depth << endl;
+        //        cerr << "nchannels: " << spec.nchannels << endl;
+        //        cerr << "alpha_channel: " << spec.alpha_channel << endl;
+        //        cerr << "z_channel: " << spec.z_channel << endl;
+        //        cerr << "channelnames: " ;
+        //        BOOST_FOREACH(string s, spec.channelnames){cerr << s << ", ";}
+        //        cerr << endl ;
 
         int dataSize = height * width * spec.nchannels * sizeof(float) / 2;
         openfx::plugin::PropertyHelper outArgHelper = m_PropertySuite.getHelper(out);
@@ -94,30 +104,23 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
         outArgHelper.setInt(kOfxDukeIoBufferSize, dataSize);
         return kOfxStatOK;
 
-    } catch (std::exception& e) {
-        std::cerr << "Unhandled exception in OIIO plugin: " << e.what() << std::endl;
+    } catch (exception& e) {
+        cerr << "Unhandled exception in OIIO plugin: " << e.what() << endl;
     }
-    m_pImageInput->close();
-    delete m_pImageInput;
-    return kOfxStatFailed;
-
+    return safeClose();
 }
 
 OfxStatus OIIODecoder::decodeImage(const void* handle, OfxPropertySetHandle in, OfxPropertySetHandle out) {
     try {
-
-        if (!m_pImageInput)
+        if (m_pImageInput.get() == NULL)
             return kOfxStatFailed;
         openfx::plugin::PropertyHelper inArgHelper = m_PropertySuite.getHelper(in);
         void * pData = inArgHelper.getPointer(kOfxDukeIoBufferPtr);
         m_pImageInput->read_image(TypeDesc::HALF, pData);
-        m_pImageInput->close();
-        delete m_pImageInput;
-
-    } catch (std::exception& e) {
-        std::cerr << "unhandled exception in OIIO plugin: " << e.what() << std::endl;
-        delete m_pImageInput;
-        return kOfxStatFailed;
+        safeClose();
+    } catch (exception& e) {
+        cerr << "unhandled exception in OIIO plugin: " << e.what() << endl;
+        return safeClose();
     }
     return kOfxStatOK;
 }
