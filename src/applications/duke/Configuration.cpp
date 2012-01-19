@@ -12,6 +12,7 @@
 #include <player.pb.h>
 #include <protocol.pb.h>
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -86,8 +87,15 @@ const string HEADER = "[Configuration] ";
 } // empty namespace
 
 Configuration::Configuration(int argc, char** argv) :
-        m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive(
-                "interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options") {
+        m_iReturnValue(EXIT_RELAUNCH),
+        m_CmdLineOnly("command line only options"),
+        m_Config("configuration options"),
+        m_Display("display options"),
+        m_Interactive("interactive mode options"),
+        m_CmdlineOptionsGroup("Command line options"),
+        m_ConfigFileOptions("Configuration file options"),
+        m_HiddenOptions("hidden options")
+{
 
     using namespace ::duke::protocol;
 
@@ -102,32 +110,38 @@ Configuration::Configuration(int argc, char** argv) :
 
     // available on the command line
     m_CmdLineOnly.add_options() //
-    ("help,h", "Displays this help") //
-    ("version", "Displays the version informations");
+        ("help,h",  "Displays this help") //
+        ("version", "Displays the version informations");
 
     // available in the configuration file and command line
     m_Config.add_options() //
-    (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
-    (PLAYBACK_OPT, po::value<string>(), "Play a recorded session back from file") //
-    (RECORD_OPT, po::value<string>(), "Record a session to file") //
-    (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
-    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
-    (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
+        (RENDERER_OPT,      po::value<string>(),                            "Sets the renderer to be used") //
+        (PLAYBACK_OPT,      po::value<string>(),                            "Play a recorded session back from file") //
+        (RECORD_OPT,        po::value<string>(),                            "Record a session to file") //
+        (PORT_OPT,          po::value<short>(),                             "Sets the port number to be used") //
+        (CACHESIZE_OPT,     po::value<size_t>()->default_value(0),          "Cache size for preemptive read in MB. 0 means no caching.") //
+        (THREADS_OPT,       po::value<size_t>()->default_value(1),          "Number of load/decode threads. Cache size must be >0.");
     // adding display settings
     ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
 
     // adding interactive mode options
     m_Interactive.add_options() //
-    (PLAYLIST_OPT, po::value<string>(), "Adds a playlist file as input (.ppl, .ppl2)") //
-    (SEQUENCE_OPT, po::value<string>(), "Adds a sequence directory as input") //
-    (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
-    (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
-    (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
+        (SEQUENCE_OPT,                                                      "Enable detection of sequences from filename") //
+        (FRAMERATE_OPT,     po::value<unsigned int>()->default_value(25),   "Sets the playback framerate") //
+        (NOFRAMERATE_OPT,                                                   "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
+        (NOSKIP_OPT,                                                        "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
+
+    //adding hidden options
+    m_HiddenOptions.add_options()
+        ("inputs",          po::value< vector<string> >(),                  "input directories, files, sequences, playlists.");
+
+    po::positional_options_description pod;
+    pod.add("inputs", -1);
 
     // parsing the command line
-    m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive);
-    po::store(po::parse_command_line(argc, argv, m_CmdlineOptionsGroup), m_Vm);
+    m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive).add(m_HiddenOptions);
+    po::store(po::command_line_parser(argc, argv).options(m_CmdlineOptionsGroup).positional(pod).run(), m_Vm);
 
     // now parsing the configuration file - already stored variables will remain unchanged
     m_ConfigFileOptions.add(m_Config).add(m_Display).add(m_Interactive);
@@ -229,15 +243,46 @@ Configuration::Configuration(int argc, char** argv) :
     stop.set_action(Engine_Action_RENDER_STOP);
     push(queue, stop);
 
-    if (m_Vm.count(SEQUENCE)) {
-        const string directory = m_Vm[SEQUENCE].as<string>();
-        cout << HEADER + "Reading directory: " << directory << endl;
-        SequenceReader(directory, queue, playlist);
-    } else if (m_Vm.count(PLAYLIST)) {
-        const string file = m_Vm[PLAYLIST].as<string>();
-        cout << HEADER + "Reading playlist: " << file << endl;
-        PlaylistReader(file, queue, playlist);
-    } else {
+    if ( m_Vm.count("inputs") )
+    {
+        vector<string> inputs = m_Vm["inputs"].as< std::vector<std::string> >();
+ /*       vector<string>::iterator inputString;
+        inputString = inputStrings.begin();
+        for ( ; inputString!=inputStrings.end(); ++inputString) {
+            cout << *inputString << endl;
+            fs::path path( *inputString );
+            if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
+            {
+                cout << HEADER + "Reading playlist: " << *inputString << endl;
+                PlaylistReader( *inputString, queue, playlist );
+            }
+            else
+            {
+                cout << HEADER + "Reading : " << *inputString << endl;
+                SequenceReader( *inputString, queue, playlist );
+            }
+        }
+*/
+        BOOST_FOREACH( std::string input, inputs )
+        {
+            std::cout << input << std::endl;
+            fs::path path( input );
+            if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
+            {
+                cout << HEADER + "Reading playlist: " << input << endl;
+                PlaylistReader( input, queue, playlist );
+            }
+            else
+            {
+                cout << HEADER + "Reading : " << input << endl;
+                if ( m_Vm.count("sequence") )
+                    SequenceReader( input, queue, playlist, true );
+                else
+                    SequenceReader( input, queue, playlist );
+            }
+        }
+    }
+    else {
         cout << "- ! -" << endl;
         cout << "You should specify an input (sequence directory or playlist file) in interactive mode. See help below.\n" << endl;
         displayHelp();
