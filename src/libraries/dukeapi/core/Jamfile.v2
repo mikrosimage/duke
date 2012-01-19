@@ -3,5 +3,5 @@ alias core    : [ glob-tree *.cpp ]
                 ../io//io
                 ../playlist//playlist
                 ../player//player
-                ../sequence//sequence
+		/duke/sub/sequenceParser//sequence
             ;

@@ -1,15 +1,15 @@
 
-	#################
-	# Usage:
-	# 
-	# Targets:
-	#     dist     : full build & installation 
-	#     tests    : run unit-test suite
-	# 
-	# Options:
-	#     --no-<plugin>    : removes plugin <plugin> from build list
-	#
-	#################
+    #################
+    # Usage:
+    #
+    # Targets:
+    #     dist     : full build & installation
+    #     tests    : run unit-test suite
+    #
+    # Options:
+    #     --no-<plugin>    : removes plugin <plugin> from build list
+    #
+    #################
 
 import os ;
 import set ;
@@ -18,7 +18,7 @@ using pb : $(PROTOC) ;
 
 ## Configuration
 
-local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ; 
+local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ;
 use-project /boost 						: $(BOOST_ROOT) ;
 use-project /duke/lib/engine			: src/libraries/dukeengine ;
 use-project /duke/lib/api				: src/libraries/dukeapi ;
@@ -27,28 +27,30 @@ use-project /duke/lib/ioplugin			: src/libraries/dukeio/plugin ;
 use-project /duke/lib/renderer			: src/libraries/dukerenderer ;
 use-project /duke/lib/rendererplugin	: src/libraries/dukerenderer/plugin ;
 use-project /duke/sub/duke.plugins		: src/submodules/duke.plugins ;
+use-project /duke/sub/sequenceParser		: src/submodules/sequenceParser ;
 
-project : requirements 
-			<threading>multi
-			<toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
-			<os>NT:<define>WIN32_LEAN_AND_MEAN
-			<os>NT:<define>VC_EXTRALEAN
-			<os>NT:<define>_WIN32_WINNT=0x0501
-		: build-dir bin	;
+project : requirements
+            <threading>multi
+            <toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
+            <os>NT:<define>WIN32_LEAN_AND_MEAN
+            <os>NT:<define>VC_EXTRALEAN
+            <os>NT:<define>_WIN32_WINNT=0x0501
+        : build-dir bin	;
 
 
 ## Main targets
 
 explicit applications
-		 plugins
-		 tests
-		 plugin-jpg
-		 plugin-dpx
-		 plugin-oiio
-		 plugin-ogl
-		 plugin-dx9
-		 shader_prototypes
-		 dist ;
+         plugins
+         tests
+         plugin-jpg
+         plugin-dpx
+         plugin-oiio
+         plugin-ogl
+         plugin-dx9
+         shader_prototypes
+         mingw_runtime
+         dist ;
 
 alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
 alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
@@ -65,23 +67,23 @@ alias mingw_runtime : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
 
 install shader_prototypes :
-	[ glob resources/shader_prototypes/* ]
-	:
-	<variant>debug:<location>dist/debug/shader_prototypes
-	<variant>release:<location>dist/release/shader_prototypes
-	;
+    [ glob resources/shader_prototypes/* ]
+    :
+    <variant>debug:<location>dist/debug/shader_prototypes
+    <variant>release:<location>dist/release/shader_prototypes
+    ;
 
 install dist :
     mingw_runtime
-	applications
-	plugins
-	shader_prototypes
-	:
-	<install-dependencies>on
-	<install-type>SHARED_LIB
-	<install-type>SEARCHED_LIB
-	<install-type>EXE
-	<variant>debug:<location>dist/debug
-	<variant>release:<location>dist/release
-	<dependency>shader_prototypes
-	;
+    applications
+    plugins
+    shader_prototypes
+    :
+    <install-dependencies>on
+    <install-type>SHARED_LIB
+    <install-type>SEARCHED_LIB
+    <install-type>EXE
+    <variant>debug:<location>dist/debug
+    <variant>release:<location>dist/release
+    <dependency>shader_prototypes
+    ;

@@ -1,7 +1,8 @@
 #include "SequenceReader.h"
-#include "messageBuilder/Commons.h"
 
-#include <dukeapi/sequence/Sequence.hpp>
+#include <dukeapi/core/messageBuilder/Commons.h>
+
+#include <Detector.hpp>
 
 #include <google/protobuf/text_format.h>
 #include <player.pb.h>
@@ -15,13 +16,32 @@ using namespace std;
 using namespace google::protobuf;
 using namespace duke::protocol;
 
-SequenceReader::SequenceReader(const string& directory, MessageQueue& queue, Playlist& _playlist) :
+static std::string INPUT = "Input";
+
+SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queue, Playlist& _playlist, bool detectionOfSequenceFromFilename ) :
     m_Queue(queue) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    boost::filesystem::path p(directory);
-    if (!::boost::filesystem::is_directory(p))
-        throw std::runtime_error("Unable to find directory " + string(directory));
+    sequenceParser::Detector detector;
+
+
+    boost::filesystem::path p( inputDirectory );
+    string directory ( inputDirectory );
+
+    if( ::boost::filesystem::exists( p )  )
+    {
+        if ( ::boost::filesystem::is_directory( p ) )
+            inputType = eInputTypeDirectory;
+        else
+            inputType = eInputTypeFile;
+    }
+    else
+    {
+        inputType = eInputTypeSequence;
+    }
+
+    if ( inputType == eInputTypeSequence && !::boost::filesystem::is_directory( p.parent_path() ) )
+        throw std::runtime_error( "Unable to find " + string( directory ) );
 
     // appending parameters
     addAutomaticParam(m_Queue, DISPLAY_DIM);
@@ -32,26 +52,60 @@ SequenceReader::SequenceReader(const string& directory, MessageQueue& queue, Pla
     addMesh(m_Queue, MS_Plane, "plane", -1, -1, 2, 2);
 
     size_t recin = 0;
-    std::list<boost::shared_ptr<FileObject> > listing = fileObjectsInDir(p.string(), eMaskTypeSequence, eMaskOptionsNone );
-    if(listing.empty())
-        throw std::runtime_error("Unable to recognize any image sequence in " + string(directory));
 
-    BOOST_FOREACH( const std::list<boost::shared_ptr<FileObject> >::value_type & s, listing )
+    sequenceParser::EMaskOptions options = sequenceParser::eMaskOptionsNone;
+    if( detectionOfSequenceFromFilename )
+        options = sequenceParser::eMaskOptionsSequenceBasedOnFilename;
+
+    std::list<boost::shared_ptr<sequenceParser::FileObject> > listing = detector.fileAndSequenceInDirectory ( directory, options );
+    if( listing.empty() )
+        throw std::runtime_error( "Unable to recognize any image sequence or image in " + string( directory ) );
+
+    BOOST_FOREACH( const std::list<boost::shared_ptr<sequenceParser::FileObject> >::value_type & res, listing )
     {
-        Sequence *seq = dynamic_cast<Sequence*>(s.get());
+        boost::filesystem::path pattern;
+        Clip *                  pClip;
 
-        // adding clip
-        Clip * pClip = addClipToPlaylist(//
-                                         _playlist, //
-                                         "clip0", //
-                                         recin, //
-                                         recin + seq->getDuration(), //
-                                         seq->getFirstTime(), //
-                                         directory, //
-                                         seq->getStandardPattern());
+        if( res->getMaskType() == sequenceParser::eMaskTypeSequence )
+        {
+            // add the sequence to the playlist
+            boost::shared_ptr<sequenceParser::Sequence> sequence = boost::static_pointer_cast<sequenceParser::Sequence> ( res );
+            std::cout <<  "[" << INPUT << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << sequence->getFirstTime() << " to " << recin + sequence->getDuration() << std::endl;
+            // adding clip
+            pClip = addClipToPlaylist(//
+                    _playlist, //
+                    "clip0", //
+                    recin, //
+                    recin + sequence->getDuration(), //
+                    sequence->getFirstTime(), //
+                    sequence->getDirectory().string(), //
+                    sequence->getStandardPattern() );
 
-        // computes next recin value
-        recin += seq->getDuration();
+            // computes next recin value
+            recin += sequence->getDuration();
+
+            pattern = sequence->getStandardPattern();
+        }
+        else
+        {
+            // add a file to the playlist
+            boost::shared_ptr<sequenceParser::File> file = boost::static_pointer_cast<sequenceParser::File> ( res );
+            std::cout << "[" << INPUT << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
+
+            // adding clip
+            pClip = addClipToPlaylist(//
+                    _playlist, //
+                    "clip0", //
+                    recin, //
+                    recin+1, //
+                    0, //
+                    file->getDirectory().string(), //
+                    file->getFilename() );
+
+            // computes next recin value
+            recin += 1;
+            pattern = file->getAbsoluteFilename();
+        }
 
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());
@@ -69,10 +123,10 @@ SequenceReader::SequenceReader(const string& directory, MessageQueue& queue, Pla
 
         // ...pixel shader
         Shader pixelShader;
-        boost::filesystem::path pattern(seq->getStandardPattern());
         buildPixelShader(pixelShader, "ps", NULL, pClip->name());
         addShadingNode(pixelShader, "rgbatobgra", 1);
-        if (pattern.extension() == ".dpx") {
+        if (pattern.extension() == ".dpx")
+        {
             addShadingNode(pixelShader, "tenbitunpackfloat", 2);
         }
         push(m_Queue, pixelShader);
