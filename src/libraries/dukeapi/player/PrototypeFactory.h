@@ -23,7 +23,7 @@ class PrototypeFactory : boost::noncopyable {
     typedef boost::ptr_map<std::string, Function> TMap;
     TMap m_Map;
 public:
-    PrototypeFactory(const char* directory) {
+    void loadFromFolder(const char* directory) {
         using namespace ::boost::filesystem;
         using namespace ::std;
         const path dir_path(directory);
@@ -63,6 +63,11 @@ public:
         if (itr == m_Map.end())
             throw std::runtime_error("Prototype " + name + " is not available");
         return *(itr->second);
+    }
+
+    bool hasPrototype(const std::string& name) const {
+        TMap::const_iterator itr = m_Map.find(name);
+        return itr != m_Map.end();
     }
 };
 

@@ -64,6 +64,8 @@ private:
 	ResourceManager m_ResourceManager;
 	TexturePool m_TexturePool;
 	PrototypeFactory m_PrototypeFactory;
+
+	void add(const duke::protocol::FunctionPrototype &);
 };
 
 #include "IFactory.inl"
