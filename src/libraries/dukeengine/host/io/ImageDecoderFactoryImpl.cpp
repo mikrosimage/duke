@@ -35,8 +35,28 @@ static void displayPlugin(const string &extension, const IOPlugin& plugin) {
     cout << endl;
 }
 
+static string dukeGetEnv( const char* e )
+{
+    #if !defined( __GNUC__ ) && defined( WINDOWS )
+    size_t requiredSize;
+    getenv_s( &requiredSize, 0, 0, e );
+    vector<char> buffer( requiredSize );
+    if( requiredSize > 0 )
+    {
+        getenv_s( &requiredSize, &buffer.front(), requiredSize, e );
+        return &buffer.front();
+    }
+    return "";
+    #else
+    const char* env_value = getenv( e );
+    if( env_value == NULL )
+        return "";
+    return env_value;
+    #endif
+}
+
 ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
-    m_PluginManager(*this, ".", &_acceptFile, &_acceptPlug) {
+    m_PluginManager(*this, dukeGetEnv( "DUKE_PLUGIN_PATH" ).c_str(), &_acceptFile, &_acceptPlug) {
     // browsing the plugins and building the extension provider
 
     using ::openfx::host::PluginManager;
