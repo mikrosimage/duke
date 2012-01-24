@@ -3,6 +3,8 @@
 
 #include <dukeapi/io/MessageQueue.h>
 
+class ImageDecoderFactoryImpl;
+
 namespace duke {
 namespace protocol {
 class Playlist;
@@ -18,7 +20,7 @@ enum EInputType{
 
 class SequenceReader{
 public:
-    SequenceReader( const std::string&, MessageQueue&, ::duke::protocol::Playlist&, bool detectionOfSequenceFromFilename = false );
+    SequenceReader( const std::string&, ImageDecoderFactoryImpl &imageDecoderFactory, MessageQueue&, ::duke::protocol::Playlist&, const int startRange, const int endRange, bool detectionOfSequenceFromFilename = false );
 
 private:
     MessageQueue& m_Queue;

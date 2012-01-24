@@ -136,8 +136,9 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
     return newFrame;
 }
 
-Application::Application(const char* rendererFilename, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
+Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
         m_IO(io), //
+        m_ImageDecoderFactory(imageDecoderFactory), //
         m_AudioEngine(), //
         m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
         m_FileBufferHolder(), //
@@ -315,6 +316,7 @@ void Application::renderStart() {
         // update current frame
         if (m_Playback.adjustCurrentFrame())
             cout << "unstable" << endl;
+
         const size_t frame = m_Playback.frame();
 
         // sync audio
@@ -330,9 +332,10 @@ void Application::renderStart() {
         }
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
-                {
-                    setup.m_Images.push_back(image.getImageDescription());
-                }
+        {
+            //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
+            setup.m_Images.push_back(image.getImageDescription());
+        }
 
         // populate clips
         m_Playlist.getClipsAtFrame(frame, setup.m_Clips);

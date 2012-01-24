@@ -6,6 +6,7 @@
 
 //forward declaration
 struct IMessageIO;
+class ImageDecoderFactoryImpl;
 
 /**
  * Class to handle command line arguments, configuration files
@@ -23,8 +24,8 @@ private: Configuration();
     void displayVersion();
     void displayHelp();
 
-    void run( IMessageIO& io);
-    void decorateAndRun( IMessageIO& io);
+    void run( IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory );
+    void decorateAndRun( IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory );
 
     boost::program_options::options_description m_CmdLineOnly;
     boost::program_options::options_description m_Config;

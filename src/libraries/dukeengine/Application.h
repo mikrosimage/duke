@@ -29,7 +29,7 @@ class Message;
 
 class Application {
 public:
-    Application(const char* rendererFilename, IMessageIO &IO, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads);
+    Application(const char* rendererFilename, ImageDecoderFactoryImpl& imageDecoderFactory, IMessageIO &IO, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads);
     ~Application();
 
     void* fetchSuite(const char* suiteName, int suiteVersion);
@@ -52,7 +52,7 @@ private:
     IMessageIO &m_IO;
     MessageQueue m_RendererMessages;
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
-    ImageDecoderFactoryImpl m_ImageDecoderFactory;
+    ImageDecoderFactoryImpl &m_ImageDecoderFactory;
     PlaylistHelper m_Playlist;
     playback::PlaybackState m_Playback;
     AudioEngine m_AudioEngine;

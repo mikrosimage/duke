@@ -1,6 +1,7 @@
 #include "SequenceReader.h"
 
 #include <dukeapi/core/messageBuilder/Commons.h>
+#include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 
 #include <Detector.hpp>
 
@@ -18,7 +19,7 @@ using namespace duke::protocol;
 
 static std::string INPUT = "Input";
 
-SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queue, Playlist& _playlist, bool detectionOfSequenceFromFilename ) :
+SequenceReader::SequenceReader( const string& inputDirectory, ImageDecoderFactoryImpl &imageDecoderFactory, MessageQueue& queue, Playlist& _playlist, const int startRange, const int endRange, bool detectionOfSequenceFromFilename ) :
     m_Queue(queue) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -40,8 +41,14 @@ SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queu
         inputType = eInputTypeSequence;
     }
 
-    if ( inputType == eInputTypeSequence && !::boost::filesystem::is_directory( p.parent_path() ) )
+    if ( inputType == eInputTypeSequence && !p.has_parent_path() )
+    {
+        directory.insert(0,"./");
+    }
+    else if ( inputType == eInputTypeSequence && !::boost::filesystem::is_directory( p.parent_path() ) )
+    {
         throw std::runtime_error( "Unable to find " + string( directory ) );
+    }
 
     // appending parameters
     addAutomaticParam(m_Queue, DISPLAY_DIM);
@@ -70,19 +77,30 @@ SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queu
         {
             // add the sequence to the playlist
             boost::shared_ptr<sequenceParser::Sequence> sequence = boost::static_pointer_cast<sequenceParser::Sequence> ( res );
-            std::cout <<  "[" << INPUT << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << sequence->getFirstTime() << " to " << recin + sequence->getDuration() << std::endl;
+
+            // check if one of plugins can read this format
+            ::boost::filesystem::path sequenceName = sequence->getStandardPattern();
+            bool delegateReadToHost, isUncompressed;
+            if ( imageDecoderFactory.getImageDecoder(sequenceName.extension().string().c_str(), delegateReadToHost, isUncompressed) == NULL ) // decoder not found
+                continue;
+
+            int startPoint = std::max( startRange, (int)sequence->getFirstTime() );
+            int stopPoint  = std::min( endRange, (int)( startPoint + sequence->getDuration() ) );
+
+            std::cout <<  "[" << INPUT << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << startPoint << " to " << stopPoint << std::endl;
+
             // adding clip
             pClip = addClipToPlaylist(//
                     _playlist, //
                     "clip0", //
                     recin, //
-                    recin + sequence->getDuration(), //
-                    sequence->getFirstTime(), //
+                    recin + stopPoint - startPoint, //
+                    startPoint, //
                     sequence->getDirectory().string(), //
                     sequence->getStandardPattern() );
 
             // computes next recin value
-            recin += sequence->getDuration();
+            recin += stopPoint - startPoint;
 
             pattern = sequence->getStandardPattern();
         }
@@ -90,6 +108,13 @@ SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queu
         {
             // add a file to the playlist
             boost::shared_ptr<sequenceParser::File> file = boost::static_pointer_cast<sequenceParser::File> ( res );
+
+            // check if one of plugins can read this format
+            ::boost::filesystem::path sequenceName = file->getFilename();
+            bool delegateReadToHost, isUncompressed;
+            if ( imageDecoderFactory.getImageDecoder(sequenceName.extension().string().c_str(), delegateReadToHost, isUncompressed) == NULL ) // decoder not found
+                continue;
+
             std::cout << "[" << INPUT << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
 
             // adding clip
@@ -119,6 +144,7 @@ SequenceReader::SequenceReader( const string& inputDirectory, MessageQueue& queu
         vertexShader.add_parametername(IMAGE_DIM);
         vertexShader.add_parametername(DISPLAY_MODE);
         vertexShader.add_parametername(IMAGE_RATIO);
+        //addStaticFloatParam(m_Queue, IMAGE_RATIO, 16.f/9.f , pClip->name());
         push(m_Queue, vertexShader);
 
         // ...pixel shader

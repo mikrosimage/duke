@@ -1,5 +1,6 @@
 #include "Configuration.h"
 #include <dukeengine/Application.h>
+#include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/core/messageBuilder/QuitBuilder.h>
 #include <dukeapi/core/PlaybackReader.h>
 #include <dukeapi/core/PlaylistReader.h>
@@ -140,8 +141,10 @@ Configuration::Configuration(int argc, char** argv) :
     pod.add("inputs", -1);
 
     // parsing the command line
-    m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive).add(m_HiddenOptions);
-    po::store(po::command_line_parser(argc, argv).options(m_CmdlineOptionsGroup).positional(pod).run(), m_Vm);
+    m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive);
+    boost::program_options::options_description parsingOptions;
+    parsingOptions.add(m_CmdlineOptionsGroup).add(m_HiddenOptions);
+    po::store(po::command_line_parser(argc, argv).options(parsingOptions).positional(pod).run(), m_Vm);
 
     // now parsing the configuration file - already stored variables will remain unchanged
     m_ConfigFileOptions.add(m_Config).add(m_Display).add(m_Interactive);
@@ -166,6 +169,9 @@ Configuration::Configuration(int argc, char** argv) :
     if (m_Vm.count(RENDERER) == 0)
         throw runtime_error("No renderer specified. Aborting.");
 
+    // loading plugins
+    ImageDecoderFactoryImpl imageDecoderFactory;
+
     /**
      * Server mode
      */
@@ -183,7 +189,7 @@ Configuration::Configuration(int argc, char** argv) :
             SessionCreator creator(io);
             duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
             boost::thread io_launcher(&duke_server::run, &server);
-            decorateAndRun(io);
+            decorateAndRun(io, imageDecoderFactory);
             io_launcher.join();
         }
         return;
@@ -196,7 +202,7 @@ Configuration::Configuration(int argc, char** argv) :
         const string filename = m_Vm[PLAYBACK].as<string>();
         cout << HEADER + "Reading protocol buffer script: " << filename << endl;
         PlaybackReader decoder(filename.c_str());
-        decorateAndRun(decoder);
+        decorateAndRun(decoder, imageDecoderFactory);
         return;
     }
 
@@ -246,39 +252,49 @@ Configuration::Configuration(int argc, char** argv) :
     if ( m_Vm.count("inputs") )
     {
         vector<string> inputs = m_Vm["inputs"].as< std::vector<std::string> >();
- /*       vector<string>::iterator inputString;
-        inputString = inputStrings.begin();
-        for ( ; inputString!=inputStrings.end(); ++inputString) {
-            cout << *inputString << endl;
+
+        for( vector<string>::iterator inputString = inputs.begin(); inputString!=inputs.end(); ++inputString )
+        {
+            //cout << *inputString << endl;
+            int skip=0;
+            int startRange = std::numeric_limits<int>::min();
+            int endRange   = std::numeric_limits<int>::max();
             fs::path path( *inputString );
             if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
             {
-                cout << HEADER + "Reading playlist: " << *inputString << endl;
+                //cout << HEADER + "Reading playlist: " << *inputString << endl;
                 PlaylistReader( *inputString, queue, playlist );
             }
             else
             {
                 cout << HEADER + "Reading : " << *inputString << endl;
-                SequenceReader( *inputString, queue, playlist );
-            }
-        }
-*/
-        BOOST_FOREACH( std::string input, inputs )
-        {
-            std::cout << input << std::endl;
-            fs::path path( input );
-            if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
-            {
-                cout << HEADER + "Reading playlist: " << input << endl;
-                PlaylistReader( input, queue, playlist );
-            }
-            else
-            {
-                cout << HEADER + "Reading : " << input << endl;
-                if ( m_Vm.count("sequence") )
-                    SequenceReader( input, queue, playlist, true );
-                else
-                    SequenceReader( input, queue, playlist );
+                int inRange;
+                int outRange;
+                if( (++inputString < inputs.end()) && (inRange = std::atoi( (*inputString).c_str() )) )
+                {
+                    //cout << HEADER + "Range in : " << inRange << endl;
+                    startRange = inRange;
+                    skip++;
+
+                    if( (++inputString < inputs.end()) && (outRange = std::atoi( (*inputString).c_str() ) ) )
+                    {
+                        //cout << HEADER + "Range out : " << outRange << endl;
+                        endRange = outRange + 1;
+                        skip++;
+                    }
+                    inputString--;
+                }
+                inputString--;
+                if( startRange >= endRange )
+                {
+                    cout << "- ! -" << endl;
+                    cout << "You should specify an valid range (" << startRange << " >= "<< endRange << "). See help below.\n" << endl;
+                    displayHelp();
+                    return;
+                }
+                SequenceReader( *inputString, imageDecoderFactory, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false );
+
+                inputString += skip;
             }
         }
     }
@@ -294,24 +310,24 @@ Configuration::Configuration(int argc, char** argv) :
     push(queue, start);
 
     InteractiveMessageIO decoder(queue);
-    decorateAndRun(decoder);
+    decorateAndRun(decoder, imageDecoderFactory);
 }
 
-void Configuration::decorateAndRun(IMessageIO& io) {
+void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     if (m_Vm.count(RECORD) > 0) {
         const std::string recordFilename = m_Vm[RECORD].as<string>();
         FileRecorder recorder(recordFilename.c_str(), io);
         cout << HEADER + "recording session to " << recordFilename << endl;
-        run(recorder);
+        run(recorder, imageDecoderFactory);
     } else {
-        run(io);
+        run(io, imageDecoderFactory);
     }
 }
 
-void Configuration::run(IMessageIO& io) {
+void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     const std::string rendererFilename = m_Vm[RENDERER].as<string>();
     const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024;
-    Application(rendererFilename.c_str(), io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t>());
+    Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t>());
 }
 
 void Configuration::displayVersion() {
@@ -325,5 +341,31 @@ void Configuration::displayVersion() {
 }
 
 void Configuration::displayHelp() {
+    cout << "Usage: Duke image sequence viewer" << endl << endl;
+    cout << "   Playlist:                                 duke playlist.ppl or duke playlist.ppl2" << endl;
+    cout << "   One File:                                 duke foo.jpg" << endl;
+    cout << "   This Directory:                           duke . or duke ./" << endl;
+    cout << "   Other Directory:                          duke /path/to/dir" << endl;
+    cout << "   Multi Directories:                        duke /path/to/dir1 /path/to/dir2" << endl;
+    cout << "   Directories, files, sequences, playlist:  duke /path/to/dir /img/toto.###.jpg foo.jpg playlist.ppl2" << endl;
+
+    cout << "   Fullscreen:                               duke --fullscreen input.ext" << endl << endl;
+
+    cout << "Image Sequence Numbering" << endl << endl;
+
+    cout << "   Frames with and without padding:          image.@.jpg" << endl;
+    cout << "   Frames 1 to 100 padding 4:                image.####.jpg -or- image.@.jpg" << endl;
+    cout << "   Frames 1 to 100 padding 5:                image.#####.jpg" << endl;
+    cout << "   printf style padding 4:                   image.%04d.jpg" << endl;
+    cout << "   printf style w/range:                     image.%04d.jpg 1 100" << endl;
+    //cout << "   All Frames in Sequence:                   duke /path/to/dir /img/toto.###.jpg" << endl;
+    cout << "   All Frames in Directory:                  /path/to/directory" << endl << endl;
+    //cout << "   All Frames in current dir:                ." << endl << endl;
+
     cout << m_CmdlineOptionsGroup << endl;
 }
+
+
+
+
+
