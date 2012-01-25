@@ -325,10 +325,14 @@ void Application::renderStart() {
 
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
-        setup.m_Images.clear();
-        if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
-            m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
-            m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
+        try {
+            setup.m_Images.clear();
+            if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
+                m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
+                m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
+            }
+        } catch (exception& e) {
+            cerr << HEADER << e.what() << endl;
         }
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )

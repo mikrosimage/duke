@@ -18,7 +18,11 @@ void buildRenderPass(dk::RenderPass* const _pPass //
                      , bool _clean) {
     _pPass->set_name(_name);
     _pPass->set_clean(_clean);
+#ifdef DEBUG
     _pPass->set_cleancolor(0xFF00FF00);
+#else
+    _pPass->set_cleancolor(0x00000000);
+#endif
     _pPass->add_meshname(_meshName);
 }
 
