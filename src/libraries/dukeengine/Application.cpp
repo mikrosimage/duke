@@ -136,7 +136,8 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
     return newFrame;
 }
 
-Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads) :
+Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize,
+                         const size_t cacheThreads) :
         m_IO(io), //
         m_ImageDecoderFactory(imageDecoderFactory), //
         m_AudioEngine(), //
@@ -150,7 +151,6 @@ Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &
         m_bAutoNotifyOnFrameChange(false), //
         m_iReturnCode(returnCode), //
         m_Renderer(buildHost(this), rendererFilename) {
-
     consumeUntilRenderOrQuit();
 }
 
@@ -325,14 +325,10 @@ void Application::renderStart() {
 
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
-        try {
-            setup.m_Images.clear();
-            if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
-                m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
-                m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
-            }
-        } catch (exception& e) {
-            cerr << HEADER << e.what() << endl;
+        setup.m_Images.clear();
+        if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
+            m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
+            m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
         }
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )

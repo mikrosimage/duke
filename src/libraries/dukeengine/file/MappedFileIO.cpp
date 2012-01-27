@@ -7,8 +7,8 @@
 using namespace mikrosimage::alloc;
 
 MappedFileIO::MappedFileIO(Allocator* pAllocator) :
-    FileIO(pAllocator) {
-    assert( m_pAllocator != NULL );
+                FileIO(pAllocator) {
+    assert( m_pAllocator != NULL);
 }
 
 MappedFileIO::~MappedFileIO() {
@@ -17,13 +17,14 @@ MappedFileIO::~MappedFileIO() {
 MemoryBlockPtr MappedFileIO::read(const char* filename) {
     using namespace boost::iostreams;
 
-    mapped_file file(filename, mapped_file::readonly);
-    if (!file.is_open())
+    try {
+        mapped_file file(filename, mapped_file::readonly);
+        const size_t size(file.size());
+        MemoryBlockPtr pMemoryBlock(new MemoryBlock(m_pAllocator, size));
+        memcpy(pMemoryBlock->getPtr<void>(), file.const_data(), size);
+        return pMemoryBlock;
+    } catch (std::ios_base::failure &e) {
         return MemoryBlockPtr();
-
-    const size_t size(file.size());
-    MemoryBlockPtr pMemoryBlock(new MemoryBlock(m_pAllocator, size));
-    memcpy(pMemoryBlock->getPtr<void> (), file.const_data(), size);
-    return pMemoryBlock;
+    }
 }
 

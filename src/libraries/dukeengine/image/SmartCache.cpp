@@ -93,27 +93,23 @@ static inline void waitLoadAndPush(const ImageDecoderFactory& factory, CACHE &jo
 }
 
 static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
+    data_type data;
     try {
-        data_type data;
-        try {
-            while (true) {
-                if (decodeQueue.tryPop(data))
-                    decodeAndPush(factory, jobProducer, data);
-                else
-                    waitLoadAndPush(factory, jobProducer, decodeQueue);
-            }
-        } catch (terminated &e) {
+        while (true) {
+            if (decodeQueue.tryPop(data))
+                decodeAndPush(factory, jobProducer, data);
+            else
+                waitLoadAndPush(factory, jobProducer, decodeQueue);
         }
-        while (decodeQueue.tryPop(data))
-            decodeAndPush(factory, jobProducer, data);
-    } catch (std::exception &e) {
-        std::cerr << "[Cache] " << e.what() << std::endl;
+    } catch (terminated &e) {
     }
+    while (decodeQueue.tryPop(data))
+        decodeAndPush(factory, jobProducer, data);
 }
 
 struct SmartCache::Impl : private boost::noncopyable {
     Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
-        m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit) {
+                    m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit) {
 
         if (threads == 0) {
             cerr << "[Cache] cache disabled, because threads = 0" << endl;
@@ -171,9 +167,9 @@ private:
         const PlaylistHelper &helper = m_LastJob.helper();
         m_QueryKeys.clear();
         BOOST_FOREACH (const id_type& id, m_AvailableKeys)
-                    {
-                        m_QueryKeys.insert(id.hash);
-                    }
+        {
+            m_QueryKeys.insert(id.hash);
+        }
         const set<uint64_t>::const_iterator end = m_QueryKeys.end();
         cout << '[';
         for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
@@ -196,9 +192,6 @@ private:
     QUEUE m_LoadedQueue;
     CACHE m_LookAheadCache;
     Job m_LastJob;
-    //    size_t m_LastFrame;
-    //    uint32_t m_LastSpeed;
-    //    const PlaylistHelper * m_pLastHelper;
     boost::thread_group m_ThreadGroup;
 
     mutable vector<id_type> m_AvailableKeys;
@@ -206,7 +199,7 @@ private:
 };
 
 SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory) :
-    m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
+                m_pImpl(new SmartCache::Impl(threads, limit, factory)) {
 }
 
 SmartCache::~SmartCache() {
