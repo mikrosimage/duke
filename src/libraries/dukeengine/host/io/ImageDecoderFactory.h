@@ -25,6 +25,11 @@ struct ImageDecoderFactory {
      *
      */
     virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const = 0;
+
+    /**
+     *
+     */
+    virtual const char** getAvailableExtensions() const = 0;
 };
 
 #endif /* IMAGEDECODERFACTORY_H_ */

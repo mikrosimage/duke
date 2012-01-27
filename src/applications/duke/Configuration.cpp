@@ -172,6 +172,8 @@ Configuration::Configuration(int argc, char** argv) :
     // loading plugins
     ImageDecoderFactoryImpl imageDecoderFactory;
 
+    const char** listOfExtensions = imageDecoderFactory.getAvailableExtensions();
+
     /**
      * Server mode
      */
@@ -292,7 +294,7 @@ Configuration::Configuration(int argc, char** argv) :
                     displayHelp();
                     return;
                 }
-                SequenceReader( *inputString, imageDecoderFactory, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false );
+                SequenceReader( *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false );
 
                 inputString += skip;
             }

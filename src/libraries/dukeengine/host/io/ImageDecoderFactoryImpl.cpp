@@ -67,12 +67,21 @@ ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
         for (vector<string>::const_iterator itr = pPlugin->extensions().begin(), e = pPlugin->extensions().end(); itr != e; ++itr)
             m_Map[*itr] = pPlugin;
     }
-    // display help
+
+    extensions = new const char* [m_Map.size()+1];
+    int i=0;
+
     for (ExtensionToDecoderMap::const_iterator itr = m_Map.begin(); itr != m_Map.end(); ++itr)
+    {
+        // display help
         displayPlugin(itr->first, *itr->second);
+        extensions[i++] = (itr->first).data();
+    }
+    extensions[m_Map.size()] = NULL;
 }
 
 ImageDecoderFactoryImpl::~ImageDecoderFactoryImpl() {
+    delete[] extensions;
 }
 
 FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const {
@@ -112,3 +121,6 @@ bool ImageDecoderFactoryImpl::decodeImage(FormatHandle decoder, const ImageDescr
     return getTLSPluginInstance(decoder)->decodeImage(description);
 }
 
+const char** ImageDecoderFactoryImpl::getAvailableExtensions() const {
+    return extensions;
+}

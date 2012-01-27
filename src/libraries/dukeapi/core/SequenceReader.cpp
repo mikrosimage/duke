@@ -19,7 +19,22 @@ using namespace duke::protocol;
 
 static std::string INPUT = "Input";
 
-SequenceReader::SequenceReader( const string& inputDirectory, ImageDecoderFactoryImpl &imageDecoderFactory, MessageQueue& queue, Playlist& _playlist, const int startRange, const int endRange, bool detectionOfSequenceFromFilename ) :
+static bool isSupportedExtension( const string& filename, const char** listOfExtensions )
+{
+    ::boost::filesystem::path sequenceName = filename;
+    string ext = sequenceName.extension().string();
+    ext.erase( 0, 1 );
+    int i=0;
+    while ( listOfExtensions[i] != NULL )
+    {
+        if( strcmp ( listOfExtensions[i++] , ext.c_str() ) == 0)
+            return true;
+    }
+
+    return false;
+}
+
+SequenceReader::SequenceReader( const string& inputDirectory, const char** listOfExtensions, MessageQueue& queue, Playlist& _playlist, const int startRange, const int endRange, bool detectionOfSequenceFromFilename ) :
     m_Queue(queue) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -78,10 +93,8 @@ SequenceReader::SequenceReader( const string& inputDirectory, ImageDecoderFactor
             // add the sequence to the playlist
             boost::shared_ptr<sequenceParser::Sequence> sequence = boost::static_pointer_cast<sequenceParser::Sequence> ( res );
 
-            // check if one of plugins can read this format
-            ::boost::filesystem::path sequenceName = sequence->getStandardPattern();
-            bool delegateReadToHost, isUncompressed;
-            if ( imageDecoderFactory.getImageDecoder(sequenceName.extension().string().c_str(), delegateReadToHost, isUncompressed) == NULL ) // decoder not found
+            // check if extension is actually supported
+            if( ! isSupportedExtension( sequence->getStandardPattern(), listOfExtensions ) )
                 continue;
 
             int startPoint = std::max( startRange, (int)sequence->getFirstTime() );
@@ -109,10 +122,8 @@ SequenceReader::SequenceReader( const string& inputDirectory, ImageDecoderFactor
             // add a file to the playlist
             boost::shared_ptr<sequenceParser::File> file = boost::static_pointer_cast<sequenceParser::File> ( res );
 
-            // check if one of plugins can read this format
-            ::boost::filesystem::path sequenceName = file->getFilename();
-            bool delegateReadToHost, isUncompressed;
-            if ( imageDecoderFactory.getImageDecoder(sequenceName.extension().string().c_str(), delegateReadToHost, isUncompressed) == NULL ) // decoder not found
+            // check if extension is actually supported
+            if( ! isSupportedExtension( file->getFilename(), listOfExtensions ) )
                 continue;
 
             std::cout << "[" << INPUT << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
