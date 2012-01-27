@@ -12,11 +12,11 @@ class Playlist;
 
 class PlaylistReader {
 public:
-    PlaylistReader(const std::string&, MessageQueue&, ::duke::protocol::Playlist&);
+    PlaylistReader( int& clipIndex, int& recIn, const std::string&, MessageQueue&, ::duke::protocol::Playlist&);
 
 private:
-    void parsePPL(std::ifstream & _file, ::duke::protocol::Playlist & _playlist);
-    void parsePPL2(std::ifstream & _file, ::duke::protocol::Playlist & _playlist);
+    void parsePPL( int& clipIndex, int& recIn, std::ifstream & _file, ::duke::protocol::Playlist & _playlist);
+    void parsePPL2( int& clipIndex, int& recIn, std::ifstream & _file, ::duke::protocol::Playlist & _playlist);
     MessageQueue& m_Queue;
 };
 

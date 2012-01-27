@@ -34,7 +34,7 @@ static bool isSupportedExtension( const string& filename, const char** listOfExt
     return false;
 }
 
-SequenceReader::SequenceReader( const string& inputDirectory, const char** listOfExtensions, MessageQueue& queue, Playlist& _playlist, const int startRange, const int endRange, bool detectionOfSequenceFromFilename ) :
+SequenceReader::SequenceReader( int& clipIndex, int& recIn, const string& inputDirectory, const char** listOfExtensions, MessageQueue& queue, Playlist& _playlist, const int startRange, const int endRange, bool detectionOfSequenceFromFilename ) :
     m_Queue(queue) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -73,8 +73,6 @@ SequenceReader::SequenceReader( const string& inputDirectory, const char** listO
     // appending shapes
     addMesh(m_Queue, MS_Plane, "plane", -1, -1, 2, 2);
 
-    size_t recin = 0;
-
     sequenceParser::EMaskOptions options = sequenceParser::eMaskOptionsNone;
     if( detectionOfSequenceFromFilename )
         options = sequenceParser::eMaskOptionsSequenceBasedOnFilename;
@@ -100,20 +98,25 @@ SequenceReader::SequenceReader( const string& inputDirectory, const char** listO
             int startPoint = std::max( startRange, (int)sequence->getFirstTime() );
             int stopPoint  = std::min( endRange, (int)( startPoint + sequence->getDuration() ) );
 
-            std::cout <<  "[" << INPUT << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << startPoint << " to " << stopPoint << std::endl;
+            stringstream ssClip;
+            ssClip << "clip" << clipIndex++;
+
+            std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << startPoint << " to " << stopPoint << std::endl;
+
+
 
             // adding clip
             pClip = addClipToPlaylist(//
                     _playlist, //
-                    "clip0", //
-                    recin, //
-                    recin + stopPoint - startPoint, //
+                    ssClip.str(), //
+                    recIn, //
+                    recIn + stopPoint - startPoint, //
                     startPoint, //
                     sequence->getDirectory().string(), //
                     sequence->getStandardPattern() );
 
-            // computes next recin value
-            recin += stopPoint - startPoint;
+            // computes next recIn value
+            recIn += stopPoint - startPoint;
 
             pattern = sequence->getStandardPattern();
         }
@@ -126,20 +129,23 @@ SequenceReader::SequenceReader( const string& inputDirectory, const char** listO
             if( ! isSupportedExtension( file->getFilename(), listOfExtensions ) )
                 continue;
 
-            std::cout << "[" << INPUT << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
+            stringstream ssClip;
+            ssClip << "clip" << clipIndex++;
+
+            std::cout << "[" << INPUT << "-" << ssClip.str() << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
 
             // adding clip
             pClip = addClipToPlaylist(//
                     _playlist, //
-                    "clip0", //
-                    recin, //
-                    recin+1, //
+                    ssClip.str(), //
+                    recIn, //
+                    recIn+1, //
                     0, //
                     file->getDirectory().string(), //
                     file->getFilename() );
 
-            // computes next recin value
-            recin += 1;
+            // computes next recIn value
+            recIn += 1;
             pattern = file->getAbsoluteFilename();
         }
 

@@ -254,6 +254,8 @@ Configuration::Configuration(int argc, char** argv) :
     if ( m_Vm.count("inputs") )
     {
         vector<string> inputs = m_Vm["inputs"].as< std::vector<std::string> >();
+        int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
+        int frameIndex = 0; // use to combine sequence/playlists
 
         for( vector<string>::iterator inputString = inputs.begin(); inputString!=inputs.end(); ++inputString )
         {
@@ -265,7 +267,7 @@ Configuration::Configuration(int argc, char** argv) :
             if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
             {
                 //cout << HEADER + "Reading playlist: " << *inputString << endl;
-                PlaylistReader( *inputString, queue, playlist );
+                PlaylistReader( clipIndex, frameIndex, *inputString, queue, playlist );
             }
             else
             {
@@ -294,7 +296,7 @@ Configuration::Configuration(int argc, char** argv) :
                     displayHelp();
                     return;
                 }
-                SequenceReader( *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false );
+                SequenceReader( clipIndex, frameIndex, *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false );
 
                 inputString += skip;
             }
