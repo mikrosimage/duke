@@ -55,7 +55,7 @@ static float getImageRatio(::duke::playlist::Display_ImageRatio _ratio) {
 } // empty namespace
 
 
-PlaylistReader::PlaylistReader(const string& filename, MessageQueue& queue, Playlist& playlist) :
+PlaylistReader::PlaylistReader( int& clipIndex, int& recIn, const string& filename, MessageQueue& queue, Playlist& playlist ) :
     m_Queue(queue) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -76,9 +76,9 @@ PlaylistReader::PlaylistReader(const string& filename, MessageQueue& queue, Play
     try {
         ::boost::filesystem::path playlistPath(filename);
         if (playlistPath.extension() == ".ppl")
-            parsePPL(playlistFile, playlist);
+            parsePPL(clipIndex, recIn, playlistFile, playlist);
         else if (playlistPath.extension() == ".ppl2")
-            parsePPL2(playlistFile, playlist);
+            parsePPL2(clipIndex, recIn, playlistFile, playlist);
         else
             throw runtime_error(string("invalid playlist format \"") + playlistPath.extension().string() + "\"\n");
     } catch (exception & e) {
@@ -90,9 +90,8 @@ PlaylistReader::PlaylistReader(const string& filename, MessageQueue& queue, Play
 
 
 // private
-void PlaylistReader::parsePPL(ifstream & _file, Playlist & _playlist) {
+void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Playlist & _playlist) {
     string line;
-    int clipindex = 0;
     while (getline(_file, line)) {
         if (isEmptyOrComment(line))
             continue;
@@ -115,21 +114,21 @@ void PlaylistReader::parsePPL(ifstream & _file, Playlist & _playlist) {
             pattern = pattern.substr(1, pattern.size() - 2);
 
         // naming
-        clipindex++;
         stringstream ssClip;
-        ssClip << "clip" << clipindex;
+        ssClip << "clip" << clipIndex++;
 
         // adding clip
         ::boost::filesystem::path path(pattern);
         Clip * pClip = addClipToPlaylist(//
                             _playlist, //
                             ssClip.str(), //
-                            start, //
-                            start + out - in + 1, //
-                            in, //
+                            recIn + start, //
+                            recIn + start + out - in + 1, //
+                            recIn + in, //
                             path.parent_path().string(), //
                             path.filename().string());
 
+        recIn += out - in;
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());
         addStaticSamplerParam(m_Queue, "sampler", pClip->name());
@@ -148,10 +147,10 @@ void PlaylistReader::parsePPL(ifstream & _file, Playlist & _playlist) {
         Shader pixelShader;
         buildPixelShader(pixelShader, "ps", NULL, pClip->name());
 
-		addShadingNode(pixelShader, "rgbatobgra", 1);
-		if (path.extension() == ".dpx") {
-			addShadingNode(pixelShader, "tenbitunpackfloat", 2);
-		}
+                addShadingNode(pixelShader, "rgbatobgra", 1);
+                if (path.extension() == ".dpx") {
+                        addShadingNode(pixelShader, "tenbitunpackfloat", 2);
+                }
 
         push(m_Queue, pixelShader);
 
@@ -162,7 +161,7 @@ void PlaylistReader::parsePPL(ifstream & _file, Playlist & _playlist) {
 }
 
 // private
-void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
+void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Playlist & _playlist) {
     stringstream ss;
     ss << _file.rdbuf();
     string data = ss.str();
@@ -172,7 +171,7 @@ void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
 
     for (int i = 0; i < p.shot_size(); ++i) {
         stringstream ssClip;
-        ssClip << "clip" << i;
+        ssClip << "clip" << clipIndex++;
 
         // adding sound
         if (p.has_audiosource()) {
@@ -187,11 +186,13 @@ void PlaylistReader::parsePPL2(ifstream & _file, Playlist & _playlist) {
         ::boost::filesystem::path path(p.shot(i).path());
         Clip * pClip = addClipToPlaylist(_playlist, //
                                          ssClip.str(), //
-                                         p.shot(i).start(), //
-                                         p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1, //
-                                         p.shot(i).in(), //
+                                         recIn + p.shot(i).start(), //
+                                         recIn + p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1, //
+                                         recIn + p.shot(i).in(), //
                                          path.parent_path().string(), //
                                          path.filename().string());
+
+        recIn += p.shot(i).out() - p.shot(i).in();
 
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());

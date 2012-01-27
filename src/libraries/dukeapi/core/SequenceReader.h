@@ -20,7 +20,7 @@ enum EInputType{
 
 class SequenceReader{
 public:
-    SequenceReader( const std::string&, ImageDecoderFactoryImpl &imageDecoderFactory, MessageQueue&, ::duke::protocol::Playlist&, const int startRange, const int endRange, bool detectionOfSequenceFromFilename = false );
+    SequenceReader( int& clipIndex, int& recIn, const std::string&, const char** listOfExtensions, MessageQueue&, ::duke::protocol::Playlist&, const int startRange, const int endRange, bool detectionOfSequenceFromFilename = false );
 
 private:
     MessageQueue& m_Queue;
