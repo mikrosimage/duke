@@ -12,6 +12,8 @@
 
 #include <stdexcept>
 #include <cstddef>
+//#include <cstdint>
+#include <stdint.h>
 #include <cassert>
 #include <cmath>
 
