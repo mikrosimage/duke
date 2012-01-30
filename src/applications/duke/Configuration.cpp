@@ -266,7 +266,7 @@ Configuration::Configuration(int argc, char** argv) :
             fs::path path( *inputString );
             if( path.extension() == ".ppl" || path.extension() == ".ppl2" )
             {
-                //cout << HEADER + "Reading playlist: " << *inputString << endl;
+                cout << HEADER + "Reading playlist: " << *inputString << endl;
                 PlaylistReader( clipIndex, frameIndex, *inputString, queue, playlist );
             }
             else
