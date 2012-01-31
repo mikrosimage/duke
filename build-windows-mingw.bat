@@ -9,4 +9,4 @@ if "%BOOST_ROOT%"=="" (
 )
 
 set BOOST_BUILD_PATH=%BOOST_ROOT%\tools\build\v2
-%BOOST_ROOT%\bjam.exe --toolset=gcc dist %*
+%BOOST_ROOT%\bjam.exe --toolset=gcc %*

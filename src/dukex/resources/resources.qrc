@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="CSS">
+    <file alias="dark.css">css/dark.css</file>
+  </qresource>
+  <qresource prefix="IMG">
+    <file alias="close.png">img/close.png</file>
+    <file alias="undock.png">img/undock.png</file>
+    <file>img/duke.png</file>
+  </qresource>
+</RCC>

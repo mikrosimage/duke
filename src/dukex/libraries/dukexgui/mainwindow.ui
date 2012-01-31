@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainWindow</class>
+ <widget class="QMainWindow" name="mainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>853</width>
+    <height>707</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>11</pointsize>
+   </font>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>DukeX</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/resources.qrc">
+    <normaloff>:/IMG/img/duke.png</normaloff>:/IMG/img/duke.png</iconset>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::VerticalTabs</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>853</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="openRecentMenu">
+     <property name="title">
+      <string>Open &amp;recent...</string>
+     </property>
+    </widget>
+    <addaction name="openAction"/>
+    <addaction name="openRecentMenu"/>
+    <addaction name="separator"/>
+    <addaction name="quitAction"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>?</string>
+    </property>
+    <addaction name="aboutAction"/>
+    <addaction name="aboutPluginsAction"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="fitModeMenu">
+     <property name="title">
+      <string>&amp;Fit mode</string>
+     </property>
+     <addaction name="toggleFitModeAction"/>
+     <addaction name="separator"/>
+     <addaction name="fitImageTo11Action"/>
+     <addaction name="fitImageToWindowWidthAction"/>
+     <addaction name="fitImageToWindowHeightAction"/>
+     <addaction name="stretchImageToWindowAction"/>
+    </widget>
+    <addaction name="fullscreenAction"/>
+    <addaction name="separator"/>
+    <addaction name="fitModeMenu"/>
+   </widget>
+   <widget class="QMenu" name="menuControl">
+    <property name="title">
+     <string>&amp;Control</string>
+    </property>
+    <addaction name="playStopAction"/>
+    <addaction name="separator"/>
+    <addaction name="previousFrameAction"/>
+    <addaction name="nextFrameAction"/>
+    <addaction name="firstFrameAction"/>
+    <addaction name="lastFrameAction"/>
+    <addaction name="separator"/>
+    <addaction name="previousShotAction"/>
+    <addaction name="nextShotAction"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuControl"/>
+   <addaction name="menuView"/>
+   <addaction name="menu"/>
+  </widget>
+  <action name="actionPower">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/powerOff32.png</normaloff>
+     <normalon>:/resources/icons/icons/powerOn32.png</normalon>:/resources/icons/icons/powerOff32.png</iconset>
+   </property>
+   <property name="text">
+    <string>power</string>
+   </property>
+  </action>
+  <action name="fullscreenAction">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/fullscreen32.png</normaloff>
+     <normalon>:/resources/icons/icons/restore32.png</normalon>:/resources/icons/icons/fullscreen32.png</iconset>
+   </property>
+   <property name="text">
+    <string>Full&amp;screen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionPlay">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/play32.png</normaloff>:/resources/icons/icons/play32.png</iconset>
+   </property>
+   <property name="text">
+    <string>play</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/stop32.png</normaloff>:/resources/icons/icons/stop32.png</iconset>
+   </property>
+   <property name="text">
+    <string>stop</string>
+   </property>
+  </action>
+  <action name="nextFrameAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/forward32.png</normaloff>:/resources/icons/icons/forward32.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Next frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="previousFrameAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/rewind32.png</normaloff>:/resources/icons/icons/rewind32.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Previous frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionLast">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/forwardStop32.png</normaloff>:/resources/icons/icons/forwardStop32.png</iconset>
+   </property>
+   <property name="text">
+    <string>last</string>
+   </property>
+  </action>
+  <action name="actionFirst">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/rewindStop32.png</normaloff>:/resources/icons/icons/rewindStop32.png</iconset>
+   </property>
+   <property name="text">
+    <string>first</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/new32.png</normaloff>:/resources/icons/icons/new32.png</iconset>
+   </property>
+   <property name="text">
+    <string>open</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/bin32.png</normaloff>:/resources/icons/icons/bin32.png</iconset>
+   </property>
+   <property name="text">
+    <string>close</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/resources/icons/icons/save32.png</normaloff>:/resources/icons/icons/save32.png</iconset>
+   </property>
+   <property name="text">
+    <string>save</string>
+   </property>
+  </action>
+  <action name="actionClose_2">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="quitAction">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFirst_Frame">
+   <property name="text">
+    <string>First Frame</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionPrevious_Frame">
+   <property name="text">
+    <string>Previous Frame</string>
+   </property>
+  </action>
+  <action name="actionStop_2">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionPlay_2">
+   <property name="text">
+    <string>Play</string>
+   </property>
+  </action>
+  <action name="actionNext_Frame">
+   <property name="text">
+    <string>Next Frame</string>
+   </property>
+  </action>
+  <action name="actionLast_Frame">
+   <property name="text">
+    <string>Last Frame</string>
+   </property>
+  </action>
+  <action name="actionSession">
+   <property name="text">
+    <string>Session</string>
+   </property>
+  </action>
+  <action name="actionPlaylist">
+   <property name="text">
+    <string>Playlist</string>
+   </property>
+  </action>
+  <action name="actionFit">
+   <property name="text">
+    <string>Fit</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+  </action>
+  <action name="actionFullscreen_2">
+   <property name="text">
+    <string>Fullscreen</string>
+   </property>
+  </action>
+  <action name="aboutAction">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="aboutPluginsAction">
+   <property name="text">
+    <string>About &amp;Plugins</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionKate">
+   <property name="text">
+    <string>Open recent...</string>
+   </property>
+  </action>
+  <action name="actionPrevious_2">
+   <property name="text">
+    <string>Previous image</string>
+   </property>
+  </action>
+  <action name="actionNext_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Next image</string>
+   </property>
+  </action>
+  <action name="preferencesAction">
+   <property name="text">
+    <string>&amp;Preferences...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFullscreen_3">
+   <property name="text">
+    <string>Fullscreen mode</string>
+   </property>
+  </action>
+  <action name="previousShotAction">
+   <property name="text">
+    <string>Previous shot</string>
+   </property>
+   <property name="shortcut">
+    <string>PgUp</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="nextShotAction">
+   <property name="text">
+    <string>Next shot</string>
+   </property>
+   <property name="shortcut">
+    <string>PgDown</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="firstFrameAction">
+   <property name="text">
+    <string>&amp;First frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="lastFrameAction">
+   <property name="text">
+    <string>&amp;Last frame</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="playStopAction">
+   <property name="text">
+    <string>Play / &amp;Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="stopAction">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="openAction">
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFit_to_img_height">
+   <property name="text">
+    <string>Fit to width</string>
+   </property>
+  </action>
+  <action name="fitImageToWindowHeightAction">
+   <property name="text">
+    <string>Fit Image to Window &amp;Height</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="fitImageToWindowWidthAction">
+   <property name="text">
+    <string>Fit Image to Window &amp;Width</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="stretchImageToWindowAction">
+   <property name="text">
+    <string>&amp;Stretch Image to Window</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="fitImageTo11Action">
+   <property name="text">
+    <string>&amp;Normal Size (1:1)</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="fitWindowToImageAction">
+   <property name="text">
+    <string>Fit Window to Image</string>
+   </property>
+  </action>
+  <action name="toggleFitModeAction">
+   <property name="text">
+    <string>Toggle Fit Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionTest">
+   <property name="text">
+    <string>test</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

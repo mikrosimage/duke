@@ -1,33 +1,33 @@
-
-    #################
-    # Usage:
-    #
-    # Targets:
-    #     dist     : full build & installation
-    #     tests    : run unit-test suite
-    #
-    # Options:
-    #     --no-<plugin>    : removes plugin <plugin> from build list
-    #
-    #################
+#################
+# Usage:
+#
+# Targets:
+#     dist     : full build & installation
+#     tests    : run unit-test suite
+#
+# Options:
+#     --no-<plugin>    : removes plugin <plugin> from build list
+#
+#################
 
 import os ;
 import set ;
-
 using pb : $(PROTOC) ;
 
 ## Configuration
 
 local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ;
 use-project /boost 						: $(BOOST_ROOT) ;
-use-project /duke/lib/engine			: src/libraries/dukeengine ;
-use-project /duke/lib/api				: src/libraries/dukeapi ;
-use-project /duke/lib/io				: src/libraries/dukeio ;
-use-project /duke/lib/ioplugin			: src/libraries/dukeio/plugin ;
-use-project /duke/lib/renderer			: src/libraries/dukerenderer ;
-use-project /duke/lib/rendererplugin	: src/libraries/dukerenderer/plugin ;
-use-project /duke/sub/duke.plugins		: src/submodules/duke.plugins ;
-use-project /duke/sub/sequenceParser		: src/submodules/sequenceParser ;
+use-project /dukeapi                    : src/duke/libraries/dukeapi ;
+use-project /dukeengine                 : src/duke/libraries/dukeengine ;
+use-project /dukeio                     : src/duke/libraries/dukeio ;
+use-project /dukeioplugin               : src/duke/libraries/dukeio/plugin ;
+use-project /dukerenderer               : src/duke/libraries/dukerenderer ;
+use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin ;
+use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
+use-project /duke/sub/sequenceparser	: src/duke/submodules/sequenceparser ;
+use-project /dukexcore                  : src/dukex/libraries/dukexcore ;
+use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
 project : requirements
             <threading>multi
@@ -40,44 +40,53 @@ project : requirements
 
 ## Main targets
 
-explicit applications
-         plugins
-         tests
-         plugin-jpg
+explicit plugin-jpg
          plugin-dpx
          plugin-oiio
          plugin-ogl
          plugin-dx9
+         plugin-timeline
+         dukeplugins
+         duketests
          shader_prototypes
          mingw_runtime
-         dist ;
+         dukexplugins
+         dukextests
+         distduke
+         distdukex
+         dist 
+         tests ;
 
-alias applications 	: src/applications/duke//duke ; # src/applications/diskbench//diskbench ;
-alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
-alias plugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
-alias plugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
-alias tests 		: [ glob src/tests/* : src/tests/renderer src/tests/scripts ] ;
-alias plugin-jpg	: src/plugins/io/jpg//jpg ;
-alias plugin-dpx	: src/plugins/io/dpx//dpx ;
-alias plugin-oiio	: src/plugins/io/oiio//oiio ;
-alias plugin-ogl	: src/plugins/renderer/ogl//ogl ;
-alias plugin-dx9	: src/plugins/renderer/dx9//dx9 ;
-alias mingw_runtime ;
-alias mingw_runtime : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
-
+alias plugin-jpg        : src/duke/plugins/io/jpg//jpg ;
+alias plugin-dpx        : src/duke/plugins/io/dpx//dpx ;
+alias plugin-oiio       : src/duke/plugins/io/oiio//oiio ;
+alias plugin-ogl        : src/duke/plugins/renderer/ogl//ogl ;
+alias plugin-dx9        : src/duke/plugins/renderer/dx9//dx9 ;
+alias plugin-timeline   : src/dukex/plugins/timeline//timeline ;
+alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
+alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
+alias dukeplugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
+alias duketests 	    : [ glob src/duke/tests/* : src/duke/tests/renderer src/duke/tests/scripts ] ;
+alias dukexplugins 		: plugin-timeline ;
+alias dukextests 	    : [ glob src/dukex/tests/* ] ;
+alias tests 	        : duketests dukextests ;
+alias mingw_runtime     ;
+alias mingw_runtime     : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
 install shader_prototypes :
-    [ glob resources/shader_prototypes/* ]
+    [ glob src/duke/resources/shader_prototypes/* ]
     :
     <variant>debug:<location>dist/debug/shader_prototypes
     <variant>release:<location>dist/release/shader_prototypes
     ;
 
 install dist :
+    #src/diskbench//diskbench
+    src/duke//duke
+    src/dukex//dukex
+    dukeplugins
+    dukexplugins
     mingw_runtime
-    applications
-    plugins
-    shader_prototypes
     :
     <install-dependencies>on
     <install-type>SHARED_LIB
@@ -87,3 +96,32 @@ install dist :
     <variant>release:<location>dist/release
     <dependency>shader_prototypes
     ;
+    
+install distduke :
+    #src/diskbench//diskbench
+    src/duke//duke
+    dukeplugins
+    mingw_runtime
+    :
+    <install-dependencies>on
+    <install-type>SHARED_LIB
+    <install-type>SEARCHED_LIB
+    <install-type>EXE
+    <variant>debug:<location>dist/debug
+    <variant>release:<location>dist/release
+    <dependency>shader_prototypes
+    ;
+
+install distdukex :
+    src/dukex//dukex
+    dukexplugins
+    mingw_runtime
+    :
+    <install-dependencies>on
+    <install-type>SHARED_LIB
+    <install-type>SEARCHED_LIB
+    <install-type>EXE
+    <variant>debug:<location>dist/debug
+    <variant>release:<location>dist/release
+    ;
+

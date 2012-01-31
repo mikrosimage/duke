@@ -1,0 +1,14 @@
+project
+	: requirements
+		<library>/dukeengine//dukeengine
+		<include>..
+	: usage-requirements
+		<library>/dukeengine//dukeengine
+		<include>..
+	;
+
+explicit dukexcore ;
+lib dukexcore
+    : 
+        [ glob *.cpp ] 
+	;

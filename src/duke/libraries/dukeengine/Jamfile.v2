@@ -1,0 +1,24 @@
+#
+# dukeengine
+#
+
+project 
+	: requirements 
+		<include>..
+		<library>/duke/sub/dukeplugins//dukehost 
+		<library>/dukeapi//dukeapi
+		<library>/user-config//sfml 
+		<library>/boost//iostreams 
+		<library>/boost//chrono
+    : usage-requirements 
+    	<include>..
+		<library>/duke/sub/dukeplugins//dukehost 
+		<library>/dukeapi//dukeapi
+		<library>/user-config//sfml 
+		<library>/boost//iostreams 
+		<library>/boost//chrono ;
+
+explicit dukeengine ;
+lib dukeengine : 
+		[ glob-tree *.cpp ]
+		;

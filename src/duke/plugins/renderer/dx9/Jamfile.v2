@@ -1,0 +1,15 @@
+project 
+	: requirements 
+		<include>.
+    	<library>/dukerendererplugin//dukerendererplugin 
+    	<library>/user-config//cgd3d
+    	<cxxflags>-Wno-unknown-pragmas
+    ;
+    
+explicit dx9 ;
+rendererplugin dx9 
+    :   
+        [ glob-tree *.cpp ] 
+    : 
+        <build>$(build-dx9) 
+    ; 

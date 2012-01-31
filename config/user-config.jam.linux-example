@@ -84,6 +84,15 @@ lib oiio : : <file>/PATH/TO/OPENIMAGEIO-SO/libOpenImageIO.so
 
 
 #-----------------------------------------------------------------------------
+# name     : Qt
+# purpose  : GUI framework used by DukeX
+# website  : http://qt.nokia.com
+# download : http://qt.nokia.com/downloads
+#-----------------------------------------------------------------------------
+using qt4 : PATH/TO/QtSDK/Desktop/Qt/473/gcc ;
+
+
+#-----------------------------------------------------------------------------
 ## prevent building targets by default
 ## more info here http://www.boost.org/boost-build2/doc/html/bbv2/reference/rules.html
 explicit protobuf sfml sfml-graphics sfml-system sfml-window sfml-audio cg cggl turbojpeg oiio ;

@@ -1,0 +1,29 @@
+
+project
+	: requirements
+		<include>.
+		<include>components
+		<library>/dukexgui//dukexgui
+	;
+
+explicit timeline ;
+dukexplugin timeline
+	: 
+		[ glob-tree *.cpp *.ui *.qrc : moc_* qrc_* ]
+		TimelinePlugin.h
+		components/UIAbstractGraphicsItem.h
+		components/UIAbstractGraphicsMediaItem.h
+		components/UIExtendedLabel.h
+		components/UIGraphicsCursorItem.h
+		components/UIGraphicsTrack.h
+		components/UITimeline.h
+		components/UITimelineControls.h
+		components/UITrackControls.h
+		components/UITracksControls.h
+		components/UITracksRuler.h
+		components/UITracksScene.h
+		components/UITracksView.h
+	:
+	   <build>$(build-timeline)
+	;
+

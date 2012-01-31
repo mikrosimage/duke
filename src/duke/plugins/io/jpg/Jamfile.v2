@@ -1,0 +1,14 @@
+project 
+	: requirements 
+		<include>.
+    	<library>/dukeioplugin//dukeioplugin 
+    	<library>/user-config//turbojpeg
+    ;
+
+explicit jpg ;
+ioplugin jpg 
+    :   
+        [ glob *.cpp ] 
+    : 
+        <build>$(build-jpg) 
+    ; 

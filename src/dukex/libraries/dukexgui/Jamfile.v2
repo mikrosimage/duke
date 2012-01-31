@@ -1,0 +1,26 @@
+project
+	: requirements
+		<library>/dukexcore//dukexcore
+		<library>/qt//QtCore/<variant>release
+		<library>/qt//QtGui/<variant>release
+		#<library>/qt//QtDeclarative/<variant>release
+		<include>..
+	: usage-requirements
+		<library>/dukexcore//dukexcore
+		<library>/qt//QtCore/<variant>release
+		<library>/qt//QtGui/<variant>release
+		#<library>/qt//QtDeclarative/<variant>release
+		<source>mainwindow.ui
+		<include>..
+	;
+
+explicit dukexgui ;
+lib dukexgui
+    : 
+        [ glob *.ui *.cpp *.qrc : moc_* qrc_* ] 
+        UIApplication.h
+        UIRenderWindow.h
+        UIPluginDialog.h
+        UIWidget.h
+        UserPreferences.h
+	;

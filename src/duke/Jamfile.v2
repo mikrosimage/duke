@@ -1,0 +1,23 @@
+import os ;
+import type ;
+
+
+local BUILD_NUMBER		= [ modules.peek : BUILD_NUMBER ] ;
+local JAMDATE			= [ modules.peek : JAMDATE ] ;
+if $(BUILD_NUMBER) = "" {
+	BUILD_NUMBER = "DEV - SHOULD NOT BE USED IN PRODUCTION" ;
+}
+local VERSION_INFORMATION = "compiled on $(JAMDATE), revision $(BUILD_NUMBER)" ;
+
+
+
+explicit duke ;
+exe duke
+	:
+		[ glob *.cpp ]
+		/dukeengine//dukeengine
+		/boost//program_options
+	:
+		<define>BUILD_INFORMATION=\"\\\"$(VERSION_INFORMATION)\\\"\"
+		<include>.
+	;

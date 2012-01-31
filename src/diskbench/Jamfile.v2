@@ -1,0 +1,8 @@
+project 
+	: requirements <include>. ;
+
+explicit diskbench ;
+exe diskbench : 
+		[ glob *.cpp ]
+		/dukeapi//dukeapi
+		/boost//program_options ;

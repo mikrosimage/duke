@@ -1,0 +1,15 @@
+project 
+	: requirements 
+		<include>.
+    	<library>/dukerendererplugin//dukerendererplugin 
+    	<library>/user-config//sfml 
+    	<library>/user-config//cggl 
+    ;
+
+explicit ogl ;
+rendererplugin ogl 
+    :   
+        [ glob-tree *.cpp ]
+    :
+        <build>$(build-ogl) 
+    ; 

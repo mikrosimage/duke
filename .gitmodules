@@ -1,6 +1,6 @@
-[submodule "src/submodules/duke.plugins"]
-	path = src/submodules/duke.plugins
+[submodule "src/duke/submodules/dukeplugins"]
+	path = src/duke/submodules/dukeplugins
 	url = git://github.com/mikrosimage/dukeplugins.git
-[submodule "src/submodules/sequenceParser"]
-	path = src/submodules/sequenceParser
+[submodule "src/duke/submodules/sequenceparser"]
+	path = src/duke/submodules/sequenceparser
 	url = git://github.com/mikrosimage/SequenceParser.git

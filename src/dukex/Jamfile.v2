@@ -1,0 +1,24 @@
+
+
+local BUILD_NUMBER		= [ modules.peek : BUILD_NUMBER ] ;
+local JAMDATE			= [ modules.peek : JAMDATE ] ;
+if $(BUILD_NUMBER) = "" {
+	BUILD_NUMBER = "DEV - SHOULD NOT BE USED IN PRODUCTION" ;
+}
+local VERSION_INFORMATION = "compiled on $(JAMDATE), revision $(BUILD_NUMBER)" ;
+
+
+project : requirements
+            <define>BUILD_INFORMATION=\"\\\"$(VERSION_INFORMATION)\\\"\"
+        ;
+        
+explicit dukex ;
+exe dukex
+    : 
+        [ glob *.cpp ] 
+        resources/resources.qrc
+	:
+        <library>/dukexgui//dukexgui
+        <library>/boost//program_options
+        <library>/boost//filesystem
+	;

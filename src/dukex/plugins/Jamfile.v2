@@ -1,0 +1,19 @@
+import type ;
+
+if ! [ type.registered DUKEXPLUGIN ] 
+{
+	type.register DUKEXPLUGIN : : SHARED_LIB ;
+	type.set-generated-target-suffix DUKEXPLUGIN : <os>NT : dll ;
+	type.set-generated-target-suffix DUKEXPLUGIN : <os>LINUX : so ;
+	type.set-generated-target-suffix DUKEXPLUGIN : <os>MACOSX : dylib ;
+	type.set-generated-target-prefix DUKEXPLUGIN :  : plugin_dukex_ ;
+}
+
+if ! [ type.registered QMLPLUGIN ] 
+{
+	type.register QMLPLUGIN : : SHARED_LIB ;
+	type.set-generated-target-suffix QMLPLUGIN : <os>NT : dll ;
+	type.set-generated-target-suffix QMLPLUGIN : <os>LINUX : so ;
+	type.set-generated-target-suffix QMLPLUGIN : <os>MACOSX : dylib ;
+	type.set-generated-target-prefix QMLPLUGIN :  : lib ;
+}
