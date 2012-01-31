@@ -17,6 +17,8 @@
 using namespace ::duke::protocol;
 using namespace ::std;
 
+static std::string INPUT = "Input";
+
 namespace { // empty namespace
 
 static bool isEmptyOrComment(const string& line) {
@@ -91,8 +93,8 @@ PlaylistReader::PlaylistReader( int& clipIndex, int& recIn, const string& filena
 
 // private
 void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Playlist & _playlist) {
-    string line;
-    while (getline(_file, line)) {
+        string line;
+        while (getline(_file, line)) {
         if (isEmptyOrComment(line))
             continue;
         istringstream lineStream(line, ios_base::in);
@@ -114,23 +116,23 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
             pattern = pattern.substr(1, pattern.size() - 2);
 
         // naming
-        clipIndex++;
-
         stringstream ssClip;
-        ssClip << "clip" << clipIndex;
+        ssClip << "clip" << clipIndex++;
 
         // adding clip
         ::boost::filesystem::path path(pattern);
+        //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << start << " to " << start + out - in + 1 << std::endl;
         Clip * pClip = addClipToPlaylist(//
                             _playlist, //
                             ssClip.str(), //
-                            start, //
-                            start + out - in + 1, //
+                            recIn + start, //
+                            recIn + start + out - in + 1, //
                             in, //
                             path.parent_path().string(), //
                             path.filename().string());
 
-        //recIn += out - in;
+        recIn += out - in;
+
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());
         addStaticSamplerParam(m_Queue, "sampler", pClip->name());
@@ -186,11 +188,12 @@ void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Pla
 
         // adding clip
         ::boost::filesystem::path path(p.shot(i).path());
+        //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << p.shot(i).start() << " to " << p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1 << std::endl;
         Clip * pClip = addClipToPlaylist(_playlist, //
                                          ssClip.str(), //
                                          recIn + p.shot(i).start(), //
                                          recIn + p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1, //
-                                         recIn + p.shot(i).in(), //
+                                         p.shot(i).in(), //
                                          path.parent_path().string(), //
                                          path.filename().string());
 
