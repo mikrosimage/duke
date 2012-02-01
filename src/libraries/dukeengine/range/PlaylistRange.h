@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 #include <cstddef>
-//#include <cstdint>
+//#include <cstdint> /: require c++0x build
 #include <stdint.h>
 #include <cassert>
 #include <cmath>
