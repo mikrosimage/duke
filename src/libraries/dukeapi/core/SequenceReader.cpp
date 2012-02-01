@@ -101,7 +101,7 @@ SequenceReader::SequenceReader( int& clipIndex, int& recIn, const string& inputD
             stringstream ssClip;
             ssClip << "clip" << clipIndex++;
 
-            std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << startPoint << " to " << stopPoint << std::endl;
+            //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << sequence->getDirectory().string() << sequence->getStandardPattern() << " : " << startPoint << " to " << stopPoint << std::endl;
 
 
 
@@ -132,7 +132,7 @@ SequenceReader::SequenceReader( int& clipIndex, int& recIn, const string& inputD
             stringstream ssClip;
             ssClip << "clip" << clipIndex++;
 
-            std::cout << "[" << INPUT << "-" << ssClip.str() << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
+            //std::cout << "[" << INPUT << "-" << ssClip.str() << "] " << file->getDirectory().string() << file->getFilename() << std::endl;
 
             // adding clip
             pClip = addClipToPlaylist(//

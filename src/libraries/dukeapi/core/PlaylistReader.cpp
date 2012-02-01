@@ -122,7 +122,7 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
 
         // adding clip
         ::boost::filesystem::path path(pattern);
-        std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << start << " to " << start + out - in + 1 << std::endl;
+        //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << start << " to " << start + out - in + 1 << std::endl;
         Clip * pClip = addClipToPlaylist(//
                             _playlist, //
                             ssClip.str(), //
@@ -190,7 +190,7 @@ void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Pla
 
         // adding clip
         ::boost::filesystem::path path(p.shot(i).path());
-        std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << p.shot(i).start() << " to " << p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1 << std::endl;
+        //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << p.shot(i).start() << " to " << p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1 << std::endl;
         Clip * pClip = addClipToPlaylist(_playlist, //
                                          ssClip.str(), //
                                          initialRecIn + p.shot(i).start(), //
