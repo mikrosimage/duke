@@ -94,6 +94,7 @@ PlaylistReader::PlaylistReader( int& clipIndex, int& recIn, const string& filena
 // private
 void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Playlist & _playlist) {
         string line;
+        int initialRecIn = recIn;
         while (getline(_file, line)) {
         if (isEmptyOrComment(line))
             continue;
@@ -125,8 +126,8 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
         Clip * pClip = addClipToPlaylist(//
                             _playlist, //
                             ssClip.str(), //
-                            recIn + start, //
-                            recIn + start + out - in + 1, //
+                            initialRecIn + recIn - start, //
+                            initialRecIn + recIn - start + out - in + 1, //
                             in, //
                             path.parent_path().string(), //
                             path.filename().string());
@@ -166,6 +167,7 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
 
 // private
 void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Playlist & _playlist) {
+    int initialRecIn = recIn;
     stringstream ss;
     ss << _file.rdbuf();
     string data = ss.str();
@@ -191,8 +193,8 @@ void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Pla
         //std::cout <<  "[" << INPUT << "-" << ssClip.str() << "] " << path.string() << " : " << p.shot(i).start() << " to " << p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1 << std::endl;
         Clip * pClip = addClipToPlaylist(_playlist, //
                                          ssClip.str(), //
-                                         recIn + p.shot(i).start(), //
-                                         recIn + p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1, //
+                                         initialRecIn + p.shot(i).start(), //
+                                         initialRecIn + p.shot(i).start() + p.shot(i).out() - p.shot(i).in() + 1, //
                                          p.shot(i).in(), //
                                          path.parent_path().string(), //
                                          path.filename().string());
