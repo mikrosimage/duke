@@ -103,7 +103,7 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                     PUSH(MAKE(Transport_TransportType_CUE, -1, true, true));
                     break;
                 case KeyEvent_KeyCode_F: {
-                    m_iFitMode = (m_iFitMode + 1) % 4;
+                    m_iFitMode = (m_iFitMode + 1) % 3; // 1:1 / fit display H / fit display W
                     StaticParameter displayMode;
                     displayMode.set_name("displayMode");
                     displayMode.set_type(StaticParameter_Type_FLOAT);

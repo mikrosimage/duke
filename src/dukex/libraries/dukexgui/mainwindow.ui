@@ -66,10 +66,10 @@
     </property>
     <widget class="QMenu" name="openRecentMenu">
      <property name="title">
-      <string>Open &amp;recent...</string>
+      <string>Open &amp;Recent...</string>
      </property>
     </widget>
-    <addaction name="openAction"/>
+    <addaction name="openFileAction"/>
     <addaction name="openRecentMenu"/>
     <addaction name="separator"/>
     <addaction name="quitAction"/>
@@ -430,17 +430,6 @@
     <string>Stop</string>
    </property>
   </action>
-  <action name="openAction">
-   <property name="text">
-    <string>&amp;Open...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-   <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
-   </property>
-  </action>
   <action name="actionFit_to_img_height">
    <property name="text">
     <string>Fit to width</string>
@@ -497,6 +486,39 @@
   <action name="actionTest">
    <property name="text">
     <string>test</string>
+   </property>
+  </action>
+  <action name="openPlaylistAction">
+   <property name="text">
+    <string>Open &amp;Playlist...</string>
+   </property>
+  </action>
+  <action name="openFileAction">
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="openDirectoryAction">
+   <property name="text">
+    <string>Open Directory...</string>
+   </property>
+  </action>
+  <action name="openSequenceFromFileAction">
+   <property name="text">
+    <string>From File...</string>
+   </property>
+  </action>
+  <action name="openSequenceInDirectoryAction">
+   <property name="text">
+    <string>In Directory...</string>
+   </property>
+  </action>
+  <action name="openPlaylistAction_2">
+   <property name="text">
+    <string>Open &amp;Playlist...</string>
    </property>
   </action>
  </widget>

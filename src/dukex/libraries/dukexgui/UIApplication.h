@@ -10,6 +10,7 @@
 #include <QtGui>
 
 class UIRenderWindow;
+class UIFileDialog;
 class UIPluginDialog;
 //QT_BEGIN_NAMESPACE
 //class QDeclarativeItem;
@@ -20,7 +21,7 @@ class UIApplication : public QMainWindow, public IUIBuilder {
 Q_OBJECT
 
 public:
-    UIApplication(const std::string&, const short&);
+    UIApplication(Session::ptr s);
     ~UIApplication() {
     }
 
@@ -43,8 +44,8 @@ private slots:
 
 private slots:
     // file
-    void open(const QString &);
-    void open();
+    void openFiles(const QStringList &, const bool & = false);
+    void openFiles();
     void openRecent();
     // control
     void playStop();
@@ -74,6 +75,7 @@ private:
     Session::ptr m_Session;
     UserPreferences m_Preferences;
     UIRenderWindow* m_RenderWindow;
+    UIFileDialog* m_FileDialog;
     UIPluginDialog* m_PluginDialog;
     QLabel* m_statusInfo;
     int m_timerID;

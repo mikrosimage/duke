@@ -4,7 +4,7 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
-//using namespace ::duke::protocol;
+using namespace ::duke::protocol;
 using namespace ::google::protobuf::serialize;
 
 namespace { // empty namespace
@@ -24,7 +24,7 @@ private:
 
 
 Session::Session() :
-    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mFile(""), mConnected(false), mDirty(false) {
+    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false) {
 }
 
 bool Session::load() {
@@ -44,10 +44,19 @@ bool Session::startSession(const std::string& ip, short port, void* handle) {
         mThread = boost::thread(&Session::run, this);
         boost::this_thread::sleep(boost::posix_time::millisec(40));
 
-        startRenderer(mIo.outputQueue, true, 400, 300, handle);
-        ::duke::protocol::Engine eOne;
-        eOne.set_action(::duke::protocol::Engine_Action_RENDER_START);
-        push(mIo.outputQueue, eOne);
+        // edit the renderer with the right handle
+        Renderer & renderer = mDescriptor.renderer();
+        renderer.set_handle((::google::protobuf::uint64) handle);
+
+        MessageQueue q;
+        // send the renderer
+        push(q, renderer);
+        sendMsg(q);
+        // send prepared msg
+        sendInitTimeMsg(mInitTimeMsgQueue);
+        // send the playlist
+        push(q, mDescriptor.playlist());
+        sendMsg(q);
 
     } catch (std::exception& e) {
         std::cerr << "Error while connecting to server." << std::endl;
@@ -59,7 +68,7 @@ bool Session::startSession(const std::string& ip, short port, void* handle) {
 bool Session::stopSession() {
     if (!connected())
         return false;
-    stopRenderer(mIo.outputQueue);
+    quitRenderer(mIo.outputQueue);
     mIo.outputQueue.push(makeSharedHolder(quitSuccess()));
     mThread.join();
     return true;
@@ -76,6 +85,27 @@ bool Session::computeInMsg() {
 bool Session::sendMsg(MessageQueue & queue) {
     SharedHolder holder;
     while (queue.tryPop(holder)) {
+        notify(holder);
+        mIo.outputQueue.push(holder);
+    }
+    return false;
+}
+
+bool Session::addInitTimeMsg(MessageQueue & queue) {
+    SharedHolder holder;
+    while (queue.tryPop(holder)) {
+        mInitTimeMsgQueue.push(holder);
+    }
+    return true;
+}
+
+// private
+bool Session::sendInitTimeMsg(MessageQueue & queue) {
+    SharedHolder holder;
+    while (queue.tryPop(holder)) {
+        if (::google::protobuf::serialize::isType<Renderer>(*holder)) {
+            continue;
+        }
         notify(holder);
         mIo.outputQueue.push(holder);
     }
