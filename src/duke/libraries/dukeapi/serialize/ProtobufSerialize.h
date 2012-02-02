@@ -117,7 +117,7 @@ inline SharedHolder makeSharedHolder(const MessageHolder &holder) {
 
 inline SharedHolder packAndShare(const ::google::protobuf::Message &msg, MessageHolder_Action action = MessageHolder::CREATE) {
     MessageHolder tmp;
-    pack(tmp, msg);
+    pack(tmp, msg, action);
     return makeSharedHolder(tmp);
 }
 

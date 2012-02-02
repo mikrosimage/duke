@@ -3,33 +3,28 @@
 
 #include <boost/utility.hpp>
 #include <boost/program_options.hpp>
+#include <dukexcore/dkxSession.h>
 
-class Configuration {
+class Configuration : boost::noncopyable {
 public:
-    Configuration(int argcc, char** argvv);
+    Configuration(Session::ptr s);
 
 public:
+    bool parse(int argcc, char** argvv);
     void displayVersion();
     void displayHelp();
-    const bool stopped() const {
-        return m_bStop;
-    }
-    const short port() const {
-        return m_uPort;
-    }
-    const std::string path() const {
-        return m_sPath;
-    }
 
-    boost::program_options::options_description m_CmdLineOnlyOptions;
-    boost::program_options::options_description m_ConfigOptions;
-    boost::program_options::options_description m_OptionGroup;
-    boost::program_options::variables_map m_Vm;
+    boost::program_options::options_description m_CmdLineOnly;
+    boost::program_options::options_description m_Config;
+    boost::program_options::options_description m_Display;
+    boost::program_options::options_description m_Interactive;
+    boost::program_options::options_description m_CmdlineOptionsGroup;
+    boost::program_options::options_description m_ConfigFileOptions;
+    boost::program_options::options_description m_HiddenOptions;
+    boost::program_options::variables_map       m_Vm;
 
 private:
-    bool m_bStop;
-    short m_uPort;
-    std::string m_sPath;
+    Session::ptr mSession;
 };
 
 #endif /* CONFIGURATION_H_ */

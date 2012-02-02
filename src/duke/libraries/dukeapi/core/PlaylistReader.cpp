@@ -70,6 +70,9 @@ PlaylistReader::PlaylistReader( int& clipIndex, int& recIn, const string& filena
     addAutomaticParam(m_Queue, DISPLAY_DIM);
     addStaticFloatParam(m_Queue, DISPLAY_MODE, .0f);
     addStaticFloatParam(m_Queue, IMAGE_RATIO, .0f);
+    addStaticFloatParam(m_Queue, ZOOM, 1.0f);
+    addStaticFloatParam(m_Queue, PANX, 0.0f);
+    addStaticFloatParam(m_Queue, PANY, 0.0f);
 
     // appending shapes
     addMesh(m_Queue, MS_Plane, "plane", -1, -1, 2, 2);
@@ -132,7 +135,7 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
                             path.parent_path().string(), //
                             path.filename().string());
 
-        recIn += out - in;
+//        recIn += out - in;
 
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());
@@ -146,6 +149,9 @@ void PlaylistReader::parsePPL(int& clipIndex, int& recIn, ifstream & _file, Play
         vertexShader.add_parametername(IMAGE_DIM);
         vertexShader.add_parametername(DISPLAY_MODE);
         vertexShader.add_parametername(IMAGE_RATIO);
+        vertexShader.add_parametername(ZOOM);
+        vertexShader.add_parametername(PANX);
+        vertexShader.add_parametername(PANY);
         push(m_Queue, vertexShader);
 
         // ...pixel shader
@@ -199,7 +205,7 @@ void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Pla
                                          path.parent_path().string(), //
                                          path.filename().string());
 
-        recIn += p.shot(i).out() - p.shot(i).in();
+//        recIn += p.shot(i).out() - p.shot(i).in();
 
         // appending parameters
         addAutomaticClipSourceParam(m_Queue, IMAGE_DIM, pClip->name());
@@ -213,6 +219,9 @@ void PlaylistReader::parsePPL2(int& clipIndex, int& recIn, ifstream & _file, Pla
         vertexShader.add_parametername(IMAGE_DIM);
         vertexShader.add_parametername(DISPLAY_MODE);
         vertexShader.add_parametername(IMAGE_RATIO);
+        vertexShader.add_parametername(ZOOM);
+        vertexShader.add_parametername(PANX);
+        vertexShader.add_parametername(PANY);
         push(m_Queue, vertexShader);
 
         // ...pixel shader

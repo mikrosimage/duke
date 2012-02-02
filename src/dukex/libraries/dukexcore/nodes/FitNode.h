@@ -16,6 +16,8 @@ namespace {
     return p;
 }
 
+#define LASTFITMODE 3
+
 } // namespace
 
 class FitNode : public INode {
@@ -29,15 +31,17 @@ public:
     }
 
 public:
-    void toggle() {
+    void toggle(int _mode = -1) {
         SessionDescriptor & descriptor = session()->descriptor();
         ::duke::protocol::StaticParameter & p = descriptor.displayMode();
-        int mode = 0;
-        if (p.floatvalue_size() > 0)
-            mode = (int) p.floatvalue(0);
-        mode = (mode + 1) % 4;
+        if(_mode < 0 || _mode >= LASTFITMODE){
+            if (p.floatvalue_size() > 0){
+                _mode = (int)p.floatvalue(0);
+                _mode = (_mode + 1) % LASTFITMODE;
+            }
+        }
         MessageQueue q;
-        push(q, MAKE(p, mode));
+        push(q, MAKE(p, _mode));
         addStaticFloatParam(q, "panX", 0.);
         addStaticFloatParam(q, "panY", 0.);
         addStaticFloatParam(q, "zoom", 1.);
@@ -45,31 +49,19 @@ public:
     }
 
     void fitToNormalSize() {
-        SessionDescriptor & descriptor = session()->descriptor();
-        MessageQueue q;
-        push(q, MAKE(descriptor.displayMode(), 0.f));
-        session()->sendMsg(q);
+        toggle(0);
     }
 
     void fitImageToWindowHeight() {
-        SessionDescriptor & descriptor = session()->descriptor();
-        MessageQueue q;
-        push(q, MAKE(descriptor.displayMode(), 1.f));
-        session()->sendMsg(q);
+        toggle(1);
     }
 
     void fitImageToWindowWidth() {
-        SessionDescriptor & descriptor = session()->descriptor();
-        MessageQueue q;
-        push(q, MAKE(descriptor.displayMode(), 2.f));
-        session()->sendMsg(q);
+        toggle(2);
     }
 
     void stretchImageToWindow() {
-        SessionDescriptor & descriptor = session()->descriptor();
-        MessageQueue q;
-        push(q, MAKE(descriptor.displayMode(), 3.f));
-        session()->sendMsg(q);
+        toggle(3);
     }
 };
 

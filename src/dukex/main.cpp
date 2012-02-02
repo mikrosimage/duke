@@ -1,5 +1,6 @@
 #include "Configuration.h"
 #include <dukexgui/UIApplication.h>
+#include <dukexcore/dkxSession.h>
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <stdexcept>
@@ -34,13 +35,15 @@ int main(int argc, char *argv[]) {
             QString styleSheet = QLatin1String(file.readAll());
             qapp.setStyleSheet(styleSheet);
         }
+        // Session
+        Session::ptr session(new Session());
         // Configuration - command line options
-        Configuration conf(argc, argv);
-        if (conf.stopped())
+        Configuration conf(session);
+        if (!conf.parse(argc, argv))
             return EXIT_SUCCESS;
 
         // Run our main Qt Application
-        UIApplication uiapp(conf.path(), conf.port());
+        UIApplication uiapp(session);
         uiapp.show();
 
         return qapp.exec();

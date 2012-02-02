@@ -1,6 +1,7 @@
 #include "UIApplication.h"
 //#include "UIView.h"
 #include "UIRenderWindow.h"
+#include "UIFileDialog.h"
 #include "UIPluginDialog.h"
 #include <dukexcore/nodes/Commons.h>
 #include <boost/filesystem.hpp>
@@ -13,24 +14,30 @@
 #define BUILD_INFORMATION ""
 #endif
 
-UIApplication::UIApplication(const std::string& _path, const short& _port) :
-    m_Session(new Session()),//
+UIApplication::UIApplication(Session::ptr s) :
+    m_Session(s), //
                     m_RenderWindow(new UIRenderWindow(this)), //
+                    m_FileDialog(new UIFileDialog(this)), //
                     m_PluginDialog(new UIPluginDialog(this, this, &m_Manager, qApp->applicationDirPath())), //
                     m_timerID(0) {
-    ui.setupUi(this);
 
+    // Global UI
+    ui.setupUi(this);
     setCentralWidget(m_RenderWindow);
-    // status bar
+
+    // Status bar (top right corner)
     m_statusInfo = new QLabel();
     m_statusInfo->setText("Starting...");
     menuBar()->setCornerWidget(m_statusInfo);
-    // preferences
+
+    // Preferences
     m_Preferences.loadShortcuts(this);
     m_Preferences.loadFileHistory();
     updateRecentFilesMenu();
+
+    // Actions
     // File Actions
-    connect(ui.openAction, SIGNAL(triggered()), this, SLOT(open()));
+    connect(ui.openFileAction, SIGNAL(triggered()), this, SLOT(openFiles()));
     connect(ui.quitAction, SIGNAL(triggered()), this, SLOT(close()));
     // Control Actions
     connect(ui.playStopAction, SIGNAL(triggered()), this, SLOT(playStop()));
@@ -53,6 +60,7 @@ UIApplication::UIApplication(const std::string& _path, const short& _port) :
     connect(ui.aboutAction, SIGNAL(triggered()), this, SLOT(about()));
     connect(ui.aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
 
+    // Registering Nodes
     PlaylistNode::ptr p = PlaylistNode::ptr(new PlaylistNode());
     m_Manager.addNode(p, m_Session);
     TransportNode::ptr t = TransportNode::ptr(new TransportNode());
@@ -62,17 +70,19 @@ UIApplication::UIApplication(const std::string& _path, const short& _port) :
     GradingNode::ptr g = GradingNode::ptr(new GradingNode());
     m_Manager.addNode(g, m_Session);
 
-    // OMG: erase
+    //FIXME OMG: erase this
     INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
     if (n.get() != NULL) {
         GradingNode::ptr grading = boost::dynamic_pointer_cast<GradingNode>(n);
     }
 
+    // Starting Session
     m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
     m_statusInfo->setText("Connecting...");
 
-    // Main Timer
+    // Starting Timer : so as to copute "IN" msgs every N ms
     m_timerID = QObject::startTimer(40);
+
 }
 
 //QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _title) {
@@ -178,17 +188,17 @@ void UIApplication::dragMoveEvent(QDragMoveEvent *event) {
 
 // private
 void UIApplication::dropEvent(QDropEvent *event) {
-    const QMimeData *mimeData = event->mimeData();
-    if (mimeData->hasUrls()) {
-        QList<QUrl> urlList = mimeData->urls();
-        QString text;
-        for (int i = 0; i < urlList.size() && i < 32; ++i) {
-            open(urlList.at(i).path());
-        }
-    } else {
-        m_statusInfo->setText(tr("Cannot display data"));
-    }
-    setBackgroundRole(QPalette::Dark);
+    //    const QMimeData *mimeData = event->mimeData();
+    //    if (mimeData->hasUrls()) {
+    //        QList < QUrl > urlList = mimeData->urls();
+    //        QString text;
+    //        for (int i = 0; i < urlList.size() && i < 32; ++i) {
+    //            openPlaylist(urlList.at(i).path());
+    //        }
+    //    } else {
+    //        m_statusInfo->setText(tr("Cannot display data"));
+    //    }
+    //    setBackgroundRole(QPalette::Dark);
     event->acceptProposedAction();
 }
 
@@ -263,15 +273,24 @@ void UIApplication::updateRecentFilesMenu() {
 }
 
 // private slot
-void UIApplication::open(const QString & _filename) {
+void UIApplication::openFiles(const QStringList & _list, const bool & asSequence) {
     INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
     if (n.get() != NULL) {
         PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
         if (p.get() != NULL) {
-            if (!_filename.isEmpty()) {
-                p->open(_filename.toStdString());
-                m_Preferences.addToHistory(_filename.toStdString());
-                updateRecentFilesMenu();
+            if (!_list.isEmpty()) {
+
+                // --- QStringList to STL vector<string>
+                std::vector<std::string> v;
+                v.resize(_list.count());
+                for (int i = 0; i < _list.count(); ++i) {
+                    v[i] = _list[i].toStdString();
+                }
+                // ---
+
+                p->openFiles(v, asSequence);
+                //                m_Preferences.addToHistory(_filenames.toStdString());
+                //                updateRecentFilesMenu();
             }
         }
     }
@@ -279,17 +298,25 @@ void UIApplication::open(const QString & _filename) {
 }
 
 // private slot
-void UIApplication::open() {
-    QString filename = QFileDialog::getOpenFileName(this, tr("Open File"), "~", tr("Playlist Files (*.ppl *.ppl2)"));
-    open(filename);
+void UIApplication::openFiles() {
+    QStringList list;
+    if (m_FileDialog->exec()) {
+        list = m_FileDialog->selectedFiles();
+        if (list.size() != 0)
+            openFiles(list, m_FileDialog->asSequence());
+    }
 }
 
 // private slot
 void UIApplication::openRecent() {
     QAction *action = qobject_cast<QAction *> (sender());
     if (action) {
-        QString filename = action->data().toString();
-        open(filename);
+        QString file = action->data().toString();
+        if (!file.isEmpty()) {
+            QStringList filenames;
+            filenames.append(file);
+            openFiles(filenames);
+        }
     }
 }
 
@@ -375,7 +402,12 @@ void UIApplication::nextShot() {
 
 // private slot
 void UIApplication::fullscreen() {
-    m_RenderWindow->showFullScreen();
+    if (m_RenderWindow->isFullScreen()) {
+        m_RenderWindow->showNormal();
+        resizeCentralWidget(QSize(600, 800));
+    } else {
+        m_RenderWindow->showFullScreen();
+    }
 }
 
 // private slot

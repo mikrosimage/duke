@@ -51,7 +51,7 @@ void UITracksView::createLayout() {
     m_separator = new QGraphicsWidget();
     m_separator->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_separator->setPreferredHeight(5);
-    m_layout->insertItem(1, m_separator);
+//    m_layout->insertItem(1, m_separator);
     addTrack(AudioTrack);
     m_scene->addItem(container);
     setSceneRect(m_layout->contentsRect());
@@ -291,10 +291,11 @@ void UITracksView::removeItem(UIAbstractGraphicsItem *item) {
 void UITracksView::setDuration(int duration) {
     int diff = (int) qAbs((qreal) duration - sceneRect().width());
     if (diff * matrix().m11() > -50) {
+
         if (matrix().m11() < 0.4)
-            setSceneRect(0, 0, (duration + 100 / matrix().m11()), sceneRect().height());
+            setSceneRect(0, 0, duration /*(duration + 100 / matrix().m11())*/, sceneRect().height());
         else
-            setSceneRect(0, 0, (duration + 300), sceneRect().height());
+            setSceneRect(0, 0, duration /*(duration + 300)*/, sceneRect().height());
     }
     m_projectDuration = duration;
 }
@@ -347,13 +348,13 @@ Q_UNUSED(event);
 }
 
 void UITracksView::wheelEvent(QWheelEvent *event) {
-    if (event->modifiers() == Qt::ControlModifier) {
+//    if (event->modifiers() == Qt::ControlModifier) {
         if (event->delta() > 0)
             emit zoomOut();
         else
             emit zoomIn();
         event->accept();
-    }
+//    }
     QGraphicsView::wheelEvent(event);
 }
 
