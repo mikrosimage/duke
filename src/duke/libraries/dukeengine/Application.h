@@ -20,7 +20,7 @@
 
 // fwd declaration
 class Renderer;
-class PlaylistHelper;
+struct PlaylistHelper;
 namespace google {
 namespace protobuf {
 class Message;

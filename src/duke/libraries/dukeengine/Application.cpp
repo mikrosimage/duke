@@ -92,6 +92,7 @@ static inline playback::PlaybackState create(const PlaylistHelper &helper) {
     return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
 }
 
+//FIXME gchatelet : review this function
 static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, uint32_t newFrame) {
     const bool isCueClip = cue.cueclip();
     const bool isCueRelative = cue.cuerelative();
@@ -104,11 +105,11 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
         if (isCueRelative) { // cueing clips relative
             if (clipSize == 0)
                 return newFrame;
-            std::set<size_t> clips;
+            set<size_t> clips;
             for (int i = 0; i < clipSize; ++i)
                 clips.insert(p.clip(i).recin());
-            std::set<size_t>::const_iterator it = clips.lower_bound(newFrame);
-            std::advance(it, value);
+            set<size_t>::const_iterator it = clips.lower_bound(newFrame);
+            advance(it, value);
             if (it == clips.end()) {
                 if (loop) {
                     const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
@@ -126,11 +127,11 @@ static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistH
             newFrame += value;
         else
             newFrame = value;
-        if (!loop && newFrame < 0)
+        if (!loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
             newFrame = helper.getFirstFrame();
     }
 
-    if (loop && newFrame < 0)
+    if (loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
         newFrame = helper.getLastFrame() + newFrame;
 
     return newFrame;
@@ -247,27 +248,27 @@ void Application::consumeTransport() {
             dump(pDescriptor, holder);
             const Debug debug = unpackTo<Debug>(holder);
 #ifdef __linux__
-            std::cout << "\e[J";
+            cout << "\e[J";
 #endif
             for (int i = 0; i < debug.line_size(); ++i) {
                 size_t found;
-                std::string line = debug.line(i);
+                string line = debug.line(i);
                 found = line.find_first_of("%");
 
                 while (found != string::npos) {
-                    std::stringstream ss;
+                    stringstream ss;
                     ss << line[found + 1];
                     int contentID = atoi(ss.str().c_str());
                     if (contentID < debug.content_size())
                         line.replace(found, 2, dumpInfo(debug.content(contentID)));
                     found = line.find_first_of("%", found + 1);
                 }
-                std::cout << line << std::endl;
+                cout << line << endl;
             }
 #ifdef __linux__
-            std::stringstream ss;
+            stringstream ss;
             ss << "\r\e[" << debug.line_size() + 1 << "A";
-            std::cout << ss.str() << std::endl;
+            cout << ss.str() << endl;
 #endif
             if (debug.has_pause())
                 ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
@@ -390,15 +391,15 @@ const google::protobuf::serialize::MessageHolder * Application::popEvent() {
     return m_RendererMessageHolder.get();
 }
 
-std::string Application::dumpInfo(const Debug_Content& info) const {
-    std::stringstream ss;
+string Application::dumpInfo(const Debug_Content& info) const {
+    stringstream ss;
 
     switch (info) {
         case Debug_Content_FRAME:
             ss << m_Playback.frame();
             break;
         case Debug_Content_FILENAMES: {
-            std::vector<size_t> indices;
+            vector<size_t> indices;
             m_Playlist.getIteratorsAtFrame(m_Playback.frame(), indices);
 
             BOOST_FOREACH(size_t i, indices)

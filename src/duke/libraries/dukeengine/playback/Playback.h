@@ -11,7 +11,7 @@ typedef ::boost::chrono::high_resolution_clock::time_point time_point;
 extern ::boost::chrono::high_resolution_clock s_Clock;
 
 // forward declaration
-class PlaybackState;
+struct PlaybackState;
 
 /**
  * Returns the time for a frame in ns considering a given framerate

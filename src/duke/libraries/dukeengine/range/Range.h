@@ -43,26 +43,4 @@ struct DoubleEndedRange : public ForwardRange<T> {
     virtual DoubleEndedRange* save() const = 0;
 };
 
-/**
- * simple traversal + memoization + infinite range
- */
-template<typename T>
-struct RandomAccessInfiniteRange : ForwardRange<T> {
-    virtual ~RandomAccessInfiniteRange() {
-    }
-    virtual T at(std::size_t index) = 0;
-    virtual RandomAccessInfiniteRange slice(std::size_t fromIndex, std::size_t toIndex) const = 0;
-};
-
-/**
- * bidirectionnal + memoization + finite range
- */
-template<typename T>
-struct RandomAccessFiniteRange : DoubleEndedRange<T> {
-    virtual ~RandomAccessFiniteRange() {
-    }
-    virtual T at(std::size_t index) = 0;
-    virtual RandomAccessFiniteRange slice(std::size_t fromIndex, std::size_t toIndex) const = 0;
-};
-
 #endif /* RANGE_H_ */
