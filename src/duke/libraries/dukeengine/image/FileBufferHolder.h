@@ -6,7 +6,7 @@
 #include <boost/noncopyable.hpp>
 #include <vector>
 
-class SmartCache;
+struct SmartCache;
 struct PlaylistHelper;
 
 class FileBufferHolder : public boost::noncopyable {

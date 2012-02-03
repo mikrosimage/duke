@@ -41,7 +41,7 @@ public:
     virtual void presentFrame() = 0;
 
 protected:
-    friend class RAIIScene;
+    friend struct RAIIScene;
     // to implement in derived classes
     virtual void beginScene(bool shouldClean, uint32_t cleanColor, ITextureBase* pRenderTarget = NULL) = 0;
     virtual void endScene() = 0;
