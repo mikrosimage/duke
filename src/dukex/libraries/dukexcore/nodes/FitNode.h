@@ -16,7 +16,7 @@ namespace {
     return p;
 }
 
-#define LASTFITMODE 3
+#define FITMODESIZE 3
 
 } // namespace
 
@@ -34,10 +34,12 @@ public:
     void toggle(int _mode = -1) {
         SessionDescriptor & descriptor = session()->descriptor();
         ::duke::protocol::StaticParameter & p = descriptor.displayMode();
-        if(_mode < 0 || _mode >= LASTFITMODE){
-            if (p.floatvalue_size() > 0){
+        if(_mode < 0 || _mode >= FITMODESIZE){
+            if (p.floatvalue_size() > 0){ // current +1
                 _mode = (int)p.floatvalue(0);
-                _mode = (_mode + 1) % LASTFITMODE;
+                _mode = (_mode + 1) % FITMODESIZE;
+            } else { // default +1
+                _mode = 1;
             }
         }
         MessageQueue q;

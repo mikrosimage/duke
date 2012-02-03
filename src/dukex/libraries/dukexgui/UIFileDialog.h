@@ -18,6 +18,9 @@ public:
 private:
     void setupCustomUI();
 
+private slots:
+    void sequenceCheckbox_stateChanged(int);
+
 private:
     QCheckBox * mSequenceCheckbox;
 };

@@ -16,16 +16,25 @@ bool UIFileDialog::asSequence() const {
     return mSequenceCheckbox->isChecked();
 }
 
+// private slot
+void UIFileDialog::sequenceCheckbox_stateChanged(int state){
+    if(state)
+        setFileMode(QFileDialog::ExistingFile);
+    else
+        setFileMode(QFileDialog::ExistingFiles);
+}
+
 // private
 void UIFileDialog::setupCustomUI() {
     // global filedialog settings
     setViewMode(QFileDialog::Detail);
-    setFileMode(QFileDialog::ExistingFiles);
-    setNameFilter(tr("All Files (*.*);;Playlists (*.ppl *.ppl2);;Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm)"));
-
+    setFileMode(QFileDialog::ExistingFile);
+    setNameFilter(tr("Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm);;Playlists (*.ppl *.ppl2)"));
     // custom checkbox
     mSequenceCheckbox = new QCheckBox(this);
     mSequenceCheckbox->setText("Load As Sequence");
+    mSequenceCheckbox->setChecked(true);
+    connect(mSequenceCheckbox, SIGNAL(stateChanged(int)), this, SLOT(sequenceCheckbox_stateChanged(int)));
     QGridLayout *layout = (QGridLayout*)this->layout();
     layout->addWidget(mSequenceCheckbox, 4, 0);
 }

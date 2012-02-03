@@ -14,6 +14,7 @@
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "no information available - don't use in production"
 #endif // BUILD_INFORMATION
+
 // namespace
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -32,14 +33,14 @@ using namespace std;
 #define CACHESIZE_OPT       "cache-size,c"
 #define FRAMERATE           "framerate"
 #define FRAMERATE_OPT       "framerate"
-//#define THREADS             "threads"
-//#define THREADS_OPT         "threads,t"
+#define THREADS             "threads"
+#define THREADS_OPT         "threads,t"
 #define BLANKING            "blanking"
 #define BLANKING_OPT        "blanking"
 #define PLAYLIST            "playlist"
 #define PLAYLIST_OPT        "playlist,p"
-//#define RENDERER            "renderer"
-//#define RENDERER_OPT        "renderer"
+#define RENDERER            "renderer"
+#define RENDERER_OPT        "renderer"
 //#define PLAYBACK            "playback"
 //#define PLAYBACK_OPT        "playback"
 #define SEQUENCE            "sequence"
@@ -102,16 +103,16 @@ bool Configuration::parse(int argc, char** argv) {
 
     // available in the configuration file and command line
     m_Config.add_options() //
-    //    (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
+        (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
     //    (PLAYBACK_OPT, po::value<string>(), "Play a recorded session back from file") //
     //    (RECORD_OPT, po::value<string>(), "Record a session to file") //
-    (PORT_OPT, po::value<short>(), "Sets the port number to be used"); //
-    //    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
-    //    (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
+    (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
+        (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
+        (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
 
     // Adding display settings
     // Get Renderer from session descriptor
-    Renderer & renderer = mSession->descriptor().renderer();
+    ::duke::protocol::Renderer & renderer = mSession->descriptor().renderer();
     setDisplayOptions(m_Display, renderer);
 
     // adding interactive mode options
@@ -151,10 +152,11 @@ bool Configuration::parse(int argc, char** argv) {
         displayVersion();
         return false;
     }
+    if (m_Vm.count(RENDERER) == 0)
+        throw runtime_error("No renderer specified. Aborting.");
 
     // loading plugins
-    ImageDecoderFactoryImpl imageDecoderFactory;
-    const char** listOfExtensions = imageDecoderFactory.getAvailableExtensions();
+    const char** listOfExtensions = mSession->getAvailableExtensions();
 
     /**
      * Client mode
@@ -202,7 +204,7 @@ bool Configuration::parse(int argc, char** argv) {
         playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
 
     // no special mode specified, using interactive mode
-    MessageQueue queue;
+    MessageQueue & queue = mSession->getInitTimeMsgQueue();
 
     Engine stop;
     stop.set_action(Engine_Action_RENDER_STOP);
@@ -255,7 +257,8 @@ bool Configuration::parse(int argc, char** argv) {
     start.set_action(Engine_Action_RENDER_START);
     push(queue, start);
 
-    mSession->addInitTimeMsg(queue);
+    push(queue, playlist);
+
     return true;
 }
 

@@ -1,7 +1,6 @@
 #include "Configuration.h"
 #include <dukexgui/UIApplication.h>
 #include <dukexcore/dkxSession.h>
-#include <boost/program_options.hpp>
 #include <iostream>
 #include <stdexcept>
 
@@ -19,9 +18,8 @@ void unexpectedFunc(void) {
 int main(int argc, char *argv[]) {
     std::set_terminate(&terminateFunc);
     std::set_unexpected(&unexpectedFunc);
+    std::cout << "DukeX Player" << std::endl;
     try {
-
-        std::cout << "DukeX Player" << std::endl;
 
         // Qt resources & CSS
         Q_INIT_RESOURCE(resources);
@@ -35,18 +33,20 @@ int main(int argc, char *argv[]) {
             QString styleSheet = QLatin1String(file.readAll());
             qapp.setStyleSheet(styleSheet);
         }
+
         // Session
         Session::ptr session(new Session());
-        // Configuration - command line options
+
+        // Configure session with command line options
         Configuration conf(session);
         if (!conf.parse(argc, argv))
             return EXIT_SUCCESS;
 
-        // Run our main Qt Application
+        // Starts our main Qt Application
         UIApplication uiapp(session);
         uiapp.show();
+        return qapp.exec(); // blocking
 
-        return qapp.exec();
     } catch (std::exception & e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;

@@ -4,6 +4,7 @@
 #include "dkxObservable.h"
 #include "dkxSessionDescriptor.h"
 #include <dukeapi/io/QueueMessageIO.h>
+#include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <boost/thread.hpp>
 
 // forward declaration
@@ -18,12 +19,9 @@ public:
     Session();
 
 public:
-    bool load();
-    bool save();
     bool startSession(const std::string& ip, short port, void* handle = NULL);
     bool stopSession();
     bool computeInMsg();
-    bool addInitTimeMsg(MessageQueue & queue);
     bool sendMsg(MessageQueue & queue);
 
 public:
@@ -60,6 +58,13 @@ public:
     inline void setDescriptor(const SessionDescriptor& descriptor) {
         mDescriptor = descriptor;
     }
+    inline MessageQueue & getInitTimeMsgQueue() {
+        return mInitTimeMsgQueue;
+    }
+    inline const char ** getAvailableExtensions() const {
+        return mImageDecoderFactory.getAvailableExtensions();
+    }
+
 
 private:
     Session(const Session&);
@@ -67,7 +72,6 @@ private:
 
 private:
     void run();
-    bool sendInitTimeMsg(MessageQueue & queue);
 
 private:
     size_t mFrame;
@@ -75,6 +79,7 @@ private:
     std::string mIP;
     short mPort;
     bool mConnected;
+    ImageDecoderFactoryImpl mImageDecoderFactory;
     SessionDescriptor mDescriptor;
 
 private:

@@ -7,7 +7,7 @@
 
 class Configuration : boost::noncopyable {
 public:
-    Configuration(Session::ptr s);
+    Configuration(Session::ptr);
 
 public:
     bool parse(int argcc, char** argvv);

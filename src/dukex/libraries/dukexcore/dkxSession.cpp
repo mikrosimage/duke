@@ -1,6 +1,7 @@
 #include "dkxSession.h"
 #include <dukeapi/io/SocketMessageIO.h>
 #include <dukeapi/core/messageBuilder/Commons.h>
+#include <dukeengine/Application.h>
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
@@ -20,19 +21,18 @@ private:
     QueueMessageIO& io;
 };
 
+void launch(int & returnvalue, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io) {
+    std::cerr << "-->" << std::endl;
+    ImageDecoderFactoryImpl imageDecoderFactory;
+    Application("plugin_renderer_ogl.so", decoder, io, returnvalue, 0, 1);
+    std::cerr << "<--" << std::endl;
+}
+
 } // empty namespace
 
 
 Session::Session() :
     mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false) {
-}
-
-bool Session::load() {
-    return false;
-}
-
-bool Session::save() {
-    return false;
 }
 
 bool Session::startSession(const std::string& ip, short port, void* handle) {
@@ -41,22 +41,31 @@ bool Session::startSession(const std::string& ip, short port, void* handle) {
         mPort = port;
         if (connected())
             return false;
-        mThread = boost::thread(&Session::run, this);
+
+//        // CLIENT MODE
+//        mThread = boost::thread(&Session::run, this);
+//        boost::this_thread::sleep(boost::posix_time::millisec(40));
+
+        int returnvalue = 0;
+        mThread = boost::thread(&launch, returnvalue, boost::ref(mImageDecoderFactory), boost::ref(mIo));
         boost::this_thread::sleep(boost::posix_time::millisec(40));
+        mConnected = true;
+
+        std::cerr << "Session start..." << std::endl;
 
         // edit the renderer with the right handle
-        Renderer & renderer = mDescriptor.renderer();
+        ::duke::protocol::Renderer & renderer = mDescriptor.renderer();
         renderer.set_handle((::google::protobuf::uint64) handle);
 
         MessageQueue q;
+
         // send the renderer
         push(q, renderer);
         sendMsg(q);
-        // send prepared msg
-        sendInitTimeMsg(mInitTimeMsgQueue);
-        // send the playlist
-        push(q, mDescriptor.playlist());
-        sendMsg(q);
+
+        // after the renderer, send all init-time msgs
+        sendMsg(mInitTimeMsgQueue);
+
 
     } catch (std::exception& e) {
         std::cerr << "Error while connecting to server." << std::endl;
@@ -68,8 +77,14 @@ bool Session::startSession(const std::string& ip, short port, void* handle) {
 bool Session::stopSession() {
     if (!connected())
         return false;
-    quitRenderer(mIo.outputQueue);
-    mIo.outputQueue.push(makeSharedHolder(quitSuccess()));
+
+//    // CLIENT MODE
+//    quitRenderer(mIo.outputQueue);
+//    mIo.outputQueue.push(makeSharedHolder(quitSuccess()));
+//    mThread.join();
+
+    quitRenderer(mIo.inputQueue);
+    mIo.inputQueue.push(makeSharedHolder(quitSuccess()));
     mThread.join();
     return true;
 }
@@ -77,7 +92,7 @@ bool Session::stopSession() {
 bool Session::computeInMsg() {
     using namespace ::duke::protocol;
     SharedHolder holder;
-    while (mIo.inputQueue.tryPop(holder)) {
+    while (mIo.outputQueue.tryPop(holder)) {
         notify(holder);
         // check for Transport Msg
         if (::google::protobuf::serialize::isType<Transport>(*holder)) {
@@ -107,28 +122,7 @@ bool Session::sendMsg(MessageQueue & queue) {
     SharedHolder holder;
     while (queue.tryPop(holder)) {
         notify(holder);
-        mIo.outputQueue.push(holder);
-    }
-    return false;
-}
-
-bool Session::addInitTimeMsg(MessageQueue & queue) {
-    SharedHolder holder;
-    while (queue.tryPop(holder)) {
-        mInitTimeMsgQueue.push(holder);
-    }
-    return true;
-}
-
-// private
-bool Session::sendInitTimeMsg(MessageQueue & queue) {
-    SharedHolder holder;
-    while (queue.tryPop(holder)) {
-        if (::google::protobuf::serialize::isType<Renderer>(*holder)) {
-            continue;
-        }
-        notify(holder);
-        mIo.outputQueue.push(holder);
+        mIo.inputQueue.push(holder);
     }
     return false;
 }

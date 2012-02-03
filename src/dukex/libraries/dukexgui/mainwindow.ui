@@ -95,7 +95,6 @@
      <addaction name="fitImageTo11Action"/>
      <addaction name="fitImageToWindowWidthAction"/>
      <addaction name="fitImageToWindowHeightAction"/>
-     <addaction name="stretchImageToWindowAction"/>
     </widget>
     <addaction name="fullscreenAction"/>
     <addaction name="separator"/>

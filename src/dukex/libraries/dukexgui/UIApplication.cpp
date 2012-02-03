@@ -86,13 +86,6 @@ UIApplication::UIApplication(Session::ptr s) :
 
 }
 
-//QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _title) {
-//    QMenu * m = new QMenu(_title, this);
-//    menuBar()->addMenu(m);
-//    m_LoadedUIElements.insert(_plugin, m);
-//    return m;
-//}
-
 bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title) {
     QDockWidget * dockwidget = new QDockWidget(_title, this);
     dockwidget->setContentsMargins(0, 0, 0, 0);
@@ -107,6 +100,13 @@ bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt:
     return true;
 }
 
+//QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _title) {
+//    QMenu * m = new QMenu(_title, this);
+//    menuBar()->addMenu(m);
+//    m_LoadedUIElements.insert(_plugin, m);
+//    return m;
+//}
+//
 //QDeclarativeItem* UIApplication::createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title) {
 //    QDockWidget * dockwidget = new QDockWidget(_title, this);
 //    UIView * view = new UIView(dockwidget);
@@ -295,8 +295,8 @@ void UIApplication::openFiles(const QStringList & _list, const bool & asSequence
                         v[i] = _list[i].toStdString();
                     }
                     p->openFiles(v, asSequence);
-//                    m_Preferences.addToHistory(_filenames.toStdString());
-//                    updateRecentFilesMenu();
+                    m_Preferences.addToHistory(v[0]);
+                    updateRecentFilesMenu();
                 }
             }
         }
