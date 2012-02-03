@@ -66,9 +66,11 @@ UITimeline::UITimeline(NodeManager* _manager) :
     connect(m_tracksRuler, SIGNAL(frameChanged(qint64)), m_timelineControls, SLOT(frameChanged(qint64)));
     connect(m_tracksRuler, SIGNAL(frameChanged(qint64)), this, SLOT(frameChanged(qint64)));
     connect(m_timelineControls, SIGNAL(frameControlChanged(qint64)), this, SLOT(frameChanged(qint64)));
+    connect(m_timelineControls, SIGNAL(frameControlChanged(qint64)), this, SLOT(setFocus()));
     // Framerate
     connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), m_tracksRuler, SLOT( framerateChanged(double) ));
     connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), this, SLOT( framerateChanged(double) ));
+    connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), this, SLOT( setFocus() ));
 
     m_tracksView->createLayout();
 }
@@ -115,6 +117,7 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 break;
         }
     } else if (::google::protobuf::serialize::isType<Playlist>(*sharedholder)) {
+        qint64 currentPos = m_tracksView->cursorPos();
         m_tracksControls->clear();
         m_tracksView->clear();
         const Playlist & p = ::google::protobuf::serialize::unpackTo<Playlist>(*sharedholder);
@@ -123,10 +126,11 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 const Clip & c = p.clip(i);
                 m_tracksView->addItem(c.recin(), c.recout() - c.recin());
             }
-            setDuration(p.clip(p.clip_size() - 1).recout());
+            qint64 lastFrame = p.clip(p.clip_size() - 1).recout();
+            setDuration(lastFrame);
         }
     } else if (::google::protobuf::serialize::isType<Debug>(*sharedholder)) {
-        std::cerr << "INPUT: DEBUG MSG" << std::endl;
+//        std::cerr << "INPUT: DEBUG MSG" << std::endl;
     }
 }
 

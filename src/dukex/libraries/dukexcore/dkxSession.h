@@ -4,6 +4,7 @@
 #include "dkxObservable.h"
 #include "dkxSessionDescriptor.h"
 #include <dukeapi/io/QueueMessageIO.h>
+#include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <boost/thread.hpp>
 
 // forward declaration
@@ -18,8 +19,6 @@ public:
     Session();
 
 public:
-    bool load();
-    bool save();
     bool startSession(const std::string& ip, short port, void* handle = NULL);
     bool stopSession();
     bool computeInMsg();
@@ -38,25 +37,40 @@ public:
     inline const std::string & ip() const {
         return mIP;
     }
+    inline void setIp(const std::string ip) {
+        mIP = ip;
+    }
     inline const short port() const {
         return mPort;
     }
-    inline const std::string & file() const {
-        return mFile;
+    inline void setPort(const short port) {
+        mPort = port;
     }
     inline const bool connected() const {
         return mConnected;
     }
-    inline const bool dirty() const {
-        return mDirty;
-    }
     inline SessionDescriptor& descriptor() {
         return mDescriptor;
     }
+    inline const SessionDescriptor& descriptor() const {
+        return mDescriptor;
+    }
+    inline void setDescriptor(const SessionDescriptor& descriptor) {
+        mDescriptor = descriptor;
+    }
+    inline MessageQueue & getInitTimeMsgQueue() {
+        return mInitTimeMsgQueue;
+    }
+    inline const char ** getAvailableExtensions() const {
+        return mImageDecoderFactory.getAvailableExtensions();
+    }
+
 
 private:
     Session(const Session&);
     const Session& operator=(const Session&);
+
+private:
     void run();
 
 private:
@@ -64,13 +78,13 @@ private:
     bool mPlaying;
     std::string mIP;
     short mPort;
-    std::string mFile;
     bool mConnected;
-    bool mDirty;
+    ImageDecoderFactoryImpl mImageDecoderFactory;
     SessionDescriptor mDescriptor;
 
 private:
     QueueMessageIO mIo;
+    MessageQueue mInitTimeMsgQueue;
     boost::thread mThread;
 };
 

@@ -20,6 +20,7 @@ lib dukexgui
         [ glob *.ui *.cpp *.qrc : moc_* qrc_* ] 
         UIApplication.h
         UIRenderWindow.h
+        UIFileDialog.h
         UIPluginDialog.h
         UIWidget.h
         UserPreferences.h
