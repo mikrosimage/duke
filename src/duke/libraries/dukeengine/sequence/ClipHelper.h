@@ -4,10 +4,14 @@
 #include <player.pb.h>
 #include <boost/filesystem.hpp>
 
-size_t duration(const size_t in, const size_t out);
-bool existAt(const size_t in, const size_t out, const size_t frame);
-bool isRecFrame(const ::duke::protocol::Clip& clip, const size_t frame);
-bool isSrcFrame(const ::duke::protocol::Clip& clip, const size_t frame);
+bool existAt(const uint32_t in, const uint32_t out, const uint32_t frame);
+bool isRecFrame(const ::duke::protocol::Clip& clip, const uint32_t frame);
+bool isSrcFrame(const ::duke::protocol::Clip& clip, const uint32_t frame);
+
+uint32_t duration(const uint32_t in, const uint32_t out);
+uint32_t clampFrame(uint32_t first, uint32_t last, uint32_t current);
+uint32_t offsetLoopFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset);
+uint32_t offsetClampFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset);
 
 class ClipHelper {
 private:
@@ -21,16 +25,16 @@ public:
     ClipHelper(const ::duke::protocol::Clip& clip);
     ~ClipHelper();
 
-    ::boost::filesystem::path getFilenameAtFrame(const size_t frame) const;
-    ::boost::filesystem::path getFilenameAt(const size_t frame) const;
-    uint64_t getHashAt(const size_t frame) const;
+    ::boost::filesystem::path getFilenameAtFrame(const uint32_t frame) const;
+    ::boost::filesystem::path getFilenameAt(const uint32_t frame) const;
+    uint64_t getHashAt(const uint32_t frame) const;
     uint32_t getClipHash() const {
         return m_uClipHash;
     }
     const ::duke::protocol::Clip& getClip() const { return m_Clip; }
-    bool isRecFrame(const size_t frame) const;
-    bool isSrcFrame(const size_t frame) const;
-    size_t getSourceFrame(const size_t recordFrame) const;
+    bool isRecFrame(const uint32_t frame) const;
+    bool isSrcFrame(const uint32_t frame) const;
+    uint32_t getSourceFrame(const uint32_t recordFrame) const;
 };
 
 #endif /* CLIPHELPER_H_ */

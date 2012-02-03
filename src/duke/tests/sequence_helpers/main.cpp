@@ -17,32 +17,73 @@ using namespace std;
 
 BOOST_AUTO_TEST_SUITE( FrameUtilsSuite )
 
-BOOST_AUTO_TEST_CASE( existAt )
+BOOST_AUTO_TEST_CASE( existAtTest )
 {
-    BOOST_CHECK( !::existAt( 0, 0, 0 ) );
-    BOOST_CHECK( ::existAt( 0, 1, 0 ) );
-    BOOST_CHECK( !::existAt( 0, 1, 1 ) );
+    BOOST_CHECK( !existAt( 0, 0, 0 ) );
+    BOOST_CHECK( existAt( 0, 1, 0 ) );
+    BOOST_CHECK( !existAt( 0, 1, 1 ) );
 }
 
-BOOST_AUTO_TEST_CASE( isRecFrame )
+BOOST_AUTO_TEST_CASE( isRecFrameTest )
 {
     ::duke::protocol::Clip clip;
     clip.set_filename( "prefix####.jpg" );
     BOOST_CHECK_EQUAL( 0u, clip.recin() );
     BOOST_CHECK_EQUAL( 0u, clip.recout() );
 
-    BOOST_CHECK( !::isRecFrame( clip, 0 ) );
+    BOOST_CHECK( !isRecFrame( clip, 0 ) );
 
     clip.set_recout( 1 );
-    BOOST_CHECK( ::isRecFrame( clip, 0 ) );
-    BOOST_CHECK( !::isRecFrame( clip, 1 ) );
+    BOOST_CHECK( isRecFrame( clip, 0 ) );
+    BOOST_CHECK( !isRecFrame( clip, 1 ) );
 
     clip.set_recin( 10 );
     clip.set_recout( 12 );
-    BOOST_CHECK( !::isRecFrame( clip, 9 ) );
-    BOOST_CHECK( ::isRecFrame( clip, 10 ) );
-    BOOST_CHECK( ::isRecFrame( clip, 11 ) );
-    BOOST_CHECK( !::isRecFrame( clip, 12 ) );
+    BOOST_CHECK( !isRecFrame( clip, 9 ) );
+    BOOST_CHECK( isRecFrame( clip, 10 ) );
+    BOOST_CHECK( isRecFrame( clip, 11 ) );
+    BOOST_CHECK( !isRecFrame( clip, 12 ) );
+}
+
+BOOST_AUTO_TEST_CASE( durationTest )
+{
+    BOOST_CHECK_EQUAL(duration(0,0),0U);
+    BOOST_CHECK_EQUAL(duration(0,1),1U);
+}
+
+BOOST_AUTO_TEST_CASE( clampFrameTest )
+{
+    BOOST_CHECK_EQUAL(clampFrame(0,0,0), 0U);
+    BOOST_CHECK_EQUAL(clampFrame(1,5,2), 2U);
+    BOOST_CHECK_EQUAL(clampFrame(1,5,0), 1U);
+    BOOST_CHECK_EQUAL(clampFrame(1,5,9), 5U);
+}
+
+BOOST_AUTO_TEST_CASE( offsetClampFrameTest )
+{
+    BOOST_CHECK_EQUAL(offsetClampFrame(0,0,0,0), 0U);
+    // within range
+    BOOST_CHECK_EQUAL(offsetClampFrame(1,5,2,0), 2U);
+    BOOST_CHECK_EQUAL(offsetClampFrame(1,5,2,-1), 1U);
+    BOOST_CHECK_EQUAL(offsetClampFrame(1,5,2,1), 3U);
+    // outside range
+}
+
+BOOST_AUTO_TEST_CASE( offsetLoopFrameTest )
+{
+    BOOST_CHECK_EQUAL(offsetLoopFrame(0,0,0,0), 0U);
+    // within range
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,0), 2U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-1), 1U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,1), 3U);
+    // outside range
+    cerr << "outside range" << endl;
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,4), 1U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2), 5U);
+    // outside range modulo
+    cerr << "outside range modulo" << endl;
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,4+5), 1U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2-5), 5U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -115,44 +156,44 @@ BOOST_AUTO_TEST_CASE( sourceFrameOffset )
     BOOST_CHECK_EQUAL( 14u, helper.getSourceFrame( 9 ) );
 }
 
-BOOST_AUTO_TEST_CASE( sourceFrameHalfSpeed )
-{
-    ::duke::protocol::Clip clip;
-    clip.set_filename( "#" );
-    clip.set_recin( 0 );
-    clip.set_recout( 6 );
-    clip.set_srcin( 0 );
-    clip.set_srcout( 11 );
-    ClipHelper helper( clip );
-    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 0 ) );
-    BOOST_CHECK_EQUAL( 10u, helper.getSourceFrame( 5 ) );
-}
-
-BOOST_AUTO_TEST_CASE( sourceFrameReverse )
-{
-    ::duke::protocol::Clip clip;
-    clip.set_filename( "#" );
-    clip.set_recin( 0 );
-    clip.set_recout( 10 );
-    clip.set_srcin( 10 );
-    clip.set_srcout( 0 );
-    ClipHelper helper( clip );
-    BOOST_CHECK_EQUAL( 9u, helper.getSourceFrame( 0 ) );
-    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 9 ) );
-}
-
-BOOST_AUTO_TEST_CASE( sourceFrameReverseHalf )
-{
-    ::duke::protocol::Clip clip;
-    clip.set_filename( "#" );
-    clip.set_recin( 0 );
-    clip.set_recout( 6 );
-    clip.set_srcin( 11 );
-    clip.set_srcout( 0 );
-    ClipHelper helper( clip );
-    BOOST_CHECK_EQUAL( 10u, helper.getSourceFrame( 0 ) );
-    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 5 ) );
-}
+//BOOST_AUTO_TEST_CASE( sourceFrameHalfSpeed )
+//{
+//    ::duke::protocol::Clip clip;
+//    clip.set_filename( "#" );
+//    clip.set_srcin( 0 );
+//    clip.set_srcout( 10 );//10 src frames
+//    clip.set_recin( 0 );
+//    clip.set_recout( 5 ); // 5 rec frames
+//    ClipHelper helper( clip );
+//    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 0 ) );
+//    BOOST_CHECK_EQUAL( 10u, helper.getSourceFrame( 5 ) );
+//}
+//
+//BOOST_AUTO_TEST_CASE( sourceFrameReverse )
+//{
+//    ::duke::protocol::Clip clip;
+//    clip.set_filename( "#" );
+//    clip.set_srcin( 10 );
+//    clip.set_srcout( 0 );
+//    clip.set_recin( 0 );
+//    clip.set_recout( 10 );
+//    ClipHelper helper( clip );
+//    BOOST_CHECK_EQUAL( 9u, helper.getSourceFrame( 0 ) );
+//    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 9 ) );
+//}
+//
+//BOOST_AUTO_TEST_CASE( sourceFrameReverseHalf )
+//{
+//    ::duke::protocol::Clip clip;
+//    clip.set_filename( "#" );
+//    clip.set_recin( 0 );
+//    clip.set_recout( 5 );
+//    clip.set_srcin( 10 );
+//    clip.set_srcout( 0 );
+//    ClipHelper helper( clip );
+//    BOOST_CHECK_EQUAL( 10u, helper.getSourceFrame( 0 ) );
+//    BOOST_CHECK_EQUAL( 0u, helper.getSourceFrame( 5 ) );
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -208,25 +249,6 @@ BOOST_AUTO_TEST_CASE( PlaylistHelperTests )
     BOOST_CHECK_EQUAL( 28u, helper.getNormalizedFrame(28) );
     BOOST_CHECK_EQUAL( 29u, helper.getNormalizedFrame(29) );
     BOOST_CHECK_EQUAL( 10u, helper.getNormalizedFrame(30) );
-}
-
-BOOST_AUTO_TEST_CASE( PlaylistWithHolesTest )
-{
-    ::std::ifstream infile("playlist.txt", std::ios::binary);
-    if(!infile.is_open())
-        return;
-    ::google::protobuf::io::IstreamInputStream zcis(&infile);
-    ::duke::protocol::Playlist playlist;
-    ::google::protobuf::TextFormat::Parse(&zcis, &playlist);
-
-    PlaylistHelper helper(playlist);
-    // playlist index 1825
-    // rec : 902177, src : 105839
-    const string expectedPath ="N:/footage/lyria/sources_jpeg/lyria_FN/from_datalab_100830/A003_C027_07076W_001 (02)/A003_C027_07076W_001_105839.jpg";
-
-    const size_t playlistIndex = 902177 - playlist.clip(0).recin(); // 902177 - 900352
-    const uint64_t hash = helper.getHashAtIterator(playlistIndex);
-    BOOST_CHECK_EQUAL( helper.getPathAtHash(hash).string(), expectedPath );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

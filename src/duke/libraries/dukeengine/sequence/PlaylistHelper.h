@@ -16,9 +16,9 @@
 struct PlaylistHelper {
 private:
     ::duke::protocol::Playlist m_Playlist;
-    size_t m_uRecIn;
-    size_t m_uRecOut;
-    size_t m_uFrameCount;
+    uint32_t m_uRecIn;
+    uint32_t m_uRecOut;
+    uint32_t m_uFrameCount;
     size_t m_uEndIterator;
 
     // accelerators typedef
@@ -44,25 +44,26 @@ public:
     boost::filesystem::path getPathAtHash(const uint64_t) const;
     std::string getPathStringAtHash(const uint64_t) const;
     uint64_t getHashAtIterator(const size_t) const;
-    size_t getWrappedFrame(size_t frame) const;
-    size_t getClampedFrame(size_t frame) const;
-    size_t getNormalizedFrame(size_t frame) const;
+    uint32_t getWrappedFrame(uint32_t frame) const;
+    uint32_t getClampedFrame(uint32_t frame) const;
+    uint32_t getNormalizedFrame(uint32_t frame) const;
+    uint32_t getOffsetFrame(uint32_t frame, int32_t offset) const;
     inline const ::duke::protocol::Playlist& getPlaylist() const {
         return m_Playlist;
     }
-    inline size_t getRecIn() const {
+    inline uint32_t getRecIn() const {
         return m_uRecIn;
     }
-    inline size_t getRecOut() const {
+    inline uint32_t getRecOut() const {
         return m_uRecOut;
     }
-    inline size_t getFirstFrame() const {
+    inline uint32_t getFirstFrame() const {
         return m_uRecIn;
     }
-    inline size_t getLastFrame() const {
+    inline uint32_t getLastFrame() const {
         return m_uRecOut - 1;
     }
-    inline size_t getFrameCount() const {
+    inline uint32_t getFrameCount() const {
         return m_uFrameCount;
     }
     inline size_t getEndIterator() const {

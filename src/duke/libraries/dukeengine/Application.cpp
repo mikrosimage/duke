@@ -92,66 +92,92 @@ static inline playback::PlaybackState create(const PlaylistHelper &helper) {
     return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
 }
 
-//FIXME gchatelet : review this function
-static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, uint32_t newFrame) {
-    const bool isCueClip = cue.cueclip();
-    const bool isCueRelative = cue.cuerelative();
-    const int32_t value = cue.value();
+static inline uint32_t boundFrame(const PlaylistHelper &helper, int32_t currentFrame){
 
-    const Playlist &p(helper.getPlaylist());
-    const bool loop = p.loop();
-    if (isCueClip) { // cueing clips
-        const int clipSize = p.clip_size();
-        if (isCueRelative) { // cueing clips relative
-            if (clipSize == 0)
-                return newFrame;
-            set<size_t> clips;
-            for (int i = 0; i < clipSize; ++i)
-                clips.insert(p.clip(i).recin());
-            set<size_t>::const_iterator it = clips.lower_bound(newFrame);
-            advance(it, value);
-            if (it == clips.end()) {
-                if (loop) {
-                    const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
-                    newFrame = p.clip(clipIndex).recin();
-                }
-            } else {
-                newFrame = *it;
-            }
-        } else { // cueing clips absolute
-            if ((value < clipSize) && (value >= 0))
-                newFrame = p.clip(value).recin();
-        }
-    } else { // cueing frames
-        if (isCueRelative)
-            newFrame += value;
-        else
-            newFrame = value;
-        if (!loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
-            newFrame = helper.getFirstFrame();
-    }
-
-    if (loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
-        newFrame = helper.getLastFrame() + newFrame;
-
-    return newFrame;
 }
+
+static inline uint32_t cueClipRelative(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipOffset) {
+    return currentFrame;
+}
+static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipIndex) {
+    return currentFrame;
+}
+static inline uint32_t cueFrameRelative(const PlaylistHelper &helper, int32_t currentFrame, int32_t frameOffset) {
+    if(helper.getPlaylist().loop())
+    return currentFrame;
+}
+static inline uint32_t cueFrameAbsolute(const PlaylistHelper &helper, int32_t currentFrame, uint32_t frameIndex) {
+    return min(max(helper.getFirstFrame(),frameIndex),helper.getLastFrame());
+}
+static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+    return cue.cuerelative() ? cueClipRelative(helper, current, cue.value()) : cueClipAbsolute(helper, current, cue.value());
+}
+static inline uint32_t cueFrame(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+    return cue.cuerelative() ? cueFrameRelative(helper, current, cue.value()) : cueFrameAbsolute(helper, current, cue.value());
+}
+static inline uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+    return cue.cueclip() ? cueClip(cue, helper, current) : cueFrame(cue, helper, current);
+}
+
+////FIXME gchatelet : review this function
+//static uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t newFrame) {
+//    const bool isCueRelative = cue.cuerelative();
+//    const int32_t value = cue.value();
+//
+//    const Playlist &p(helper.getPlaylist());
+//    const bool loop = p.loop();
+//    if (cue.cueclip()) { // cueing clips
+//        const int clipSize = p.clip_size();
+//        if (isCueRelative) { // cueing clips relative
+//            if (clipSize == 0)
+//                return newFrame;
+//            set<size_t> clips;
+//            for (int i = 0; i < clipSize; ++i)
+//                clips.insert(p.clip(i).recin());
+//            set<size_t>::const_iterator it = clips.lower_bound(newFrame);
+//            advance(it, value);
+//            if (it == clips.end()) {
+//                if (loop) {
+//                    const int32_t clipIndex = value < 0 ? clipSize - 1 : 0;
+//                    newFrame = p.clip(clipIndex).recin();
+//                }
+//            } else {
+//                newFrame = *it;
+//            }
+//        } else { // cueing clips absolute
+//            if ((value < clipSize) && (value >= 0))
+//                newFrame = p.clip(value).recin();
+//        }
+//    } else { // cueing frames
+//        if (isCueRelative)
+//            newFrame += value;
+//        else
+//            newFrame = value;
+//        if (!loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
+//            newFrame = helper.getFirstFrame();
+//    }
+//
+//    if (loop && newFrame < 0) // FIXME warning: comparison of unsigned expression < 0 is always false
+//        newFrame = helper.getLastFrame() + newFrame;
+//
+//    return newFrame;
+//}
 
 Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize,
                          const size_t cacheThreads) :
-        m_IO(io), //
-        m_ImageDecoderFactory(imageDecoderFactory), //
-        m_AudioEngine(), //
-        m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
-        m_FileBufferHolder(), //
-        m_VbiTimings(VBI, 120), //
-        m_FrameTimings(FRAME, 10), //
-        m_PreviousFrame(-1), //
-        m_StoredFrame(-1), //
-        m_bRequestTermination(false), //
-        m_bAutoNotifyOnFrameChange(false), //
-        m_iReturnCode(returnCode), //
-        m_Renderer(buildHost(this), rendererFilename) {
+                m_IO(io), //
+                m_ImageDecoderFactory(imageDecoderFactory), //
+                m_AudioEngine(), //
+                m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
+                m_FileBufferHolder(), //
+                m_VbiTimings(VBI, 120), //
+                m_FrameTimings(FRAME, 10), //
+                m_PreviousFrame(-1), //
+                m_StoredFrame(-1), //
+                m_bRequestTermination(false), //
+                m_bAutoNotifyOnFrameChange(false), //
+                m_iReturnCode(returnCode), //
+                m_Renderer(buildHost(this), rendererFilename) {
     consumeUntilRenderOrQuit();
 }
 
@@ -333,10 +359,10 @@ void Application::renderStart() {
         }
 
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
-        {
-            //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
-            setup.m_Images.push_back(image.getImageDescription());
-        }
+                {
+                    //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
+                    setup.m_Images.push_back(image.getImageDescription());
+                }
 
         // populate clips
         m_Playlist.getClipsAtFrame(frame, setup.m_Clips);
