@@ -15,15 +15,11 @@ public:
 public:
     bool asSequence() const;
 
-private slots:
-    void directorybox_toggled(bool);
-
 private:
     void setupCustomUI();
 
 private:
     QCheckBox * mSequenceCheckbox;
-    QCheckBox * mDirectoryCheckbox;
 };
 
 #endif // UIFILEDIALOG_H

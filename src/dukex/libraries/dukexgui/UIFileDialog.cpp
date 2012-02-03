@@ -18,24 +18,14 @@ bool UIFileDialog::asSequence() const {
 
 // private
 void UIFileDialog::setupCustomUI() {
+    // global filedialog settings
+    setViewMode(QFileDialog::Detail);
     setFileMode(QFileDialog::ExistingFiles);
     setNameFilter(tr("All Files (*.*);;Playlists (*.ppl *.ppl2);;Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm)"));
+
+    // custom checkbox
     mSequenceCheckbox = new QCheckBox(this);
     mSequenceCheckbox->setText("Load As Sequence");
-    mDirectoryCheckbox = new QCheckBox(this);
-    mDirectoryCheckbox->setText("Select Directory");
-    connect(mDirectoryCheckbox, SIGNAL(toggled(bool)), this, SLOT(directorybox_toggled(bool)));
     QGridLayout *layout = (QGridLayout*)this->layout();
     layout->addWidget(mSequenceCheckbox, 4, 0);
-    layout->addWidget(mDirectoryCheckbox, 4, 1);
-}
-
-// slot
-void UIFileDialog::directorybox_toggled(bool b){
-    if(b){
-        setFileMode(QFileDialog::Directory);
-    } else {
-        setFileMode(QFileDialog::ExistingFiles);
-        setNameFilter(tr("All Files (*.*);;Playlists (*.ppl *.ppl2);;Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm)"));
-    }
 }

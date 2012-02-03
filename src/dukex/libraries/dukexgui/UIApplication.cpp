@@ -38,6 +38,7 @@ UIApplication::UIApplication(Session::ptr s) :
     // Actions
     // File Actions
     connect(ui.openFileAction, SIGNAL(triggered()), this, SLOT(openFiles()));
+    connect(ui.browseDirectoryAction, SIGNAL(triggered()), this, SLOT(browseDirectory()));
     connect(ui.quitAction, SIGNAL(triggered()), this, SLOT(close()));
     // Control Actions
     connect(ui.playStopAction, SIGNAL(triggered()), this, SLOT(playStop()));
@@ -94,7 +95,11 @@ UIApplication::UIApplication(Session::ptr s) :
 
 bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title) {
     QDockWidget * dockwidget = new QDockWidget(_title, this);
+    dockwidget->setContentsMargins(0, 0, 0, 0);
+    dockwidget->setMinimumSize(uiwidget->minimumSize());
+    dockwidget->setMaximumSize(uiwidget->maximumSize());
     uiwidget->setParent(dockwidget);
+
     m_Session->addObserver(uiwidget);
     dockwidget->setWidget(uiwidget);
     addDockWidget(_area, dockwidget);
@@ -274,27 +279,38 @@ void UIApplication::updateRecentFilesMenu() {
 
 // private slot
 void UIApplication::openFiles(const QStringList & _list, const bool & asSequence) {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
-    if (n.get() != NULL) {
-        PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
-        if (p.get() != NULL) {
-            if (!_list.isEmpty()) {
-
-                // --- QStringList to STL vector<string>
-                std::vector<std::string> v;
-                v.resize(_list.count());
-                for (int i = 0; i < _list.count(); ++i) {
-                    v[i] = _list[i].toStdString();
+    // get current frame
+    size_t currentFrame = m_Session->frame();
+    {
+        // open new files
+        INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
+        if (n.get() != NULL) {
+            PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
+            if (p.get() != NULL) {
+                if (!_list.isEmpty()) {
+                    // --- QStringList to STL vector<string>
+                    std::vector<std::string> v;
+                    v.resize(_list.count());
+                    for (int i = 0; i < _list.count(); ++i) {
+                        v[i] = _list[i].toStdString();
+                    }
+                    p->openFiles(v, asSequence);
+//                    m_Preferences.addToHistory(_filenames.toStdString());
+//                    updateRecentFilesMenu();
                 }
-                // ---
-
-                p->openFiles(v, asSequence);
-                //                m_Preferences.addToHistory(_filenames.toStdString());
-                //                updateRecentFilesMenu();
             }
         }
     }
-    firstFrame();
+    {
+        // seek to registered frame
+        INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
+        if (n.get() != NULL) {
+            TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
+            if (t.get() != NULL) {
+                t->gotoFrame(currentFrame);
+            }
+        }
+    }
 }
 
 // private slot
@@ -317,6 +333,16 @@ void UIApplication::openRecent() {
             filenames.append(file);
             openFiles(filenames);
         }
+    }
+}
+
+// private slot
+void UIApplication::browseDirectory() {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty()) {
+        QStringList list;
+        list.append(dir);
+        openFiles(list, false);
     }
 }
 
@@ -404,7 +430,6 @@ void UIApplication::nextShot() {
 void UIApplication::fullscreen() {
     if (m_RenderWindow->isFullScreen()) {
         m_RenderWindow->showNormal();
-        resizeCentralWidget(QSize(600, 800));
     } else {
         m_RenderWindow->showFullScreen();
     }

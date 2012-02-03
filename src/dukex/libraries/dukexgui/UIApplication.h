@@ -47,6 +47,7 @@ private slots:
     void openFiles(const QStringList &, const bool & = false);
     void openFiles();
     void openRecent();
+    void browseDirectory();
     // control
     void playStop();
     void previousFrame();

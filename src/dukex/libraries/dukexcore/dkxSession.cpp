@@ -75,9 +75,30 @@ bool Session::stopSession() {
 }
 
 bool Session::computeInMsg() {
+    using namespace ::duke::protocol;
     SharedHolder holder;
     while (mIo.inputQueue.tryPop(holder)) {
         notify(holder);
+        // check for Transport Msg
+        if (::google::protobuf::serialize::isType<Transport>(*holder)) {
+            const Transport t = ::google::protobuf::serialize::unpackTo<Transport>(*holder);
+            switch (t.type()) {
+                case Transport_TransportType_PLAY:
+                case Transport_TransportType_STOP:
+                case Transport_TransportType_STORE:
+                case Transport_TransportType_CUE_FIRST:
+                case Transport_TransportType_CUE_LAST:
+                case Transport_TransportType_CUE_STORED:
+                    break;
+                case Transport_TransportType_CUE:
+                    if (t.cue().cueclip())
+                        break;
+                    if (t.cue().cuerelative())
+                        break;
+                    mFrame = t.cue().value();
+                    break;
+            }
+        }
     }
     return false;
 }

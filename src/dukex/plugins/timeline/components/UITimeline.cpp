@@ -128,11 +128,7 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
             }
             qint64 lastFrame = p.clip(p.clip_size() - 1).recout();
             setDuration(lastFrame);
-            if(currentPos > lastFrame)
-                currentPos = 0;
         }
-        m_tracksView->setCursorPos(currentPos);
-        m_timelineControls->frameChanged(currentPos);
     } else if (::google::protobuf::serialize::isType<Debug>(*sharedholder)) {
 //        std::cerr << "INPUT: DEBUG MSG" << std::endl;
     }

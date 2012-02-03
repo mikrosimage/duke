@@ -70,6 +70,7 @@
      </property>
     </widget>
     <addaction name="openFileAction"/>
+    <addaction name="browseDirectoryAction"/>
     <addaction name="openRecentMenu"/>
     <addaction name="separator"/>
     <addaction name="quitAction"/>
@@ -519,6 +520,14 @@
   <action name="openPlaylistAction_2">
    <property name="text">
     <string>Open &amp;Playlist...</string>
+   </property>
+  </action>
+  <action name="browseDirectoryAction">
+   <property name="text">
+    <string>&amp;Browse...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
    </property>
   </action>
  </widget>
