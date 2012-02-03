@@ -9,11 +9,11 @@
 using namespace std;
 
 PlaylistHelper::PlaylistHelper() :
-                m_Playlist(), m_uRecIn(0), m_uRecOut(0), m_uFrameCount(0), m_uEndIterator(0) {
+    m_Playlist(), m_uRecIn(0), m_uRecOut(0), m_uFrameCount(0), m_uEndIterator(0) {
 }
 
 PlaylistHelper::PlaylistHelper(const ::duke::protocol::Playlist& _playlist) :
-                m_Playlist(_playlist), m_uRecIn(boost::integer_traits<uint32_t>::const_max), m_uRecOut(boost::integer_traits<uint32_t>::const_min), m_uEndIterator(0) {
+    m_Playlist(_playlist), m_uRecIn(boost::integer_traits<uint32_t>::const_max), m_uRecOut(boost::integer_traits<uint32_t>::const_min), m_uEndIterator(0) {
     using namespace std;
 
     const int clipCount = m_Playlist.clip_size();
@@ -225,36 +225,4 @@ void PlaylistHelper::dump(const IteratorToFrame&map) const {
             {
                 cerr << pair.first << " : " << pair.second->first << endl;
             }
-}
-
-uint32_t PlaylistHelper::getWrappedFrame(uint32_t frame) const {
-    // due to size_t being an unsigned type we need
-    // to guaranty frame is >= to recIn to perform
-    // the calculation right.
-    const size_t frameCount = getFrameCount();
-    if (frame == numeric_limits<size_t>::max())
-        return frameCount - 1;
-
-    if (frameCount == 0)
-        return 0;
-    const size_t recIn = getRecIn();
-    while (frame < recIn)
-        frame += frameCount;
-
-    const size_t howManyPeriod = (size_t) ((frame - recIn) / frameCount);
-    frame -= howManyPeriod * frameCount;
-
-    return frame;
-}
-
-uint32_t PlaylistHelper::getClampedFrame(uint32_t frame) const {
-    return max(min(frame, getLastFrame()), getFirstFrame());
-}
-
-uint32_t PlaylistHelper::getNormalizedFrame(uint32_t frame) const {
-    return getPlaylist().loop() ? getWrappedFrame(frame) : getClampedFrame(frame);
-}
-
-uint32_t PlaylistHelper::getOffsetFrame(uint32_t frame, int32_t offset) const {
-
 }

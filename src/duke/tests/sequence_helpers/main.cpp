@@ -82,8 +82,11 @@ BOOST_AUTO_TEST_CASE( offsetLoopFrameTest )
     BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2), 5U);
     // outside range modulo
     cerr << "outside range modulo" << endl;
-    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,4+5), 1U);
-    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2-5), 5U);
+    const int32_t duration = 5;
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,4+duration), 1U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2-duration), 5U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,4+2*duration), 1U);
+    BOOST_CHECK_EQUAL(offsetLoopFrame(1,5,2,-2-2*duration), 5U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -222,33 +225,34 @@ BOOST_AUTO_TEST_SUITE( PlaylistHelperSuite )
 BOOST_AUTO_TEST_CASE( PlaylistHelperTests )
 {
     ::duke::protocol::Playlist playlist( buildPlaylist() );
-    PlaylistHelper helper( playlist );
 
-    BOOST_CHECK_EQUAL( 20u, helper.getFrameCount() );
-    BOOST_CHECK_EQUAL( 10u, helper.getRecIn() );
-    BOOST_CHECK_EQUAL( 30u, helper.getRecOut() );
-
-    BOOST_CHECK_EQUAL( 10u, helper.getClampedFrame(9) );
-    BOOST_CHECK_EQUAL( 10u, helper.getClampedFrame(10) );
-    BOOST_CHECK_EQUAL( 11u, helper.getClampedFrame(11) );
-    BOOST_CHECK_EQUAL( 28u, helper.getClampedFrame(28) );
-    BOOST_CHECK_EQUAL( 29u, helper.getClampedFrame(29) );
-    BOOST_CHECK_EQUAL( 29u, helper.getClampedFrame(30) );
-
-    BOOST_CHECK_EQUAL( 29u, helper.getWrappedFrame(9) );
-    BOOST_CHECK_EQUAL( 10u, helper.getWrappedFrame(10) );
-    BOOST_CHECK_EQUAL( 11u, helper.getWrappedFrame(11) );
-    BOOST_CHECK_EQUAL( 28u, helper.getWrappedFrame(28) );
-    BOOST_CHECK_EQUAL( 29u, helper.getWrappedFrame(29) );
-    BOOST_CHECK_EQUAL( 10u, helper.getWrappedFrame(30) );
-
-    // we are in loop mode so normalized frame is wrapped
-    BOOST_CHECK_EQUAL( 29u, helper.getNormalizedFrame(9) );
-    BOOST_CHECK_EQUAL( 10u, helper.getNormalizedFrame(10) );
-    BOOST_CHECK_EQUAL( 11u, helper.getNormalizedFrame(11) );
-    BOOST_CHECK_EQUAL( 28u, helper.getNormalizedFrame(28) );
-    BOOST_CHECK_EQUAL( 29u, helper.getNormalizedFrame(29) );
-    BOOST_CHECK_EQUAL( 10u, helper.getNormalizedFrame(30) );
+    {
+        const PlaylistHelper helper( playlist );
+        BOOST_CHECK_EQUAL( 20u, helper.getFrameCount() );
+        BOOST_CHECK_EQUAL( 10u, helper.getRecIn() );
+        BOOST_CHECK_EQUAL( 30u, helper.getRecOut() );
+    }
+    {
+        playlist.set_loop(false);
+        const PlaylistHelper helper( playlist );
+        BOOST_CHECK_EQUAL( 10u, helper.getOffsetFrame(11,-2) );
+        BOOST_CHECK_EQUAL( 10u, helper.getOffsetFrame(11,-1) );
+        BOOST_CHECK_EQUAL( 11u, helper.getOffsetFrame(11,0) );
+        BOOST_CHECK_EQUAL( 28u, helper.getOffsetFrame(28,0) );
+        BOOST_CHECK_EQUAL( 29u, helper.getOffsetFrame(28,1) );
+        BOOST_CHECK_EQUAL( 29u, helper.getOffsetFrame(28,2) );
+    }
+    {
+        playlist.set_loop(true);
+        const PlaylistHelper helper( playlist );
+        // we are in loop mode so normalized frame is wrapped
+        BOOST_CHECK_EQUAL( 29u, helper.getOffsetFrame(11,-2) );
+        BOOST_CHECK_EQUAL( 10u, helper.getOffsetFrame(11,-1) );
+        BOOST_CHECK_EQUAL( 11u, helper.getOffsetFrame(11,0) );
+        BOOST_CHECK_EQUAL( 28u, helper.getOffsetFrame(28,0) );
+        BOOST_CHECK_EQUAL( 29u, helper.getOffsetFrame(28,1) );
+        BOOST_CHECK_EQUAL( 10u, helper.getOffsetFrame(28,2) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

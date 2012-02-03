@@ -44,10 +44,7 @@ public:
     boost::filesystem::path getPathAtHash(const uint64_t) const;
     std::string getPathStringAtHash(const uint64_t) const;
     uint64_t getHashAtIterator(const size_t) const;
-    uint32_t getWrappedFrame(uint32_t frame) const;
-    uint32_t getClampedFrame(uint32_t frame) const;
-    uint32_t getNormalizedFrame(uint32_t frame) const;
-    uint32_t getOffsetFrame(uint32_t frame, int32_t offset) const;
+
     inline const ::duke::protocol::Playlist& getPlaylist() const {
         return m_Playlist;
     }
@@ -79,6 +76,18 @@ public:
         return itr->first;
     }
     const ClipHelper* getClipHelperFrom(const size_t index, size_t &frameInClip) const;
+
+    uint32_t getBoundFrame(uint32_t frame) const {
+        return clampFrame(getFirstFrame(), getLastFrame(), frame);
+    }
+
+    uint32_t getOffsetFrame(uint32_t frame, int32_t offset) const {
+        assert(getFirstFrame()<=frame);
+        assert(frame<=getLastFrame());
+        if (getPlaylist().loop())
+            return offsetLoopFrame(getFirstFrame(), getLastFrame(), frame, offset);
+        return offsetClampFrame(getFirstFrame(), getLastFrame(), frame, offset);
+    }
 
     inline void swap(PlaylistHelper& other) {
         std::swap(m_Playlist, other.m_Playlist);

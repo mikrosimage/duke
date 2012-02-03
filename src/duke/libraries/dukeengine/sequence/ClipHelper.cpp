@@ -41,56 +41,45 @@ static inline uint32_t frameDuration(uint32_t first, uint32_t last) {
 static inline uint32_t reducedOffset(uint32_t first, uint32_t last, int32_t offset) {
     const bool forward = offset > 0;
     const uint32_t positiveOffset = forward ? offset : -offset;
-    const uint32_t r = positiveOffset % frameDuration(first, last);
-    cerr << "reducedOffset " << r << endl;
-    return r;
+    return positiveOffset % frameDuration(first, last);
 }
 
-static inline uint32_t offsetFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset, bool isCycling) {
+template<bool isCycling>
+static inline uint32_t offsetFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset) {
     assert(first<=current);
     assert(current<=last);
     if (offset == 0)
         return current;
+    // offset frame is within [first,last]
     const bool forward = offset > 0;
     const uint32_t positiveOffset = forward ? offset : -offset;
-    // forward outside
     const uint32_t distanceToLast = frameDuration(current, last);
-    cerr << "distance to last " << distanceToLast << endl;
-    if (forward && distanceToLast <= positiveOffset) {
-        if (isCycling) {
-            return first + reducedOffset(first, last, offset) - distanceToLast;
-        } else {
-            return last;
-        }
-    }
-    // backward outside
     const uint32_t distanceToFirst = frameDuration(first, current);
-    cerr << "distance to first " << distanceToFirst << endl;
-    if (!forward && distanceToFirst <= positiveOffset) {
-        if (isCycling) {
-            return last - (reducedOffset(first, last, offset) - distanceToFirst);
-        } else {
-            return first;
-        }
-    }
+    const uint32_t semiRangeDuration = forward ? distanceToLast : distanceToFirst;
     // inside
-    return forward ? current + positiveOffset : current - positiveOffset;
+    if (positiveOffset < semiRangeDuration)
+        return forward ? current + positiveOffset : current - positiveOffset;
+    const int32_t reduced = reducedOffset(first, last, offset);
+    if (forward)
+        return isCycling ? first + reduced - distanceToLast : last;
+    else
+        return isCycling ? last - reduced + distanceToFirst : first;
 }
 
 uint32_t offsetClampFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset) {
-    return offsetFrame(first, last, current, offset, false);
+    return offsetFrame<false>(first, last, current, offset);
 }
 
 uint32_t offsetLoopFrame(uint32_t first, uint32_t last, uint32_t current, int32_t offset) {
-    return offsetFrame(first, last, current, offset, true);
+    return offsetFrame<true>(first, last, current, offset);
 }
 
 ClipHelper::ClipHelper(const ::duke::protocol::Clip& clip) :
-                m_Clip(clip), //
-                m_uStartIndex(m_Clip.filename().find_first_of('#')), //
-                m_uEndIndex(m_Clip.filename().find_last_of('#')), //
-                m_uPatternSize(m_uEndIndex - m_uStartIndex + 1), //
-                m_uClipHash(boost::hash_value(m_Clip.path() + m_Clip.filename())) {
+    m_Clip(clip), //
+    m_uStartIndex(m_Clip.filename().find_first_of('#')), //
+    m_uEndIndex(m_Clip.filename().find_last_of('#')), //
+    m_uPatternSize(m_uEndIndex - m_uStartIndex + 1), //
+    m_uClipHash(boost::hash_value(m_Clip.path() + m_Clip.filename())) {
     if (m_Clip.recout() <= m_Clip.recin())
         throw std::logic_error("clip recout is less or equal than recin");
 }
