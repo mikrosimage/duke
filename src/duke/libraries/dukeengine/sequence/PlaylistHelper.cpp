@@ -206,8 +206,6 @@ PlaylistHelper::FrameToIndices::iterator PlaylistHelper::ensureKey(const size_t 
 }
 
 void PlaylistHelper::dump(const FrameToIndices&map) const {
-    using namespace std;
-
     cerr << "dumping map" << endl;
     BOOST_FOREACH( const FrameToIndices::value_type& pair, map )
             {
@@ -217,9 +215,8 @@ void PlaylistHelper::dump(const FrameToIndices&map) const {
                 cerr << endl;
             }
 }
-void PlaylistHelper::dump(const IteratorToFrame&map) const {
-    using namespace std;
 
+void PlaylistHelper::dump(const IteratorToFrame&map) const {
     cerr << "dumping map" << endl;
     BOOST_FOREACH( const IteratorToFrame::value_type& pair, map )
             {

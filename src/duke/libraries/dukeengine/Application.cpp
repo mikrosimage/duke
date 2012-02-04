@@ -93,9 +93,13 @@ static inline playback::PlaybackState create(const PlaylistHelper &helper) {
 }
 
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipOffset) {
+    cerr << "Cue clip relative is disabled for the moment" << endl;
     return currentFrame;
 }
 static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipIndex) {
+    const Playlist &p(helper.getPlaylist());
+    if ((clipIndex < p.clip_size()) && (clipIndex >= 0))
+        return p.clip(clipIndex).recin();
     return currentFrame;
 }
 static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
