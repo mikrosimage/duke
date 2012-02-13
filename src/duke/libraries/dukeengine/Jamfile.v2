@@ -4,21 +4,24 @@
 
 project 
 	: requirements 
-		<include>..
-		<library>/duke/sub/dukeplugins//dukehost 
+		<include>.
+		<library>/duke/sub/dukeplugins//dukehost
 		<library>/dukeapi//dukeapi
-		<library>/user-config//sfml 
-		<library>/boost//iostreams 
+		<library>/dukeio//dukeio
+		<library>/dukerenderer//dukerenderer
+		<library>/user-config//sfml
+		<library>/boost//iostreams
 		<library>/boost//chrono
     : usage-requirements 
-    	<include>..
-		<library>/duke/sub/dukeplugins//dukehost 
+    	<include>.
+		<library>/duke/sub/dukeplugins//dukehost
 		<library>/dukeapi//dukeapi
-		<library>/user-config//sfml 
-		<library>/boost//iostreams 
-		<library>/boost//chrono ;
+		<library>/dukeio//dukeio
+		<library>/dukerenderer//dukerenderer
+		<library>/user-config//sfml
+		<library>/boost//iostreams
+		<library>/boost//chrono
+	;
 
 explicit dukeengine ;
-lib dukeengine : 
-		[ glob-tree *.cpp ]
-		;
+lib dukeengine : [ glob-tree *.cpp ] ;

@@ -1,0 +1,12 @@
+explicit playlist_protocol_buffer ;
+lib playlist_pb : playlist.proto ;
+
+project 
+    : requirements 
+        <implicit-dependency>playlist_pb
+    : usage-requirements 
+        <implicit-dependency>playlist_pb
+        <library>playlist_pb
+    ;
+
+alias playlist ;

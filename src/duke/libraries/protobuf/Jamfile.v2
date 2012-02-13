@@ -1,0 +1,6 @@
+project
+    : requirements
+     	<library>/user-config//protobuf/<link>shared
+    : usage-requirements 
+        <library>/user-config//protobuf/<link>shared
+    ;

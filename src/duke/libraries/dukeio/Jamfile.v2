@@ -4,9 +4,9 @@
 
 project 
 	: requirements 
-		<include>..
+		<include>.
     : usage-requirements 
-    	<include>..
+    	<include>.
 	;
 
 explicit dukeio ;

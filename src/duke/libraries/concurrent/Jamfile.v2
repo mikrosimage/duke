@@ -1,0 +1,10 @@
+project
+    : requirements
+        <library>/boost//thread
+        <include>.
+    : usage-requirements 
+        <library>/boost//thread
+        <include>.
+    ;
+
+alias concurrent ;

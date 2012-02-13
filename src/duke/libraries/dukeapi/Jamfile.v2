@@ -1,14 +1,18 @@
-#
-# dukeapi
-#
-
-project 
-	: requirements 
-		<include>..
+project
+    : requirements
+     	<library>/concurrent//concurrent
+     	<library>/pb/player//player
+     	<library>/pb/playlist//playlist
+     	<library>/pb/serialize//serialize
+     	<library>/duke/sub/sequenceparser2//sequence
+     	<include>.
     : usage-requirements 
-    	<include>..
-	;
+     	<library>/concurrent//concurrent
+     	<library>/pb/player//player
+     	<library>/pb/playlist//playlist
+     	<library>/pb/serialize//serialize
+     	<library>/duke/sub/sequenceparser2//sequence
+     	<include>.
+    ;
 
-alias dukeapi : #source
-                core//core
-              ;
+lib dukeapi : [ glob-tree *.cpp ] ;

@@ -1,0 +1,12 @@
+explicit player_protocol_buffer ;
+lib player_pb : player.proto ;
+
+project 
+    : requirements 
+        <implicit-dependency>player_pb
+    : usage-requirements 
+        <implicit-dependency>player_pb
+        <library>player_pb
+    ;
+
+alias player ;

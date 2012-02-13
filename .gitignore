@@ -1,7 +1,6 @@
 *~
-
 /dist
-/bin
+bin
 /.settings
 /.cproject
 /.project

@@ -1,0 +1,12 @@
+explicit serialize_pb ;
+lib serialize_pb : protocol.proto ;
+
+project 
+    : requirements 
+        <implicit-dependency>serialize_pb
+    : usage-requirements
+        <implicit-dependency>serialize_pb
+        <library>serialize_pb
+    ;
+
+alias serialize ;
