@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+#include <boost/filesystem/path.hpp>
+
 using namespace std;
 using namespace google::protobuf;
 using namespace duke::protocol;

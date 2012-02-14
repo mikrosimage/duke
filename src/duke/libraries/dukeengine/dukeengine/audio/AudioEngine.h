@@ -3,7 +3,8 @@
 
 #include <SFML/Audio.hpp>
 #include <boost/chrono.hpp>
-#include <player.pb.h>
+
+namespace duke {namespace protocol {class Playlist;}}
 
 class AudioEngine {
 

@@ -16,7 +16,7 @@ RangeIterator::RangeIterator(const Range &withinRange, bool isCycling, unsigned 
                 range(withinRange), initialPosition(startAt), isCycling(isCycling), strategy(strategy), index(0) {
 }
 
-static inline int getOffset(unsigned int index, ERangeIteratorStrategy strategy) const {
+static inline int getOffset(unsigned int index, ERangeIteratorStrategy strategy) {
     assert(index<INT_MAX);
     switch (strategy) {
         case FORWARD:

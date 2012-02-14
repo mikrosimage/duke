@@ -28,7 +28,7 @@ inline const google::protobuf::Descriptor* descriptorFor(const MessageHolder &ho
     const Descriptor* pDescriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(holder.type_name());
     if (!pDescriptor) {
         cerr << "No descriptor for message of type " << holder.type_name() << endl;
-        exit(EXIT_FAILURE);
+        return NULL;
     }
     return pDescriptor;
 }
@@ -105,11 +105,6 @@ Dst unpackTo(const MessageHolder &holder) {
     unpack(holder, object);
     return object;
 }
-
-//template<typename Dst>
-//boost::shared_ptr<Dst> unpackTo(const MessageHolder &holder) {
-//    return boost::shared_dynamic_cast<Dst>(unpack(holder));
-//}
 
 inline SharedHolder makeSharedHolder(const MessageHolder &holder) {
     return SharedHolder(new MessageHolder(holder));

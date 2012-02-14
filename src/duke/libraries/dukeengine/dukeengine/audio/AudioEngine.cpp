@@ -1,4 +1,7 @@
 #include "AudioEngine.h"
+
+#include <player.pb.h>
+
 #include <cmath>
 
 using namespace ::duke::protocol;
@@ -50,7 +53,7 @@ void AudioEngine::stop() {
 void AudioEngine::checksync(::boost::chrono::high_resolution_clock::duration d) {
     if (!bFileLoaded)
         return;
-    float soundOffset = m_Music.GetPlayingOffset();
+    float soundOffset = m_Music.GetPlayingOffset().AsSeconds();
     float imageOffset = d.count() / 1000000.f;
     if (fabs(imageOffset - soundOffset) > MAXMSOFFSET) {
         sync(d);
@@ -64,5 +67,5 @@ void AudioEngine::sync(::boost::chrono::high_resolution_clock::duration d) {
     if (!bFileLoaded)
         return;
     float imageOffset = d.count() / 1000000.f;
-    m_Music.SetPlayingOffset(imageOffset);
+    m_Music.SetPlayingOffset(sf::Seconds(imageOffset));
 }

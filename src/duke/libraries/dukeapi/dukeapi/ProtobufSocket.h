@@ -10,10 +10,14 @@
 
 #include "ProtobufSerialize.h"
 
-#include <boost/asio.hpp>
+#include <boost/asio/buffers_iterator.hpp>
+#include <boost/asio/streambuf.hpp>
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/enable_shared_from_this.hpp>
+
+#include <utility>
 
 namespace boost {
 namespace asio {

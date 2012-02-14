@@ -10,7 +10,7 @@
 
 #include "MessageQueue.h"
 
-#include <dukeapi/serialize/ProtobufSocket.h>
+#include <dukeapi/ProtobufSocket.h>
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
@@ -22,6 +22,8 @@ struct SocketSession : public google::protobuf::serialize::DukeSession {
     SocketSession(boost::asio::io_service& io_service, MessageQueue &in, MessageQueue &out) :
         DukeSession(io_service), inputQueue(in), outputQueue(out), closing(false) {
     }
+
+    virtual ~SocketSession(){}
 
 protected:
     virtual void incomingConnection() {

@@ -24,7 +24,7 @@ use-project /dukeioplugin               : src/duke/libraries/dukeio/dukeio/plugi
 use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin ;
 use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
 #use-project /duke/sub/sequenceparser	: src/duke/submodules/sequenceparser ;
-use-project /duke/sub/sequenceparser2	: ../libSequenceParser/src ;
+use-project /duke/sub/sequenceparser2	: ../SequenceParser/src ;
 use-project /dukexcore                  : src/dukex/libraries/dukexcore ;
 use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
