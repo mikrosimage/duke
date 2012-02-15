@@ -7,6 +7,8 @@
 
 #include "ImageToolbox.h"
 
+#include <sequence/DisplayUtils.h>
+
 #include <dukeengine/file/StreamedFileIO.h>
 #include <dukeengine/file/MappedFileIO.h>
 #include <dukeengine/file/DmaFileIO.h>
@@ -16,12 +18,31 @@
 
 using namespace std;
 
-ostream& operator<<(ostream& stream, const image::WorkUnitId &id) {
-    stream << id.filename;
-    return stream;
+namespace image {
+WorkUnitId::WorkUnitId(const duke::protocol::MediaFrame &mf) :
+                duke::protocol::MediaFrame(mf) {
+#pragma message "define WorkUnitId::filename"
 }
 
-namespace image {
+bool WorkUnitId::operator==(const WorkUnitId &other) const {
+#pragma message "implement WorkUnitId::operator=="
+    return true;
+}
+
+bool WorkUnitId::operator!=(const WorkUnitId &other) const {
+#pragma message "implement WorkUnitId::operator!="
+    return true;
+}
+
+bool WorkUnitId::operator<(const WorkUnitId &other) const {
+#pragma message "implement WorkUnitId::operator<"
+    return true;
+}
+
+std::ostream& WorkUnitId::operator<<(std::ostream &stream) const {
+    stream << '[' << index.frame << ':' << index.track << ']' << ' ' << item;
+    return stream;
+}
 
 using namespace ::mikrosimage::alloc;
 AlignedMallocAllocator _alignedMallocAlloc;

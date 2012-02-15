@@ -8,6 +8,8 @@
 #ifndef SMARTCACHE_H_
 #define SMARTCACHE_H_
 
+#include <dukeengine/utils/EPlaybackState.h>
+
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -26,7 +28,7 @@ struct MediaFrame;
 struct SmartCache : private boost::noncopyable {
     SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory);
     ~SmartCache();
-    void seek(const duke::protocol::MediaFrame &frame, const uint32_t speed, const duke::protocol::PlaylistHelper &);
+    void seek(unsigned int frame, EPlaybackState state, const duke::protocol::PlaylistHelper &);
     bool get(const duke::protocol::MediaFrame &frame, ImageHolder &imageHolder) const;
 private:
     struct Impl;

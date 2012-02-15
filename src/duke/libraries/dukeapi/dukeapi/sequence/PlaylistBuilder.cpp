@@ -5,48 +5,46 @@
  *      Author: Guillaume Chatelet
  */
 
+#include <sequence/Range.h>
 #include "PlaylistBuilder.h"
 
 using namespace std;
+using namespace sequence;
 
 namespace duke {
 namespace protocol {
 
-namespace range {
-FrameRange make(uint32_t first, uint32_t last) {
-    FrameRange range;
-    range.set_first(first);
-    range.set_last(last);
-    return range;
+static inline void set(FrameRange* pRange, const Range &range) {
+    pRange->set_first(range.first);
+    pRange->set_last(range.last);
 }
-}  // namespace range
 
 TrackBuilder::TrackBuilder(Track &track, const char *name) :
                 track(track) {
     track.set_name(name);
 }
 
-Media& TrackBuilder::addImage(const char *filename, const FrameRange record) {
+Media& TrackBuilder::addImage(const char *filename, const Range &record) {
     Clip *pClip = track.add_clip();
-    pClip->mutable_record()->CopyFrom(record);
+    set(pClip->mutable_record(), record);
     Media &media = *pClip->mutable_media();
     media.set_type(Media_Type_SINGLE_IMAGE);
     media.set_filename(filename);
     return media;
 }
 
-Media& TrackBuilder::addMedia(const char *filename, const FrameRange record, const FrameRange source, const Media_Type mediaType) {
+Media& TrackBuilder::addMedia(const char *filename, const Range&record, const Range &source, const Media_Type mediaType) {
     Clip *pClip = track.add_clip();
-    pClip->mutable_record()->CopyFrom(record);
+    set(pClip->mutable_record(), record);
     Media &media = *pClip->mutable_media();
     media.set_type(mediaType);
     media.set_filename(filename);
-    media.mutable_source()->CopyFrom(source);
+    set(media.mutable_source(), source);
     return media;
 }
 
-Media& TrackBuilder::addMedia(const char *filename, const FrameRange record, const uint32_t offset, const Media_Type mediaType) {
-    return addMedia(filename, record, range::make(record.first() + offset, record.last() + offset), mediaType);
+Media& TrackBuilder::addMedia(const char *filename, const Range &record, const uint32_t offset, const Media_Type mediaType) {
+    return addMedia(filename, record, Range(record.first + offset, record.last + offset), mediaType);
 }
 
 TrackBuilder PlaylistBuilder::addTrack(const char *trackName) {

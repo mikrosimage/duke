@@ -15,4 +15,5 @@ project
      	<include>.
     ;
 
-lib dukeapi : [ glob-tree *.cpp ] ;
+lib dukeapi : [ glob-tree *.cpp : tests ] ;
+explicit dukeapi ;

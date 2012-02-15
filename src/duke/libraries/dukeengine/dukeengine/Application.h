@@ -20,12 +20,8 @@
 
 // fwd declaration
 class Renderer;
-struct PlaylistHelper;
-namespace google {
-namespace protobuf {
-class Message;
-}
-}
+namespace duke {namespace protocol {struct PlaylistHelper;}}
+namespace google {namespace protobuf {class Message;}}
 
 class Application {
 public:

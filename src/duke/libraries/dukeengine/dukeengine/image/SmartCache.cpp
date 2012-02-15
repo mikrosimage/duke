@@ -10,10 +10,12 @@
 #include "ImageHolder.h"
 #include "ImageToolbox.h"
 
-#include <concurrent/ConcurrentQueue.h>
-#include <dukeapi/sequence/PlaylistHelper.h>
 #include <dukeengine/cache/LookAheadCache.hpp>
 #include <dukeengine/host/io/ImageDecoderFactory.h>
+#include <dukeengine/utils/PlaylistIterator.h>
+
+#include <concurrent/ConcurrentQueue.h>
+#include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <boost/thread.hpp>
 
@@ -30,37 +32,29 @@ using namespace duke::protocol;
 typedef image::WorkUnitId id_type;
 typedef image::WorkUnitData data_type;
 typedef uint64_t metric_type;
-
 struct Job {
-    Job() :
-        m_PlaylistIterator(PlaylistHelper(), 0, 0), m_Limited(true) {
+    Job() : bEmpty(true) {
     }
 
-    Job(const PlaylistHelper &helper, size_t frame, uint32_t speed) :
-        m_PlaylistIterator(helper, frame, speed), m_Limited(false) {
+    Job(const PlaylistHelper &helper, size_t frame, EPlaybackState state) : playlistIterator(helper, state, frame, helper.range), bEmpty(false) {
     }
 
     inline void clear() {
-        m_Limited = true;
+        bEmpty = true;
     }
 
     inline bool empty() const {
-        return m_Limited || m_PlaylistIterator.empty();
+        return bEmpty || playlistIterator.empty();
     }
 
     inline id_type next() {
-        const id_type id(m_PlaylistIterator.front(), m_PlaylistIterator.frontFilename());
-        m_PlaylistIterator.popFront();
+        const id_type id = playlistIterator.front();
+        playlistIterator.popFront();
         return id;
     }
-
-    inline const PlaylistHelper& helper() const {
-        return m_PlaylistIterator.helper();
-    }
-
 private:
-    PlaylistIterator m_PlaylistIterator;
-    bool m_Limited;
+    PlaylistIterator playlistIterator;
+    bool bEmpty;
 };
 
 typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
@@ -131,21 +125,19 @@ struct SmartCache::Impl : private boost::noncopyable {
         m_ThreadGroup.join_all();
     }
 
-    inline void seek(const MediaFrame &frame, const uint32_t speed, const PlaylistHelper &helper) {
-        m_LastJob = Job(helper, frame, speed);
+    inline void seek(const unsigned int frame, const EPlaybackState state, const PlaylistHelper &helper) {
+        m_LastJob = Job(helper, frame, state);
         m_LookAheadCache.pushJob(m_LastJob);
     }
 
     inline bool get(const MediaFrame &frame, ImageHolder & imageHolder) const {
-        const PlaylistHelper &helper = m_LastJob.helper();
-        const image::WorkUnitId id(hash, helper.getPathStringAtHash(hash));
-        image::WorkUnitData data(id);
+        image::WorkUnitData data(frame);
         bool loaded = false;
         if (m_CacheActivated) {
 #ifdef DEBUG
             displayQueueState(hash);
 #endif
-            if (m_LookAheadCache.get(id, data)) {
+            if (m_LookAheadCache.get(frame, data)) {
                 loaded = true;
             } else {
                 cout << "image not in cache, loading in main thread" << endl;
@@ -164,28 +156,28 @@ struct SmartCache::Impl : private boost::noncopyable {
 
 private:
     inline void displayQueueState(const uint64_t &currentHash) const {
-        m_LookAheadCache.dumpKeys(m_AvailableKeys);
-        const PlaylistHelper &helper = m_LastJob.helper();
-        m_QueryKeys.clear();
-        BOOST_FOREACH (const id_type& id, m_AvailableKeys)
-        {
-            m_QueryKeys.insert(id.hash);
-        }
-        const set<uint64_t>::const_iterator end = m_QueryKeys.end();
-        cout << '[';
-        for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
-            const uint64_t hash = helper.getHashAtIterator(itr);
-            if (hash == currentHash)
-                cout << '#';
-            else {
-                if (m_QueryKeys.find(hash) == end)
-                    cout << '_';
-                else
-                    cout << 'o';
-            }
-        }
-        cout << "] " << m_QueryKeys.size() << '\r';
-        cout.flush();
+//        m_LookAheadCache.dumpKeys(m_AvailableKeys);
+//        const PlaylistHelper &helper = m_LastJob.helper();
+//        m_QueryKeys.clear();
+//        BOOST_FOREACH (const id_type& id, m_AvailableKeys)
+//                {
+//                    m_QueryKeys.insert(id.hash);
+//                }
+//        const set<uint64_t>::const_iterator end = m_QueryKeys.end();
+//        cout << '[';
+//        for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
+//            const uint64_t hash = helper.getHashAtIterator(itr);
+//            if (hash == currentHash)
+//                cout << '#';
+//            else {
+//                if (m_QueryKeys.find(hash) == end)
+//                    cout << '_';
+//                else
+//                    cout << 'o';
+//            }
+//        }
+//        cout << "] " << m_QueryKeys.size() << '\r';
+//        cout.flush();
     }
 
     const bool m_CacheActivated;
@@ -210,7 +202,7 @@ bool SmartCache::get(const MediaFrame &mf, ImageHolder & imageHolder) const {
     return m_pImpl->get(mf, imageHolder);
 }
 
-void SmartCache::seek(const MediaFrame &frame, uint32_t speed, const PlaylistHelper &helper) {
-    m_pImpl->seek(frame, speed, helper);
+void SmartCache::seek(unsigned int frame, EPlaybackState state, const PlaylistHelper &helper) {
+    m_pImpl->seek(frame, state, helper);
 }
 

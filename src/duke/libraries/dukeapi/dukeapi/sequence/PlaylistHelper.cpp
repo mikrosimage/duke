@@ -147,6 +147,9 @@ const bool TrackHelper::contains(const unsigned int frame) const {
     return rangeContaining(frame) != recRanges.end();
 }
 
+PlaylistHelper::PlaylistHelper() {
+}
+
 PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
                 playlist(playlist) {
     Ranges trackRanges;
@@ -173,8 +176,8 @@ uint16_t PlaylistHelper::tracksAt(const unsigned int frame) const {
 
 void PlaylistHelper::mediaFramesAt(const unsigned int frame, MediaFrames &frames) const {
     frames.clear();
-    uint16_t i = 0;
-    for (vector<TrackHelper>::const_iterator itr = tracks.begin(); itr != tracks.end(); ++itr, ++i) {
+    uint16_t track = 0;
+    for (vector<TrackHelper>::const_iterator itr = tracks.begin(); itr != tracks.end(); ++itr, ++track) {
         const unsigned int clipIndex = itr->clipIndexContaining(frame);
         if (clipIndex == UINT_MAX)
             continue;
@@ -187,10 +190,21 @@ void PlaylistHelper::mediaFramesAt(const unsigned int frame, MediaFrames &frames
             sourceFrame = sequence::interpolateSource(frame, source, make(clip.record()), reverse);
         }
         frames.push_back(MediaFrame( //
-                        PlaylistIndex(frame, i), //
+                        PlaylistIndex(frame, track), //
                         sourceFrame, //
                         clip.media().type(), //
                         itr->items[clipIndex]));
+    }
+}
+
+void PlaylistHelper::clipsAt(const unsigned int frame, Clips &clips) const {
+    clips.clear();
+    for (vector<TrackHelper>::const_iterator itr = tracks.begin(); itr != tracks.end(); ++itr) {
+        const unsigned int clipIndex = itr->clipIndexContaining(frame);
+        if (clipIndex == UINT_MAX)
+            continue;
+        const Clip &clip = itr->track.clip(clipIndex);
+        clips.push_back(clip);
     }
 }
 

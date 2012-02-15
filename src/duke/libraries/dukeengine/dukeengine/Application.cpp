@@ -1,9 +1,9 @@
 #include "Application.h"
 
 #include "host/renderer/Renderer.h"
-#include "range/PlaylistRange.h"
 
 #include <player.pb.h>
+#include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -86,33 +86,31 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 }
 
 static inline playback::PlaybackState create(const PlaylistHelper &helper) {
-    const Playlist &playlist = helper.getPlaylist();
+    const Playlist &playlist = helper.playlist;
     const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     cout << HEADER << nsPerFrame << endl;
-    return playback::PlaybackState(nsPerFrame, helper.getFirstFrame(), helper.getLastFrame(), playlist.loop());
+    return playback::PlaybackState(nsPerFrame, helper.range.first, helper.range.last, playlist.loop());
 }
 
-static inline uint32_t cueClipRelative(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipOffset) {
+static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int  currentFrame, int clipOffset) {
     cerr << "Cue clip relative is disabled for the moment" << endl;
     return currentFrame;
 }
-static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, int32_t currentFrame, int32_t clipIndex) {
-    const Playlist &p(helper.getPlaylist());
-    if ((clipIndex < p.clip_size()) && (clipIndex >= 0))
-        return p.clip(clipIndex).recin();
+static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int  currentFrame, int clipIndex) {
+    cerr << "Cue clip absolute is disabled for the moment" << endl;
     return currentFrame;
 }
-static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, unsigned int current) {
     return cue.cuerelative() ? cueClipRelative(helper, current, cue.value()) : cueClipAbsolute(helper, current, cue.value());
 }
-static inline uint32_t cueFrameRelative(const PlaylistHelper &helper, int32_t currentFrame, int32_t frameOffset) {
-    return helper.getOffsetFrame(currentFrame, frameOffset);
+static inline uint32_t cueFrameRelative(const PlaylistHelper &helper, unsigned int currentFrame, int frameOffset) {
+    return helper.range.offsetLoopFrame(currentFrame, frameOffset);
 }
-static inline uint32_t cueFrameAbsolute(const PlaylistHelper &helper, int32_t currentFrame, uint32_t frameIndex) {
-    return helper.getBoundFrame(frameIndex);
+static inline uint32_t cueFrameAbsolute(const PlaylistHelper &helper, unsigned int currentFrame) {
+    return std::max(std::min(currentFrame, helper.range.last),helper.range.first);
 }
 static inline uint32_t cueFrame(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
-    return cue.cuerelative() ? cueFrameRelative(helper, current, cue.value()) : cueFrameAbsolute(helper, current, cue.value());
+    return cue.cuerelative() ? cueFrameRelative(helper, current, cue.value()) : cueFrameAbsolute(helper, cue.value());
 }
 static inline uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
     return cue.cueclip() ? cueClip(cue, helper, current) : cueFrame(cue, helper, current);
@@ -197,11 +195,11 @@ void Application::applyTransport(const Transport& transport) {
             m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_FIRST:
-            m_Playback.cue(m_Playlist.getFirstFrame());
+            m_Playback.cue(m_Playlist.range.first);
             m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_LAST:
-            m_Playback.cue(m_Playlist.getLastFrame());
+            m_Playback.cue(m_Playlist.range.last);
             m_AudioEngine.pause();
             break;
         case Transport_TransportType_CUE_STORED:
@@ -255,8 +253,8 @@ void Application::consumeTransport() {
                 ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
         } else if (isType<Playlist>(pDescriptor)) {
             dump(pDescriptor, holder);
-            PlaylistHelper temporary(unpackTo<Playlist>(holder));
-            m_Playlist.swap(temporary);
+            PlaylistHelper (unpackTo<Playlist>(holder));
+            m_Playlist = PlaylistHelper (unpackTo<Playlist>(holder));
             m_AudioEngine.load(unpackTo<Playlist>(holder));
             m_Playback = create(m_Playlist);
         } else if (isType<Transport>(pDescriptor)) {
@@ -307,12 +305,14 @@ void Application::renderStart() {
 
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
-        setup.m_Images.clear();
-        if (m_PreviousFrame != frame && m_Playlist.getEndIterator() != 0) {
-            m_Cache.seek(frame, m_Playback.getSpeed(), m_Playlist);
+        if (m_PreviousFrame != frame) {
+            int32_t speed = m_Playback.getSpeed();
+            EPlaybackState state = speed == 0 ? BALANCE : (speed > 0 ? FORWARD : REVERSE);
+            m_Cache.seek(frame, state, m_Playlist);
             m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
         }
 
+        setup.m_Images.clear();
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
                 {
                     //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
@@ -320,7 +320,8 @@ void Application::renderStart() {
                 }
 
         // populate clips
-        m_Playlist.getClipsAtFrame(frame, setup.m_Clips);
+        // TODO : need better code... this is awkward
+        m_Playlist.clipsAt(frame, setup.m_Clips);
 
         // set current frame
         setup.m_iFrame = frame;
@@ -380,13 +381,15 @@ string Application::dumpInfo(const Debug_Content& info) const {
             ss << m_Playback.frame();
             break;
         case Debug_Content_FILENAMES: {
-            vector<size_t> indices;
-            m_Playlist.getIteratorsAtFrame(m_Playback.frame(), indices);
+            MediaFrames mediaFrames;
+            m_Playlist.mediaFramesAt(m_Playback.frame(), mediaFrames);
 
-            BOOST_FOREACH(size_t i, indices)
-                    {
-                        ss << m_Playlist.getPathAtIterator(i).filename() << " ";
-                    }
+            // FIXME
+#pragma message "Application::dumpInfo is missing Debug_Content_FILENAMES case"
+//            BOOST_FOREACH(size_t i, mediaFrames)
+//                    {
+//                        ss << m_Playlist.getPathAtIterator(i).filename() << " ";
+//                    }
             break;
         }
         case Debug_Content_FPS: {

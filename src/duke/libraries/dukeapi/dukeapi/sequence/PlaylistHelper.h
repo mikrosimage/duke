@@ -50,19 +50,23 @@ struct MediaFrame {
     unsigned int source;
     Media_Type type;
     sequence::BrowseItem item;
+    MediaFrame() : index(0,0),source(0),type(Media_Type_SINGLE_IMAGE){}
     MediaFrame(const PlaylistIndex &index, const unsigned int source, const Media_Type type, const sequence::BrowseItem &item) : index(index),source(source),type(type),item(item){}
 };
 
 typedef std::vector<MediaFrame> MediaFrames;
+typedef std::vector<Clip> Clips;
 
 struct PlaylistHelper {
-    const Playlist &playlist;
+    Playlist playlist;
     Range range;
     std::vector<TrackHelper> tracks;
+    PlaylistHelper();
     PlaylistHelper(const Playlist &playlist);
     unsigned int index(const unsigned int frame) const;
     uint16_t tracksAt(const unsigned int frame) const;
     void mediaFramesAt(const unsigned int frame, MediaFrames &frames) const;
+    void clipsAt(const unsigned int frame, Clips &clips) const;
 };
 
 } /* namespace protocol */
