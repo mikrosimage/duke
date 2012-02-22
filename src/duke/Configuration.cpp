@@ -1,15 +1,16 @@
 #include "Configuration.h"
 #include <dukeengine/Application.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
-#include <dukeapi/core/messageBuilder/QuitBuilder.h>
-#include <dukeapi/core/PlaybackReader.h>
-#include <dukeapi/core/PlaylistReader.h>
-#include <dukeapi/core/SequenceReader.h>
-#include <dukeapi/core/FileRecorder.h>
-#include <dukeapi/core/InteractiveMessageIO.h>
-#include <dukeapi/io/SocketMessageIO.h>
-#include <dukeapi/io/QueueMessageIO.h>
-#include <dukeapi/serialize/ProtobufSocket.h>
+#include <dukeapi/messageBuilder/QuitBuilder.h>
+#include <dukeapi/io/PlaybackReader.h>
+#include <dukeapi/io/PlaylistReader.h>
+#include <dukeapi/io/SequenceReader.h>
+#include <dukeapi/io/FileRecorder.h>
+#include <dukeapi/io/InteractiveMessageIO.h>
+#include <dukeapi/io/CmdLinePlaylistBuilder.h>
+#include <dukeapi/SocketMessageIO.h>
+#include <dukeapi/QueueMessageIO.h>
+#include <dukeapi/ProtobufSocket.h>
 #include <player.pb.h>
 #include <protocol.pb.h>
 #include <boost/filesystem.hpp>
@@ -98,7 +99,7 @@ Configuration::Configuration(int argc, char** argv) :
     using namespace ::duke::protocol;
 
     // retrieving configuration file
-    std::string configuration_filename;
+    string configuration_filename;
     if (argc >= 1) {
         fs::path p(argv[0]);
         p.replace_extension(".ini");
@@ -211,16 +212,16 @@ Configuration::Configuration(int argc, char** argv) :
     renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
     renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned> ());
     if (m_Vm.count(RESOLUTION) != 0) {
-        std::string res = m_Vm[RESOLUTION].as<string> ();
-        std::replace(res.begin(), res.end(), 'x', ' ');
-        std::replace(res.begin(), res.end(), 'X', ' ');
+        string res = m_Vm[RESOLUTION].as<string> ();
+        replace(res.begin(), res.end(), 'x', ' ');
+        replace(res.begin(), res.end(), 'X', ' ');
         istringstream stream(res);
         int width = -1;
         int height = -1;
         stream >> width;
         stream >> height;
         if (stream.bad() || width == -1 || height == -1)
-            throw runtime_error(std::string("bad resolution \"") + res + '\"');
+            throw runtime_error(string("bad resolution \"") + res + '\"');
         renderer.set_width(width);
         renderer.set_height(height);
     }
@@ -248,46 +249,50 @@ Configuration::Configuration(int argc, char** argv) :
     push(queue, stop);
 
     if (m_Vm.count("inputs")) {
-        vector<string> inputs = m_Vm["inputs"].as<std::vector<std::string> > ();
-        int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
-        int frameIndex = 0; // use to combine sequence/playlists
+        const vector<string> inputs = m_Vm["inputs"].as<vector<string> > ();
 
-        for (vector<string>::iterator inputString = inputs.begin(); inputString != inputs.end(); ++inputString) {
-            //cout << *inputString << endl;
-            int skip = 0;
-            int startRange = std::numeric_limits<int>::min();
-            int endRange = std::numeric_limits<int>::max();
-            fs::path path(*inputString);
-            if (path.extension() == ".ppl" || path.extension() == ".ppl2") {
-                cout << HEADER + "Reading playlist: " << *inputString << endl;
-                PlaylistReader(clipIndex, frameIndex, *inputString, queue, playlist);
-            } else {
-                cout << HEADER + "Reading : " << *inputString << endl;
-                int inRange;
-                int outRange;
-                if ((++inputString < inputs.end()) && (inRange = std::atoi((*inputString).c_str()))) {
-                    //cout << HEADER + "Range in : " << inRange << endl;
-                    startRange = inRange;
-                    skip++;
-                    if ((++inputString < inputs.end()) && (outRange = std::atoi((*inputString).c_str()))) {
-                        //cout << HEADER + "Range out : " << outRange << endl;
-                        endRange = outRange + 1;
-                        skip++;
-                    }
-                    inputString--;
-                }
-                inputString--;
-                if (startRange >= endRange) {
-                    cout << "- ! -" << endl;
-                    cout << "You should specify a valid range (" << startRange << " >= " << endRange << "). See help below.\n" << endl;
-                    displayHelp();
-                    return;
-                }
+        CmdLinePlaylistBuilder playlistBuilder(m_Vm.count("sequence")>0, listOfExtensions);
+        for_each(inputs.begin(), inputs.end(), playlistBuilder.functor());
 
-                SequenceReader(clipIndex, frameIndex, *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false);
-                inputString += skip;
-            }
-        }
+//        int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
+//        int frameIndex = 0; // use to combine sequence/playlists
+//
+//        for (vector<string>::iterator inputString = inputs.begin(); inputString != inputs.end(); ++inputString) {
+//            //cout << *inputString << endl;
+//            int skip = 0;
+//            int startRange = numeric_limits<int>::min();
+//            int endRange = numeric_limits<int>::max();
+//            fs::path path(*inputString);
+//            if (path.extension() == ".ppl" || path.extension() == ".ppl2") {
+//                cout << HEADER + "Reading playlist: " << *inputString << endl;
+//                PlaylistReader(clipIndex, frameIndex, *inputString, queue, playlist);
+//            } else {
+//                cout << HEADER + "Reading : " << *inputString << endl;
+//                int inRange;
+//                int outRange;
+//                if ((++inputString < inputs.end()) && (inRange = atoi((*inputString).c_str()))) {
+//                    //cout << HEADER + "Range in : " << inRange << endl;
+//                    startRange = inRange;
+//                    skip++;
+//                    if ((++inputString < inputs.end()) && (outRange = atoi((*inputString).c_str()))) {
+//                        //cout << HEADER + "Range out : " << outRange << endl;
+//                        endRange = outRange + 1;
+//                        skip++;
+//                    }
+//                    inputString--;
+//                }
+//                inputString--;
+//                if (startRange >= endRange) {
+//                    cout << "- ! -" << endl;
+//                    cout << "You should specify a valid range (" << startRange << " >= " << endRange << "). See help below.\n" << endl;
+//                    displayHelp();
+//                    return;
+//                }
+//
+//                SequenceReader(clipIndex, frameIndex, *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false);
+//                inputString += skip;
+//            }
+//        }
     } else {
         cout << "- ! -" << endl;
         cout << "You should specify an input (sequence directory or playlist file) in interactive mode. See help below.\n" << endl;
@@ -305,7 +310,7 @@ Configuration::Configuration(int argc, char** argv) :
 
 void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     if (m_Vm.count(RECORD) > 0) {
-        const std::string recordFilename = m_Vm[RECORD].as<string> ();
+        const string recordFilename = m_Vm[RECORD].as<string> ();
         FileRecorder recorder(recordFilename.c_str(), io);
         cout << HEADER + "recording session to " << recordFilename << endl;
         run(recorder, imageDecoderFactory);
@@ -315,7 +320,7 @@ void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imag
 }
 
 void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
-    const std::string rendererFilename = m_Vm[RENDERER].as<string> ();
+    const string rendererFilename = m_Vm[RENDERER].as<string> ();
     const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t> ()) * 1024) * 1024;
     Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t> ());
 }

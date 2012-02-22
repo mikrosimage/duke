@@ -4,14 +4,16 @@ project
      	<library>/pb/player//player
      	<library>/pb/playlist//playlist
      	<library>/pb/serialize//serialize
-     	<library>/duke/sub/sequenceparser2//sequence
+     	<library>/duke/sub/sequenceparser//sequence_parser
      	<include>.
     : usage-requirements 
      	<library>/concurrent//concurrent
      	<library>/pb/player//player
      	<library>/pb/playlist//playlist
      	<library>/pb/serialize//serialize
-     	<library>/duke/sub/sequenceparser2//sequence
+     	<library>/duke/sub/sequenceparser//sequence_parser
+        <os>NT:<find-shared-library>Ws2_32
+        <os>NT:<find-shared-library>Mswsock
      	<include>.
     ;
 

@@ -92,17 +92,15 @@ static sequence::BrowseItem prepare(const Clip &clip) {
         case Media_Type_SINGLE_IMAGE:
             return sequence::create_file(media.filename());
         case Media_Type_IMAGE_SEQUENCE: {
-            typedef pair<boost::filesystem::path, sequence::SequencePattern> Pair;
-            const Pair pair = sequence::parsePattern(media.filename());
-            return sequence::create_sequence(pair.first, pair.second, make(media.source()));
+            boost::filesystem::path path(media.filename());
+            return sequence::create_sequence(path.parent_path(), sequence::parsePattern(path.filename().string()), make(media.source()));
         }
         default:
             return sequence::BrowseItem();
     }
 }
 
-TrackHelper::TrackHelper(const Track &track) :
-                track(track) {
+TrackHelper::TrackHelper(const Track &track) : track(track) {
     recRanges.reserve(track.clip_size());
     for (int i = 0; i < track.clip_size(); ++i) {
         const Clip &clip = track.clip(i);

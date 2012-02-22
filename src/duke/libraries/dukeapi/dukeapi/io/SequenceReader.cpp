@@ -19,8 +19,6 @@ using namespace std;
 using namespace google::protobuf;
 using namespace duke::protocol;
 
-static std::string INPUT = "Input";
-
 static bool isSupportedExtension(const string& filename, const char** listOfExtensions) {
     ::boost::filesystem::path sequenceName = filename;
     string ext = sequenceName.extension().string();

@@ -1,5 +1,5 @@
 #include "ShaderFactory.h"
-#include <dukeapi/player/ShadingGraphCodeBuilder.h>
+#include <dukeapi/shading/ShadingGraphCodeBuilder.h>
 #include "ProtoBufResource.h"
 #include "IRenderer.h"
 #include "DisplayableImage.h"

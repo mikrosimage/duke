@@ -10,8 +10,15 @@
 
 #include "ProtobufSerialize.h"
 
+#include <boost/asio/placeholders.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/connect.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -42,18 +49,18 @@ namespace google {
 namespace protobuf {
 namespace serialize {
 
-namespace ba = boost::asio;
+namespace asio = ::boost::asio;
 
 // forward declaration
 struct ISession;
 
 typedef boost::shared_ptr<ISession> duke_session_ptr;
 
-typedef boost::function<ISession*(ba::io_service&)> connectionCreatorFunction;
+typedef boost::function<ISession*(asio::io_service&)> connectionCreatorFunction;
 
 struct ISession {
     virtual void start()=0;
-    virtual ba::ip::tcp::socket& socket()=0;
+    virtual asio::ip::tcp::socket& socket()=0;
 
     virtual ~ISession() {
     }
@@ -61,7 +68,7 @@ struct ISession {
 
 class DukeSession : public ISession, public boost::enable_shared_from_this<DukeSession> {
 public:
-    DukeSession(ba::io_service& io_service) :
+    DukeSession(asio::io_service& io_service) :
         socket_(io_service) {
     }
 
@@ -74,7 +81,7 @@ public:
         read_header();
     }
 
-    ba::ip::tcp::socket& socket() {
+    asio::ip::tcp::socket& socket() {
         return socket_;
     }
 
@@ -85,7 +92,7 @@ protected:
 
     virtual void post(const MessageHolder &holder) {
         writeDelimitedTo(post_msg_buffer_, holder);
-        ba::write(socket_, ba::buffer(post_msg_buffer_));
+        asio::write(socket_, asio::buffer(post_msg_buffer_));
     }
 
     virtual void packAndPost(const google::protobuf::Message &msg) {
@@ -104,17 +111,17 @@ protected:
 
 private:
     inline void read_header() {
-        ba::async_read_until(socket_, headerbuffer_, ba::match_varint, boost::bind(&DukeSession::handle_read_header, this, ba::placeholders::error, _2));
+        asio::async_read_until(socket_, headerbuffer_, asio::match_varint, boost::bind(&DukeSession::handle_read_header, this, asio::placeholders::error, _2));
     }
 
     inline void read_additionnal_data(void* pData, size_t size) {
         using namespace boost::asio;
         using boost::bind;
-        async_read(socket_, ba::buffer(pData, size), transfer_all(), bind(&DukeSession::read_message_handler, this, ba::placeholders::error));
+        async_read(socket_, asio::buffer(pData, size), transfer_all(), bind(&DukeSession::read_message_handler, this, asio::placeholders::error));
     }
 
     inline const boost::uint8_t * headerBufferPtr() const {
-        return ba::buffer_cast<const boost::uint8_t*>(headerbuffer_.data());
+        return asio::buffer_cast<const boost::uint8_t*>(headerbuffer_.data());
     }
 
     void handle_read_header(const boost::system::error_code& error, std::size_t headerSize) {
@@ -153,8 +160,8 @@ private:
         }
     }
 
-    ba::ip::tcp::socket socket_;
-    ba::streambuf headerbuffer_;
+    asio::ip::tcp::socket socket_;
+    asio::streambuf headerbuffer_;
     raw_buffer rcv_msg_buffer_;
     MessageHolder rcv_msg_holder_;
     raw_buffer post_msg_buffer_;
@@ -191,7 +198,7 @@ protected:
         return duke_session_ptr(connection_creator_(io_service_));
     }
 
-    ba::io_service io_service_;
+    asio::io_service io_service_;
     boost::system::error_code error_code_;
 private:
     duke_session_ptr current_connection_;
@@ -199,7 +206,7 @@ private:
 };
 
 struct duke_server : public duke_common {
-    duke_server(const ba::ip::tcp::endpoint& endpoint, const connectionCreatorFunction&cc) :
+    duke_server(const asio::ip::tcp::endpoint& endpoint, const connectionCreatorFunction&cc) :
         duke_common(cc), acceptor_(io_service_, endpoint) {
         start_accept();
     }
@@ -207,7 +214,7 @@ struct duke_server : public duke_common {
 private:
     void start_accept() {
         duke_session_ptr pSession(createConnection());
-        acceptor_.async_accept(pSession->socket(), boost::bind(&duke_server::handle_accept, this, pSession, ba::placeholders::error));
+        acceptor_.async_accept(pSession->socket(), boost::bind(&duke_server::handle_accept, this, pSession, asio::placeholders::error));
     }
 
     void handle_accept(duke_session_ptr pSession, const boost::system::error_code& error) {
@@ -216,21 +223,21 @@ private:
             incomingConnection(pSession);
     }
 
-    ba::ip::tcp::acceptor acceptor_;
+    asio::ip::tcp::acceptor acceptor_;
 };
 
 struct duke_client : public duke_common {
-    duke_client(const ba::ip::tcp::resolver::query &query, const connectionCreatorFunction&cc) :
+    duke_client(const asio::ip::tcp::resolver::query &query, const connectionCreatorFunction&cc) :
         duke_common(cc), resolver_(io_service_) {
-        resolver_.async_resolve(query, boost::bind(&duke_client::resolve_handler, this, ba::placeholders::error, _2));
+        resolver_.async_resolve(query, boost::bind(&duke_client::resolve_handler, this, asio::placeholders::error, _2));
     }
 
 private:
-    void resolve_handler(const boost::system::error_code &error, ba::ip::tcp::resolver::iterator it) {
+    void resolve_handler(const boost::system::error_code &error, asio::ip::tcp::resolver::iterator it) {
         error_code_ = error;
         if (!error) {
             duke_session_ptr pSession(createConnection());
-            pSession->socket().async_connect(*it, boost::bind(&duke_client::connect_handler, this, pSession, ba::placeholders::error));
+            pSession->socket().async_connect(*it, boost::bind(&duke_client::connect_handler, this, pSession, asio::placeholders::error));
         }
     }
 
@@ -240,7 +247,7 @@ private:
             incomingConnection(pSession);
     }
 
-    ba::ip::tcp::resolver resolver_;
+    asio::ip::tcp::resolver resolver_;
 };
 
 } // namespace serialize

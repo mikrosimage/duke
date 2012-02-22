@@ -9,10 +9,12 @@ project
 		<library>/user-config//cg
 		<library>/user-config//sfml 
     	<library>/dukeapi//dukeapi
+    	<library>/dukeio//dukeio
     : usage-requirements 
 		<include>.. 
 		<library>/user-config//cg
 		<library>/dukeapi//dukeapi
+    	<library>/dukeio//dukeio
 	;
 
 explicit dukerendererplugin ;

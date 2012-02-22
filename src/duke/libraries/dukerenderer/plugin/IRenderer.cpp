@@ -5,7 +5,7 @@
 #include "utils/SfmlProtobufUtils.h"
 #include "ShaderFactory.h"
 
-#include <dukeapi/serialize/ProtobufSerialize.h>
+#include <dukeapi/ProtobufSerialize.h>
 
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>

@@ -1,5 +1,7 @@
 #include "Configuration.h"
+
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -12,5 +14,5 @@ int main(int argc, char** argv) {
     } catch (...) {
         cerr << "Unexpected error." << endl;
     }
-    return 1;
+    return EXIT_FAILURE;
 }

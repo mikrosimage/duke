@@ -7,7 +7,7 @@
 #include "TexturePool.h"
 #include "math/Vector2.h"
 #include <dukeio/ImageDescription.h>
-#include <dukeapi/player/PrototypeFactory.h>
+#include <dukeapi/shading/PrototypeFactory.h>
 #include <boost/utility.hpp>
 #include <Cg/cg.h>
 
