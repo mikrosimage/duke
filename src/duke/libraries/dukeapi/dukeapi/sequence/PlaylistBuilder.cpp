@@ -5,6 +5,8 @@
  *      Author: Guillaume Chatelet
  */
 
+#include <sequence/DisplayUtils.h>
+
 #include <sequence/BrowseItem.h>
 #include "PlaylistBuilder.h"
 
@@ -32,11 +34,12 @@ Range TrackBuilder::advance(unsigned int count){
 Media& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
     switch (item.type) {
         case sequence::SEQUENCE:{
-            string filename = (item.path/item.sequence.pattern.string()).string();
+            string filename = (item.path/item.sequence.pattern.string()).make_preferred().string();
             return addSequence(filename.c_str(), advance(item.sequence.range.duration()), item.sequence.range);
         }
         case sequence::UNITFILE:{
-            return addImage(item.path.string().c_str(), advance(1));
+            string filename = boost::filesystem::path(item.path).make_preferred().string();
+            return addImage(filename.c_str(), advance(1));
         }
         case sequence::FOLDER:
         case sequence::UNDEFINED:

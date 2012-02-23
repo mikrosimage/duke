@@ -11,6 +11,8 @@
 #include <sequence/DisplayUtils.h>
 #include <sequence/parser/Browser.h>
 
+#include <dukeapi/sequence/PlaylistBuilder.h>
+
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
@@ -47,7 +49,7 @@ static string g_ppl(".ppl");
 
 struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
     Pimpl(bool useContainingSequence, const char **validExtensions) :
-                    useContainingSequence(useContainingSequence) {
+                    useContainingSequence(useContainingSequence), trackBuilder(playlistBuilder.addTrack("default")) {
         for (; validExtensions != NULL && *validExtensions != NULL; ++validExtensions) {
             string extension = *validExtensions;
             if (!extension.empty() && extension[0] != '.')
@@ -58,14 +60,16 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
 
     void ingest(BrowseItems items) {
         filterOutInvalidExtensions(items);
-        for_each(items.begin(), items.end(), ostream_iterator<BrowseItem>(cout, "\n"));
+        for_each(items.begin(), items.end(), boost::bind(&TrackBuilder::addBrowseItem, boost::ref(trackBuilder), _1));
+        static_cast<Playlist>(playlistBuilder).PrintDebugString();
     }
 
     const bool useContainingSequence;
     PlaylistBuilder playlistBuilder;
+    TrackBuilder trackBuilder;
 private:
     void filterOutInvalidExtensions(BrowseItems &items) const {
-        sequence::filterOut(items, boost::bind(&CmdLinePlaylistBuilder::Pimpl::isInvalid, this, _1));
+        sequence::filterOut(items, boost::bind(&Pimpl::isInvalid, this, _1));
     }
     bool isInvalid(const BrowseItem &item) const {
         return extensions.find(item.extension()) == extensions.end();
