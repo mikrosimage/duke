@@ -21,6 +21,22 @@ BOOST_AUTO_TEST_CASE( overlappingRanges ) {
     BOOST_CHECK_THROW( PlaylistHelper h(builder), runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE( trackHelperRecordTest ) {
+    {
+        PlaylistBuilder builder;
+        BOOST_CHECK_EQUAL( 0U, builder.addTrack("t").currentRecord() );
+        BOOST_CHECK_EQUAL( 10U, builder.addTrack("t2",10).currentRecord() );
+    }
+    {
+        PlaylistBuilder builder;
+        TrackBuilder tb = builder.addTrack("t");
+        BOOST_CHECK_EQUAL( 0U, tb.currentRecord() );
+        BrowseItem file = sequence::create_file("filename");
+        Media &media = tb.addBrowseItem(file);
+        BOOST_CHECK_EQUAL( 1U, tb.currentRecord() );
+    }
+}
+
 BOOST_AUTO_TEST_CASE( playlistHelper ) {
     PlaylistBuilder builder;
     {

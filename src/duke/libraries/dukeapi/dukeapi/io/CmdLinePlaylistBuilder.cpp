@@ -15,6 +15,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -26,6 +27,10 @@ using namespace std;
 using namespace boost::algorithm;
 using namespace boost::filesystem;
 using namespace duke::protocol;
+
+using sequence::BrowseItem;
+
+typedef vector<BrowseItem> BrowseItems;
 
 namespace details {
 
@@ -50,22 +55,21 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
             extensions.insert(extension);
         }
     }
-    struct IsInvalidExtension {
-        const Pimpl * const ptr;
-        IsInvalidExtension(const Pimpl * ptr) :
-                        ptr(ptr) {
-        }
-        inline bool operator()(const sequence::BrowseItem &item) const {
-            return ptr->extensions.find(item.extension()) == ptr->extensions.end();
-        }
-    };
-    IsInvalidExtension isInvalid() const {
-        return IsInvalidExtension(this);
+
+    void ingest(BrowseItems items) {
+        filterOutInvalidExtensions(items);
+        for_each(items.begin(), items.end(), ostream_iterator<BrowseItem>(cout, "\n"));
     }
 
     const bool useContainingSequence;
     PlaylistBuilder playlistBuilder;
 private:
+    void filterOutInvalidExtensions(BrowseItems &items) const {
+        sequence::filterOut(items, boost::bind(&CmdLinePlaylistBuilder::Pimpl::isInvalid, this, _1));
+    }
+    bool isInvalid(const BrowseItem &item) const {
+        return extensions.find(item.extension()) == extensions.end();
+    }
     set<string, details::ci_less> extensions;
 };
 
@@ -78,14 +82,27 @@ static inline void parsePPL(const CmdLinePlaylistBuilder::Pimpl &pimpl, const pa
 static inline void parsePattern(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
 }
 
-static inline void parseFilename(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
-    const bool isFile = is_regular_file(filename);
-    if (isFile && !pimpl.useContainingSequence) {
-        return;
+static inline bool contained(const string& filename, const BrowseItem & item) {
+    return item.type == sequence::SEQUENCE && item.sequence.pattern.match(filename);
+}
+
+static inline bool notContained(const string& filename, const BrowseItem & item) {
+    return !contained(filename, item);
+}
+
+static inline void parseDirectory(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &directory) {
+    pimpl.ingest(sequence::parser::browse(directory.string().c_str(), false));
+}
+
+static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+    BrowseItems items;
+    if (pimpl.useContainingSequence) {
+        items = sequence::parser::browse(filename.parent_path().string().c_str(), false);
+        sequence::filterOut(items, bind(&notContained, filename.filename().string(), _1));
+    } else {
+        items.push_back(sequence::create_file(filename));
     }
-    path toBrowse = isFile ? filename.parent_path() : filename;
-    vector<sequence::BrowseItem> items = sequence::parser::browse(toBrowse.string().c_str(), false);
-    items.erase(remove_if(items.begin(), items.end(), pimpl.isInvalid()), items.end());
+    pimpl.ingest(items);
 }
 
 static inline bool isPattern(const string &entry) {
@@ -110,6 +127,8 @@ void CmdLinePlaylistBuilder::operator ()(const string& entry) {
         parsePPL2(pimpl, filename);
     else if (iends_with(entry, g_ppl))
         parsePPL(pimpl, filename);
+    else if (is_directory(filename))
+        parseDirectory(pimpl, filename);
     else
         parseFilename(pimpl, filename);
 }

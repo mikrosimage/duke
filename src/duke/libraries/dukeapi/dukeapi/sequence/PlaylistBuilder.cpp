@@ -5,7 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#include <sequence/Range.h>
+#include <sequence/BrowseItem.h>
 #include "PlaylistBuilder.h"
 
 using namespace std;
@@ -19,9 +19,31 @@ static inline void set(FrameRange* pRange, const Range &range) {
     pRange->set_last(range.last);
 }
 
-TrackBuilder::TrackBuilder(Track &track, const char *name) :
-                track(track) {
+TrackBuilder::TrackBuilder(Track &track, const char *name, unsigned int recStart) : track(track), currentRec(recStart) {
     track.set_name(name);
+}
+
+Range TrackBuilder::advance(unsigned int count){
+    Range record = Range::weak(currentRec, count);
+    currentRec+=count;
+    return record;
+}
+
+Media& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
+    switch (item.type) {
+        case sequence::SEQUENCE:{
+            string filename = (item.path/item.sequence.pattern.string()).string();
+            return addSequence(filename.c_str(), advance(item.sequence.range.duration()), item.sequence.range);
+        }
+        case sequence::UNITFILE:{
+            return addImage(item.path.string().c_str(), advance(1));
+        }
+        case sequence::FOLDER:
+        case sequence::UNDEFINED:
+        default:
+            break;
+    }
+    throw logic_error("TrackBuilder : Invalid browse item type");
 }
 
 Media& TrackBuilder::addImage(const char *filename, const Range &record) {
@@ -47,8 +69,8 @@ Media& TrackBuilder::addMedia(const char *filename, const Range &record, const u
     return addMedia(filename, record, Range(record.first + offset, record.last + offset), mediaType);
 }
 
-TrackBuilder PlaylistBuilder::addTrack(const char *trackName) {
-    return TrackBuilder(*playlist.add_track(), trackName);
+TrackBuilder PlaylistBuilder::addTrack(const char *trackName, unsigned int recStart) {
+    return TrackBuilder(*playlist.add_track(), trackName, recStart);
 }
 
 PlaylistBuilder::operator ::duke::protocol::Playlist() {
