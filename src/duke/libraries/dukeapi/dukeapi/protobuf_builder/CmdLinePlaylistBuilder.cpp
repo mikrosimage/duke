@@ -11,7 +11,7 @@
 #include <sequence/DisplayUtils.h>
 #include <sequence/parser/Browser.h>
 
-#include <dukeapi/sequence/PlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/PlaylistBuilder.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
@@ -59,18 +59,14 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
     }
 
     void ingest(BrowseItems items) {
-        filterOutInvalidExtensions(items);
+        sequence::filterOut(items, boost::bind(&Pimpl::isInvalid, this, _1));
         for_each(items.begin(), items.end(), boost::bind(&TrackBuilder::addBrowseItem, boost::ref(trackBuilder), _1));
-        static_cast<Playlist>(playlistBuilder).PrintDebugString();
     }
 
     const bool useContainingSequence;
     PlaylistBuilder playlistBuilder;
     TrackBuilder trackBuilder;
 private:
-    void filterOutInvalidExtensions(BrowseItems &items) const {
-        sequence::filterOut(items, boost::bind(&Pimpl::isInvalid, this, _1));
-    }
     bool isInvalid(const BrowseItem &item) const {
         return extensions.find(item.extension()) == extensions.end();
     }
@@ -86,16 +82,16 @@ static inline void parsePPL(const CmdLinePlaylistBuilder::Pimpl &pimpl, const pa
 static inline void parsePattern(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
 }
 
+static inline void parseDirectory(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &directory) {
+    pimpl.ingest(sequence::parser::browse(directory.string().c_str(), false));
+}
+
 static inline bool contained(const string& filename, const BrowseItem & item) {
     return item.type == sequence::SEQUENCE && item.sequence.pattern.match(filename);
 }
 
 static inline bool notContained(const string& filename, const BrowseItem & item) {
     return !contained(filename, item);
-}
-
-static inline void parseDirectory(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &directory) {
-    pimpl.ingest(sequence::parser::browse(directory.string().c_str(), false));
 }
 
 static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
@@ -117,7 +113,11 @@ CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(bool useContainingSequence, const
                 m_Pimpl(new Pimpl(useContainingSequence, validExtensions)) {
 }
 
-void CmdLinePlaylistBuilder::operator ()(const string& entry) {
+duke::protocol::Playlist CmdLinePlaylistBuilder::getPlaylist() const {
+    return m_Pimpl->playlistBuilder;
+}
+
+void CmdLinePlaylistBuilder::process(const string& entry) {
     Pimpl &pimpl = *m_Pimpl.get();
     const path filename(entry);
     if (isPattern(entry)) {

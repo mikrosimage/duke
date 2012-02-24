@@ -8,22 +8,25 @@
 #ifndef CMDLINEPLAYLISTBUILDER_H_
 #define CMDLINEPLAYLISTBUILDER_H_
 
-#include <dukeapi/sequence/PlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/PlaylistBuilder.h>
 
 #include <boost/noncopyable.hpp>
 
 #include <memory>
 
 struct CmdLinePlaylistBuilder : private boost::noncopyable {
-    struct Pimpl;
     CmdLinePlaylistBuilder(bool useContainingSequence, const char **validExtensions);
-    void operator()(const std::string& entry);
+    void process(const std::string& entry);
+    duke::protocol::Playlist getPlaylist() const ;
+
     struct Proxy{
-        Proxy(CmdLinePlaylistBuilder *ptr) : ptr(ptr){}
-        inline void operator()(const std::string& entry){ (*ptr)(entry); }
-        CmdLinePlaylistBuilder *ptr;
+        Proxy(CmdLinePlaylistBuilder &ptr) : ptr(ptr){}
+        inline void operator()(const std::string& entry){ ptr.process(entry); }
+        CmdLinePlaylistBuilder &ptr;
     };
-    inline Proxy functor(){ return Proxy(this); }
+    inline Proxy appender(){ return Proxy(*this); }
+public:
+    struct Pimpl;
 private:
     std::auto_ptr<Pimpl> m_Pimpl;
 };

@@ -12,20 +12,20 @@ class ImageDecoderFactoryImpl;
  * Class to handle command line arguments, configuration files
  * and configuration of the application.
  */
-class Configuration : boost::noncopyable
-{
+class Configuration : boost::noncopyable {
 public:
-    Configuration( int argcc, char** argvv );
+    Configuration(int argcc, char** argvv);
     int m_iReturnValue;
 
-private: Configuration();
-    Configuration( Configuration& );
+private:
+    Configuration();
+    Configuration(Configuration&);
 
     void displayVersion();
     void displayHelp();
 
-    void run( IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory );
-    void decorateAndRun( IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory );
+    void run(IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory);
+    void decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl& imageDecoderFactory);
 
     boost::program_options::options_description m_CmdLineOnly;
     boost::program_options::options_description m_Config;
@@ -34,7 +34,7 @@ private: Configuration();
     boost::program_options::options_description m_CmdlineOptionsGroup;
     boost::program_options::options_description m_ConfigFileOptions;
     boost::program_options::options_description m_HiddenOptions;
-    boost::program_options::variables_map       m_Vm;
+    boost::program_options::variables_map m_Vm;
 
 };
 

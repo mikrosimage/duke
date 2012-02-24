@@ -4,10 +4,9 @@
 #include <dukeapi/messageBuilder/QuitBuilder.h>
 #include <dukeapi/io/PlaybackReader.h>
 #include <dukeapi/io/PlaylistReader.h>
-#include <dukeapi/io/SequenceReader.h>
 #include <dukeapi/io/FileRecorder.h>
 #include <dukeapi/io/InteractiveMessageIO.h>
-#include <dukeapi/io/CmdLinePlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
 #include <dukeapi/SocketMessageIO.h>
 #include <dukeapi/QueueMessageIO.h>
 #include <dukeapi/ProtobufSocket.h>
@@ -25,7 +24,6 @@
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "no information available - don't use in production"
 #endif // BUILD_INFORMATION
-
 // namespace
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -63,7 +61,9 @@ using namespace std;
 #define PORT                "port"
 #define PORT_OPT            "port"
 
-namespace { // empty namespace
+struct cmdline_exception : public runtime_error {
+    cmdline_exception(const string &msg) : runtime_error(msg){}
+};
 
 void setDisplayOptions(boost::program_options::options_description& description, const ::duke::protocol::Renderer& Renderer) {
     ostringstream resolution;
@@ -73,11 +73,12 @@ void setDisplayOptions(boost::program_options::options_description& description,
     (BLANKING_OPT, po::value<unsigned int>()->default_value(1), "Blanking count before presentation, up to 4, 0 means immediate and results in tearing effect.") //
     (REFRESHRATE_OPT, po::value<unsigned int>()->default_value(Renderer.refreshrate()), "Forces the screen refresh rate (fullscreen mode)") //
     (RESOLUTION_OPT, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
-    ;
+     ;
 }
+
 struct SessionCreator {
     SessionCreator(QueueMessageIO& _io) :
-        io(_io) {
+                    io(_io) {
     }
     google::protobuf::serialize::ISession* create(boost::asio::io_service& service) {
         return new SocketSession(service, io.inputQueue, io.outputQueue);
@@ -85,16 +86,13 @@ struct SessionCreator {
 private:
     QueueMessageIO& io;
 };
-const string HEADER = "[Configuration] ";
 
-} // empty namespace
-
-
+const static string HEADER = "[Configuration] ";
 
 Configuration::Configuration(int argc, char** argv) :
-    m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"),
-                    m_Interactive("interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options"),
-                    m_HiddenOptions("hidden options") {
+                m_iReturnValue(EXIT_RELAUNCH), m_CmdLineOnly("command line only options"), m_Config("configuration options"), m_Display("display options"), m_Interactive(
+                                "interactive mode options"), m_CmdlineOptionsGroup("Command line options"), m_ConfigFileOptions("Configuration file options"), m_HiddenOptions(
+                                "hidden options") {
 
     using namespace ::duke::protocol;
 
@@ -155,162 +153,124 @@ Configuration::Configuration(int argc, char** argv) :
     // notifying from incoming new options
     po::notify(m_Vm);
 
-    if (m_Vm.count("help")) {
-        displayHelp();
-        return;
-    }
-    if (m_Vm.count("version")) {
-        displayVersion();
-        return;
-    }
-    if (m_Vm.count(RENDERER) == 0)
-        throw runtime_error("No renderer specified. Aborting.");
+    try {
 
-    // loading plugins
-    ImageDecoderFactoryImpl imageDecoderFactory;
-
-    const char** listOfExtensions = imageDecoderFactory.getAvailableExtensions();
-
-    /**
-     * Server mode
-     */
-    // if port is specified turning into a server
-    if (m_Vm.count(PORT)) {
-        using namespace boost::asio;
-        using namespace boost::asio::ip;
-        using google::protobuf::serialize::duke_server;
-        while (m_iReturnValue == EXIT_RELAUNCH) {
-            QueueMessageIO io;
-            tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short> ());
-            // -> c++0x version, cool but need a gcc version > 4.4
-            //            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
-            //            duke_server server(endpoint, sessionCreator);
-            SessionCreator creator(io);
-            duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
-            boost::thread io_launcher(&duke_server::run, &server);
-            decorateAndRun(io, imageDecoderFactory);
-            io_launcher.join();
+        if (m_Vm.count("help")) {
+            displayHelp();
+            return;
         }
-        return;
-    }
+        if (m_Vm.count("version")) {
+            displayVersion();
+            return;
+        }
+        if (m_Vm.count(RENDERER) == 0)
+            throw cmdline_exception("No renderer specified. Aborting.");
 
-    /**
-     * Playback mode
-     */
-    if (m_Vm.count(PLAYBACK)) {
-        const string filename = m_Vm[PLAYBACK].as<string> ();
-        cout << HEADER + "Reading protocol buffer script: " << filename << endl;
-        PlaybackReader decoder(filename.c_str());
+        // loading plugins
+        ImageDecoderFactoryImpl imageDecoderFactory;
+
+        const char** listOfExtensions = imageDecoderFactory.getAvailableExtensions();
+
+        /**
+         * Server mode
+         */
+        // if port is specified turning into a server
+        if (m_Vm.count(PORT)) {
+            using namespace boost::asio;
+            using namespace boost::asio::ip;
+            using google::protobuf::serialize::duke_server;
+            while (m_iReturnValue == EXIT_RELAUNCH) {
+                QueueMessageIO io;
+                tcp::endpoint endpoint(tcp::v4(), m_Vm[PORT].as<short>());
+                // -> c++0x version, cool but need a gcc version > 4.4
+                //            auto sessionCreator = [&io](io_service &service) {return new SocketSession(service, io.inputQueue, io.outputQueue);};
+                //            duke_server server(endpoint, sessionCreator);
+                SessionCreator creator(io);
+                duke_server server(endpoint, boost::bind(&SessionCreator::create, &creator, _1));
+                boost::thread io_launcher(&duke_server::run, &server);
+                decorateAndRun(io, imageDecoderFactory);
+                io_launcher.join();
+            }
+            return;
+        }
+
+        /**
+         * Playback mode
+         */
+        if (m_Vm.count(PLAYBACK)) {
+            const string filename = m_Vm[PLAYBACK].as<string>();
+            cout << HEADER + "Reading protocol buffer script: " << filename << endl;
+            PlaybackReader decoder(filename.c_str());
+            decorateAndRun(decoder, imageDecoderFactory);
+            return;
+        }
+
+        /**
+         * Interactive mode
+         */
+        renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());
+        renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
+        renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned>());
+        if (m_Vm.count(RESOLUTION) != 0) {
+            string res = m_Vm[RESOLUTION].as<string>();
+            replace(res.begin(), res.end(), 'x', ' ');
+            replace(res.begin(), res.end(), 'X', ' ');
+            istringstream stream(res);
+            int width = -1;
+            int height = -1;
+            stream >> width;
+            stream >> height;
+            if (stream.bad() || width == -1 || height == -1)
+                throw runtime_error(string("bad resolution \"") + res + '\"');
+            renderer.set_width(width);
+            renderer.set_height(height);
+        }
+
+        // checking renderer
+        if (renderer.presentinterval() > 4)
+            throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
+
+        Playlist playlist;
+        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
+        playlist.set_frameratenumerator((int) framerate);
+        if (m_Vm.count(NOFRAMERATE) > 0)
+            playlist.set_playbackmode(Playlist::RENDER);
+        else if (m_Vm.count(NOSKIP) > 0)
+            playlist.set_playbackmode(Playlist::NO_SKIP);
+        else
+            playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
+
+        // no special mode specified, using interactive mode
+        MessageQueue queue;
+        push(queue, renderer);
+
+        Engine stop;
+        stop.set_action(Engine_Action_RENDER_STOP);
+        push(queue, stop);
+
+        if (!m_Vm.count("inputs"))
+            throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
+
+        const vector<string> inputs = m_Vm["inputs"].as<vector<string> >();
+        CmdLinePlaylistBuilder playlistBuilder(m_Vm.count("sequence") > 0, listOfExtensions);
+        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
+        playlistBuilder.getPlaylist().PrintDebugString();
+
+        Engine start;
+        start.set_action(Engine_Action_RENDER_START);
+        push(queue, start);
+
+        InteractiveMessageIO decoder(queue);
         decorateAndRun(decoder, imageDecoderFactory);
-        return;
-    }
-
-    /**
-     * Interactive mode
-     */
-    renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned> ());
-    renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
-    renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned> ());
-    if (m_Vm.count(RESOLUTION) != 0) {
-        string res = m_Vm[RESOLUTION].as<string> ();
-        replace(res.begin(), res.end(), 'x', ' ');
-        replace(res.begin(), res.end(), 'X', ' ');
-        istringstream stream(res);
-        int width = -1;
-        int height = -1;
-        stream >> width;
-        stream >> height;
-        if (stream.bad() || width == -1 || height == -1)
-            throw runtime_error(string("bad resolution \"") + res + '\"');
-        renderer.set_width(width);
-        renderer.set_height(height);
-    }
-
-    // checking renderer
-    if (renderer.presentinterval() > 4)
-        throw runtime_error(string(BLANKING) + " must be between 0 an 4");
-
-    Playlist playlist;
-    const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int> ();
-    playlist.set_frameratenumerator((int) framerate);
-    if (m_Vm.count(NOFRAMERATE) > 0)
-        playlist.set_playbackmode(Playlist::RENDER);
-    else if (m_Vm.count(NOSKIP) > 0)
-        playlist.set_playbackmode(Playlist::NO_SKIP);
-    else
-        playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
-
-    // no special mode specified, using interactive mode
-    MessageQueue queue;
-    push(queue, renderer);
-
-    Engine stop;
-    stop.set_action(Engine_Action_RENDER_STOP);
-    push(queue, stop);
-
-    if (m_Vm.count("inputs")) {
-        const vector<string> inputs = m_Vm["inputs"].as<vector<string> > ();
-
-        CmdLinePlaylistBuilder playlistBuilder(m_Vm.count("sequence")>0, listOfExtensions);
-        for_each(inputs.begin(), inputs.end(), playlistBuilder.functor());
-
-//        int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
-//        int frameIndex = 0; // use to combine sequence/playlists
-//
-//        for (vector<string>::iterator inputString = inputs.begin(); inputString != inputs.end(); ++inputString) {
-//            //cout << *inputString << endl;
-//            int skip = 0;
-//            int startRange = numeric_limits<int>::min();
-//            int endRange = numeric_limits<int>::max();
-//            fs::path path(*inputString);
-//            if (path.extension() == ".ppl" || path.extension() == ".ppl2") {
-//                cout << HEADER + "Reading playlist: " << *inputString << endl;
-//                PlaylistReader(clipIndex, frameIndex, *inputString, queue, playlist);
-//            } else {
-//                cout << HEADER + "Reading : " << *inputString << endl;
-//                int inRange;
-//                int outRange;
-//                if ((++inputString < inputs.end()) && (inRange = atoi((*inputString).c_str()))) {
-//                    //cout << HEADER + "Range in : " << inRange << endl;
-//                    startRange = inRange;
-//                    skip++;
-//                    if ((++inputString < inputs.end()) && (outRange = atoi((*inputString).c_str()))) {
-//                        //cout << HEADER + "Range out : " << outRange << endl;
-//                        endRange = outRange + 1;
-//                        skip++;
-//                    }
-//                    inputString--;
-//                }
-//                inputString--;
-//                if (startRange >= endRange) {
-//                    cout << "- ! -" << endl;
-//                    cout << "You should specify a valid range (" << startRange << " >= " << endRange << "). See help below.\n" << endl;
-//                    displayHelp();
-//                    return;
-//                }
-//
-//                SequenceReader(clipIndex, frameIndex, *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false);
-//                inputString += skip;
-//            }
-//        }
-    } else {
-        cout << "- ! -" << endl;
-        cout << "You should specify an input (sequence directory or playlist file) in interactive mode. See help below.\n" << endl;
+    } catch (cmdline_exception &e) {
+        cout << "invalid command line : " << e.what() << endl << endl;
         displayHelp();
-        return;
     }
-
-    Engine start;
-    start.set_action(Engine_Action_RENDER_START);
-    push(queue, start);
-
-    InteractiveMessageIO decoder(queue);
-    decorateAndRun(decoder, imageDecoderFactory);
 }
 
 void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     if (m_Vm.count(RECORD) > 0) {
-        const string recordFilename = m_Vm[RECORD].as<string> ();
+        const string recordFilename = m_Vm[RECORD].as<string>();
         FileRecorder recorder(recordFilename.c_str(), io);
         cout << HEADER + "recording session to " << recordFilename << endl;
         run(recorder, imageDecoderFactory);
@@ -320,9 +280,9 @@ void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imag
 }
 
 void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
-    const string rendererFilename = m_Vm[RENDERER].as<string> ();
-    const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t> ()) * 1024) * 1024;
-    Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t> ());
+    const string rendererFilename = m_Vm[RENDERER].as<string>();
+    const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024;
+    Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t>());
 }
 
 void Configuration::displayVersion() {

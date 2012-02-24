@@ -1,4 +1,3 @@
 #include "ImageDecoderFactory.h"
 
-ImageDecoderFactory::~ImageDecoderFactory() {
-}
+ImageDecoderFactory::~ImageDecoderFactory() {}

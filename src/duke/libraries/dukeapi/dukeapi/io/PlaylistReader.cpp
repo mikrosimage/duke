@@ -16,8 +16,6 @@
 using namespace ::duke::protocol;
 using namespace ::std;
 
-static std::string INPUT = "Input";
-
 namespace { // empty namespace
 
 static bool isEmptyOrComment(const string& line) {

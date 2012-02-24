@@ -50,6 +50,7 @@ public:
     virtual FormatHandle getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const;
     virtual bool readImageHeader(FormatHandle decoder, const char* filename, ImageDescription& description) const;
     virtual bool decodeImage(FormatHandle decoder, const ImageDescription& description) const;
+    virtual void dumpDecoderInfos() const;
     virtual const char** getAvailableExtensions() const;
 
 private:

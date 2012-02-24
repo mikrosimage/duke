@@ -26,18 +26,9 @@ static bool _acceptPlug(const OfxPlugin* plug) {
     return true;
 }
 
-static void displayPlugin(const string &extension, const IOPlugin& plugin) {
-    cout << "[DukeIO] " << plugin.m_Plugin << " \'" << extension << "\'";
-    if (plugin.uncompressedFormat())
-        cout << "\t[OPTIMIZED]";
-    if (plugin.delegateRead())
-        cout << "\t[DELEGATE_READ]";
-    cout << endl;
-}
 
-static string dukeGetEnv( const char* e )
-{
-    #if !defined( __GNUC__ ) && defined( WINDOWS )
+static string dukeGetEnv(const char* e) {
+#if !defined( __GNUC__ ) && defined( WINDOWS )
     size_t requiredSize;
     getenv_s( &requiredSize, 0, 0, e );
     vector<char> buffer( requiredSize );
@@ -47,41 +38,52 @@ static string dukeGetEnv( const char* e )
         return &buffer.front();
     }
     return "";
-    #else
-    const char* env_value = getenv( e );
-    if( env_value == NULL )
+#else
+    const char* env_value = getenv(e);
+    if (env_value == NULL)
         return "";
     return env_value;
-    #endif
+#endif
 }
 
-ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() :
-    m_PluginManager(*this, dukeGetEnv( "DUKE_PLUGIN_PATH" ).c_str(), &_acceptFile, &_acceptPlug) {
+ImageDecoderFactoryImpl::ImageDecoderFactoryImpl() : m_PluginManager(*this, dukeGetEnv("DUKE_PLUGIN_PATH").c_str(), &_acceptFile, &_acceptPlug) {
     // browsing the plugins and building the extension provider
 
     using ::openfx::host::PluginManager;
     const PluginManager::PluginVector plugins(m_PluginManager.getPlugins());
     for (PluginManager::PluginVector::const_iterator itr = plugins.begin(), end = plugins.end(); itr != end; ++itr) {
-        assert(*itr!=NULL); // itr must not be NULL
+        assert(*itr!=NULL);
         boost::shared_ptr<IOPlugin> pPlugin(new IOPlugin(**itr));
         for (vector<string>::const_iterator itr = pPlugin->extensions().begin(), e = pPlugin->extensions().end(); itr != e; ++itr)
             m_Map[*itr] = pPlugin;
     }
 
-    extensions = new const char* [m_Map.size()+1];
-    int i=0;
+    extensions = new const char*[m_Map.size() + 1];
+    int i = 0;
 
     for (ExtensionToDecoderMap::const_iterator itr = m_Map.begin(); itr != m_Map.end(); ++itr)
-    {
-        // display help
-        displayPlugin(itr->first, *itr->second);
         extensions[i++] = (itr->first).data();
-    }
+
     extensions[m_Map.size()] = NULL;
 }
 
 ImageDecoderFactoryImpl::~ImageDecoderFactoryImpl() {
     delete[] extensions;
+}
+
+
+static void displayPlugin(const string &extension, const IOPlugin& plugin) {
+    cout << "[DukeIO] " << plugin.m_Plugin << " \'" << extension << "\'";
+    if (plugin.uncompressedFormat())
+        cout << "\t[OPTIMIZED]";
+    if (plugin.delegateRead())
+        cout << "\t[DELEGATE_READ]";
+    cout << endl;
+}
+
+void ImageDecoderFactoryImpl::dumpDecoderInfos() const {
+    for (ExtensionToDecoderMap::const_iterator itr = m_Map.begin(); itr != m_Map.end(); ++itr)
+        displayPlugin(itr->first, *itr->second);
 }
 
 FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, bool &delegateRead, bool &isFormatUncompressed) const {
@@ -99,7 +101,7 @@ FormatHandle ImageDecoderFactoryImpl::getImageDecoder(const char* extension, boo
 
 ImageDecoderFactoryImpl::SharedIOPluginInstance ImageDecoderFactoryImpl::getTLSPluginInstance(FormatHandle decoder) const {
     assert(decoder);
-    const IOPlugin* const pPlugin = reinterpret_cast<const IOPlugin*> (decoder);
+    const IOPlugin* const pPlugin = reinterpret_cast<const IOPlugin*>(decoder);
     if (m_pPluginToInstance.get() == NULL)
         m_pPluginToInstance.reset(new PluginToInstance());
     const PluginToInstance::const_iterator itr = m_pPluginToInstance->find(pPlugin);

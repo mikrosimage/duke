@@ -131,6 +131,7 @@ Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &
     m_bAutoNotifyOnFrameChange(false), //
     m_iReturnCode(returnCode), //
     m_Renderer(buildHost(this), rendererFilename) {
+    m_ImageDecoderFactory.dumpDecoderInfos();
     consumeUntilRenderOrQuit();
 }
 
