@@ -14,6 +14,7 @@ namespace duke {
 namespace protocol {
 
 struct ShaderBuilder : boost::noncopyable {
+    Grading
 };
 
 } /* namespace protocol */

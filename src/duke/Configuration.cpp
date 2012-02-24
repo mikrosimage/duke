@@ -221,7 +221,7 @@ Configuration::Configuration(int argc, char** argv) :
             stream >> width;
             stream >> height;
             if (stream.bad() || width == -1 || height == -1)
-                throw runtime_error(string("bad resolution \"") + res + '\"');
+                throw cmdline_exception(string("bad resolution \"") + res + '\"');
             renderer.set_width(width);
             renderer.set_height(height);
         }
@@ -229,6 +229,18 @@ Configuration::Configuration(int argc, char** argv) :
         // checking renderer
         if (renderer.presentinterval() > 4)
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
+
+        // checking command line
+        if (!m_Vm.count("inputs"))
+            throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
+
+        MessageQueue queue;
+
+        push(queue, renderer); // setting renderer
+
+        Engine stop;
+        stop.set_action(Engine_Action_RENDER_STOP);
+        push(queue, stop); // stopping rendering for now
 
         Playlist playlist;
         const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
@@ -240,16 +252,8 @@ Configuration::Configuration(int argc, char** argv) :
         else
             playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
 
-        // no special mode specified, using interactive mode
-        MessageQueue queue;
-        push(queue, renderer);
 
-        Engine stop;
-        stop.set_action(Engine_Action_RENDER_STOP);
-        push(queue, stop);
 
-        if (!m_Vm.count("inputs"))
-            throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         const vector<string> inputs = m_Vm["inputs"].as<vector<string> >();
         CmdLinePlaylistBuilder playlistBuilder(m_Vm.count("sequence") > 0, listOfExtensions);
