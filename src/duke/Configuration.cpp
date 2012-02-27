@@ -30,39 +30,43 @@ namespace fs = boost::filesystem;
 using namespace std;
 
 // command line options
-#define NOFRAMERATE         "no-framerate"
-#define NOFRAMERATE_OPT     "no-framerate"
-#define REFRESHRATE         "refreshrate"
-#define REFRESHRATE_OPT     "refreshrate"
-#define FULLSCREEN          "fullscreen"
-#define FULLSCREEN_OPT      "fullscreen,f"
-#define RESOLUTION          "resolution"
-#define RESOLUTION_OPT      "resolution"
-#define CACHESIZE           "cache-size"
-#define CACHESIZE_OPT       "cache-size,c"
-#define FRAMERATE           "framerate"
-#define FRAMERATE_OPT       "framerate"
-#define THREADS             "threads"
-#define THREADS_OPT         "threads,t"
-#define BLANKING            "blanking"
-#define BLANKING_OPT        "blanking"
-#define PLAYLIST            "playlist"
-#define PLAYLIST_OPT        "playlist,p"
-#define RENDERER            "renderer"
-#define RENDERER_OPT        "renderer"
-#define PLAYBACK            "playback"
-#define PLAYBACK_OPT        "playback"
-#define SEQUENCE            "sequence"
-#define SEQUENCE_OPT        "sequence,s"
-#define NOSKIP              "no-skip"
-#define NOSKIP_OPT          "no-skip"
-#define RECORD              "record"
-#define RECORD_OPT          "record"
-#define PORT                "port"
-#define PORT_OPT            "port"
+static const char* const NOFRAMERATE = "no-framerate";
+static const char* const NOFRAMERATE_OPT = NOFRAMERATE;
+static const char* const REFRESHRATE = "refreshrate";
+static const char* const REFRESHRATE_OPT = REFRESHRATE;
+static const char* const FULLSCREEN = "fullscreen";
+static const char* const FULLSCREEN_OPT = "fullscreen,f";
+static const char* const RESOLUTION = "resolution";
+static const char* const RESOLUTION_OPT = RESOLUTION;
+static const char* const CACHESIZE = "cache-size";
+static const char* const CACHESIZE_OPT = "cache-size,c";
+static const char* const FRAMERATE = "framerate";
+static const char* const FRAMERATE_OPT = FRAMERATE;
+static const char* const THREADS = "threads";
+static const char* const THREADS_OPT = "threads,t";
+static const char* const BLANKING = "blanking";
+static const char* const BLANKING_OPT = BLANKING;
+static const char* const RENDERER = "renderer";
+static const char* const RENDERER_OPT = RENDERER;
+static const char* const PLAYBACK = "playback";
+static const char* const PLAYBACK_OPT = PLAYBACK;
+static const char* const SEQUENCE = "sequence";
+static const char* const SEQUENCE_OPT = "sequence,s";
+static const char* const VERSION = "version";
+static const char* const NOSKIP = "no-skip";
+static const char* const NOSKIP_OPT = NOSKIP;
+static const char* const RECORD = "record";
+static const char* const RECORD_OPT = RECORD;
+static const char* const INPUTS = "inputs";
+static const char* const HELP = "help";
+static const char* const HELP_OPT = "help,h";
+static const char* const PORT = "port";
+static const char* const PORT_OPT = PORT;
 
 struct cmdline_exception : public runtime_error {
-    cmdline_exception(const string &msg) : runtime_error(msg){}
+    cmdline_exception(const string &msg) :
+                    runtime_error(msg) {
+    }
 };
 
 void setDisplayOptions(boost::program_options::options_description& description, const ::duke::protocol::Renderer& Renderer) {
@@ -107,8 +111,8 @@ Configuration::Configuration(int argc, char** argv) :
 
     // available on the command line
     m_CmdLineOnly.add_options() //
-    ("help,h", "Displays this help") //
-    ("version", "Displays the version informations");
+    (HELP_OPT, "Displays this help") //
+    (VERSION, "Displays the version informations");
 
     // available in the configuration file and command line
     m_Config.add_options() //
@@ -130,10 +134,10 @@ Configuration::Configuration(int argc, char** argv) :
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
 
     //adding hidden options
-    m_HiddenOptions.add_options()("inputs", po::value<vector<string> >(), "input directories, files, sequences, playlists.");
+    m_HiddenOptions.add_options()(INPUTS, po::value<vector<string> >(), "input directories, files, sequences, playlists.");
 
     po::positional_options_description pod;
-    pod.add("inputs", -1);
+    pod.add(INPUTS, -1);
 
     // parsing the command line
     m_CmdlineOptionsGroup.add(m_CmdLineOnly).add(m_Config).add(m_Display).add(m_Interactive);
@@ -155,11 +159,11 @@ Configuration::Configuration(int argc, char** argv) :
 
     try {
 
-        if (m_Vm.count("help")) {
+        if (m_Vm.count(HELP)) {
             displayHelp();
             return;
         }
-        if (m_Vm.count("version")) {
+        if (m_Vm.count(VERSION)) {
             displayVersion();
             return;
         }
@@ -231,7 +235,7 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
         // checking command line
-        if (!m_Vm.count("inputs"))
+        if (!m_Vm.count(INPUTS))
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         MessageQueue queue;
@@ -243,13 +247,13 @@ Configuration::Configuration(int argc, char** argv) :
         stop.set_action(Engine_Action_RENDER_STOP);
         inserter = stop; // stopping rendering for now
 
+        CmdLinePlaylistBuilder playlistBuilder(inserter, m_Vm.count(SEQUENCE) > 0, listOfExtensions);
 
-        CmdLinePlaylistBuilder playlistBuilder(inserter, m_Vm.count("sequence") > 0, listOfExtensions);
-
-        const vector<string> inputs = m_Vm["inputs"].as<vector<string> >();
+        const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
         Playlist playlist = playlistBuilder.finalize();
+
         const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
         playlist.set_frameratenumerator((int) framerate);
         if (m_Vm.count(NOFRAMERATE) > 0)
