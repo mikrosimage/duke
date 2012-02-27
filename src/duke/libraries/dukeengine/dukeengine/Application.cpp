@@ -85,12 +85,12 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-static inline playback::PlaybackState create(const PlaylistHelper &helper) {
+static inline playback::RealtimePlaybackState create(const PlaylistHelper &helper) {
     const Playlist &playlist = helper.playlist;
     const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     using namespace boost::chrono;
     cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-    return playback::PlaybackState(nsPerFrame, helper.range.first, helper.range.last, playlist.loop());
+    return playback::RealtimePlaybackState(nsPerFrame, helper.range.first, helper.range.last, playlist.loop());
 }
 
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {

@@ -26,23 +26,26 @@ nanoseconds nsPerFrame(double frameRate) {
     const int64_t nsPerFrame = nsPerSecond / frameRate;
     return nanoseconds(nsPerFrame);
 }
+namespace details {
 
-ContinuousPlaybackState::ContinuousPlaybackState(size_t newFrame, high_resolution_clock::duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame) :
+
+
+PlaybackContinuum::PlaybackContinuum(size_t newFrame, high_resolution_clock::duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame) :
     m_NsPerFrame(nsPerFrame), m_EpochFrame(newFrame), m_EpochTime(s_Clock.now()), m_MinFrame(std::min(minFrame, maxFrame)), m_MaxFrame(std::max(minFrame, maxFrame)), m_Frame(
         newFrame) {
 }
 
-bool ContinuousPlaybackState::frameOverrun() const {
+bool PlaybackContinuum::frameOverrun() const {
 //    return false;
     return presentationTimeFor(m_Frame) < s_Clock.now();
 }
 
-high_resolution_clock::time_point ContinuousPlaybackState::presentationTimeFor(unsigned int newFrame) const {
+high_resolution_clock::time_point PlaybackContinuum::presentationTimeFor(unsigned int newFrame) const {
     const int64_t frameDifferences = int64_t(newFrame) - int64_t(m_EpochFrame);
     return m_EpochTime + frameDifferences * m_NsPerFrame;
 }
 
-bool ContinuousPlaybackState::adjustCurrentFrame(bool &frameMissed) {
+bool PlaybackContinuum::adjustCurrentFrame(bool &frameMissed) {
     frameMissed = false;
     if (m_NsPerFrame == zero)
         return false;
@@ -60,7 +63,7 @@ bool ContinuousPlaybackState::adjustCurrentFrame(bool &frameMissed) {
 /**
  * return true if a bound is reached
  */
-inline bool ContinuousPlaybackState::stepFrame() {
+inline bool PlaybackContinuum::stepFrame() {
     assert(m_NsPerFrame!=zero);
     // stop state is not allowed, must be either forward or backward here
     if (m_NsPerFrame > zero) { // forward
@@ -77,20 +80,22 @@ inline bool ContinuousPlaybackState::stepFrame() {
     return false;
 }
 
-PlaybackState::PlaybackState() :
+}  // namespace details
+
+RealtimePlaybackState::RealtimePlaybackState() :
     m_Loop(true), m_MinFrame(0), m_MaxFrame(0), m_NsPerFrame(zero), m_Speed(0), m_State(m_MinFrame, zero, m_MinFrame, m_MaxFrame) {
 }
 
-PlaybackState::PlaybackState(high_resolution_clock::duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame, bool loop) :
+RealtimePlaybackState::RealtimePlaybackState(high_resolution_clock::duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame, bool loop) :
     m_Loop(loop), m_MinFrame(minFrame), m_MaxFrame(maxFrame), m_NsPerFrame(nsPerFrame), m_Speed(0), m_State(m_MinFrame, zero, m_MinFrame, m_MaxFrame) {
 }
 
-bool PlaybackState::adjustCurrentFrame() {
+bool RealtimePlaybackState::adjustCurrentFrame() {
     bool frameMissed = false;
     if (isPlaying() && m_State.adjustCurrentFrame(frameMissed)) { // bound reached
         if (m_Loop) {
             const unsigned int otherBound = frame() == m_MaxFrame ? m_MinFrame : m_MaxFrame;
-            m_State = ContinuousPlaybackState(otherBound, nsPerFrame(), m_MinFrame, m_MaxFrame);
+            m_State = details::PlaybackContinuum(otherBound, nsPerFrame(), m_MinFrame, m_MaxFrame);
         } else {
             stop();
         }
@@ -98,9 +103,9 @@ bool PlaybackState::adjustCurrentFrame() {
     return frameMissed;
 }
 
-void PlaybackState::play(unsigned int frame, int speed) {
+void RealtimePlaybackState::play(unsigned int frame, int speed) {
     m_Speed = speed;
-    m_State = ContinuousPlaybackState(frame, nsPerFrame(), m_MinFrame, m_MaxFrame);
+    m_State = details::PlaybackContinuum(frame, nsPerFrame(), m_MinFrame, m_MaxFrame);
 }
 
 } // namespace playback

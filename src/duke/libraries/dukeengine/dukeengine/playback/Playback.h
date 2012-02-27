@@ -11,7 +11,7 @@ typedef ::boost::chrono::high_resolution_clock::time_point time_point;
 extern ::boost::chrono::high_resolution_clock s_Clock;
 
 // forward declaration
-struct PlaybackState;
+struct RealtimePlaybackState;
 
 /**
  * Returns the time for a frame in ns considering a given framerate
@@ -19,20 +19,22 @@ struct PlaybackState;
 boost::chrono::nanoseconds nsPerFrame(double frameRate);
 boost::chrono::nanoseconds nsPerFrame(unsigned int numerator, unsigned int denominator);
 
+namespace details {
+
 /**
  * Represent a continuous state ( playback speed is constant, frame are adjacent from minFrame to maxFrame)
  * This class is not intended to be used directly, use PlaybackState instead.
  */
-struct ContinuousPlaybackState {
+struct PlaybackContinuum {
 
-    ContinuousPlaybackState(size_t newFrame, duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame);
+    PlaybackContinuum(size_t newFrame, duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame);
 
     time_point presentationTimeFor(unsigned int newFrame) const;
 
     bool adjustCurrentFrame(bool &frameMissed);
 
 private:
-    friend struct PlaybackState;
+    friend struct playback::RealtimePlaybackState;
 
     bool frameOverrun() const;
     bool stepFrame();
@@ -47,12 +49,14 @@ private:
     unsigned int m_Frame;
 };
 
+}  // namespace details
+
 /**
  * Represents the playback state, it can loop, cue and play
  */
-struct PlaybackState {
-    PlaybackState();
-    PlaybackState(duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame, bool loop);
+struct RealtimePlaybackState {
+    RealtimePlaybackState();
+    RealtimePlaybackState(duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame, bool loop);
 
     inline bool shouldPresent() const {
 //        return true;
@@ -91,7 +95,7 @@ private:
     duration m_NsPerFrame;
     // mutable field
     int m_Speed;
-    ContinuousPlaybackState m_State;
+    details::PlaybackContinuum m_State;
 };
 
 }
