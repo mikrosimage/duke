@@ -31,7 +31,7 @@ Range TrackBuilder::advance(unsigned int count){
     return record;
 }
 
-Media& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
+Clip& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
     switch (item.type) {
         case sequence::SEQUENCE:{
             string filename = (item.path/item.sequence.pattern.string()).make_preferred().string();
@@ -49,26 +49,26 @@ Media& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
     throw logic_error("TrackBuilder : Invalid browse item type");
 }
 
-Media& TrackBuilder::addImage(const char *filename, const Range &record) {
+Clip& TrackBuilder::addImage(const char *filename, const Range &record) {
     Clip *pClip = track.add_clip();
     set(pClip->mutable_record(), record);
     Media &media = *pClip->mutable_media();
     media.set_type(Media_Type_SINGLE_IMAGE);
     media.set_filename(filename);
-    return media;
+    return *pClip;
 }
 
-Media& TrackBuilder::addMedia(const char *filename, const Range&record, const Range &source, const Media_Type mediaType) {
+Clip& TrackBuilder::addMedia(const char *filename, const Range&record, const Range &source, const Media_Type mediaType) {
     Clip *pClip = track.add_clip();
     set(pClip->mutable_record(), record);
     Media &media = *pClip->mutable_media();
     media.set_type(mediaType);
     media.set_filename(filename);
     set(media.mutable_source(), source);
-    return media;
+    return *pClip;
 }
 
-Media& TrackBuilder::addMedia(const char *filename, const Range &record, const uint32_t offset, const Media_Type mediaType) {
+Clip& TrackBuilder::addMedia(const char *filename, const Range &record, const uint32_t offset, const Media_Type mediaType) {
     return addMedia(filename, record, Range(record.first + offset, record.last + offset), mediaType);
 }
 

@@ -14,10 +14,12 @@
 
 #include <memory>
 
+struct IOQueueInserter;
+
 struct CmdLinePlaylistBuilder : private boost::noncopyable {
-    CmdLinePlaylistBuilder(bool useContainingSequence, const char **validExtensions);
+    CmdLinePlaylistBuilder( IOQueueInserter&, bool useContainingSequence, const char **validExtensions);
     void process(const std::string& entry);
-    duke::protocol::Playlist getPlaylist() const ;
+    duke::protocol::Playlist finalize();
 
     struct Proxy{
         Proxy(CmdLinePlaylistBuilder &ptr) : ptr(ptr){}

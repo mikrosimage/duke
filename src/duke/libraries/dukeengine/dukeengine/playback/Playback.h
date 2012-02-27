@@ -17,7 +17,7 @@ struct PlaybackState;
  * Returns the time for a frame in ns considering a given framerate
  */
 boost::chrono::nanoseconds nsPerFrame(double frameRate);
-boost::chrono::nanoseconds nsPerFrame(uint32_t numerator, uint32_t denominator);
+boost::chrono::nanoseconds nsPerFrame(unsigned int numerator, unsigned int denominator);
 
 /**
  * Represent a continuous state ( playback speed is constant, frame are adjacent from minFrame to maxFrame)
@@ -25,9 +25,9 @@ boost::chrono::nanoseconds nsPerFrame(uint32_t numerator, uint32_t denominator);
  */
 struct ContinuousPlaybackState {
 
-    ContinuousPlaybackState(size_t newFrame, duration nsPerFrame, uint32_t minFrame, uint32_t maxFrame);
+    ContinuousPlaybackState(size_t newFrame, duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame);
 
-    time_point presentationTimeFor(uint32_t newFrame) const;
+    time_point presentationTimeFor(unsigned int newFrame) const;
 
     bool adjustCurrentFrame(bool &frameMissed);
 
@@ -39,12 +39,12 @@ private:
 
     // those should be const but are not because of the operator=
     duration m_NsPerFrame;
-    uint32_t m_EpochFrame;
+    unsigned int m_EpochFrame;
     time_point m_EpochTime;
-    uint32_t m_MinFrame;
-    uint32_t m_MaxFrame;
+    unsigned int m_MinFrame;
+    unsigned int m_MaxFrame;
     // mutable field
-    uint32_t m_Frame;
+    unsigned int m_Frame;
 };
 
 /**
@@ -52,71 +52,45 @@ private:
  */
 struct PlaybackState {
     PlaybackState();
-    PlaybackState(duration nsPerFrame, uint32_t minFrame, uint32_t maxFrame, bool loop);
-
-    inline void waitForPresentation() const {
-        while (!shouldPresent())
-            ;
-    }
+    PlaybackState(duration nsPerFrame, unsigned int minFrame, unsigned int maxFrame, bool loop);
 
     inline bool shouldPresent() const {
 //        return true;
         return isPlaying() ? m_State.frameOverrun() : true;
     }
 
-    inline uint32_t frame() const {
-        return m_State.m_Frame;
-    }
-
-    inline time_point epochTime() const {
-        return m_State.m_EpochTime;
-    }
-
-    inline uint32_t epochFrame() const {
-        return m_State.m_EpochFrame;
-    }
-
-    inline duration playlistTime(uint32_t newFrame) const {
-        return m_NsPerFrame * newFrame;
-    }
-
-    duration playlistTime() const {
-        return playlistTime(m_State.m_EpochFrame) + (s_Clock.now() - epochTime());
-    }
-
+    inline unsigned int frame() const { return m_State.m_Frame; }
+    duration playlistTime() const { return playlistTime(m_State.m_EpochFrame) + (s_Clock.now() - epochTime()); }
     bool adjustCurrentFrame();
 
-    inline void stop() {
-        cue(frame());
-    }
+    inline void cue(unsigned int frame) { play(frame, 0); }
+    void play(unsigned int frame, int speed = 1);
 
-    inline void cue(uint32_t frame) {
-        play(frame, 0);
-    }
+    inline bool isPlaying() const { return m_Speed != 0; }
+    inline int32_t getSpeed() const { return m_Speed; }
 
-    void play(uint32_t frame, int32_t speed = 1);
-
-    inline bool isPlaying() const {
-        return m_Speed != 0;
-    }
-
-    inline int32_t getSpeed() const {
-        return m_Speed;
-    }
 
 private:
+    inline void stop() { cue(frame()); }
+    inline duration nsPerFrame() const { return m_Speed == 0 ? duration::zero() : m_NsPerFrame / m_Speed; }
+    inline time_point epochTime() const { return m_State.m_EpochTime; }
+    inline duration playlistTime(unsigned int newFrame) const { return m_NsPerFrame * newFrame; }
 
-    inline duration nsPerFrame() const {
-        return m_Speed == 0 ? duration::zero() : m_NsPerFrame / m_Speed;
-    }
+//    inline void waitForPresentation() const {
+//        while (!shouldPresent())
+//            ;
+//    }
+//    inline unsigned int epochFrame() const {
+//        return m_State.m_EpochFrame;
+//    }
 
     // those should be const but are not because of the operator=
     bool m_Loop;
-    uint32_t m_MinFrame;
-    uint32_t m_MaxFrame;
+    unsigned int m_MinFrame;
+    unsigned int m_MaxFrame;
     duration m_NsPerFrame;
     // mutable field
-    int32_t m_Speed;
+    int m_Speed;
     ContinuousPlaybackState m_State;
 };
 

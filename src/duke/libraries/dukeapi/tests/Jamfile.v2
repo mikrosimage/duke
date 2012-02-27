@@ -11,4 +11,5 @@ unit-test test_sequence
 			:
 				sequence.cpp
 				[ glob ../dukeapi/sequence/*.cpp ]
+				[ glob ../dukeapi/protobuf_builder/*.cpp ]
 			;

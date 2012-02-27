@@ -1,17 +1,15 @@
 #ifndef SIMPLESHADERS_H_
 #define SIMPLESHADERS_H_
 
-namespace { // empty namespace
+static const char* const IMAGE_DIM = "imageDim";
+static const char* const DISPLAY_DIM = "displayDim";
+static const char* const DISPLAY_MODE = "displayMode";
+static const char* const IMAGE_RATIO = "imageRatio";
+static const char* const ZOOM = "zoom";
+static const char* const PANX = "panX";
+static const char* const PANY = "panY";
 
-const char* IMAGE_DIM = "imageDim";
-const char* DISPLAY_DIM = "displayDim";
-const char* DISPLAY_MODE = "displayMode";
-const char* IMAGE_RATIO = "imageRatio";
-const char* ZOOM = "zoom";
-const char* PANX = "panX";
-const char* PANY = "panY";
-
-const char* fittableTransformVs = "float displayMode;\n"
+static const char* const fittableTransformVs = "float displayMode;\n"
     "float3 displayDim;\n"
     "float3 imageDim;\n"
     "float imageRatio;\n"
@@ -104,6 +102,5 @@ const char* fittableTransformVs = "float displayMode;\n"
     "   \n"
     "   return OUT;\n"
     "}\n";
-}
 
 #endif /* SIMPLESHADERS_H_ */

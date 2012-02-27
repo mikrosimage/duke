@@ -11,13 +11,16 @@
 #include <sequence/DisplayUtils.h>
 #include <sequence/parser/Browser.h>
 
+#include <dukeapi/IMessageIO.h>
 #include <dukeapi/protobuf_builder/PlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/ShaderBuilder.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -46,31 +49,45 @@ struct ci_less : std::binary_function<std::string, std::string, bool> {
 
 static string g_ppl2(".ppl2");
 static string g_ppl(".ppl");
+static string HEADER = "[Playlist] ";
 
 struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
-    Pimpl(bool useContainingSequence, const char **validExtensions) :
-                    useContainingSequence(useContainingSequence), trackBuilder(playlistBuilder.addTrack("default")) {
+    Pimpl(IOQueueInserter &inserter, bool useContainingSequence, const char **validExtensions) :
+                    inserter(inserter), useContainingSequence(useContainingSequence), trackBuilder(playlistBuilder.addTrack("default")), clipIndex(0) {
         for (; validExtensions != NULL && *validExtensions != NULL; ++validExtensions) {
             string extension = *validExtensions;
             if (!extension.empty() && extension[0] != '.')
                 extension.insert(extension.begin(), '.');
             extensions.insert(extension);
         }
+        shader_builder::pushCommonMessages(inserter);
     }
 
     void ingest(BrowseItems items) {
         sequence::filterOut(items, boost::bind(&Pimpl::isInvalid, this, _1));
-        for_each(items.begin(), items.end(), boost::bind(&TrackBuilder::addBrowseItem, boost::ref(trackBuilder), _1));
+        for (BrowseItems::iterator itr = items.begin(); itr != items.end(); ++itr) {
+            cout << HEADER << *itr << endl;
+            Clip &clip = trackBuilder.addBrowseItem(*itr);
+            ostringstream name;
+            name << "clip_" << clipIndex++;
+            clip.set_name(name.str());
+            shader_builder::adapt(inserter, clip, itr->extension());
+        }
     }
 
+    Playlist finalize() {
+        return playlistBuilder;
+    }
+
+    IOQueueInserter &inserter;
     const bool useContainingSequence;
     PlaylistBuilder playlistBuilder;
     TrackBuilder trackBuilder;
-private:
     bool isInvalid(const BrowseItem &item) const {
         return extensions.find(item.extension()) == extensions.end();
     }
     set<string, details::ci_less> extensions;
+    size_t clipIndex;
 };
 
 static inline void parsePPL2(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
@@ -109,12 +126,12 @@ static inline bool isPattern(const string &entry) {
     return entry.find_first_of("#@") != string::npos;
 }
 
-CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(bool useContainingSequence, const char **validExtensions) :
-                m_Pimpl(new Pimpl(useContainingSequence, validExtensions)) {
+CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool useContainingSequence, const char **validExtensions) :
+                m_Pimpl(new Pimpl(inserter, useContainingSequence, validExtensions)) {
 }
 
-duke::protocol::Playlist CmdLinePlaylistBuilder::getPlaylist() const {
-    return m_Pimpl->playlistBuilder;
+Playlist CmdLinePlaylistBuilder::finalize() {
+    return m_Pimpl->finalize();
 }
 
 void CmdLinePlaylistBuilder::process(const string& entry) {

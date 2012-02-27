@@ -9,13 +9,25 @@
 #define SHADERBUILDER_H_
 
 #include <boost/noncopyable.hpp>
+#include <string>
+#include <vector>
+
+struct IOQueueInserter;
 
 namespace duke {
 namespace protocol {
 
-struct ShaderBuilder : boost::noncopyable {
-    Grading
-};
+struct Clip;
+struct Shader;
+
+namespace shader_builder {
+
+void pushCommonMessages(IOQueueInserter&);
+
+void adapt( IOQueueInserter& inserter, Clip &clip, const std::string &extension);
+
+} // namespace shader_builder
+
 
 } /* namespace protocol */
 } /* namespace duke */

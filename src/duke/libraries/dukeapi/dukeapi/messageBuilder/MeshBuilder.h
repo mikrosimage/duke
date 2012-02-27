@@ -5,15 +5,14 @@
 #include <player.pb.h>
 #include <iostream>
 
-namespace {
-
-namespace dk = ::duke::protocol;
+namespace duke {
+namespace protocol {
 
 enum MeshShape {
     MS_Cube = 0, MS_Plane = 1
 };
 
-static inline void buildVertex(dk::Vertex* const pVertex //
+static inline void buildVertex(Vertex* const pVertex //
                  , float x //
                  , float y //
                  , float z) {
@@ -27,7 +26,7 @@ static inline void buildVertex(dk::Vertex* const pVertex //
     pVertex->add_data(v);
 }
 
-static inline void buildVertex(dk::Vertex * const pVertex //
+static inline void buildVertex(Vertex * const pVertex //
                  , float x //
                  , float y //
                  , float z //
@@ -40,9 +39,9 @@ static inline void buildVertex(dk::Vertex * const pVertex //
     pVertex->add_data(v);
 }
 
-static inline void buildCubeVertexBuffer(dk::VertexBuffer* const pVertexBuffer) {
-    pVertexBuffer->add_flag(dk::VertexBuffer_VertexType_POS);
-    pVertexBuffer->add_flag(dk::VertexBuffer_VertexType_UV1);
+static inline void buildCubeVertexBuffer(VertexBuffer* const pVertexBuffer) {
+    pVertexBuffer->add_flag(VertexBuffer_VertexType_POS);
+    pVertexBuffer->add_flag(VertexBuffer_VertexType_UV1);
     buildVertex(pVertexBuffer->add_vertex(), -1, 1, -1); // 0
     buildVertex(pVertexBuffer->add_vertex(), 1, 1, -1); // 1
     buildVertex(pVertexBuffer->add_vertex(), -1, -1, -1); // 2
@@ -53,7 +52,7 @@ static inline void buildCubeVertexBuffer(dk::VertexBuffer* const pVertexBuffer) 
     buildVertex(pVertexBuffer->add_vertex(), 1, -1, 1); // 7
 }
 
-static inline void buildCubeIndexBuffer(dk::IndexBuffer* const pIndexBuffer) {
+static inline void buildCubeIndexBuffer(IndexBuffer* const pIndexBuffer) {
     const int indices[] = { 0, 2, 1, 2, 3, 1, // side 1
                     4, 6, 0, 6, 2, 0, // side 2
                     7, 6, 5, 6, 4, 5, // side 3
@@ -67,7 +66,7 @@ static inline void buildCubeIndexBuffer(dk::IndexBuffer* const pIndexBuffer) {
         pIndexBuffer->add_index(indices[i]);
 }
 
-static inline void buildPlaneVertexBuffer(dk::VertexBuffer* const pVertexBuffer //
+static inline void buildPlaneVertexBuffer(VertexBuffer* const pVertexBuffer //
                             , const float x0 //
                             , const float y0 //
                             , const float xsize //
@@ -80,14 +79,14 @@ static inline void buildPlaneVertexBuffer(dk::VertexBuffer* const pVertexBuffer 
     buildVertex(pVertexBuffer->add_vertex(), x0 + xsize, y0 + ysize, 1, 1, 0); // 3
 }
 
-static inline void buildPlaneIndexBuffer(dk::IndexBuffer* const pIndexBuffer) {
+static inline void buildPlaneIndexBuffer(IndexBuffer* const pIndexBuffer) {
     const int indices[] = { 0, 2, 1, 2, 3, 1 };
     const int indices_size = sizeof(indices) / sizeof(int);
     for (int i = 0; i < indices_size; ++i)
         pIndexBuffer->add_index(indices[i]);
 }
 
-static inline void buildMesh(dk::Mesh & _m //
+static inline void buildMesh(Mesh & _m //
                , MeshShape _shape = MS_Cube //
                , std::string _name = "defaultMeshName"//
                , const float _x0 = 0.f //
@@ -98,12 +97,12 @@ static inline void buildMesh(dk::Mesh & _m //
     _m.set_name(_name);
     switch (_shape) {
         case MS_Cube:
-            _m.set_type(dk::Mesh_MeshType_TRIANGLELIST);
+            _m.set_type(Mesh_MeshType_TRIANGLELIST);
             buildCubeVertexBuffer(_m.mutable_vertexbuffer());
             buildCubeIndexBuffer(_m.mutable_indexbuffer());
             break;
         case MS_Plane:
-            _m.set_type(dk::Mesh_MeshType_TRIANGLELIST);
+            _m.set_type(Mesh_MeshType_TRIANGLELIST);
             buildPlaneVertexBuffer(_m.mutable_vertexbuffer(), _x0, _y0, _xSize, _ySize);
             buildPlaneIndexBuffer(_m.mutable_indexbuffer());
             break;
@@ -122,11 +121,12 @@ static inline void addMesh(IMessageIO & _queue //
              , const float _xSize = 1.f //
              , const float _ySize = 1.f) {
 
-    dk::Mesh m;
+    Mesh m;
     buildMesh(m, _shape, _name, _x0, _y0, _xSize, _ySize);
     push(_queue, m);
 }
 
-} // empty namespace
+} /* namespace protocol */
+} /* namespace duke */
 
 #endif /* MESHBUILDER_H_ */

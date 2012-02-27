@@ -4,15 +4,16 @@
 #include <dukeapi/IMessageIO.h>
 #include <player.pb.h>
 #include <iostream>
+#include <stdexcept>
 
-namespace {
+namespace duke {
+namespace protocol {
 
-namespace dk = ::duke::protocol;
 
 // ------------------------------------------------------
 // RenderPass
 // ------------------------------------------------------
-static inline void buildRenderPass(dk::RenderPass* const _pPass //
+static inline void buildRenderPass(RenderPass* const _pPass //
                      , std::string _name //
                      , std::string _meshName //
                      , bool _clean) {
@@ -29,7 +30,7 @@ static inline void buildRenderPass(dk::RenderPass* const _pPass //
 // ------------------------------------------------------
 // Effect
 // ------------------------------------------------------
-static inline void buildEffect(dk::Effect* const _pEffect //
+static inline void buildEffect(Effect* const _pEffect //
                  , std::string _psName //
                  , std::string _vsName) {
     _pEffect->set_pixelshadername(_psName);
@@ -37,19 +38,19 @@ static inline void buildEffect(dk::Effect* const _pEffect //
     _pEffect->set_alphablend(false);
 }
 
-static inline void addEffectToRenderPass(dk::RenderPass & _r //
+static inline void addEffectToRenderPass(RenderPass & _r //
                            , std::string _psName //
                            , std::string _vsName) {
-    dk::Effect* pEffect = _r.mutable_effect();
+    Effect* pEffect = _r.mutable_effect();
     buildEffect(pEffect, _psName, _vsName);
 }
 
-static inline void addEffectToGrading(dk::Grading & _g //
+static inline void addEffectToGrading(Grading & _g //
                         , std::string _psName //
                         , std::string _vsName //
                         , std::string _meshName //
                         , bool _clean) {
-    dk::RenderPass* const pPass = _g.add_pass();
+    RenderPass* const pPass = _g.add_pass();
     buildRenderPass(pPass, "pass", _meshName, _clean);
 
     addEffectToRenderPass(*pPass, _psName, _vsName);
@@ -58,7 +59,7 @@ static inline void addEffectToGrading(dk::Grading & _g //
 // ------------------------------------------------------
 // Grading
 // ------------------------------------------------------
-static inline void buildGrading(dk::Grading & _g //
+static inline void buildGrading(Grading & _g //
                   , std::string _name = "grading" //
                   , std::string _clipName = "") {
 
@@ -68,17 +69,18 @@ static inline void buildGrading(dk::Grading & _g //
     _g.set_name(_name);
 }
 
-static inline dk::Grading * const addGradingToClip(dk::Clip & _c //
+static inline Grading * const addGradingToClip(Clip & _c //
                                      , std::string _name = "grading") {
     if (!_c.has_name()) {
         throw std::runtime_error("Error building Grading: undefined clip name.");
     }
-    dk::Grading * const pGrading = _c.mutable_grade();
+    Grading * const pGrading = _c.mutable_grade();
     buildGrading(*pGrading, _name, "");
 
     return pGrading;
 }
 
-} // empty namespace
+} /* namespace protocol */
+} /* namespace duke */
 
 #endif /* GRADINGBUILDER_H_ */

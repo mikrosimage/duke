@@ -21,7 +21,19 @@ using namespace std;
 namespace image {
 WorkUnitId::WorkUnitId(const duke::protocol::MediaFrame &mf) :
                 duke::protocol::MediaFrame(mf) {
-#pragma message "define WorkUnitId::filename"
+    boost::filesystem::path path;
+    switch (mf.type) {
+        case duke::protocol::Media_Type_SINGLE_IMAGE:
+            path = mf.item.path;
+            break;
+        case duke::protocol::Media_Type_IMAGE_SEQUENCE:
+            path = mf.item.path / sequence::instanciatePattern(mf.item.sequence.pattern, mf.source);
+            break;
+        default:
+            filename = "can't decode movies for the moment";
+            break;
+    }
+    filename = path.make_preferred().string();
 }
 
 bool WorkUnitId::operator==(const WorkUnitId &other) const {

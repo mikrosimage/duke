@@ -235,14 +235,21 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         MessageQueue queue;
+        IOQueueInserter inserter(queue);
 
-        push(queue, renderer); // setting renderer
+        inserter = renderer; // setting renderer
 
         Engine stop;
         stop.set_action(Engine_Action_RENDER_STOP);
-        push(queue, stop); // stopping rendering for now
+        inserter = stop; // stopping rendering for now
 
-        Playlist playlist;
+
+        CmdLinePlaylistBuilder playlistBuilder(inserter, m_Vm.count("sequence") > 0, listOfExtensions);
+
+        const vector<string> inputs = m_Vm["inputs"].as<vector<string> >();
+        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
+
+        Playlist playlist = playlistBuilder.finalize();
         const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
         playlist.set_frameratenumerator((int) framerate);
         if (m_Vm.count(NOFRAMERATE) > 0)
@@ -252,17 +259,11 @@ Configuration::Configuration(int argc, char** argv) :
         else
             playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
 
-
-
-
-        const vector<string> inputs = m_Vm["inputs"].as<vector<string> >();
-        CmdLinePlaylistBuilder playlistBuilder(m_Vm.count("sequence") > 0, listOfExtensions);
-        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
-        playlistBuilder.getPlaylist().PrintDebugString();
+        inserter = playlist;
 
         Engine start;
         start.set_action(Engine_Action_RENDER_START);
-        push(queue, start);
+        inserter = start;
 
         InteractiveMessageIO decoder(queue);
         decorateAndRun(decoder, imageDecoderFactory);
