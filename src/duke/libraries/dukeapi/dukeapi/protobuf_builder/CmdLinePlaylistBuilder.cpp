@@ -91,12 +91,15 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
 };
 
 static inline void parsePPL2(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+    throw runtime_error(string("I can't parse PPL2 for the moment : ") + filename.string());
 }
 
 static inline void parsePPL(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+    throw runtime_error(string("I can't parse PPL for the moment : ") + filename.string());
 }
 
 static inline void parsePattern(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+    throw runtime_error(string("I can't parse a filename pattern for the moment : ") + filename.string());
 }
 
 static inline void parseDirectory(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &directory) {
