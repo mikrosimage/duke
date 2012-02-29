@@ -1,7 +1,7 @@
 /*
  * ShaderBuilder.h
  *
- *  Created on: 24 févr. 2012
+ *  Created on: 24 fevr. 2012
  *      Author: Guillaume Chatelet
  */
 
@@ -17,8 +17,8 @@ struct IOQueueInserter;
 namespace duke {
 namespace protocol {
 
-struct Clip;
-struct Shader;
+class Clip;
+class Shader;
 
 namespace shader_builder {
 

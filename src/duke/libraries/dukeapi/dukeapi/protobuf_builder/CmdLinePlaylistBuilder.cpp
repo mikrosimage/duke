@@ -61,6 +61,8 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
             extensions.insert(extension);
         }
         shader_builder::pushCommonMessages(inserter);
+        transport.set_type(Transport_TransportType_CUE);
+        transport.mutable_cue()->set_value(0);
     }
 
     void ingest(BrowseItems items) {
@@ -88,6 +90,7 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
     }
     set<string, details::ci_less> extensions;
     size_t clipIndex;
+    Transport transport;
 };
 
 static inline void parsePPL2(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
@@ -114,13 +117,23 @@ static inline bool notContained(const string& filename, const BrowseItem & item)
     return !contained(filename, item);
 }
 
-static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &absoluteFilename) {
     BrowseItems items;
     if (pimpl.useContainingSequence) {
-        items = sequence::parser::browse(filename.parent_path().string().c_str(), false);
-        sequence::filterOut(items, bind(&notContained, filename.filename().string(), _1));
+        items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
+        const string filename = absoluteFilename.filename().string();
+        sequence::filterOut(items, bind(&notContained, filename, _1));
+        assert(items.size()==1);
+        const BrowseItem &containingSequence = items[0];
+        assert(containingSequence.type==sequence::SEQUENCE);
+        assert(containingSequence.sequence.step==1);
+        const char * const pFrameString = filename.c_str()+containingSequence.sequence.pattern.prefix.size();
+        const unsigned int filenameFrameNumber = atoi(pFrameString);
+        const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
+        const unsigned int gotoRec = pimpl.trackBuilder.currentRecord() + sequenceOffset;
+        pimpl.transport.mutable_cue()->set_value(gotoRec);
     } else {
-        items.push_back(sequence::create_file(filename));
+        items.push_back(sequence::create_file(absoluteFilename));
     }
     pimpl.ingest(items);
 }
@@ -133,8 +146,12 @@ CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool u
                 m_Pimpl(new Pimpl(inserter, useContainingSequence, validExtensions)) {
 }
 
-Playlist CmdLinePlaylistBuilder::finalize() {
+Playlist CmdLinePlaylistBuilder::getPlaylist() {
     return m_Pimpl->finalize();
+}
+
+Transport CmdLinePlaylistBuilder::getCue() {
+    return m_Pimpl->transport;
 }
 
 void CmdLinePlaylistBuilder::process(const string& entry) {

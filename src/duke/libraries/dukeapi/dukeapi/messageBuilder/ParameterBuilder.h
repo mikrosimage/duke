@@ -6,11 +6,9 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace {
-
 namespace dk = ::duke::protocol;
 
-void buildStaticFloatParam(dk::StaticParameter & _sp //
+static inline void buildStaticFloatParam(dk::StaticParameter & _sp //
                            , std::string _name //
                            , float _f) {
     _sp.set_name(_name);
@@ -18,7 +16,7 @@ void buildStaticFloatParam(dk::StaticParameter & _sp //
     _sp.add_floatvalue(_f);
 }
 
-void buildAutomaticParam(dk::AutomaticParameter & _ap //
+static inline void buildAutomaticParam(dk::AutomaticParameter & _ap //
                          , std::string _name //
                          , dk::AutomaticParameter_Type _type = dk::AutomaticParameter_Type_FLOAT3_TEX_DIM) {
 
@@ -27,7 +25,7 @@ void buildAutomaticParam(dk::AutomaticParameter & _ap //
     return;
 }
 
-void buildAutomaticClipSourceParam(dk::AutomaticParameter & _ap //
+static inline void buildAutomaticClipSourceParam(dk::AutomaticParameter & _ap //
                                    , std::string _name //
                                    , std::string _clipName) {
 
@@ -43,7 +41,7 @@ void buildAutomaticClipSourceParam(dk::AutomaticParameter & _ap //
     pSource->set_name(_clipName);
 }
 
-void buildStaticSamplerParam(dk::StaticParameter & _sp //
+static inline void buildStaticSamplerParam(dk::StaticParameter & _sp //
                              , std::string _name //
                              , std::string _srcName //
                              , dk::SamplingSource_Type _type = dk::SamplingSource_Type_CLIP //
@@ -82,7 +80,7 @@ void buildStaticSamplerParam(dk::StaticParameter & _sp //
     pSamplerState->set_value(dk::SamplerState_Value_WRAP_BORDER);
 }
 
-void addStaticFloatParam(IMessageIO & _queue //
+static inline void addStaticFloatParam(IMessageIO & _queue //
                          , std::string _name //
                          , float _f //
                          , std::string _scopeName = "") {
@@ -95,7 +93,7 @@ void addStaticFloatParam(IMessageIO & _queue //
     push(_queue, p);
 }
 
-void addStaticSamplerParam(IMessageIO & _queue //
+static inline void addStaticSamplerParam(IMessageIO & _queue //
                            , std::string _name //
                            , std::string _srcName //
                            , dk::SamplingSource_Type _type = dk::SamplingSource_Type_CLIP //
@@ -106,7 +104,7 @@ void addStaticSamplerParam(IMessageIO & _queue //
     push(_queue, p);
 }
 
-void addAutomaticParam(IMessageIO & _queue //
+static inline void addAutomaticParam(IMessageIO & _queue //
                        , std::string _name //
                        , dk::AutomaticParameter_Type _type = dk::AutomaticParameter_Type_FLOAT3_TEX_DIM) {
 
@@ -115,7 +113,7 @@ void addAutomaticParam(IMessageIO & _queue //
     push(_queue, p);
 }
 
-void addAutomaticClipSourceParam(IMessageIO & _queue //
+static inline void addAutomaticClipSourceParam(IMessageIO & _queue //
                                  , std::string _name //
                                  , std::string _clipName) {
 
@@ -123,7 +121,5 @@ void addAutomaticClipSourceParam(IMessageIO & _queue //
     buildAutomaticClipSourceParam(p, _name, _clipName);
     push(_queue, p);
 }
-
-} // empty namespace
 
 #endif /* PARAMETERBUILDER_H_ */

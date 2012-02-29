@@ -19,7 +19,8 @@ struct IOQueueInserter;
 struct CmdLinePlaylistBuilder : private boost::noncopyable {
     CmdLinePlaylistBuilder( IOQueueInserter&, bool useContainingSequence, const char **validExtensions);
     void process(const std::string& entry);
-    duke::protocol::Playlist finalize();
+    duke::protocol::Playlist getPlaylist();
+    duke::protocol::Transport getCue();
 
     struct Proxy{
         Proxy(CmdLinePlaylistBuilder &ptr) : ptr(ptr){}

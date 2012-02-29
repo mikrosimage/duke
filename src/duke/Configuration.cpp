@@ -241,18 +241,18 @@ Configuration::Configuration(int argc, char** argv) :
         MessageQueue queue;
         IOQueueInserter queueInserter(queue);
 
-        queueInserter.append(renderer); // setting renderer
+        queueInserter << renderer; // setting renderer
 
         Engine stop;
         stop.set_action(Engine_Action_RENDER_STOP);
-        queueInserter.append(stop); // stopping rendering for now
+        queueInserter << stop; // stopping rendering for now
 
         CmdLinePlaylistBuilder playlistBuilder(queueInserter, m_Vm.count(SEQUENCE) > 0, listOfExtensions);
 
         const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
-        Playlist playlist = playlistBuilder.finalize();
+        Playlist playlist = playlistBuilder.getPlaylist();
 
         const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
         playlist.set_frameratenumerator((int) framerate);
@@ -263,11 +263,13 @@ Configuration::Configuration(int argc, char** argv) :
         else
             playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
 
-        queueInserter.append(playlist);
+        queueInserter << playlist;
+
+        queueInserter << playlistBuilder.getCue();
 
         Engine start;
         start.set_action(Engine_Action_RENDER_START);
-        queueInserter.append(start);
+        queueInserter << start;
 
         InteractiveMessageIO decoder(queue);
         decorateAndRun(decoder, imageDecoderFactory);

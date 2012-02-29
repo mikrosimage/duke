@@ -24,7 +24,7 @@ struct IOQueueInserter : public std::iterator<std::output_iterator_tag, void, vo
         ::push(queue, msg);
         return *this;
     }
-    inline IOQueueInserter& append(const google::protobuf::Message& msg) { return operator =(msg); }
+    inline IOQueueInserter& operator<<(const google::protobuf::Message& msg) { return operator =(msg); }
     IOQueueInserter& operator*() { return *this; }
     IOQueueInserter& operator++() { return *this; }
     IOQueueInserter operator++(int) { return *this; }
