@@ -29,6 +29,7 @@ use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
 project : requirements
             <threading>multi
+            <toolset>gcc:<cxxflags>-std=gnu++0x # will prevent warnings within boost
             <toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
             <os>NT:<define>WIN32_LEAN_AND_MEAN
             <os>NT:<define>VC_EXTRALEAN

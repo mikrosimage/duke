@@ -50,7 +50,7 @@ private:
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
     ImageDecoderFactoryImpl &m_ImageDecoderFactory;
     ::duke::protocol::PlaylistHelper m_Playlist;
-    playback::RealtimePlaybackState m_Playback;
+    playback::Playback m_Playback;
     AudioEngine m_AudioEngine;
     SmartCache m_Cache;
     FileBufferHolder m_FileBufferHolder;

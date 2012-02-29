@@ -41,7 +41,7 @@ bool RangeIterator::empty() const {
 
 unsigned int RangeIterator::front() const {
     const int offset = getOffset(index, strategy);
-    return isCycling ? range.offsetLoopFrame(initialPosition, offset) : range.offsetClampFrame(initialPosition, offset);
+    return (isCycling ? range.offsetLoopFrame(initialPosition, offset) : range.offsetClampFrame(initialPosition, offset)).first;
 }
 
 void RangeIterator::popFront() {

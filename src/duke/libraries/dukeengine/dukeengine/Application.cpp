@@ -85,12 +85,26 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-static inline playback::RealtimePlaybackState create(const PlaylistHelper &helper) {
+static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
+    switch (mode) {
+        case Playlist_PlaybackMode_RENDER:
+            return playback::RENDER;
+        case Playlist_PlaybackMode_NO_SKIP:
+            return playback::REALTIME_NO_SKIP;
+        case Playlist_PlaybackMode_DROP_FRAME_TO_KEEP_REALTIME:
+            return playback::REALTIME;
+        default:
+            throw runtime_error("bad enum");
+    }
+}
+
+static inline void update(const PlaylistHelper &helper, playback::Playback &playback) {
     const Playlist &playlist = helper.playlist;
-    const playback::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
+    const auto nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     using namespace boost::chrono;
     cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-    return playback::RealtimePlaybackState(nsPerFrame, helper.range.first, helper.range.last, playlist.loop());
+    playback.init(helper.range, playlist.loop(), nsPerFrame);
+    playback.setType(get(playlist.playbackmode()));
 }
 
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
@@ -107,7 +121,7 @@ static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &h
 
 static inline uint32_t cueFrame(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
     if (cue.cuerelative())
-        return helper.range.offsetLoopFrame(current, cue.value());
+        return helper.range.offsetLoopFrame(current, cue.value()).first;
     else
         return helper.range.clampFrame(cue.value());
 }
@@ -257,7 +271,7 @@ void Application::consumeTransport() {
             PlaylistHelper(unpackTo<Playlist>(holder));
             m_Playlist = PlaylistHelper(unpackTo<Playlist>(holder));
             m_AudioEngine.load(unpackTo<Playlist>(holder));
-            m_Playback = create(m_Playlist);
+            update(m_Playlist, m_Playback);
         } else if (isType<Transport>(pDescriptor)) {
             dump(pDescriptor, holder);
             switch (pHolder->action()) {
@@ -301,7 +315,7 @@ void Application::renderStart() {
         const size_t frame = m_Playback.frame();
 
         // sync audio
-        if (m_Playback.isPlaying())
+        if (m_Playback.playing())
             m_AudioEngine.checksync(m_Playback.playlistTime());
 
         // retrieve images
@@ -315,10 +329,10 @@ void Application::renderStart() {
 
         setup.m_Images.clear();
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
-                {
-                    //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
-                    setup.m_Images.push_back(image.getImageDescription());
-                }
+        {
+            //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
+            setup.m_Images.push_back(image.getImageDescription());
+        }
 
         // populate clips
         // TODO : need better code... this is awkward

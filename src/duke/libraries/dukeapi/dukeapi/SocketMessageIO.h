@@ -86,7 +86,7 @@ protected:
 private:
     MessageQueue &inputQueue;
     MessageQueue &outputQueue;
-    std::auto_ptr<boost::thread> sendLoopThread;
+    std::unique_ptr<boost::thread> sendLoopThread;
     bool closing;
 };
 
