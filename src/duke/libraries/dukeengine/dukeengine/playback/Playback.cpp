@@ -1,7 +1,7 @@
 /*
  * Playback.cpp
  *
- *  Created on: 29 févr. 2012
+ *  Created on: 29 fevr. 2012
  *      Author: Guillaume Chatelet
  */
 
@@ -94,9 +94,8 @@ private:
     }
 
     high_resolution_clock::time_point presentationTime(unsigned frame) const {
+        assert(speed!=0);
         const int64_t offsetFromEpochToFrame = int64_t(frame) - int64_t(epochFrame);
-        if (speed == 0)
-            return s_Clock.now();
         const high_resolution_clock::duration durationFromEpochToFrame = offsetFromEpochToFrame * (nsPerFrame / speed);
         return epoch + durationFromEpochToFrame;
     }
@@ -139,7 +138,7 @@ struct RealtimeSkipPlayback : public RealtimeNoSkipPlayback {
     RealtimeSkipPlayback(State &state) : RealtimeNoSkipPlayback(state) { }
     virtual bool adjustCurrentFrame() {
         unsigned count = 0;
-        for (; frameOverrun(); ++count)
+        for (; state.speed!=0 && frameOverrun(); ++count)
             state.adjustCurrentFrame();
         return count >= 2;
     }
