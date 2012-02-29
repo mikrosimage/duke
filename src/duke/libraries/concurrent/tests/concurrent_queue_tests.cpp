@@ -1,4 +1,4 @@
-#include <dukeapi/io/ConcurrentQueue.h>
+#include <concurrent/ConcurrentQueue.h>
 
 #include <list>
 #include <vector>

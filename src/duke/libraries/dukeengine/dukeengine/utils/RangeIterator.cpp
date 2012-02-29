@@ -13,11 +13,11 @@ static inline int balance(unsigned int index) {
 }
 
 RangeIterator::RangeIterator() :
-                range(0, 0), initialPosition(0), isCycling(false), strategy(FORWARD), index(INT_MAX) {
+                range(0, 0), initialPosition(0), strategy(FORWARD), index(INT_MAX), limit(INT_MAX) {
 }
 
-RangeIterator::RangeIterator(const Range &withinRange, bool isCycling, unsigned int startAt, EPlaybackState strategy) :
-                range(withinRange), initialPosition(startAt), isCycling(isCycling), strategy(strategy), index(0) {
+RangeIterator::RangeIterator(const Range &withinRange, unsigned int startAt, EPlaybackState strategy) :
+                range(withinRange), initialPosition(startAt), strategy(strategy), index(0), limit(range.duration()) {
 }
 
 static inline int getOffset(unsigned int index, EPlaybackState strategy) {
@@ -36,12 +36,12 @@ static inline int getOffset(unsigned int index, EPlaybackState strategy) {
 }
 
 bool RangeIterator::empty() const {
-    return index >= INT_MAX;
+    return index >= limit;
 }
 
-unsigned int RangeIterator::front() const {
+unsigned int RangeIterator::front() {
     const int offset = getOffset(index, strategy);
-    return (isCycling ? range.offsetLoopFrame(initialPosition, offset) : range.offsetClampFrame(initialPosition, offset)).first;
+    return range.offsetLoopFrame(initialPosition, offset).first;
 }
 
 void RangeIterator::popFront() {

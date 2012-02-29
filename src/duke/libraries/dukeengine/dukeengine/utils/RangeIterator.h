@@ -6,16 +6,16 @@
 
 struct RangeIterator {
     RangeIterator();
-    RangeIterator(const sequence::Range &withinRange, bool isCycling, unsigned int startAt, EPlaybackState strategy);
+    RangeIterator(const sequence::Range &withinRange, unsigned int startAt, EPlaybackState strategy);
     bool empty()const;
-    unsigned int front() const;
+    unsigned int front();
     void popFront();
 private:
     sequence::Range range;
     unsigned int initialPosition;
-    bool isCycling;
     EPlaybackState strategy;
     unsigned int index;
+    unsigned int limit;
 };
 
 #endif /* RANGEITERATOR_H_ */

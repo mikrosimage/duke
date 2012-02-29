@@ -24,4 +24,4 @@ project
 	;
 
 explicit dukeengine ;
-lib dukeengine : [ glob-tree *.cpp ] ;
+lib dukeengine : [ glob-tree *.cpp : tests ] ;

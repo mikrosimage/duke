@@ -5,7 +5,7 @@ project : requirements
             <toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT)
             <define>BOOST_TEST_MAIN
             <define>BOOST_TEST_DYN_LINK
-            <include>../../libraries
+            <include>..
             <library>/boost//unit_test_framework
             ;
 

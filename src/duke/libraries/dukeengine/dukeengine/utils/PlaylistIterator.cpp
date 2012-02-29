@@ -14,7 +14,7 @@ PlaylistIterator::PlaylistIterator() :
 }
 
 PlaylistIterator::PlaylistIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :
-                helper(helper), iterator(overRange, helper.playlist.loop(), frame, state) {
+                helper(helper), iterator(overRange, frame, state) {
 }
 
 bool PlaylistIterator::empty() const {

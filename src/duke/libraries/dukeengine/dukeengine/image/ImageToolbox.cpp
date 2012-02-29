@@ -37,18 +37,17 @@ WorkUnitId::WorkUnitId(const duke::protocol::MediaFrame &mf) :
 }
 
 bool WorkUnitId::operator==(const WorkUnitId &other) const {
-#pragma message "implement WorkUnitId::operator=="
-    return true;
+    if(filename.size()!=other.filename.size())
+        return false;
+    return filename == other.filename;
 }
 
 bool WorkUnitId::operator!=(const WorkUnitId &other) const {
-#pragma message "implement WorkUnitId::operator!="
-    return true;
+    return !operator ==(other);
 }
 
 bool WorkUnitId::operator<(const WorkUnitId &other) const {
-#pragma message "implement WorkUnitId::operator<"
-    return true;
+    return filename < other.filename;
 }
 
 std::ostream& WorkUnitId::operator<<(std::ostream &stream) const {

@@ -19,7 +19,6 @@ enum PlaybackType {
     RENDER, REALTIME_NO_SKIP, REALTIME
 };
 
-struct PlaybackImpl;
 
 struct Playback {
     Playback();
@@ -34,6 +33,7 @@ struct Playback {
     void cue(unsigned int frame) { play(frame,0); }
     bool playing() const { return getSpeed()!=0; }
 private:
+    struct PlaybackImpl;
     std::auto_ptr<PlaybackImpl> m_Impl;
 };
 

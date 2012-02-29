@@ -23,13 +23,13 @@ use-project /dukeengine                 : src/duke/libraries/dukeengine ;
 use-project /dukeioplugin               : src/duke/libraries/dukeio/dukeio/plugin ;
 use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin ;
 use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
+use-project /duke/sub/sequence      	: src/duke/submodules/sequenceparser/src/sequence ;
 use-project /duke/sub/sequenceparser	: src/duke/submodules/sequenceparser/src/sequence/parser ;
 use-project /dukexcore                  : src/dukex/libraries/dukexcore ;
 use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
 project : requirements
             <threading>multi
-            <toolset>gcc:<cxxflags>-std=gnu++0x # will prevent warnings within boost
             <toolset>gcc:<cxxflags>-isystem$(BOOST_ROOT) # will prevent warnings within boost
             <os>NT:<define>WIN32_LEAN_AND_MEAN
             <os>NT:<define>VC_EXTRALEAN

@@ -1,0 +1,13 @@
+import testing ;
+
+project		:
+				requirements 
+	            <define>BOOST_TEST_MAIN
+	            <define>BOOST_TEST_DYN_LINK
+	            <library>/boost//unit_test_framework
+	            <library>/dukeengine//dukeengine
+            ;
+
+for local l in [ glob *.cpp ] {
+	unit-test $(l)_tests : $(l) ;
+}

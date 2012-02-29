@@ -239,15 +239,15 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         MessageQueue queue;
-        IOQueueInserter inserter(queue);
+        IOQueueInserter queueInserter(queue);
 
-        inserter = renderer; // setting renderer
+        queueInserter.append(renderer); // setting renderer
 
         Engine stop;
         stop.set_action(Engine_Action_RENDER_STOP);
-        inserter = stop; // stopping rendering for now
+        queueInserter.append(stop); // stopping rendering for now
 
-        CmdLinePlaylistBuilder playlistBuilder(inserter, m_Vm.count(SEQUENCE) > 0, listOfExtensions);
+        CmdLinePlaylistBuilder playlistBuilder(queueInserter, m_Vm.count(SEQUENCE) > 0, listOfExtensions);
 
         const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
@@ -263,11 +263,11 @@ Configuration::Configuration(int argc, char** argv) :
         else
             playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
 
-        inserter = playlist;
+        queueInserter.append(playlist);
 
         Engine start;
         start.set_action(Engine_Action_RENDER_START);
-        inserter = start;
+        queueInserter.append(start);
 
         InteractiveMessageIO decoder(queue);
         decorateAndRun(decoder, imageDecoderFactory);

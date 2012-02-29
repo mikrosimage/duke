@@ -100,7 +100,7 @@ static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
 
 static inline void update(const PlaylistHelper &helper, playback::Playback &playback) {
     const Playlist &playlist = helper.playlist;
-    const auto nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
+    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     using namespace boost::chrono;
     cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
     playback.init(helper.range, playlist.loop(), nsPerFrame);

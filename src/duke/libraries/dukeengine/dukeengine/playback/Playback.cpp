@@ -145,7 +145,7 @@ struct RealtimeSkipPlayback : public RealtimeNoSkipPlayback {
     }
 };
 
-struct PlaybackImpl {
+struct Playback::PlaybackImpl {
     PlaybackImpl() : type(REALTIME), pb_render(state), pb_realtimeNoSkip(state), pb_realtime(state) {
     }
     inline IPlayback& select() {
