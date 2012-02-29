@@ -132,6 +132,7 @@ static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const pat
         const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
         const unsigned int gotoRec = pimpl.trackBuilder.currentRecord() + sequenceOffset;
         pimpl.transport.mutable_cue()->set_value(gotoRec);
+        cout << HEADER + "cueing to record " << gotoRec << endl;
     } else {
         items.push_back(sequence::create_file(absoluteFilename));
     }

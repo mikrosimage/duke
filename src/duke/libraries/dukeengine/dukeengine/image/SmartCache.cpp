@@ -135,7 +135,7 @@ struct SmartCache::Impl : private boost::noncopyable {
         bool loaded = false;
         if (m_CacheActivated) {
 #ifdef DEBUG
-            displayQueueState(hash);
+//            displayQueueState(hash);
 #endif
             if (m_LookAheadCache.get(frame, data)) {
                 loaded = true;
