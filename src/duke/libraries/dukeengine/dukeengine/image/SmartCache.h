@@ -24,11 +24,15 @@ struct PlaylistHelper;
 struct MediaFrame;
 }  // namespace protocol
 }  // namespace duke
+namespace sequence {
+struct Range;
+}  // namespace sequence
 
 struct SmartCache : private boost::noncopyable {
     SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory);
     ~SmartCache();
-    void seek(unsigned int frame, EPlaybackState state, const duke::protocol::PlaylistHelper &);
+    void init(const duke::protocol::PlaylistHelper &playlist,const sequence::Range &over);
+    void seek(unsigned int frame, EPlaybackState state);
     bool get(const duke::protocol::MediaFrame &frame, ImageHolder &imageHolder) const;
 private:
     struct Impl;

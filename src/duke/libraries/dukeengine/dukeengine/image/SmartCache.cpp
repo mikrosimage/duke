@@ -36,7 +36,8 @@ struct Job {
     Job() : bEmpty(true) {
     }
 
-    Job(const PlaylistHelper &helper, size_t frame, EPlaybackState state) : playlistIterator(helper, state, frame, helper.range), bEmpty(helper.empty()) {
+    Job(const PlaylistHelper &helper, sequence::Range overRange, size_t frame, EPlaybackState state) :
+        playlistIterator(helper, state, frame, overRange), bEmpty(helper.empty()) {
     }
 
     inline void clear() {
@@ -100,21 +101,23 @@ static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE
         decodeAndPush(factory, jobProducer, data);
 }
 
+static const string HEADER = "[Cache] ";
+
 struct SmartCache::Impl : private boost::noncopyable {
     Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
                     m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit) {
 
         if (threads == 0) {
-            cerr << "[Cache] cache disabled, because threads = 0" << endl;
+            cerr << HEADER + "cache disabled, because threads = 0" << endl;
             return;
         }
 
         if (!m_CacheActivated) {
-            cout << "[Cache] disabled" << endl;
+            cout << HEADER + "disabled" << endl;
             return;
         }
 
-        cout << "[Cache] " << (limit / 1024 / 1024) << "MiB with " << threads << " threads" << endl;
+        cout << HEADER << (limit / 1024 / 1024) << "MiB with " << threads << " threads" << endl;
         using boost::bind;
         for (uint8_t i = 0; i < threads; ++i)
             m_ThreadGroup.create_thread(bind(&::worker, boost::cref(m_ImageFactory), boost::ref(m_LookAheadCache), boost::ref(m_LoadedQueue)));
@@ -125,8 +128,8 @@ struct SmartCache::Impl : private boost::noncopyable {
         m_ThreadGroup.join_all();
     }
 
-    inline void seek(const unsigned int frame, const EPlaybackState state, const PlaylistHelper &helper) {
-        m_LastJob = Job(helper, frame, state);
+    inline void seek(const unsigned int frame, const EPlaybackState state) {
+        m_LastJob = Job(playlist, cacheOverRange, frame, state);
         m_LookAheadCache.pushJob(m_LastJob);
     }
 
@@ -134,9 +137,6 @@ struct SmartCache::Impl : private boost::noncopyable {
         image::WorkUnitData data(frame);
         bool loaded = false;
         if (m_CacheActivated) {
-#ifdef DEBUG
-//            displayQueueState(hash);
-#endif
             if (m_LookAheadCache.get(frame, data)) {
                 loaded = true;
             } else {
@@ -154,36 +154,18 @@ struct SmartCache::Impl : private boost::noncopyable {
         return imageHolder.error.empty();
     }
 
-private:
-    inline void displayQueueState(const uint64_t &currentHash) const {
-//        m_LookAheadCache.dumpKeys(m_AvailableKeys);
-//        const PlaylistHelper &helper = m_LastJob.helper();
-//        m_QueryKeys.clear();
-//        BOOST_FOREACH (const id_type& id, m_AvailableKeys)
-//                {
-//                    m_QueryKeys.insert(id.hash);
-//                }
-//        const set<uint64_t>::const_iterator end = m_QueryKeys.end();
-//        cout << '[';
-//        for (size_t itr = 0; itr < helper.getEndIterator(); ++itr) {
-//            const uint64_t hash = helper.getHashAtIterator(itr);
-//            if (hash == currentHash)
-//                cout << '#';
-//            else {
-//                if (m_QueryKeys.find(hash) == end)
-//                    cout << '_';
-//                else
-//                    cout << 'o';
-//            }
-//        }
-//        cout << "] " << m_QueryKeys.size() << '\r';
-//        cout.flush();
+    inline void init(const duke::protocol::PlaylistHelper &playlistHelper, const sequence::Range &overRange){
+        playlist = playlistHelper;
+        cacheOverRange = overRange;
     }
 
+private:
     const bool m_CacheActivated;
     const ImageDecoderFactory& m_ImageFactory;
     QUEUE m_LoadedQueue;
     CACHE m_LookAheadCache;
+    PlaylistHelper playlist;
+    sequence::Range cacheOverRange;
     Job m_LastJob;
     boost::thread_group m_ThreadGroup;
 
@@ -198,11 +180,15 @@ SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory
 SmartCache::~SmartCache() {
 }
 
+void SmartCache::init(const duke::protocol::PlaylistHelper &playlist, const sequence::Range &over){
+    m_pImpl->init(playlist, over);
+}
+
 bool SmartCache::get(const MediaFrame &mf, ImageHolder & imageHolder) const {
     return m_pImpl->get(mf, imageHolder);
 }
 
-void SmartCache::seek(unsigned int frame, EPlaybackState state, const PlaylistHelper &helper) {
-    m_pImpl->seek(frame, state, helper);
+void SmartCache::seek(unsigned int frame, EPlaybackState state) {
+    m_pImpl->seek(frame, state);
 }
 

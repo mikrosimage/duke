@@ -69,4 +69,6 @@ void decode(const ImageDecoderFactory&, WorkUnitData &, uint64_t& size);
 
 } // namespace image
 
+std::ostream& operator<<(std::ostream&, const image::WorkUnitId&);
+
 #endif /* IMAGETOOLBOX_H_ */

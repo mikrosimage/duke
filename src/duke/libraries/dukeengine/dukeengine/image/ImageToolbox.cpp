@@ -51,7 +51,7 @@ bool WorkUnitId::operator<(const WorkUnitId &other) const {
 }
 
 std::ostream& WorkUnitId::operator<<(std::ostream &stream) const {
-    stream << '[' << index.frame << ':' << index.track << ']' << ' ' << item;
+    stream << '[' << index.frame << ':' << index.track << ']' << " -" << source << "- " << item;
     return stream;
 }
 
@@ -159,3 +159,7 @@ void decode(const ImageDecoderFactory &factory, WorkUnitData &unit, uint64_t& si
 }
 
 } // namespace image
+
+std::ostream& operator<<(std::ostream &stream, const image::WorkUnitId&id ){
+    return id.operator <<(stream);
+}

@@ -87,27 +87,6 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
-    switch (mode) {
-        case Playlist_PlaybackMode_RENDER:
-            return playback::RENDER;
-        case Playlist_PlaybackMode_NO_SKIP:
-            return playback::REALTIME_NO_SKIP;
-        case Playlist_PlaybackMode_DROP_FRAME_TO_KEEP_REALTIME:
-            return playback::REALTIME;
-        default:
-            throw runtime_error("bad enum");
-    }
-}
-
-static inline void update(const PlaylistHelper &helper, playback::Playback &playback) {
-    const Playlist &playlist = helper.playlist;
-    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
-    using namespace boost::chrono;
-    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-    playback.init(helper.range, playlist.loop(), nsPerFrame);
-    playback.setType(get(playlist.playbackmode()));
-}
 
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
     cerr << "Cue clip relative is disabled for the moment" << endl;
@@ -226,6 +205,29 @@ void Application::applyTransport(const Transport& transport) {
     }
 }
 
+static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
+    switch (mode) {
+        case Playlist_PlaybackMode_RENDER:
+            return playback::RENDER;
+        case Playlist_PlaybackMode_NO_SKIP:
+            return playback::REALTIME_NO_SKIP;
+        case Playlist_PlaybackMode_DROP_FRAME_TO_KEEP_REALTIME:
+            return playback::REALTIME;
+        default:
+            throw runtime_error("bad enum");
+    }
+}
+
+static inline void updatePlayback(const PlaylistHelper &helper, playback::Playback &playback,SmartCache &cache) {
+    const Playlist &playlist = helper.playlist;
+    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
+    using namespace boost::chrono;
+    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
+    cache.init(helper, helper.range);
+    playback.init(helper.range, playlist.loop(), nsPerFrame);
+    playback.setType(get(playlist.playbackmode()));
+}
+
 void Application::consumeTransport() {
     using ::duke::protocol::Renderer;
 
@@ -273,7 +275,7 @@ void Application::consumeTransport() {
             PlaylistHelper(unpackTo<Playlist>(holder));
             m_Playlist = PlaylistHelper(unpackTo<Playlist>(holder));
             m_AudioEngine.load(unpackTo<Playlist>(holder));
-            update(m_Playlist, m_Playback);
+            updatePlayback(m_Playlist, m_Playback, m_Cache);
         } else if (isType<Transport>(pDescriptor)) {
             dump(pDescriptor, holder);
             switch (pHolder->action()) {
@@ -325,7 +327,7 @@ void Application::renderStart() {
         if (m_PreviousFrame != frame) {
             const int32_t speed = m_Playback.getSpeed();
             const EPlaybackState state = speed == 0 ? BALANCE : (speed > 0 ? FORWARD : REVERSE);
-            m_Cache.seek(frame, state, m_Playlist);
+            m_Cache.seek(frame, state);
             m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
         }
 

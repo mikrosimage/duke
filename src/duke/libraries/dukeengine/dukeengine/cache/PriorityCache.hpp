@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <cassert>
 
-// #define DEBUG_CACHE
+//#define DEBUG_CACHE
 
 #ifdef DEBUG_CACHE
 #include <iostream>
@@ -153,9 +153,9 @@ private:
 #ifdef DEBUG_CACHE
     inline void display(const std::deque<id_type> &queue) const {
         using namespace std;
-        for (const id_type &id : queue) {
-            cout << id;
-            if (!in(id)) {
+        for (typename deque<id_type>::const_iterator itr = queue.begin();itr!=queue.end();++itr) {
+            cout << *itr;
+            if (!in(queue, *itr)) {
                 cout << " [ ]";
             } else {
                 cout << " [X]";
