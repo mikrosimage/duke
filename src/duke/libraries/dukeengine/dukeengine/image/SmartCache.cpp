@@ -36,7 +36,7 @@ struct Job {
     Job() : bEmpty(true) {
     }
 
-    Job(const PlaylistHelper &helper, size_t frame, EPlaybackState state) : playlistIterator(helper, state, frame, helper.range), bEmpty(false) {
+    Job(const PlaylistHelper &helper, size_t frame, EPlaybackState state) : playlistIterator(helper, state, frame, helper.range), bEmpty(helper.empty()) {
     }
 
     inline void clear() {

@@ -20,6 +20,7 @@ struct PlaylistIterator {
     duke::protocol::MediaFrame front() const;
     void popFront();
 private:
+    void populate();
     duke::protocol::PlaylistHelper helper;
     duke::protocol::MediaFrames frames;
     RangeIterator iterator;

@@ -158,6 +158,10 @@ PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
     range = for_each(trackRanges.begin(), trackRanges.end(), MinMaxRange());
 }
 
+bool PlaylistHelper::empty() const{
+    return tracks.empty();
+}
+
 unsigned int PlaylistHelper::index(const unsigned int frame) const {
     unsigned int sum = 0;
     for (vector<TrackHelper>::const_iterator itr = tracks.begin(); itr != tracks.end(); ++itr)

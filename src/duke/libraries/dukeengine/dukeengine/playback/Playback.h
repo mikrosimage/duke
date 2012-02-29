@@ -19,7 +19,6 @@ enum PlaybackType {
     RENDER, REALTIME_NO_SKIP, REALTIME
 };
 
-
 struct Playback {
     Playback();
     bool shouldPresent();

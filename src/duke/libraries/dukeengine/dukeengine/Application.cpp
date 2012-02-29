@@ -16,6 +16,8 @@
 #include <cassert>
 #include <set>
 
+#include <cstdio>
+
 using namespace ::google::protobuf::serialize;
 using namespace ::google::protobuf;
 using namespace ::duke::protocol;
@@ -321,8 +323,10 @@ void Application::renderStart() {
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
         if (m_PreviousFrame != frame) {
-            int32_t speed = m_Playback.getSpeed();
-            EPlaybackState state = speed == 0 ? BALANCE : (speed > 0 ? FORWARD : REVERSE);
+            m_Playlist.playlist.PrintDebugString();
+            printf("range [%d,%d]\n", m_Playlist.range.first, m_Playlist.range.last);
+            const int32_t speed = m_Playback.getSpeed();
+            const EPlaybackState state = speed == 0 ? BALANCE : (speed > 0 ? FORWARD : REVERSE);
             m_Cache.seek(frame, state, m_Playlist);
             m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
         }

@@ -7,6 +7,8 @@
 
 #include "PlaylistIterator.h"
 
+#include <cstdio>
+
 using namespace duke::protocol;
 
 PlaylistIterator::PlaylistIterator() :
@@ -15,6 +17,7 @@ PlaylistIterator::PlaylistIterator() :
 
 PlaylistIterator::PlaylistIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :
                 helper(helper), iterator(overRange, frame, state) {
+    populate();
 }
 
 bool PlaylistIterator::empty() const {
@@ -22,21 +25,25 @@ bool PlaylistIterator::empty() const {
 }
 
 duke::protocol::MediaFrame PlaylistIterator::front() const {
+    if(frames.empty())
+        printf("very bad");
     assert(!frames.empty());
     return frames[0];
 }
 
 void PlaylistIterator::popFront() {
-    assert(!frames.empty());
     if (!frames.empty()) {
         frames.erase(frames.begin());
         return;
     }
+    populate();
+}
+
+void PlaylistIterator::populate() {
     while (frames.empty()) {
         if (iterator.empty())
             return;
-        iterator.popFront();
         helper.mediaFramesAt(iterator.front(), frames);
+        iterator.popFront();
     }
 }
-

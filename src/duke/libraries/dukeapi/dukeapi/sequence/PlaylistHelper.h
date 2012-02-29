@@ -63,6 +63,7 @@ struct PlaylistHelper {
     std::vector<TrackHelper> tracks;
     PlaylistHelper();
     PlaylistHelper(const Playlist &playlist);
+    bool empty() const;
     unsigned int index(const unsigned int frame) const;
     uint16_t tracksAt(const unsigned int frame) const;
     void mediaFramesAt(const unsigned int frame, MediaFrames &frames) const;
