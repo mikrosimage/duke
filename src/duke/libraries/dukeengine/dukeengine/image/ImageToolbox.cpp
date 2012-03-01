@@ -112,7 +112,7 @@ bool load(const ImageDecoderFactory& factory, WorkUnitData &unit, uint64_t& size
     if (!delegateReadToHost)
         return false; // the decoder will have to load it
     if (!doLoadFile(unit)) {
-        error = "unable to read file";
+        error = "unable to read file " + filename;
         return true;
     }
     return false; // still need to decode it
