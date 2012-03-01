@@ -21,7 +21,7 @@ MemoryBlockPtr DmaFileIO::read( const char* filename )
 
 	if( ( hFileHandle = CreateFile( filename, //
 	                                GENERIC_READ, //
-	                                0, //
+	                                FILE_SHARE_READ, //
 	                                NULL, //
 	                                OPEN_EXISTING, //
 	                                FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, //
