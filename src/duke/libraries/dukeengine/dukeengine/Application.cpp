@@ -89,13 +89,26 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 
 
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
-    cerr << "Cue clip relative is disabled for the moment" << endl;
-    return currentFrame;
+    const Ranges & clips = helper.allClips;
+    if(clips.empty())
+        return currentFrame;
+    const Ranges::const_iterator itr = find_if(clips.begin(), clips.end(), boost::bind(&sequence::Range::contains, _1, currentFrame));
+    assert(itr!=clips.end());
+    const size_t index = distance(clips.begin(), itr);
+    const int newIndex = int(index) + clipOffset;
+    const int boundIndex = std::max(0, std::min(int(clips.size())-1, newIndex));
+    return clips[boundIndex].first;
 }
-static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int currentFrame, int clipIndex) {
-    cerr << "Cue clip absolute is disabled for the moment" << endl;
-    return currentFrame;
+
+static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int currentFrame, unsigned clipIndex) {
+    const Ranges & clips = helper.allClips;
+    if(clipIndex >= clips.size()){
+        cerr << "Can't cue to clip " << clipIndex << ", there is only " << clips.size() << " clips" << endl;
+        return currentFrame;
+    }
+    return clips[clipIndex].first;
 }
+
 static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, unsigned int current) {
     return cue.cuerelative() ? cueClipRelative(helper, current, cue.value()) : cueClipAbsolute(helper, current, cue.value());
 }

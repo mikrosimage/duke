@@ -61,6 +61,7 @@ struct PlaylistHelper {
     Playlist playlist;
     Range range;
     std::vector<TrackHelper> tracks;
+    Ranges allClips;
     PlaylistHelper();
     PlaylistHelper(const Playlist &playlist);
     bool empty() const;

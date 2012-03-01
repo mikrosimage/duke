@@ -148,6 +148,18 @@ const bool TrackHelper::contains(const unsigned int frame) const {
 PlaylistHelper::PlaylistHelper() {
 }
 
+struct ClipGatherer {
+    ClipGatherer(Ranges&ranges) : ranges(ranges){}
+    void operator()(const TrackHelper& helper){
+        copy(helper.recRanges.begin(), helper.recRanges.end(), back_inserter(ranges));
+    }
+    Ranges &ranges;
+};
+
+static inline bool rangeLess(const Range &a, const Range &b) {
+    return a.first == b.first ? a.last < b.last : a.first < b.first;
+}
+
 PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
                 playlist(playlist) {
     Ranges trackRanges;
@@ -156,6 +168,8 @@ PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
         trackRanges.push_back(tracks.back().range);
     }
     range = for_each(trackRanges.begin(), trackRanges.end(), MinMaxRange());
+    for_each(tracks.begin(), tracks.end(), ClipGatherer(allClips));
+    sort(allClips.begin(), allClips.end(), &rangeLess);
 }
 
 bool PlaylistHelper::empty() const{

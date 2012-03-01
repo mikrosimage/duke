@@ -11,6 +11,11 @@ using namespace duke::protocol;
 using namespace sequence;
 using namespace std;
 
+static inline void check(const Range &a, const Range &b) {
+    BOOST_CHECK_EQUAL(a.first, b.first);
+    BOOST_CHECK_EQUAL(a.last, b.last);
+}
+
 BOOST_AUTO_TEST_SUITE( SequenceTestSuite )
 
 BOOST_AUTO_TEST_CASE( overlappingRanges ) {
@@ -48,6 +53,10 @@ BOOST_AUTO_TEST_CASE( trackHelperRecordTest ) {
     }
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE( PlaylistHelperTestSuite )
+
 BOOST_AUTO_TEST_CASE( playlistHelper ) {
     PlaylistBuilder builder;
     {
@@ -61,15 +70,17 @@ BOOST_AUTO_TEST_CASE( playlistHelper ) {
     }
 
     const PlaylistHelper helper(builder);
-    BOOST_CHECK_EQUAL( 0U, helper.range.first );
-    BOOST_CHECK_EQUAL( 20U, helper.range.last );
+    check( helper.range, Range(0,20));
 
-    BOOST_CHECK_EQUAL( 2u, helper.tracks.size() );
+    BOOST_CHECK_EQUAL( helper.tracks.size(), 2u);
 
-    BOOST_CHECK_EQUAL( 0u, helper.tracks[0].range.first );
-    BOOST_CHECK_EQUAL( 19u, helper.tracks[0].range.last );
-    BOOST_CHECK_EQUAL( 1u, helper.tracks[1].range.first );
-    BOOST_CHECK_EQUAL( 20u, helper.tracks[1].range.last );
+    check( helper.tracks[0].range, Range(0,19));
+    check( helper.tracks[1].range, Range(1,20));
+
+    BOOST_CHECK_EQUAL( helper.allClips.size(), 3 );
+    check( helper.allClips[0], Range(0,9));
+    check( helper.allClips[1], Range(1,20));
+    check( helper.allClips[2], Range(10,19));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
