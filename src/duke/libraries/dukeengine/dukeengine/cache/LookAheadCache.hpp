@@ -97,6 +97,7 @@ private:
             m_PendingJob.waitGet(m_SharedWorkUnitItr);
             updated = true;
         }
+        assert(!m_SharedWorkUnitItr.empty());
         return updated;
     }
 

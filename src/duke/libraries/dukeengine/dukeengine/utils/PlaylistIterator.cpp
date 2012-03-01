@@ -26,15 +26,15 @@ bool PlaylistIterator::empty() const {
 }
 
 duke::protocol::MediaFrame PlaylistIterator::front() const {
+    if (frames.empty())
+        throw std::runtime_error("Invalid state");
     assert(!frames.empty());
     return frames[0];
 }
 
 void PlaylistIterator::popFront() {
-    if (!frames.empty()) {
+    if (!frames.empty())
         frames.erase(frames.begin());
-        return;
-    }
     populate();
 }
 
