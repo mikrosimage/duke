@@ -130,7 +130,7 @@ struct RealtimeNoSkipPlayback : public RenderPlayback {
     }
     virtual bool adjustCurrentFrame() {
         state.adjustCurrentFrame();
-        return frameOverrun();
+        return state.speed==0? false : frameOverrun();
     }
 };
 
