@@ -25,21 +25,25 @@ TrackBuilder::TrackBuilder(Track &track, const char *name, unsigned int recStart
     track.set_name(name);
 }
 
-Range TrackBuilder::advance(unsigned int count){
-    Range record = Range::weak(currentRec, count);
-    currentRec+=count;
-    return record;
+Range TrackBuilder::getRecordRangeAndUpdate(unsigned int count, const unsigned int offset) {
+    const unsigned int record = offset == UINT_MAX ? currentRec : offset;
+    Range recordRange = Range::weak(record, count);
+    const unsigned int newRecord = record + count;
+    if(newRecord<=currentRec)
+        throw logic_error("Record insertion point is getting back in time possibly overlapping previous Shots. Please declare your Shots in record order");
+    currentRec = record + count;
+    return recordRange;
 }
 
-Clip& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item) {
+Clip& TrackBuilder::addBrowseItem(const sequence::BrowseItem &item, const unsigned int offset) {
     switch (item.type) {
         case sequence::SEQUENCE:{
             string filename = (item.path/item.sequence.pattern.string()).make_preferred().string();
-            return addSequence(filename.c_str(), advance(item.sequence.range.duration()), item.sequence.range);
+            return addSequence(filename.c_str(), getRecordRangeAndUpdate(item.sequence.range.duration(), offset), item.sequence.range);
         }
         case sequence::UNITFILE:{
             string filename = boost::filesystem::path(item.path).make_preferred().string();
-            return addImage(filename.c_str(), advance(1));
+            return addImage(filename.c_str(), getRecordRangeAndUpdate(1, offset));
         }
         case sequence::FOLDER:
         case sequence::UNDEFINED:
@@ -68,7 +72,7 @@ Clip& TrackBuilder::addMedia(const char *filename, const Range&record, const Ran
     return *pClip;
 }
 
-Clip& TrackBuilder::addMedia(const char *filename, const Range &record, const uint32_t offset, const Media_Type mediaType) {
+Clip& TrackBuilder::addMedia(const char *filename, const Range &record, const unsigned int offset, const Media_Type mediaType) {
     return addMedia(filename, record, Range(record.first + offset, record.last + offset), mediaType);
 }
 

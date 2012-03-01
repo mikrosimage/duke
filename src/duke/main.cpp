@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
         Configuration configuration(argc, argv);
         return configuration.m_iReturnValue;
     } catch (exception& e) {
-        cerr << "Unexpected error : " << e.what() << endl;
+        cerr << e.what() << endl;
     } catch (...) {
         cerr << "Unexpected error." << endl;
     }
