@@ -181,7 +181,7 @@ bool IRenderer::simulationStep() {
     {
         m_pSetup = &m_RendererSuite.getSetup();
         const bool renderRequested = m_EngineStatus.action() != Engine_Action_RENDER_STOP;
-        const bool renderAvailable = m_pSetup && renderRequested && m_Window.IsOpen();
+        const bool renderAvailable = m_pSetup && renderRequested && m_Window.IsOpened();
 
         if (renderAvailable) {
             try {
