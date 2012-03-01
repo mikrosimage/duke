@@ -49,6 +49,7 @@ struct Job {
     }
 
     inline id_type next() {
+        assert(!empty());
         const id_type id = playlistIterator.front();
         playlistIterator.popFront();
         return id;

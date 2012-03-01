@@ -10,6 +10,11 @@ using namespace duke::protocol;
 using namespace sequence;
 using namespace std;
 
+void check(const PlaylistIndex &a, const PlaylistIndex &b) {
+    BOOST_CHECK_EQUAL(a.frame, b.frame);
+    BOOST_CHECK_EQUAL(a.track, b.track);
+}
+
 void checkAndPop(RangeIterator& itr, unsigned int value) {
     BOOST_CHECK( !itr.empty());
     BOOST_CHECK_EQUAL( value, itr.front());
@@ -24,9 +29,9 @@ BOOST_AUTO_TEST_CASE( emptyRange ) {
 }
 
 BOOST_AUTO_TEST_CASE( oneRange ) {
-    Range range(1,1);
-    RangeIterator itr(range, 1, FORWARD);
-    checkAndPop(itr, 1);
+    Range range(0,0);
+    RangeIterator itr(range, 0, FORWARD);
+    checkAndPop(itr, 0);
     BOOST_CHECK( itr.empty() );
 }
 
@@ -67,16 +72,48 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE( PlaylistIteratorTestSuite )
 
-PlaylistHelper build(){
+PlaylistHelper build() {
     PlaylistBuilder builder;
     TrackBuilder track = builder.addTrack("default");
     track.addSequence("file-####.jpg", sequence::Range(0,10), sequence::Range(0,10));
     return PlaylistHelper(builder);
 }
 
+BOOST_AUTO_TEST_CASE( emptyPlaylist ) {
+    {
+        PlaylistIterator itr;
+        BOOST_CHECK(itr.empty());
+    }
+    {
+        PlaylistHelper helper;
+        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        BOOST_CHECK(itr.empty());
+    }
+    {
+        PlaylistBuilder builder;
+        TrackBuilder track = builder.addTrack("default");
+        PlaylistHelper helper(builder);
+        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        BOOST_CHECK(itr.empty());
+    }
+    {
+        PlaylistBuilder builder;
+        TrackBuilder track = builder.addTrack("default");
+        track.addSequence("file-####.jpg", sequence::Range(0,0), sequence::Range(0,0));
+        PlaylistHelper helper(builder);
+        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        BOOST_CHECK(!itr.empty());
+    }
+}
+
 BOOST_AUTO_TEST_CASE( __first ) {
     PlaylistHelper helper(build());
     PlaylistIterator itr(helper, FORWARD, 5, helper.range);
+
+    BOOST_CHECK(!itr.empty());
+    MediaFrame frame = itr.front();
+    check( PlaylistIndex(5,0) , frame.index );
+    BOOST_CHECK_EQUAL( 5 , frame.source );
 
 }
 

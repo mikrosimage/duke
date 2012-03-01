@@ -1,7 +1,7 @@
 /*
  * PlaylistHelper.h
  *
- *  Created on: 8 févr. 2012
+ *  Created on: 8 fevr. 2012
  *      Author: Guillaume Chatelet
  */
 

@@ -1,7 +1,7 @@
 /*
  * PlaylistHelper.cpp
  *
- *  Created on: 8 févr. 2012
+ *  Created on: 8 fï¿½vr. 2012
  *      Author: Guillaume Chatelet
  */
 
@@ -159,7 +159,10 @@ PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
 }
 
 bool PlaylistHelper::empty() const{
-    return tracks.empty();
+    unsigned int sum = 0;
+    for (vector<TrackHelper>::const_iterator itr = tracks.begin(); itr != tracks.end(); ++itr)
+        sum += itr->items.size();
+    return sum==0;
 }
 
 unsigned int PlaylistHelper::index(const unsigned int frame) const {

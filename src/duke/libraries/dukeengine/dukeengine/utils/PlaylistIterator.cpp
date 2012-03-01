@@ -1,7 +1,7 @@
 /*
  * PlaylistIterator.cpp
  *
- *  Created on: 15 févr. 2012
+ *  Created on: 15 fevr. 2012
  *      Author: Guillaume Chatelet
  */
 
@@ -17,6 +17,7 @@ PlaylistIterator::PlaylistIterator() :
 
 PlaylistIterator::PlaylistIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :
                 helper(helper), iterator(overRange, frame, state) {
+    assert(overRange.contains(frame));
     populate();
 }
 
@@ -25,8 +26,6 @@ bool PlaylistIterator::empty() const {
 }
 
 duke::protocol::MediaFrame PlaylistIterator::front() const {
-    if(frames.empty())
-        printf("very bad");
     assert(!frames.empty());
     return frames[0];
 }
