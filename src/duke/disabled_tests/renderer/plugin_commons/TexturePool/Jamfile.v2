@@ -1,0 +1,7 @@
+run    	main.cpp
+		/dukerendererplugin//dukerendererplugin
+		/boost//unit_test_framework
+	: : :
+    	<define>BOOST_TEST_MAIN
+		<define>BOOST_TEST_DYN_LINK
+	;

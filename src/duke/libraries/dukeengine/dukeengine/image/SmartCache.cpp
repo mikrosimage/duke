@@ -12,7 +12,7 @@
 
 #include <dukeengine/cache/LookAheadCache.hpp>
 #include <dukeengine/host/io/ImageDecoderFactory.h>
-#include <dukeengine/utils/PlaylistIterator.h>
+#include <dukeengine/utils/CacheIterator.h>
 
 #include <concurrent/ConcurrentQueue.h>
 #include <dukeapi/sequence/PlaylistHelper.h>
@@ -55,7 +55,7 @@ struct Job {
         return id;
     }
 private:
-    PlaylistIterator playlistIterator;
+    CacheIterator playlistIterator;
     bool bEmpty;
 };
 

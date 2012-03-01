@@ -1,5 +1,5 @@
 #include <dukeapi/protobuf_builder/PlaylistBuilder.h>
-#include <dukeengine/utils/PlaylistIterator.h>
+#include <dukeengine/utils/CacheIterator.h>
 #include <dukeengine/utils/RangeIterator.h>
 #include <dukeengine/utils/TimeUtils.h>
 
@@ -15,7 +15,7 @@ static inline void check(const PlaylistIndex &a, const PlaylistIndex &b) {
     BOOST_CHECK_EQUAL(a.track, b.track);
 }
 
-static inline void check(PlaylistIterator &itr, unsigned int frame) {
+static inline void check(CacheIterator &itr, unsigned int frame) {
     BOOST_CHECK( !itr.empty());
     const MediaFrame mf = itr.front();
     check(mf.index, PlaylistIndex(frame,0));
@@ -83,19 +83,19 @@ BOOST_AUTO_TEST_SUITE( PlaylistIteratorTestSuite )
 
 BOOST_AUTO_TEST_CASE( emptyPlaylist ) {
     {
-        PlaylistIterator itr;
+        CacheIterator itr;
         BOOST_CHECK(itr.empty());
     }
     {
         PlaylistHelper helper;
-        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        CacheIterator itr(helper, FORWARD, helper.range.first, helper.range);
         BOOST_CHECK(itr.empty());
     }
     {
         PlaylistBuilder builder;
         builder.addTrack("default");
         PlaylistHelper helper(builder);
-        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        CacheIterator itr(helper, FORWARD, helper.range.first, helper.range);
         BOOST_CHECK(itr.empty());
     }
     {
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( emptyPlaylist ) {
         TrackBuilder track = builder.addTrack("default");
         track.addSequence("file-####.jpg", sequence::Range(0,0), sequence::Range(0,0));
         PlaylistHelper helper(builder);
-        PlaylistIterator itr(helper, FORWARD, helper.range.first, helper.range);
+        CacheIterator itr(helper, FORWARD, helper.range.first, helper.range);
         BOOST_CHECK(!itr.empty());
     }
 }
@@ -117,7 +117,7 @@ static inline PlaylistHelper build() {
 
 BOOST_AUTO_TEST_CASE( __first ) {
     PlaylistHelper helper(build());
-    PlaylistIterator itr(helper, FORWARD, 5, helper.range);
+    CacheIterator itr(helper, FORWARD, 5, helper.range);
 
     BOOST_CHECK(!itr.empty());
     check(itr, 5);

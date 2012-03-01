@@ -66,7 +66,7 @@ alias plugin-timeline   : src/dukex/plugins/timeline//timeline ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
-alias duketests 	    : [ glob src/duke/tests/* : src/duke/tests/renderer src/duke/tests/scripts ] ;
+alias duketests 	    : src/duke/libraries//tests ;
 alias dukexplugins 		: plugin-timeline ;
 alias dukextests 	    : [ glob src/dukex/tests/* ] ;
 alias tests 	        : duketests dukextests ;

@@ -1,44 +1,44 @@
 /*
- * PlaylistIterator.cpp
+ * CacheIterator.cpp
  *
  *  Created on: 15 fevr. 2012
  *      Author: Guillaume Chatelet
  */
 
-#include "PlaylistIterator.h"
+#include "CacheIterator.h"
 
 #include <cstdio>
 
 using namespace duke::protocol;
 
-PlaylistIterator::PlaylistIterator() :
+CacheIterator::CacheIterator() :
                 helper(Playlist()), iterator() {
 }
 
-PlaylistIterator::PlaylistIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :
+CacheIterator::CacheIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :
                 helper(helper), iterator(overRange, frame, state) {
     assert(overRange.contains(frame));
     populate();
 }
 
-bool PlaylistIterator::empty() const {
+bool CacheIterator::empty() const {
     return frames.empty() && iterator.empty();
 }
 
-duke::protocol::MediaFrame PlaylistIterator::front() const {
+duke::protocol::MediaFrame CacheIterator::front() const {
     if (frames.empty())
         throw std::runtime_error("Invalid state");
     assert(!frames.empty());
     return frames[0];
 }
 
-void PlaylistIterator::popFront() {
+void CacheIterator::popFront() {
     if (!frames.empty())
         frames.erase(frames.begin());
     populate();
 }
 
-void PlaylistIterator::populate() {
+void CacheIterator::populate() {
     while (frames.empty()) {
         if (iterator.empty())
             return;
