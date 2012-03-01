@@ -81,6 +81,10 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
         return playlistBuilder;
     }
 
+    bool empty() const {
+        return clipIndex == 0;
+    }
+
     IOQueueInserter &inserter;
     const bool useContainingSequence;
     PlaylistBuilder playlistBuilder;
@@ -173,4 +177,8 @@ void CmdLinePlaylistBuilder::process(const string& entry) {
         parseDirectory(pimpl, filename);
     else
         parseFilename(pimpl, filename);
+}
+
+bool CmdLinePlaylistBuilder::empty() const{
+    return m_Pimpl->empty();
 }

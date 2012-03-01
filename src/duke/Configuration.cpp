@@ -252,6 +252,9 @@ Configuration::Configuration(int argc, char** argv) :
         const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
+        if (playlistBuilder.empty())
+            throw runtime_error("No media found, nothing to render. Aborting.");
+
         Playlist playlist = playlistBuilder.getPlaylist();
 
         const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
