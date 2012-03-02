@@ -1,11 +1,10 @@
 #include "Configuration.h"
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
-#include <dukeapi/core/PlaybackReader.h>
-#include <dukeapi/core/PlaylistReader.h>
-#include <dukeapi/core/SequenceReader.h>
-#include <dukeapi/core/InteractiveMessageIO.h>
-#include <dukeapi/io/SocketMessageIO.h>
-#include <dukeapi/io/QueueMessageIO.h>
+#include <dukeapi/io/PlaybackReader.h>
+#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
+#include <dukeapi/io/InteractiveMessageIO.h>
+#include <dukeapi/SocketMessageIO.h>
+#include <dukeapi/QueueMessageIO.h>
 #include <player.pb.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
@@ -155,8 +154,15 @@ bool Configuration::parse(int argc, char** argv) {
     if (m_Vm.count(RENDERER) == 0)
         throw runtime_error("No renderer specified. Aborting.");
 
-    // loading plugins
-    const char** listOfExtensions = mSession->getAvailableExtensions();
+    mSession->setRendererPath(m_Vm[RENDERER].as<std::string>());
+
+    // threading
+    if (m_Vm.count(THREADS))
+        mSession->setThreadSize(m_Vm[THREADS].as<size_t>());
+
+    // caching
+    if (m_Vm.count(CACHESIZE))
+        mSession->setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
 
     /**
      * Client mode
@@ -206,58 +212,34 @@ bool Configuration::parse(int argc, char** argv) {
     // no special mode specified, using interactive mode
     MessageQueue & queue = mSession->getInitTimeMsgQueue();
 
-    Engine stop;
-    stop.set_action(Engine_Action_RENDER_STOP);
+    // Push engine stop
+    ::duke::protocol::Engine stop;
+    stop.set_action(::duke::protocol::Engine_Action_RENDER_STOP);
     push(queue, stop);
 
     if (m_Vm.count("inputs")) {
-        vector<string> inputs = m_Vm["inputs"].as<std::vector<std::string> > ();
-        int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
-        int frameIndex = 0; // use to combine sequence/playlists
+        const vector<string> inputs = m_Vm["inputs"].as<std::vector<std::string> > ();
 
-        for (vector<string>::iterator inputString = inputs.begin(); inputString != inputs.end(); ++inputString) {
-            //cout << *inputString << endl;
-            int skip = 0;
-            int startRange = std::numeric_limits<int>::min();
-            int endRange = std::numeric_limits<int>::max();
-            fs::path path(*inputString);
-            if (path.extension() == ".ppl" || path.extension() == ".ppl2") {
-                cout << HEADER + "Reading playlist: " << *inputString << endl;
-                PlaylistReader(clipIndex, frameIndex, *inputString, queue, playlist);
-            } else {
-                cout << HEADER + "Reading : " << *inputString << endl;
-                int inRange;
-                int outRange;
-                if ((++inputString < inputs.end()) && (inRange = std::atoi((*inputString).c_str()))) {
-                    //cout << HEADER + "Range in : " << inRange << endl;
-                    startRange = inRange;
-                    skip++;
-                    if ((++inputString < inputs.end()) && (outRange = std::atoi((*inputString).c_str()))) {
-                        //cout << HEADER + "Range out : " << outRange << endl;
-                        endRange = outRange + 1;
-                        skip++;
-                    }
-                    inputString--;
-                }
-                inputString--;
-                if (startRange >= endRange) {
-                    cout << "- ! -" << endl;
-                    cout << "You should specify a valid range (" << startRange << " >= " << endRange << "). See help below.\n" << endl;
-                    displayHelp();
-                    return false;
-                }
+        IOQueueInserter inserter(queue);
+        CmdLinePlaylistBuilder playlistBuilder(inserter, m_Vm.count(SEQUENCE) > 0, mSession->getAvailableExtensions());
+        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
-                SequenceReader(clipIndex, frameIndex, *inputString, listOfExtensions, queue, playlist, startRange, endRange, m_Vm.count("sequence") ? true : false);
-                inputString += skip;
-            }
-        }
+        // Push the new playlist
+        Playlist newplaylist = playlistBuilder.getPlaylist();
+        newplaylist.set_frameratenumerator(playlist.frameratenumerator());
+        newplaylist.set_playbackmode(playlist.playbackmode());
+        playlist = newplaylist;
+        inserter << playlist;
+        inserter << playlistBuilder.getCue();
+
+    } else {
+        push(queue, playlist);
     }
 
-    Engine start;
-    start.set_action(Engine_Action_RENDER_START);
+    // Push engine start
+    ::duke::protocol::Engine start;
+    start.set_action(::duke::protocol::Engine_Action_RENDER_START);
     push(queue, start);
-
-    push(queue, playlist);
 
     return true;
 }

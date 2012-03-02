@@ -73,19 +73,33 @@ void UITracksRuler::paintEvent(QPaintEvent* e) {
     const int projectEnd = (int) (m_duration * m_factor);
     if (projectEnd - m_offset > 1)
         painter.fillRect(0, 0, projectEnd - m_offset, height(), QBrush(QColor(77, 82, 95)));
+
     double f, step;
     int offsetMax;
     int offsetMin;
     const int maxVal = (e->rect().right() + m_offset) / FRAME_SIZE + 1;
     offsetMax = maxVal * FRAME_SIZE;
-    QPalette palette;
-    painter.setPen(palette.dark().color());
     offsetMin = (int) ((e->rect().left() + m_offset) / m_textSpacing);
     offsetMin = (int) (offsetMin * m_textSpacing);
+
+//    // Draw cache state
+//    painter.save();
+//    painter.setPen(QColor(77, 82, 95));
+//    step = m_scale * m_littleMarkDistance;
+//    for (f = offsetMin - m_offset; f < offsetMax - m_offset; f += step){
+//        QLine l(f, 0, f, 30);
+//        painter.drawLine(l);
+//    }
+//    painter.restore();
+
+    // Draw text
+    QPalette palette;
+    painter.setPen(palette.dark().color());
     for (f = offsetMin; f < offsetMax; f += m_textSpacing) {
         QString time = getTimeCode((int) (f / m_factor + 0.5));
         painter.drawText((int) f - m_offset + 2, LABEL_SIZE + 1, time);
     }
+
     // Draw the marks
     offsetMin = (e->rect().left() + m_offset) / m_littleMarkDistance;
     offsetMin = offsetMin * m_littleMarkDistance;
@@ -105,13 +119,14 @@ void UITracksRuler::paintEvent(QPaintEvent* e) {
     if (step > 5)
         for (f = offsetMin - m_offset; f < offsetMax - m_offset; f += step)
             painter.drawLine((int) f, BIG_MARK_X1, (int) f, BIG_MARK_X2);
+
     // Draw the pointer
     int cursorPos = m_tracksView->cursorPos() * m_factor - offset();
     QPolygon cursor(3);
     cursor.setPoints(3, cursorPos - 9, 11, cursorPos + 9, 11, cursorPos, 30);
+    painter.setPen(QColor(200, 200, 200, 150));
     painter.setBrush(QBrush(QColor(82, 97, 122, 150)));
     painter.drawPolygon(cursor);
-
     if (m_scale < 1) {
         QRectF rect;
         rect = painter.boundingRect(rect, Qt::AlignHCenter, QString::number((qreal)(m_tracksView->cursorPos())));
@@ -126,13 +141,13 @@ void UITracksRuler::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void UITracksRuler::mousePressEvent(QMouseEvent* event) {
     if (event->buttons() == Qt::LeftButton && event->modifiers() == Qt::NoModifier) {
-        emit frameChanged(qMax((qreal) 0, (qreal)(event->x() + offset()) / m_factor));
+        emit frameChanged(qMax((qreal) 0, (qreal)qRound((event->x() + offset()) / m_factor)));
     }
 }
 
 void UITracksRuler::mouseMoveEvent(QMouseEvent* event) {
     if (event->buttons() == Qt::LeftButton && event->modifiers() == Qt::NoModifier) {
-        emit frameChanged(qMax((qreal) 0, (qreal)(event->x() + offset()) / m_factor));
+        emit frameChanged(qMax((qreal) 0, (qreal)qRound((event->x() + offset()) / m_factor)));
     }
 }
 

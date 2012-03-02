@@ -73,13 +73,6 @@ alias tests 	        : duketests dukextests ;
 alias mingw_runtime     ;
 alias mingw_runtime     : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
-install shader_prototypes :
-    [ glob src/duke/resources/shader_prototypes/* ]
-    :
-    <variant>debug:<location>dist/debug/shader_prototypes
-    <variant>release:<location>dist/release/shader_prototypes
-    ;
-
 install dist :
     #src/diskbench//diskbench
     src/duke//duke
@@ -94,7 +87,6 @@ install dist :
     <install-type>EXE
     <variant>debug:<location>dist/debug
     <variant>release:<location>dist/release
-    <dependency>shader_prototypes
     ;
     
 install distduke :
@@ -109,7 +101,6 @@ install distduke :
     <install-type>EXE
     <variant>debug:<location>dist/debug
     <variant>release:<location>dist/release
-    <dependency>shader_prototypes
     ;
 
 install distdukex :

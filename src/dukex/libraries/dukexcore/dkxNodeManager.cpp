@@ -1,4 +1,5 @@
 #include "dkxNodeManager.h"
+#include <iostream>
 
 //using namespace ::duke::protocol;
 using namespace std;

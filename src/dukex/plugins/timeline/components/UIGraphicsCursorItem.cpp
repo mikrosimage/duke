@@ -5,7 +5,7 @@
 #include <QCursor>
 
 UIGraphicsCursorItem::UIGraphicsCursorItem(const QPen& pen) :
-    m_pen(pen), m_mouseDown(false) {
+    m_pen(pen), m_mouseDown(false), m_duration(0) {
     setFlags(QGraphicsItem::ItemIgnoresTransformations | QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges);
     setCursor(QCursor(Qt::SizeHorCursor));
@@ -40,6 +40,8 @@ QVariant UIGraphicsCursorItem::itemChange(GraphicsItemChange change, const QVari
         qreal posX = value.toPointF().x();
         if (posX < 0)
             posX = 0;
+        if (posX > m_duration)
+            posX = m_duration;
         return QPoint((int) posX, (int) pos().y());
     }
     //The position HAS changed, ie we released the slider, or setPos has been called.
@@ -70,4 +72,8 @@ void UIGraphicsCursorItem::frameChanged(qint64 newFrame) {
 void UIGraphicsCursorItem::setHeight(int height) {
     prepareGeometryChange();
     m_boundingRect.setHeight(height);
+}
+
+void UIGraphicsCursorItem::setDuration(int duration) {
+    m_duration = duration;
 }

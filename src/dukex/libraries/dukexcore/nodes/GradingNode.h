@@ -3,7 +3,7 @@
 
 #include <dukexcore/dkxINode.h>
 #include <dukexcore/dkxSessionDescriptor.h>
-#include <dukeapi/core/messageBuilder/ParameterBuilder.h>
+#include <dukeapi/messageBuilder/ParameterBuilder.h>
 #include <player.pb.h>
 
 

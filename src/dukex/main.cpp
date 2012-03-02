@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         QApplication::setGraphicsSystem("raster");
         QApplication qapp(argc, argv);
         qapp.setStyle(new QCleanlooksStyle());
-        QFile file(":/CSS/dark.css");
+        QFile file(":/CSS/dark.qss");
         if (file.open(QIODevice::ReadOnly)) {
             QString styleSheet = QLatin1String(file.readAll());
             qapp.setStyleSheet(styleSheet);

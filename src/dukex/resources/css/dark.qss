@@ -154,3 +154,7 @@ QMessageBox {
 QSpinBox, QDoubleSpinBox {
     background: #373737;
 }
+
+QDialog#infoDialog {
+    border-radius: 3px;
+}

@@ -1,6 +1,6 @@
 #include "dkxSession.h"
-#include <dukeapi/io/SocketMessageIO.h>
-#include <dukeapi/core/messageBuilder/Commons.h>
+#include <dukeapi/SocketMessageIO.h>
+#include <dukeapi/messageBuilder/Commons.h>
 #include <dukeengine/Application.h>
 #include <boost/lexical_cast.hpp>
 
@@ -21,18 +21,23 @@ private:
     QueueMessageIO& io;
 };
 
-void launch(int & returnvalue, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io) {
-    std::cerr << "-->" << std::endl;
-    ImageDecoderFactoryImpl imageDecoderFactory;
-    Application("plugin_renderer_ogl.so", decoder, io, returnvalue, 0, 1);
-    std::cerr << "<--" << std::endl;
+void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io, uint64_t cache, size_t threads) {
+    try {
+        std::cerr << "[THREADING] " << threads << std::endl;
+        std::cerr << "[CACHE] " << (cache / 1024.) / 1024. << std::endl;
+        Application(rendererpath.c_str(), decoder, io, returnvalue, cache, threads);
+    } catch (std::exception & e) {
+        std::cerr << "[Session::launch] Error: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[Session::launch] Unknown error." << std::endl;
+    }
 }
 
 } // empty namespace
 
 
 Session::Session() :
-    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false) {
+    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false), mRendererPath("") {
 }
 
 bool Session::startSession(const std::string& ip, short port, void* handle) {
@@ -47,11 +52,9 @@ bool Session::startSession(const std::string& ip, short port, void* handle) {
 //        boost::this_thread::sleep(boost::posix_time::millisec(40));
 
         int returnvalue = 0;
-        mThread = boost::thread(&launch, returnvalue, boost::ref(mImageDecoderFactory), boost::ref(mIo));
+        mThread = boost::thread(&launch, returnvalue, mRendererPath, boost::ref(mImageDecoderFactory), boost::ref(mIo), mCacheSize, mThreadSize);
         boost::this_thread::sleep(boost::posix_time::millisec(40));
         mConnected = true;
-
-        std::cerr << "Session start..." << std::endl;
 
         // edit the renderer with the right handle
         ::duke::protocol::Renderer & renderer = mDescriptor.renderer();

@@ -3,18 +3,24 @@
 
 #include <QtGui>
 
+class UIInfoDialog;
+
 class UIRenderWindow : public QWidget {
 
-Q_OBJECT
-    enum VIEW_MODE {
-        VM_PANZOOM = 0, VM_SHOWIMGINFO
+    Q_OBJECT
+
+    enum MOUSEMODE {
+        MM_PANZOOM = 0, MM_INFODIALOG
     };
 
 public:
     UIRenderWindow(QWidget* parent);
     ~UIRenderWindow();
+
+public:
     void showFullScreen();
     void showNormal();
+    void showInfo();
     void keyPressEvent(QKeyEvent * event);
     void mousePressEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
@@ -34,8 +40,8 @@ private:
     QPointF onMousePressPos;
     QPointF currentCenterPos;
 
-    QDialog* mDialog;
-    VIEW_MODE mViewMode;
+    MOUSEMODE mMode;
+    UIInfoDialog* mDialog;
 };
 
 #endif // UIRENDERWINDOW_H

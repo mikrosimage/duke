@@ -3,7 +3,7 @@
 
 #include "dkxObservable.h"
 #include "dkxSessionDescriptor.h"
-#include <dukeapi/io/QueueMessageIO.h>
+#include <dukeapi/QueueMessageIO.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <boost/thread.hpp>
 
@@ -46,6 +46,18 @@ public:
     inline void setPort(const short port) {
         mPort = port;
     }
+    inline const uint64_t cacheSize() const {
+        return mCacheSize;
+    }
+    inline void setCacheSize(const uint64_t size) {
+        mCacheSize = size;
+    }
+    inline const size_t threadSize() const {
+        return mThreadSize;
+    }
+    inline void setThreadSize(const size_t size) {
+        mThreadSize = size;
+    }
     inline const bool connected() const {
         return mConnected;
     }
@@ -60,6 +72,9 @@ public:
     }
     inline MessageQueue & getInitTimeMsgQueue() {
         return mInitTimeMsgQueue;
+    }
+    inline void setRendererPath(const std::string& path) {
+        mRendererPath = path;
     }
     inline const char ** getAvailableExtensions() const {
         return mImageDecoderFactory.getAvailableExtensions();
@@ -78,7 +93,10 @@ private:
     bool mPlaying;
     std::string mIP;
     short mPort;
+    uint64_t mCacheSize;
+    size_t mThreadSize;
     bool mConnected;
+    std::string mRendererPath;
     ImageDecoderFactoryImpl mImageDecoderFactory;
     SessionDescriptor mDescriptor;
 

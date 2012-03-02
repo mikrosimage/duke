@@ -78,7 +78,7 @@ TexturePool::ScopedTexturePtr TexturePool::get( const PoolRequest& request )
 		return ScopedTexturePtr();
 	RecyclingTexturePtrList& list                  = mapItr->second;
 	RecyclingTexturePtrList::iterator bestMatchItr = list.end();
-	int bestMatchDistance                          = boost::integer_traits<int>::const_max;
+//	int bestMatchDistance                          = boost::integer_traits<int>::const_max;
 	for( RecyclingTexturePtrList::iterator itr = list.begin(); itr != list.end(); ++itr )
 	{
 		const int distance = computeDistance( request.dimension, ( *itr )->m_Request.dimension );
@@ -87,11 +87,11 @@ TexturePool::ScopedTexturePtr TexturePool::get( const PoolRequest& request )
 			bestMatchItr = itr;
 			break;
 		}
-		if( distance < bestMatchDistance )
-		{
-			bestMatchDistance = distance;
-			bestMatchItr      = itr;
-		}
+//		if( distance < bestMatchDistance )
+//		{
+//			bestMatchDistance = distance;
+//			bestMatchItr      = itr;
+//		}
 	}
 	if( bestMatchItr == list.end() )
 		return ScopedTexturePtr();

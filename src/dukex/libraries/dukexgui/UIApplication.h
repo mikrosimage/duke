@@ -32,7 +32,7 @@ public:
     bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title);
 //    QDeclarativeItem* createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title);
 
-private slots:
+private:
     void closeEvent(QCloseEvent *event);
     void timerEvent(QTimerEvent *event);
     void keyPressEvent(QKeyEvent * event);
@@ -44,7 +44,7 @@ private slots:
 
 private slots:
     // file
-    void openFiles(const QStringList &, const bool & = false);
+    void openFiles(const QStringList &, const bool & = false, const bool & = false);
     void openFiles();
     void openRecent();
     void browseDirectory();
@@ -56,7 +56,9 @@ private slots:
     void lastFrame();
     void previousShot();
     void nextShot();
-    // view
+    // display
+    void info();
+    // window
     void fullscreen();
     void toggleFitMode();
     void fitToNormalSize();
@@ -78,7 +80,7 @@ private:
     UIRenderWindow* m_RenderWindow;
     UIFileDialog* m_FileDialog;
     UIPluginDialog* m_PluginDialog;
-    QLabel* m_statusInfo;
+//    QLabel* m_statusInfo;
     int m_timerID;
 };
 

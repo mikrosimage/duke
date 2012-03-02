@@ -4,9 +4,10 @@
 #include "UIGraphicsTrack.h"
 #include <QGraphicsLinearLayout>
 #include <QScrollBar>
+#include <iostream>
 
 UITracksView::UITracksView(QGraphicsScene *scene, QWidget *parent) :
-    QGraphicsView(scene, parent), m_scene(scene) {
+    QGraphicsView(scene, parent), m_scene(scene), m_layout(NULL) {
     m_tracksHeight = 20;
     m_numAudioTrack = 0;
     m_numVideoTrack = 0;
@@ -179,7 +180,7 @@ void UITracksView::moveItem(UIAbstractGraphicsItem *item, qint32 track, qint64 t
             // Move the primary item to the target destination.
             item->setStartPos(p.time);
             item->setTrack(getTrack(item->trackType(), p.track));
-            // Move the linked item to the target destination.
+            // Move the linked item to the tarm_durationget destination.
             item->groupItem()->setStartPos(p2.time);
             item->groupItem()->setTrack(getTrack(item->groupItem()->trackType(), p2.track));
         }
@@ -289,15 +290,16 @@ void UITracksView::removeItem(UIAbstractGraphicsItem *item) {
 }
 
 void UITracksView::setDuration(int duration) {
-    int diff = (int) qAbs((qreal) duration - sceneRect().width());
-    if (diff * matrix().m11() > -50) {
-
-        if (matrix().m11() < 0.4)
-            setSceneRect(0, 0, duration /*(duration + 100 / matrix().m11())*/, sceneRect().height());
+    int diff = ( int ) qAbs( ( qreal )duration - sceneRect().width() );
+    if ( diff * matrix().m11() > -50 )
+    {
+        if ( matrix().m11() < 0.4 )
+            setSceneRect( 0, 0, ( duration /*+ 100*/ / matrix().m11() ), sceneRect().height() );
         else
-            setSceneRect(0, 0, duration /*(duration + 300)*/, sceneRect().height());
+            setSceneRect( 0, 0, ( duration /*+ 300*/ ), sceneRect().height() );
     }
     m_projectDuration = duration;
+    m_cursorLine->setDuration(duration);
 }
 
 void UITracksView::drawBackground(QPainter *painter, const QRectF &rect) {
@@ -387,14 +389,13 @@ qint64 UITracksView::cursorPos() {
 void UITracksView::setScale(double scaleFactor) {
     QMatrix matrix;
     matrix.scale(scaleFactor, 1);
-    //TODO update the scene scale?
     setMatrix(matrix);
     int diff = (int) (sceneRect().width() - (qreal) m_projectDuration);
     if (diff * matrix.m11() < 50) {
         if (matrix.m11() < 0.4)
-            setSceneRect(0, 0, (m_projectDuration + 100 / matrix.m11()), sceneRect().height());
+            setSceneRect(0, 0, (m_projectDuration /*+ 100*/ / matrix.m11()), sceneRect().height());
         else
-            setSceneRect(0, 0, (m_projectDuration + 300), sceneRect().height());
+            setSceneRect(0, 0, (m_projectDuration /*+ 300*/), sceneRect().height());
     }
     centerOn(m_cursorLine);
 }

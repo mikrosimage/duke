@@ -2,7 +2,7 @@
 #define FITNODE_H
 
 #include <dukexcore/dkxINode.h>
-#include <dukeapi/core/messageBuilder/ParameterBuilder.h>
+#include <dukeapi/messageBuilder/ParameterBuilder.h>
 
 namespace {
 

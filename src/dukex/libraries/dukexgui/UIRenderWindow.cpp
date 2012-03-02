@@ -1,8 +1,9 @@
 #include "UIRenderWindow.h"
+#include "UIInfoDialog.h"
 #include <iostream>
 
 UIRenderWindow::UIRenderWindow(QWidget* _parent) :
-    QWidget(_parent), m_renderWidget(NULL), zoomRatio(1.), mViewMode(VM_PANZOOM) {
+    QWidget(_parent), m_renderWidget(NULL), zoomRatio(1.), mMode(MM_PANZOOM) {
     setMinimumSize(320, 240);
 
     m_renderWidget = new QWidget(this);
@@ -14,10 +15,7 @@ UIRenderWindow::UIRenderWindow(QWidget* _parent) :
     layout->addWidget(m_renderWidget);
     setLayout(layout);
 
-    mDialog = new QDialog(this, Qt::CustomizeWindowHint);
-    mDialog->setMinimumSize(100, 100);
-    mDialog->setLayout(new QGridLayout(mDialog));
-    mDialog->layout()->addWidget(new QPushButton("hello world"));
+    mDialog = new UIInfoDialog(this, Qt::CustomizeWindowHint);
     mDialog->setWindowOpacity(0.6);
 }
 
@@ -34,6 +32,13 @@ void UIRenderWindow::showNormal() {
     QWidget::showNormal();
 }
 
+void UIRenderWindow::showInfo() {
+    if (mDialog->isVisible())
+        mDialog->hide();
+    else
+        mDialog->show();
+}
+
 void UIRenderWindow::keyPressEvent(QKeyEvent * event) {
     switch (event->key()) {
         case Qt::Key_Escape:
@@ -45,38 +50,39 @@ void UIRenderWindow::keyPressEvent(QKeyEvent * event) {
 }
 
 void UIRenderWindow::mousePressEvent(QMouseEvent * event) {
-    if(event->button() == Qt::RightButton){
-        mViewMode = VM_SHOWIMGINFO;
-        mDialog->move(event->globalPos());
-        mDialog->show();
+    QWidget::mousePressEvent(event);
+    if (event->button() == Qt::RightButton) {
+//        mDialog->move(event->pos());
+        mMode = MM_INFODIALOG;
     } else {
-        mViewMode = VM_PANZOOM;
         onMousePressPos = event->posF();
+        mMode = MM_PANZOOM;
     }
     event->accept();
 }
 
 void UIRenderWindow::mouseMoveEvent(QMouseEvent * event) {
-    if(mViewMode == VM_SHOWIMGINFO){
-        mDialog->move(event->globalPos());
-        std::cerr << "move mDialog" << std::endl;
+    QWidget::mouseMoveEvent(event);
+    if (mMode==MM_INFODIALOG) {
+//        mDialog->move(event->pos());
     } else {
         QPointF pan = onMousePressPos - event->posF();
-        pan.setX(pan.x()/width());
-        pan.setY(pan.y()/height());
+        pan.setX(pan.x() / width());
+        pan.setY(pan.y() / height());
         pan += currentCenterPos;
-        emit panChanged(pan.x()/pow(zoomRatio, 2), pan.y()/pow(zoomRatio, 2));
+        emit panChanged(pan.x() / pow(zoomRatio, 2), pan.y() / pow(zoomRatio, 2));
     }
     event->accept();
 }
 
 void UIRenderWindow::mouseReleaseEvent(QMouseEvent * event) {
-    if(mViewMode == VM_SHOWIMGINFO){
-        mDialog->hide();
+    QWidget::mouseReleaseEvent(event);
+    if (mMode==MM_INFODIALOG) {
+//        mDialog->move(event->pos());
     } else {
         QPointF pan = currentCenterPos + (onMousePressPos - event->posF());
-        pan.setX(pan.x()/width());
-        pan.setY(pan.y()/height());
+        pan.setX(pan.x() / width());
+        pan.setY(pan.y() / height());
         currentCenterPos += pan;
     }
     event->accept();
@@ -85,9 +91,9 @@ void UIRenderWindow::mouseReleaseEvent(QMouseEvent * event) {
 void UIRenderWindow::wheelEvent(QWheelEvent * event) {
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
-    zoomRatio += (numSteps *6.66) /100;
+    zoomRatio += (numSteps * 6.66) / 100;
 
-    if(zoomRatio < 0.5)
+    if (zoomRatio < 0.5)
         zoomRatio = 0.5;
 
     emit zoomChanged(pow(zoomRatio, 2));

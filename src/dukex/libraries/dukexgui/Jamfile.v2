@@ -21,6 +21,7 @@ lib dukexgui
         UIApplication.h
         UIRenderWindow.h
         UIFileDialog.h
+        UIInfoDialog.h
         UIPluginDialog.h
         UIWidget.h
         UserPreferences.h

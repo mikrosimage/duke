@@ -1,7 +1,7 @@
 #ifndef DKXOBSERVER_H
 #define DKXOBSERVER_H
 
-#include <dukeapi/serialize/ProtobufSerialize.h>
+#include <dukeapi/ProtobufSerialize.h>
 #include <boost/shared_ptr.hpp>
 
 class IObserver {

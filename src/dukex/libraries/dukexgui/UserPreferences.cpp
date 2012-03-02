@@ -70,7 +70,7 @@ void UserPreferences::saveFileHistory() {
     size_t index = 0;
     BOOST_REVERSE_FOREACH(const std::string& s, m_vRecentFiles)
                 {
-                    const QString& sKey = QString("/file") + QString::number(index++);
+                    const QString& sKey = QString("/history") + QString::number(index++);
                     const QString& sValue = s.c_str();
                     if (!sValue.isEmpty())
                         m_Settings.setValue(sKey, sValue);

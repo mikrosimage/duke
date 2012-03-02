@@ -3,8 +3,7 @@
 
 #include <dukexcore/dkxINode.h>
 #include <dukexcore/dkxSessionDescriptor.h>
-#include <dukeapi/core/PlaylistReader.h>
-#include <dukeapi/core/SequenceReader.h>
+#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
 #include <boost/filesystem.hpp>
 #include "player.pb.h"
 
@@ -17,44 +16,43 @@ public:
     }
 
 public:
-    bool openFiles(const std::vector<std::string> & _list, const bool & asSequence = false) {
+    bool openFiles(const std::vector<std::string> inputs, const bool asSequence = false) {
         try {
             SessionDescriptor & descriptor = session()->descriptor();
+
+            // Save current playlist parameters
             ::duke::protocol::Playlist & playlist = descriptor.playlist();
+            ::google::protobuf::uint32 framerate = playlist.frameratenumerator();
+            ::duke::protocol::Playlist_PlaybackMode playbackmode = playlist.playbackmode();
+
+            // Clear current playlist
             playlist.Clear();
-            playlist.set_frameratenumerator(25);
-            playlist.set_playbackmode(::duke::protocol::Playlist::NO_SKIP);
+
+            // Parse all inputs
             MessageQueue queue;
-            int clipIndex = 0; // use to generate clip name ( "clip" + clipName )
-            int frameIndex = 0; // use to combine sequence/playlists
-            for (std::vector<std::string>::const_iterator input = _list.begin(); input != _list.end(); ++input) {
-                int skip = 0;
-                int startRange = std::numeric_limits<int>::min();
-                int endRange = std::numeric_limits<int>::max();
-                boost::filesystem::path path(*input);
-                if (path.extension() == ".ppl" || path.extension() == ".ppl2") {
-                    PlaylistReader(clipIndex, frameIndex, *input, queue, playlist);
-                } else {
-                    int inRange;
-                    int outRange;
-                    if ((++input < _list.end()) && (inRange = std::atoi((*input).c_str()))) {
-                        startRange = inRange;
-                        skip++;
-                        if ((++input < _list.end()) && (outRange = std::atoi((*input).c_str()))) {
-                            endRange = outRange + 1;
-                            skip++;
-                        }
-                        input--;
-                    }
-                    input--;
-                    const char * ext[22] = { "pic", "pbm", "dpx", "tpic", "png", "pgm", "jpg", "pnm", "bmp", "exr", "sgi", "tiff", "tif", "dds", "tga", "jp2", "rgb", "j2k",
-                                    "jpeg", "ico", "hdr", "ppm" };
-                    SequenceReader(clipIndex, frameIndex, *input, ext, queue, playlist, startRange, endRange, asSequence);
-                    input += skip;
-                }
-            }
+            IOQueueInserter inserter(queue);
+            CmdLinePlaylistBuilder playlistBuilder(inserter, asSequence, session()->getAvailableExtensions());
+            for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
+            // Push engine stop
+            ::duke::protocol::Engine stop;
+            stop.set_action(::duke::protocol::Engine_Action_RENDER_STOP);
+            inserter << stop;
 
+            // Update and push the current playlist
+            ::duke::protocol::Playlist newplaylist = playlistBuilder.getPlaylist();
+            newplaylist.set_frameratenumerator(framerate);
+            newplaylist.set_playbackmode(playbackmode);
+            playlist = newplaylist;
+            inserter << playlist;
+            inserter << playlistBuilder.getCue();
+
+            // Push engine start
+            ::duke::protocol::Engine start;
+            start.set_action(::duke::protocol::Engine_Action_RENDER_START);
+            inserter << start;
+
+            // send everything
             session()->sendMsg(queue);
 
         } catch (std::exception & e) {

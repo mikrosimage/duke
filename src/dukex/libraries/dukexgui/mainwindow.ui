@@ -75,16 +75,16 @@
     <addaction name="separator"/>
     <addaction name="quitAction"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>?</string>
     </property>
     <addaction name="aboutAction"/>
     <addaction name="aboutPluginsAction"/>
    </widget>
-   <widget class="QMenu" name="menuView">
+   <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>&amp;View</string>
+     <string>&amp;Window</string>
     </property>
     <widget class="QMenu" name="fitModeMenu">
      <property name="title">
@@ -114,10 +114,48 @@
     <addaction name="previousShotAction"/>
     <addaction name="nextShotAction"/>
    </widget>
+   <widget class="QMenu" name="menuDisplay">
+    <property name="title">
+     <string>&amp;Display</string>
+    </property>
+    <widget class="QMenu" name="menuColorspace">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Colorspace</string>
+     </property>
+     <addaction name="actionLin_to_Cineon"/>
+     <addaction name="actionLin_to_SRGB"/>
+     <addaction name="actionCineon_to_Lin"/>
+     <addaction name="actionCineon_to_SRGB"/>
+     <addaction name="actionSRGB_to_Lin"/>
+    </widget>
+    <widget class="QMenu" name="menuZoom">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>&amp;Zoom</string>
+     </property>
+     <addaction name="zoom12Action"/>
+     <addaction name="zoom25Action"/>
+     <addaction name="zoom50Action"/>
+     <addaction name="zoom75Action"/>
+     <addaction name="zoom100Action"/>
+     <addaction name="zoom150Action"/>
+     <addaction name="zoom200Action"/>
+    </widget>
+    <addaction name="menuColorspace"/>
+    <addaction name="menuZoom"/>
+    <addaction name="separator"/>
+    <addaction name="infoAction"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuControl"/>
-   <addaction name="menuView"/>
-   <addaction name="menu"/>
+   <addaction name="menuDisplay"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionPower">
    <property name="checkable">
@@ -527,6 +565,77 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="infoAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Image &amp;Infos</string>
+   </property>
+   <property name="shortcut">
+    <string>I</string>
+   </property>
+  </action>
+  <action name="actionCineon_to_Lin">
+   <property name="text">
+    <string>Cineon to Lin</string>
+   </property>
+  </action>
+  <action name="actionLin_to_Cineon">
+   <property name="text">
+    <string>Lin to Cineon</string>
+   </property>
+  </action>
+  <action name="actionLin_to_SRGB">
+   <property name="text">
+    <string>Lin to SRGB</string>
+   </property>
+  </action>
+  <action name="actionSRGB_to_Lin">
+   <property name="text">
+    <string>SRGB to Lin</string>
+   </property>
+  </action>
+  <action name="actionCineon_to_SRGB">
+   <property name="text">
+    <string>Cineon to SRGB</string>
+   </property>
+  </action>
+  <action name="zoom12Action">
+   <property name="text">
+    <string>12%</string>
+   </property>
+  </action>
+  <action name="zoom25Action">
+   <property name="text">
+    <string>25%</string>
+   </property>
+  </action>
+  <action name="zoom50Action">
+   <property name="text">
+    <string>50%</string>
+   </property>
+  </action>
+  <action name="zoom75Action">
+   <property name="text">
+    <string>75%</string>
+   </property>
+  </action>
+  <action name="zoom100Action">
+   <property name="text">
+    <string>100%</string>
+   </property>
+  </action>
+  <action name="zoom150Action">
+   <property name="text">
+    <string>150%</string>
+   </property>
+  </action>
+  <action name="zoom200Action">
+   <property name="text">
+    <string>200%</string>
    </property>
   </action>
  </widget>

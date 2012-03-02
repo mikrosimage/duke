@@ -32,6 +32,7 @@ public:
     void update(::google::protobuf::serialize::SharedHolder sharedholder);
 
 public slots:
+    void fit();
     void changeZoom(int factor);
     void zoomIn();
     void zoomOut();

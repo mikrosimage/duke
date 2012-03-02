@@ -54,42 +54,49 @@ public:
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE, _f));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void previousFrame() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE, -1, true));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void nextFrame() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE, 1, true));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void firstFrame() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE_FIRST));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void lastFrame() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE_LAST));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void previousShot() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE, -1, true, true));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 
     void nextShot() {
         MessageQueue q;
         push(q, MAKE(::duke::protocol::Transport_TransportType_CUE, 1, true, true));
         session()->sendMsg(q);
+        session()->setIsPlaying(false);
     }
 };
 

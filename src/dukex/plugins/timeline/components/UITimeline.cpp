@@ -10,6 +10,9 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
+#define MINZOOMRATIO 0
+#define MAXZOOMRATIO 13
+
 UITimeline::UITimeline(NodeManager* _manager) :
     m_manager(_manager), m_zoom(4) {
     m_ui.setupUi(this);
@@ -117,20 +120,28 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 break;
         }
     } else if (::google::protobuf::serialize::isType<Playlist>(*sharedholder)) {
-        qint64 currentPos = m_tracksView->cursorPos();
         m_tracksControls->clear();
         m_tracksView->clear();
         const Playlist & p = ::google::protobuf::serialize::unpackTo<Playlist>(*sharedholder);
-        if (p.clip_size() > 0) {
-            for (int i = 0; i < p.clip_size(); ++i) {
-                const Clip & c = p.clip(i);
-                m_tracksView->addItem(c.recin(), c.recout() - c.recin());
+        qint64 lastFrame = 0;
+        if (p.track_size() > 0) {
+            for (int i = 0; i < p.track_size(); ++i) {
+                const Track & t = p.track(i);
+                if(t.clip_size() > 0) {
+                    for (int j = 0; j < t.clip_size(); ++j) {
+                        const Clip & c = t.clip(j);
+                        m_tracksView->addItem(c.record().first(), c.record().last() - c.record().first()); //TODO < handle track number here
+                    }
+                    qint64 clipLastFrame = t.clip(t.clip_size() - 1).record().last();
+                    if(clipLastFrame > lastFrame)
+                        lastFrame = clipLastFrame;
+                }
             }
-            qint64 lastFrame = p.clip(p.clip_size() - 1).recout();
-            setDuration(lastFrame);
         }
-    } else if (::google::protobuf::serialize::isType<Debug>(*sharedholder)) {
-//        std::cerr << "INPUT: DEBUG MSG" << std::endl;
+        setDuration(lastFrame);
+        fit();
+    } else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
+        std::cerr << "INPUT: INFO MSG" << std::endl;
     }
 }
 
@@ -140,7 +151,7 @@ void UITimeline::frameChanged(qint64 pos) {
         if (n.get() != NULL) {
             PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
             if (p.get() != NULL) {
-                p->debug();
+//                p->debug();
             }
         }
     }
@@ -165,6 +176,21 @@ void UITimeline::framerateChanged(double framerate) {
     }
 }
 
+void UITimeline::fit() {
+    double factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
+    if(factor < 0.){
+        while(factor < 0 && m_zoom > MINZOOMRATIO){
+            zoomOut();
+            factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
+        }
+    } else {
+        while(factor > 0 && m_zoom < MAXZOOMRATIO){
+            zoomIn();
+            factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
+        }
+    }
+}
+
 void UITimeline::changeZoom(int factor) {
     m_tracksRuler->setPixelPerMark(factor);
     double scale = (double) FRAME_SIZE / m_tracksRuler->comboScale[factor];
@@ -172,13 +198,13 @@ void UITimeline::changeZoom(int factor) {
 }
 
 void UITimeline::zoomIn() {
-    if (m_zoom < 13)
+    if (m_zoom < MAXZOOMRATIO)
         m_zoom++;
     changeZoom(m_zoom);
 }
 
 void UITimeline::zoomOut() {
-    if (m_zoom > 0)
+    if (m_zoom > MINZOOMRATIO)
         m_zoom--;
     changeZoom(m_zoom);
 }

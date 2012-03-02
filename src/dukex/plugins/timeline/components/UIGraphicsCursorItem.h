@@ -25,6 +25,7 @@ public:
     virtual QRectF boundingRect() const;
     int cursorPos() const;
     void setHeight(int height);
+    void setDuration(int duration);
 
 protected:
     virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = 0);
@@ -43,6 +44,7 @@ private:
     QPen m_pen;
     QRectF m_boundingRect;
     bool m_mouseDown;
+    int m_duration;
 };
 
 #endif // UIGRAPHICSCURSORITEM_H

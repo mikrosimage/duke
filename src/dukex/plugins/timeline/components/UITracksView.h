@@ -31,6 +31,7 @@ public:
     UIGraphicsCursorItem *tracksCursor() const;
     void setScale(double scaleFactor);
     void createLayout();
+    QRectF visibleRect();
 
 public slots:
     void clear();
@@ -52,7 +53,6 @@ protected:
 
 private slots:
     void ensureCursorVisible();
-    QRectF visibleRect();
     void updateDuration();
     void cleanUnusedTracks();
 

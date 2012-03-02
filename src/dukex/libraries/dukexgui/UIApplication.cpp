@@ -25,10 +25,10 @@ UIApplication::UIApplication(Session::ptr s) :
     ui.setupUi(this);
     setCentralWidget(m_RenderWindow);
 
-    // Status bar (top right corner)
-    m_statusInfo = new QLabel();
-    m_statusInfo->setText("Starting...");
-    menuBar()->setCornerWidget(m_statusInfo);
+//    // Status bar (top right corner)
+//    m_statusInfo = new QLabel();
+//    m_statusInfo->setText("Starting...");
+//    menuBar()->setCornerWidget(m_statusInfo);
 
     // Preferences
     m_Preferences.loadShortcuts(this);
@@ -48,13 +48,14 @@ UIApplication::UIApplication(Session::ptr s) :
     connect(ui.lastFrameAction, SIGNAL(triggered()), this, SLOT(lastFrame()));
     connect(ui.nextShotAction, SIGNAL(triggered()), this, SLOT(nextShot()));
     connect(ui.previousShotAction, SIGNAL(triggered()), this, SLOT(previousShot()));
-    // View Actions
+    // Display Actions
+    connect(ui.infoAction, SIGNAL(triggered()), this, SLOT(info()));
+    // Window Actions
     connect(ui.fullscreenAction, SIGNAL(triggered()), this, SLOT(fullscreen()));
     connect(ui.toggleFitModeAction, SIGNAL(triggered()), this, SLOT(toggleFitMode()));
     connect(ui.fitImageTo11Action, SIGNAL(triggered()), this, SLOT(fitToNormalSize()));
     connect(ui.fitImageToWindowWidthAction, SIGNAL(triggered()), this, SLOT(fitImageToWindowWidth()));
     connect(ui.fitImageToWindowHeightAction, SIGNAL(triggered()), this, SLOT(fitImageToWindowHeight()));
-    connect(ui.stretchImageToWindowAction, SIGNAL(triggered()), this, SLOT(stretchImageToWindow()));
     connect(m_RenderWindow, SIGNAL(zoomChanged(double)), this, SLOT(zoom(double)));
     connect(m_RenderWindow, SIGNAL(panChanged(double,double)), this, SLOT(pan(double, double)));
     // About Actions
@@ -79,7 +80,7 @@ UIApplication::UIApplication(Session::ptr s) :
 
     // Starting Session
     m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
-    m_statusInfo->setText("Connecting...");
+//    m_statusInfo->setText("Connecting...");
 
     // Starting Timer : so as to copute "IN" msgs every N ms
     m_timerID = QObject::startTimer(40);
@@ -89,8 +90,8 @@ UIApplication::UIApplication(Session::ptr s) :
 bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title) {
     QDockWidget * dockwidget = new QDockWidget(_title, this);
     dockwidget->setContentsMargins(0, 0, 0, 0);
-    dockwidget->setMinimumSize(uiwidget->minimumSize());
-    dockwidget->setMaximumSize(uiwidget->maximumSize());
+//    dockwidget->setMinimumSize(uiwidget->minimumSize());
+//    dockwidget->setMaximumSize(uiwidget->maximumSize());
     uiwidget->setParent(dockwidget);
 
     m_Session->addObserver(uiwidget);
@@ -158,19 +159,20 @@ void UIApplication::closeEvent(QCloseEvent *event) {
 // private
 void UIApplication::timerEvent(QTimerEvent *event) {
     m_Session->computeInMsg();
-    // check connection status
-    if (!m_Session->connected()) {
-        m_statusInfo->setStyleSheet("QLabel { color : red; }");
-        m_statusInfo->setText("Disconnected.");
-    } else {
-        m_statusInfo->setStyleSheet("QLabel { color : green; }");
-        m_statusInfo->setText("Connected.");
-    }
+//    // check connection status
+//    if (!m_Session->connected()) {
+//        m_statusInfo->setStyleSheet("QLabel { color : red; }");
+//        m_statusInfo->setText("Disconnected.");
+//    } else {
+//        m_statusInfo->setStyleSheet("QLabel { color : green; }");
+//        m_statusInfo->setText("Connected.");
+//    }
     event->accept();
 }
 
 // private
 void UIApplication::keyPressEvent(QKeyEvent * event) {
+    QMainWindow::keyPressEvent(event);
     switch (event->key()) {
         case Qt::Key_Escape:
             close();
@@ -271,14 +273,15 @@ void UIApplication::updateRecentFilesMenu() {
         if (m_Preferences.history(i) == "")
             continue;
         boost::filesystem::path fn(m_Preferences.history(i));
-        QAction * act = ui.openRecentMenu->addAction(fn.leaf().c_str());
+//        QAction * act = ui.openRecentMenu->addAction(fn.leaf().c_str());
+        QAction * act = ui.openRecentMenu->addAction(m_Preferences.history(i).c_str());
         act->setData(m_Preferences.history(i).c_str());
         connect(act, SIGNAL(triggered()), this, SLOT(openRecent()));
     }
 }
 
 // private slot
-void UIApplication::openFiles(const QStringList & _list, const bool & asSequence) {
+void UIApplication::openFiles(const QStringList & _list, const bool & asSequence, const bool & asDir) {
     // get current frame
     size_t currentFrame = m_Session->frame();
     {
@@ -295,8 +298,18 @@ void UIApplication::openFiles(const QStringList & _list, const bool & asSequence
                         v[i] = _list[i].toStdString();
                     }
                     p->openFiles(v, asSequence);
-                    m_Preferences.addToHistory(v[0]);
-                    updateRecentFilesMenu();
+                    if(v.size() == 1) { // multi selection not handled in file history
+                        QString history = _list[0];
+                        if(asSequence){
+                            history.prepend("sequence://");
+                        } else if(asDir){
+                            history.prepend("directory://");
+                        } else {
+                            history.prepend("file://");
+                        }
+                        m_Preferences.addToHistory(history.toStdString());
+                        updateRecentFilesMenu();
+                    }
                 }
             }
         }
@@ -330,8 +343,19 @@ void UIApplication::openRecent() {
         QString file = action->data().toString();
         if (!file.isEmpty()) {
             QStringList filenames;
-            filenames.append(file);
-            openFiles(filenames);
+            if(file.startsWith("sequence://")){
+                file.remove(0, 11);
+                filenames.append(file);
+                openFiles(filenames, true);
+            } else if(file.startsWith("directory://")){
+                file.remove(0, 12);
+                filenames.append(file);
+                openFiles(filenames, false, true);
+            } else { // "file://"
+                file.remove(0, 7);
+                filenames.append(file);
+                openFiles(filenames);
+            }
         }
     }
 }
@@ -342,7 +366,7 @@ void UIApplication::browseDirectory() {
     if (!dir.isEmpty()) {
         QStringList list;
         list.append(dir);
-        openFiles(list, false);
+        openFiles(list, false, true);
     }
 }
 
@@ -424,6 +448,12 @@ void UIApplication::nextShot() {
             t->nextShot();
         }
     }
+}
+
+// private slot
+void UIApplication::info() {
+    m_RenderWindow->showInfo();
+    setFocus();
 }
 
 // private slot

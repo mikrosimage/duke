@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="CSS">
-    <file alias="dark.css">css/dark.css</file>
+    <file alias="dark.qss">css/dark.qss</file>
   </qresource>
   <qresource prefix="IMG">
     <file alias="close.png">img/close.png</file>
