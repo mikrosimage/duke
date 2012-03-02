@@ -161,8 +161,8 @@ struct SmartCache::Impl : private boost::noncopyable {
         cacheOverRange = overRange;
     }
 
-    inline void dumpKeys(std::vector<image::WorkUnitId>& ids) const {
-        m_LookAheadCache.dumpKeys(ids);
+    inline metric_type dumpKeys(std::vector<image::WorkUnitId>& ids) const {
+        return m_LookAheadCache.dumpKeys(ids);
     }
 
 private:
@@ -195,6 +195,6 @@ void SmartCache::seek(unsigned int frame, EPlaybackState state) {
     m_pImpl->seek(frame, state);
 }
 
-void SmartCache::dumpKeys(image::WorkUnitIds &ids) const {
-    m_pImpl->dumpKeys(ids);
+metric_type SmartCache::dumpKeys(image::WorkUnitIds &ids) const {
+    return m_pImpl->dumpKeys(ids);
 }

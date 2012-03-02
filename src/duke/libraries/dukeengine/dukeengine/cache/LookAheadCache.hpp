@@ -36,9 +36,10 @@ struct LookAheadCache {
 
     // Cache functions
 
-    inline void dumpKeys(std::vector<id_type> &allKeys) const {
+    inline metric_type dumpKeys(std::vector<id_type> &allKeys) const {
         boost::mutex::scoped_lock lock(m_CacheMutex);
         m_SharedCache.dumpKeys(allKeys);
+        return m_SharedCache.cacheSize();
     }
 
     inline bool get(const id_type &id, data_type &data) const {

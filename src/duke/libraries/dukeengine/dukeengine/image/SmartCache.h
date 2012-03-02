@@ -35,7 +35,7 @@ struct SmartCache : private boost::noncopyable {
     void init(const duke::protocol::PlaylistHelper &playlist,const sequence::Range &over);
     void seek(unsigned int frame, EPlaybackState state);
     bool get(const duke::protocol::MediaFrame &frame, ImageHolder &imageHolder) const;
-    void dumpKeys(image::WorkUnitIds &) const;
+    uint64_t dumpKeys(image::WorkUnitIds &) const;
 private:
     struct Impl;
     const boost::scoped_ptr<Impl> m_pImpl;

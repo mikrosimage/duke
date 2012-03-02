@@ -333,8 +333,9 @@ struct CacheStateGatherer {
 };
 
 void Application::updateCacheState(Info_CacheState &infos) const {
+    //infos.set_ram(m_Cache.)
     image::WorkUnitIds ids;
-    m_Cache.dumpKeys(ids);
+    infos.set_ram(m_Cache.dumpKeys(ids));
     CacheStateGatherer gatherer(m_Playlist, infos);
     gatherer.ingest(ids);
     gatherer.update();
