@@ -167,16 +167,14 @@ static inline bool notContained(const string& filename, const BrowseItem & item)
 }
 
 static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &absoluteFilename) {
-    BrowseItems items;
-    items.push_back(sequence::create_file(absoluteFilename));
+    BrowseItem item = sequence::create_file(absoluteFilename);
     if (pimpl.useContainingSequence) {
-        items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
+        BrowseItems items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
         const string filename = absoluteFilename.filename().string();
         sequence::filterOut(items, bind(&notContained, filename, _1));
         if (!items.empty()) {
             const BrowseItem &containingSequence = items[0];
-            items.clear();
-            items.push_back(containingSequence);
+            item = containingSequence;
             assert(containingSequence.type==sequence::SEQUENCE);
             assert(containingSequence.sequence.step==1);
             const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
@@ -187,7 +185,7 @@ static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const pat
             cout << HEADER + "cueing to record " << gotoRec << endl;
         }
     }
-    pimpl.ingestAll(items);
+    pimpl.ingest(item);
 }
 
 static inline bool isPattern(const string &entry) {
