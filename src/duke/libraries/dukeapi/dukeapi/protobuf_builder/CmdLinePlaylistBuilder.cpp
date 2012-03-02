@@ -52,7 +52,7 @@ struct ci_less : std::binary_function<std::string, std::string, bool> {
 
 static string g_ppl2(".ppl2");
 static string g_ppl(".ppl");
-static string HEADER = "[Playlist] ";
+static string HEADER("[Playlist] ");
 
 struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
     Pimpl(IOQueueInserter &inserter, bool useContainingSequence, const char **validExtensions) :
@@ -113,6 +113,7 @@ static inline void parsePPLSequenceLine(CmdLinePlaylistBuilder::Pimpl &pimpl, co
     boost::tokenizer<boost::escaped_list_separator<char> > tok(line, els);
     vector<string> parts;
     copy(tok.begin(), tok.end(), back_inserter(parts));
+    parts.erase(remove_if(parts.begin(), parts.end(), mem_fun(&string::empty)), parts.end());
     if (parts.size() != 4) {
         cout << HEADER + "discarding line " << line << endl;
         return;
