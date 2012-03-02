@@ -92,42 +92,6 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
-    const Ranges & clips = helper.allClips;
-    if (clips.empty())
-        return currentFrame;
-    const Ranges::const_iterator itr = find_if(clips.begin(), clips.end(), boost::bind(&sequence::Range::contains, _1, currentFrame));
-    assert(itr!=clips.end());
-    const size_t index = distance(clips.begin(), itr);
-    const int newIndex = int(index) + clipOffset;
-    const int boundIndex = std::max(0, std::min(int(clips.size()) - 1, newIndex));
-    return clips[boundIndex].first;
-}
-
-static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int currentFrame, unsigned clipIndex) {
-    const Ranges & clips = helper.allClips;
-    if (clipIndex >= clips.size()) {
-        cerr << "Can't cue to clip " << clipIndex << ", there is only " << clips.size() << " clips" << endl;
-        return currentFrame;
-    }
-    return clips[clipIndex].first;
-}
-
-static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, unsigned int current) {
-    return cue.cuerelative() ? cueClipRelative(helper, current, cue.value()) : cueClipAbsolute(helper, current, cue.value());
-}
-
-static inline uint32_t cueFrame(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
-    if (cue.cuerelative())
-        return helper.range.offsetLoopFrame(current, cue.value()).first;
-    else
-        return helper.range.clampFrame(cue.value());
-}
-
-static inline uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
-    return cue.cueclip() ? cueClip(cue, helper, current) : cueFrame(cue, helper, current);
-}
-
 Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize,
                          const size_t cacheThreads) :
                 m_IO(io), //
@@ -187,6 +151,46 @@ void* Application::fetchSuite(const char* suiteName, int suiteVersion) {
     return &g_ApplicationRendererSuite;
 }
 
+///////////////////////
+// Transport section //
+///////////////////////
+
+static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
+    const Ranges & clips = helper.allClips;
+    if (clips.empty())
+        return currentFrame;
+    const Ranges::const_iterator itr = find_if(clips.begin(), clips.end(), boost::bind(&sequence::Range::contains, _1, currentFrame));
+    assert(itr!=clips.end());
+    const size_t index = distance(clips.begin(), itr);
+    const int newIndex = int(index) + clipOffset;
+    const int boundIndex = std::max(0, std::min(int(clips.size()) - 1, newIndex));
+    return clips[boundIndex].first;
+}
+
+static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int currentFrame, unsigned clipIndex) {
+    const Ranges & clips = helper.allClips;
+    if (clipIndex >= clips.size()) {
+        cerr << "Can't cue to clip " << clipIndex << ", there is only " << clips.size() << " clips" << endl;
+        return currentFrame;
+    }
+    return clips[clipIndex].first;
+}
+
+static inline uint32_t cueClip(const Transport_Cue& cue, const PlaylistHelper &helper, unsigned int current) {
+    return cue.cuerelative() ? cueClipRelative(helper, current, cue.value()) : cueClipAbsolute(helper, current, cue.value());
+}
+
+static inline uint32_t cueFrame(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+    if (cue.cuerelative())
+        return helper.range.offsetLoopFrame(current, cue.value()).first;
+    else
+        return helper.range.clampFrame(cue.value());
+}
+
+static inline uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const PlaylistHelper &helper, int32_t current) {
+    return cue.cueclip() ? cueClip(cue, helper, current) : cueFrame(cue, helper, current);
+}
+
 void Application::applyTransport(const Transport& transport) {
     //                        m_AudioEngine.applyTransport(transport);
     const uint32_t currentFrame = m_Playback.frame();
@@ -222,6 +226,10 @@ void Application::applyTransport(const Transport& transport) {
     }
 }
 
+//////////////////////
+// Playback section //
+//////////////////////
+
 static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
     switch (mode) {
         case Playlist_PlaybackMode_RENDER:
@@ -244,6 +252,10 @@ static inline void updatePlayback(const PlaylistHelper &helper, playback::Playba
     playback.init(helper.range, playlist.loop(), nsPerFrame);
     playback.setType(get(playlist.playbackmode()));
 }
+
+/////////////////////
+// Message section //
+/////////////////////
 
 void Application::consumeDebug(const Debug &debug) const {
 #ifdef __linux__
@@ -430,6 +442,10 @@ void Application::consumeMessages() {
     }
 }
 
+///////////////////////
+// Rendering section //
+///////////////////////
+
 void Application::renderStart() {
     try {
         // consume message
@@ -505,6 +521,10 @@ bool Application::renderFinished(unsigned msToPresent) {
     return true;
 }
 
+///////////////////
+// Event section //
+///////////////////
+
 void Application::pushEvent(const google::protobuf::serialize::MessageHolder& event) {
     dump(descriptorFor(event), event, true);
     m_IO.push(makeSharedHolder(event));
@@ -514,6 +534,10 @@ const google::protobuf::serialize::MessageHolder * Application::popEvent() {
     m_RendererMessages.tryPop(m_RendererMessageHolder);
     return m_RendererMessageHolder.get();
 }
+
+//////////////////
+// Dump section //
+//////////////////
 
 struct FilenameExtractor {
     const image::WorkUnitId& id;

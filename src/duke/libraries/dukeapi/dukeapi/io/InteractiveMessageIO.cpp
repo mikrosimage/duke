@@ -31,6 +31,8 @@ Transport MAKE(const Transport_TransportType type //
 
 #define PUSH(X) ::push(m_ToApplicationQueue,X)
 
+#define PUSH_RETRIEVE(X) ::push(m_ToApplicationQueue,X,google::protobuf::serialize::MessageHolder::RETRIEVE)
+
 } // namespace
 
 InteractiveMessageIO::InteractiveMessageIO(MessageQueue& initialMessages) :
