@@ -12,6 +12,7 @@
 
 #include <boost/functional/hash.hpp>
 
+#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <climits>
