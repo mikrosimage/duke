@@ -107,7 +107,7 @@ static const string HEADER = "[Cache] ";
 
 struct SmartCache::Impl : private boost::noncopyable {
     Impl(const size_t threads, const uint64_t limit, const ImageDecoderFactory& factory) :
-                    m_CacheActivated(limit > 0 && threads > 0), m_ImageFactory(factory), m_LookAheadCache(limit) {
+                    m_CacheActivated(limit > 0 && threads > 0), m_CacheLimit(limit), m_ImageFactory(factory), m_LookAheadCache(limit) {
 
         if (threads == 0) {
             cerr << HEADER + "cache disabled, because threads = 0" << endl;
@@ -165,8 +165,9 @@ struct SmartCache::Impl : private boost::noncopyable {
         return m_LookAheadCache.dumpKeys(ids);
     }
 
-private:
     const bool m_CacheActivated;
+    const uint64_t m_CacheLimit;
+private:
     const ImageDecoderFactory& m_ImageFactory;
     QUEUE m_LoadedQueue;
     CACHE m_LookAheadCache;
@@ -197,4 +198,12 @@ void SmartCache::seek(unsigned int frame, EPlaybackState state) {
 
 metric_type SmartCache::dumpKeys(image::WorkUnitIds &ids) const {
     return m_pImpl->dumpKeys(ids);
+}
+
+bool SmartCache::enabled() const {
+    return m_pImpl->m_CacheActivated;
+}
+
+uint64_t SmartCache::getLimit() const {
+    return m_pImpl->m_CacheLimit;
 }

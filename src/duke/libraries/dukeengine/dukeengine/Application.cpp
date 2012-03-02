@@ -333,7 +333,8 @@ struct CacheStateGatherer {
 };
 
 void Application::updateCacheState(Info_CacheState &infos) const {
-    //infos.set_ram(m_Cache.)
+    if(!m_Cache.enabled())
+        return;
     image::WorkUnitIds ids;
     infos.set_ram(m_Cache.dumpKeys(ids));
     CacheStateGatherer gatherer(m_Playlist, infos);
@@ -350,6 +351,12 @@ void Application::updatePlaybackState(Info_PlaybackState &infos) const {
         infos.add_filename(itr->filename());
 }
 
+void Application::updateExtensions(RepeatedPtrField<string> &extensions) const {
+    const char ** pExtensions = m_ImageDecoderFactory.getAvailableExtensions();
+    for (; pExtensions != NULL && *pExtensions != NULL; ++pExtensions)
+        *extensions.Add() = *pExtensions;
+}
+
 void Application::consumeInfo(Info info, const MessageHolder_Action action) {
     switch (info.content()) {
         case Info_Content_PLAYBACKSTATE:
@@ -361,6 +368,7 @@ void Application::consumeInfo(Info info, const MessageHolder_Action action) {
         case Info_Content_IMAGEINFO:
             break;
         case Info_Content_EXTENSIONS:
+            updateExtensions(*info.mutable_extensions());
             break;
         default:
             return;

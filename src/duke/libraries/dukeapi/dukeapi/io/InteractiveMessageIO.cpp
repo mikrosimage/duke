@@ -144,6 +144,11 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                         info.set_content(Info_Content_CACHESTATE);
                         PUSH(info);
                     }
+                    {
+                        Info info;
+                        info.set_content(Info_Content_EXTENSIONS);
+                        PUSH(info);
+                    }
                     break;
                 }
                 case KeyEvent_KeyCode_I: {
