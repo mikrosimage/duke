@@ -133,10 +133,17 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                     cout << setw(15) << "[Esc]" << setw(20) << "Quit" << endl;
                     break;
                 }
-                case KeyEvent_KeyCode_P: {
-                    Info info;
-                    info.set_content(Info_Content_PLAYBACKSTATE);
-                    PUSH(info);
+                case KeyEvent_KeyCode_D: {
+                    {
+                        Info info;
+                        info.set_content(Info_Content_PLAYBACKSTATE);
+                        PUSH(info);
+                    }
+                    {
+                        Info info;
+                        info.set_content(Info_Content_CACHESTATE);
+                        PUSH(info);
+                    }
                     break;
                 }
                 case KeyEvent_KeyCode_I: {

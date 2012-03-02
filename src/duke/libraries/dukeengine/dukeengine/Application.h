@@ -42,7 +42,8 @@ private:
     void consumePlaylist(const ::duke::protocol::Playlist&);
     void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
-    ::duke::protocol::Info_PlaybackState getPlaybackState() const ;
+    void updatePlaybackState(::duke::protocol::Info_PlaybackState &) const ;
+    void updateCacheState(::duke::protocol::Info_CacheState &cache) const ;
 
     void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();

@@ -4,6 +4,8 @@
 
 #include <player.pb.h>
 
+#include <sequence/parser/ParserUtils.h>
+
 #include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <dukeengine/image/ImageToolbox.h>
@@ -90,22 +92,21 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-
 static inline uint32_t cueClipRelative(const PlaylistHelper &helper, unsigned int currentFrame, int clipOffset) {
     const Ranges & clips = helper.allClips;
-    if(clips.empty())
+    if (clips.empty())
         return currentFrame;
     const Ranges::const_iterator itr = find_if(clips.begin(), clips.end(), boost::bind(&sequence::Range::contains, _1, currentFrame));
     assert(itr!=clips.end());
     const size_t index = distance(clips.begin(), itr);
     const int newIndex = int(index) + clipOffset;
-    const int boundIndex = std::max(0, std::min(int(clips.size())-1, newIndex));
+    const int boundIndex = std::max(0, std::min(int(clips.size()) - 1, newIndex));
     return clips[boundIndex].first;
 }
 
 static inline uint32_t cueClipAbsolute(const PlaylistHelper &helper, unsigned int currentFrame, unsigned clipIndex) {
     const Ranges & clips = helper.allClips;
-    if(clipIndex >= clips.size()){
+    if (clipIndex >= clips.size()) {
         cerr << "Can't cue to clip " << clipIndex << ", there is only " << clips.size() << " clips" << endl;
         return currentFrame;
     }
@@ -234,7 +235,7 @@ static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
     }
 }
 
-static inline void updatePlayback(const PlaylistHelper &helper, playback::Playback &playback,SmartCache &cache) {
+static inline void updatePlayback(const PlaylistHelper &helper, playback::Playback &playback, SmartCache &cache) {
     const Playlist &playlist = helper.playlist;
     const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     using namespace boost::chrono;
@@ -246,55 +247,55 @@ static inline void updatePlayback(const PlaylistHelper &helper, playback::Playba
 
 void Application::consumeDebug(const Debug &debug) const {
 #ifdef __linux__
-     cout << "\e[J";
+    cout << "\e[J";
 #endif
-     for (int i = 0; i < debug.line_size(); ++i) {
-         size_t found;
-         string line = debug.line(i);
-         found = line.find_first_of("%");
+    for (int i = 0; i < debug.line_size(); ++i) {
+        size_t found;
+        string line = debug.line(i);
+        found = line.find_first_of("%");
 
-         while (found != string::npos) {
-             stringstream ss;
-             ss << line[found + 1];
-             int contentID = atoi(ss.str().c_str());
-             if (contentID < debug.content_size())
-                 line.replace(found, 2, dumpInfo(debug.content(contentID)));
-             found = line.find_first_of("%", found + 1);
-         }
-         cout << line << endl;
-     }
+        while (found != string::npos) {
+            stringstream ss;
+            ss << line[found + 1];
+            int contentID = atoi(ss.str().c_str());
+            if (contentID < debug.content_size())
+                line.replace(found, 2, dumpInfo(debug.content(contentID)));
+            found = line.find_first_of("%", found + 1);
+        }
+        cout << line << endl;
+    }
 #ifdef __linux__
-     stringstream ss;
-     ss << "\r\e[" << debug.line_size() + 1 << "A";
-     cout << ss.str() << endl;
+    stringstream ss;
+    ss << "\r\e[" << debug.line_size() + 1 << "A";
+    cout << ss.str() << endl;
 #endif
-     if (debug.has_pause())
-         ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
+    if (debug.has_pause())
+        ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
 }
 
-void Application::consumeTransport(const Transport &transport, const MessageHolder_Action action){
+void Application::consumeTransport(const Transport &transport, const MessageHolder_Action action) {
     switch (action) {
-                  case MessageHolder_Action_CREATE: {
-                      applyTransport(transport);
-                      if (transport.has_autonotifyonframechange())
-                          m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
-                      if (transport.has_dorender() && transport.dorender())
-                          return;
-                      break;
-                  }
-                  case MessageHolder_Action_RETRIEVE: {
-                      Transport transport;
-                      transport.set_type(::Transport_TransportType_CUE);
-                      Transport_Cue *cue = transport.mutable_cue();
-                      cue->set_value(m_Playback.frame());
-                      push(m_IO, transport);
-                      break;
-                  }
-                  default: {
-                      cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(action) << endl;
-                      break;
-                  }
-              }
+        case MessageHolder_Action_CREATE: {
+            applyTransport(transport);
+            if (transport.has_autonotifyonframechange())
+                m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
+            if (transport.has_dorender() && transport.dorender())
+                return;
+            break;
+        }
+        case MessageHolder_Action_RETRIEVE: {
+            Transport transport;
+            transport.set_type(::Transport_TransportType_CUE);
+            Transport_Cue *cue = transport.mutable_cue();
+            cue->set_value(m_Playback.frame());
+            push(m_IO, transport);
+            break;
+        }
+        default: {
+            cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(action) << endl;
+            break;
+        }
+    }
 }
 
 void Application::consumePlaylist(const Playlist& playlist) {
@@ -303,23 +304,58 @@ void Application::consumePlaylist(const Playlist& playlist) {
     updatePlayback(m_Playlist, m_Playback, m_Cache);
 }
 
-Info_PlaybackState Application::getPlaybackState() const {
-    Info_PlaybackState state;
-    state.set_frame(m_Playback.frame());
-    state.set_fps(m_FrameTimings.frequency());
+typedef sequence::parser::details::LocationValueSet LocationValueSet;
+
+struct CacheStateGatherer {
+    const PlaylistHelper &playlist;
+    vector<LocationValueSet> frames;
+    Info_CacheState &cache;
+    CacheStateGatherer(const PlaylistHelper &playlist, Info_CacheState &cache) :
+                    playlist(playlist), frames(playlist.tracks.size()), cache(cache) {
+    }
+    void ingest(const image::WorkUnitIds &ids) {
+        for (image::WorkUnitIds::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
+            frames[itr->index.track].insert(itr->index.frame);
+    }
+    void update() const {
+        for (size_t i = 0; i < frames.size(); ++i) {
+            Info_CacheState_TrackCache &trackCache = *cache.add_track();
+            trackCache.set_name(playlist.playlist.track(i).name());
+            unsigned step = 0;
+            const Ranges ranges = frames[i].getConsecutiveRanges(step);
+            for (Ranges::const_iterator itr = ranges.begin(); itr != ranges.end(); ++itr) {
+                FrameRange &range = *trackCache.add_range();
+                range.set_first(itr->first);
+                range.set_last(itr->last);
+            }
+        }
+    }
+};
+
+void Application::updateCacheState(Info_CacheState &infos) const {
+    image::WorkUnitIds ids;
+    m_Cache.dumpKeys(ids);
+    CacheStateGatherer gatherer(m_Playlist, infos);
+    gatherer.ingest(ids);
+    gatherer.update();
+}
+
+void Application::updatePlaybackState(Info_PlaybackState &infos) const {
+    infos.set_frame(m_Playback.frame());
+    infos.set_fps(m_FrameTimings.frequency());
     MediaFrames frames;
-    m_Playlist.mediaFramesAt(state.frame(), frames);
-    for(MediaFrames::const_iterator itr = frames.begin(); itr!=frames.end();++itr)
-        state.add_filename(itr->filename());
-    return state;
+    m_Playlist.mediaFramesAt(infos.frame(), frames);
+    for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr)
+        infos.add_filename(itr->filename());
 }
 
 void Application::consumeInfo(Info info, const MessageHolder_Action action) {
-    switch(info.content()){
+    switch (info.content()) {
         case Info_Content_PLAYBACKSTATE:
-            info.mutable_playbackstate()->CopyFrom(getPlaybackState());
+            updatePlaybackState(*info.mutable_playbackstate());
             break;
         case Info_Content_CACHESTATE:
+            updateCacheState(*info.mutable_cachestate());
             break;
         case Info_Content_IMAGEINFO:
             break;
@@ -395,10 +431,10 @@ void Application::renderStart() {
 
         setup.m_Images.clear();
         BOOST_FOREACH( const ImageHolder &image, m_FileBufferHolder.getImages() )
-        {
-            //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
-            setup.m_Images.push_back(image.getImageDescription());
-        }
+                {
+                    //cout << image.getImageDescription().width << "x" << image.getImageDescription().height << endl;
+                    setup.m_Images.push_back(image.getImageDescription());
+                }
 
         // populate clips
         // TODO : need better code... this is awkward
@@ -456,10 +492,12 @@ const google::protobuf::serialize::MessageHolder * Application::popEvent() {
 
 struct FilenameExtractor {
     const image::WorkUnitId& id;
-    FilenameExtractor(const image::WorkUnitId& id) : id(id){}
+    FilenameExtractor(const image::WorkUnitId& id) :
+                    id(id) {
+    }
 };
 
-ostream& operator<<(ostream& stream, const FilenameExtractor& fe){
+ostream& operator<<(ostream& stream, const FilenameExtractor& fe) {
     return stream << fe.id.filename;
 }
 
