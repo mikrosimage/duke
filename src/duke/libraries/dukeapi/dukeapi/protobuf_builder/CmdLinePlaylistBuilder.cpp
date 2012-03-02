@@ -113,7 +113,7 @@ static inline void parsePPLSequenceLine(CmdLinePlaylistBuilder::Pimpl &pimpl, co
     boost::tokenizer<boost::escaped_list_separator<char> > tok(line, els);
     vector<string> parts;
     copy(tok.begin(), tok.end(), back_inserter(parts));
-    parts.erase(remove_if(parts.begin(), parts.end(), mem_fun(&string::empty)), parts.end());
+    parts.erase(remove_if(parts.begin(), parts.end(), mem_fun_ref(&string::empty)), parts.end());
     if (parts.size() != 4) {
         cout << HEADER + "discarding line " << line << endl;
         return;
