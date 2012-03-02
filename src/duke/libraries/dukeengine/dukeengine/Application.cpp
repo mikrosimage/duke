@@ -361,6 +361,8 @@ void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) cons
         current.set_height(description.height);
         current.set_depth(description.depth);
         current.set_format(toString(description.format));
+        current.set_imagesize(description.imageDataSize);
+        current.set_filesize(description.fileDataSize);
     }
 }
 

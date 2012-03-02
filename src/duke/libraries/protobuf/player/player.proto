@@ -279,6 +279,8 @@ message Info {
         required uint32 height = 4;
         required uint32 depth = 5;
         required string format = 6;
+        required uint32 fileSize = 7;
+        required uint32 imageSize = 8;
     }
     message PlaybackState {
         required uint32 frame = 1;          // current frame
