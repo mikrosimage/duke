@@ -44,6 +44,7 @@ private:
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
     void updatePlaybackState(::duke::protocol::Info_PlaybackState &) const ;
     void updateCacheState(::duke::protocol::Info_CacheState &cache) const ;
+    void updateImagesInfo(::google::protobuf::RepeatedPtrField< duke::protocol::Info_ImageInfo> &imageInfos) const ;
     void updateExtensions(::google::protobuf::RepeatedPtrField<std::string> &extensions) const ;
 
     void applyTransport(const ::duke::protocol::Transport&);

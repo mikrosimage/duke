@@ -333,7 +333,7 @@ struct CacheStateGatherer {
 };
 
 void Application::updateCacheState(Info_CacheState &infos) const {
-    if(!m_Cache.enabled())
+    if (!m_Cache.enabled())
         return;
     image::WorkUnitIds ids;
     infos.set_ram(m_Cache.dumpKeys(ids));
@@ -345,10 +345,23 @@ void Application::updateCacheState(Info_CacheState &infos) const {
 void Application::updatePlaybackState(Info_PlaybackState &infos) const {
     infos.set_frame(m_Playback.frame());
     infos.set_fps(m_FrameTimings.frequency());
+}
+
+void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) const {
     MediaFrames frames;
-    m_Playlist.mediaFramesAt(infos.frame(), frames);
-    for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr)
-        infos.add_filename(itr->filename());
+    m_Playlist.mediaFramesAt(m_Playback.frame(), frames);
+    for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr){
+        const unsigned track = itr->index.track;
+        const ImageHolder &holder = m_FileBufferHolder.getImages()[track];
+        const ImageDescription &description = holder.getImageDescription();
+        Info_ImageInfo &current = *infos.Add();
+        current.set_filename(itr->filename());
+        current.set_track(track);
+        current.set_width(description.width);
+        current.set_height(description.height);
+        current.set_depth(description.depth);
+        current.set_format(toString(description.format));
+    }
 }
 
 void Application::updateExtensions(RepeatedPtrField<string> &extensions) const {
@@ -366,9 +379,10 @@ void Application::consumeInfo(Info info, const MessageHolder_Action action) {
             updateCacheState(*info.mutable_cachestate());
             break;
         case Info_Content_IMAGEINFO:
+            updateImagesInfo(*info.mutable_image());
             break;
         case Info_Content_EXTENSIONS:
-            updateExtensions(*info.mutable_extensions());
+            updateExtensions(*info.mutable_extension());
             break;
         default:
             return;

@@ -273,18 +273,16 @@ message Debug {
 // RETRIEVE : requested information are sent back over the wire
 message Info {
     message ImageInfo {
-        required uint32 frame = 1; 
+        required string filename = 1;
         required uint32 track = 2; 
         required uint32 width = 3; 
         required uint32 height = 4;
         required uint32 depth = 5;
         required string format = 6;
-        required uint32 fileDataSize = 7;   // size on disk
     }
     message PlaybackState {
         required uint32 frame = 1;          // current frame
-        repeated string filename = 2;       // current associated filename(s)
-        required float  fps = 3;            // current framerate (real)
+        required float  fps = 2;            // current framerate (real)
     }
     message CacheState {
         required uint32 ram = 1;            // memory used
@@ -301,10 +299,10 @@ message Info {
         EXTENSIONS            = 3;    
     }
     required Content content = 1;
-    repeated ImageInfo images = 2;
+    repeated ImageInfo image = 2;
     optional PlaybackState playbackState = 3;
     optional CacheState cacheState = 4;
-    repeated string extensions = 5;         // jpg, exr, dpx, ...
+    repeated string extension = 5;         // jpg, exr, dpx, ...
 }
 
 message RenderPass {
