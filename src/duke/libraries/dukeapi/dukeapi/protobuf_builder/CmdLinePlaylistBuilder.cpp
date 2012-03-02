@@ -167,22 +167,24 @@ static inline bool notContained(const string& filename, const BrowseItem & item)
 
 static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &absoluteFilename) {
     BrowseItems items;
+    items.push_back(sequence::create_file(absoluteFilename));
     if (pimpl.useContainingSequence) {
         items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
         const string filename = absoluteFilename.filename().string();
         sequence::filterOut(items, bind(&notContained, filename, _1));
-        assert(items.size()==1);
-        const BrowseItem &containingSequence = items[0];
-        assert(containingSequence.type==sequence::SEQUENCE);
-        assert(containingSequence.sequence.step==1);
-        const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
-        const unsigned int filenameFrameNumber = atoi(pFrameString);
-        const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
-        const unsigned int gotoRec = pimpl.trackBuilder.currentRecord() + sequenceOffset;
-        pimpl.transport.mutable_cue()->set_value(gotoRec);
-        cout << HEADER + "cueing to record " << gotoRec << endl;
-    } else {
-        items.push_back(sequence::create_file(absoluteFilename));
+        if (!items.empty()) {
+            const BrowseItem &containingSequence = items[0];
+            items.clear();
+            items.push_back(containingSequence);
+            assert(containingSequence.type==sequence::SEQUENCE);
+            assert(containingSequence.sequence.step==1);
+            const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
+            const unsigned int filenameFrameNumber = atoi(pFrameString);
+            const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
+            const unsigned int gotoRec = pimpl.trackBuilder.currentRecord() + sequenceOffset;
+            pimpl.transport.mutable_cue()->set_value(gotoRec);
+            cout << HEADER + "cueing to record " << gotoRec << endl;
+        }
     }
     pimpl.ingestAll(items);
 }
