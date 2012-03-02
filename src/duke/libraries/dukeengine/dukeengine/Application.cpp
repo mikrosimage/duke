@@ -3,7 +3,10 @@
 #include "host/renderer/Renderer.h"
 
 #include <player.pb.h>
+
 #include <dukeapi/sequence/PlaylistHelper.h>
+
+#include <dukeengine/image/ImageToolbox.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -241,9 +244,106 @@ static inline void updatePlayback(const PlaylistHelper &helper, playback::Playba
     playback.setType(get(playlist.playbackmode()));
 }
 
-void Application::consumeTransport() {
-    using ::duke::protocol::Renderer;
+void Application::consumeDebug(const Debug &debug) const {
+#ifdef __linux__
+     cout << "\e[J";
+#endif
+     for (int i = 0; i < debug.line_size(); ++i) {
+         size_t found;
+         string line = debug.line(i);
+         found = line.find_first_of("%");
 
+         while (found != string::npos) {
+             stringstream ss;
+             ss << line[found + 1];
+             int contentID = atoi(ss.str().c_str());
+             if (contentID < debug.content_size())
+                 line.replace(found, 2, dumpInfo(debug.content(contentID)));
+             found = line.find_first_of("%", found + 1);
+         }
+         cout << line << endl;
+     }
+#ifdef __linux__
+     stringstream ss;
+     ss << "\r\e[" << debug.line_size() + 1 << "A";
+     cout << ss.str() << endl;
+#endif
+     if (debug.has_pause())
+         ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
+}
+
+void Application::consumeTransport(const Transport &transport, const MessageHolder_Action action){
+    switch (action) {
+                  case MessageHolder_Action_CREATE: {
+                      applyTransport(transport);
+                      if (transport.has_autonotifyonframechange())
+                          m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
+                      if (transport.has_dorender() && transport.dorender())
+                          return;
+                      break;
+                  }
+                  case MessageHolder_Action_RETRIEVE: {
+                      Transport transport;
+                      transport.set_type(::Transport_TransportType_CUE);
+                      Transport_Cue *cue = transport.mutable_cue();
+                      cue->set_value(m_Playback.frame());
+                      push(m_IO, transport);
+                      break;
+                  }
+                  default: {
+                      cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(action) << endl;
+                      break;
+                  }
+              }
+}
+
+void Application::consumePlaylist(const Playlist& playlist) {
+    m_Playlist = PlaylistHelper(playlist);
+    m_AudioEngine.load(playlist);
+    updatePlayback(m_Playlist, m_Playback, m_Cache);
+}
+
+Info_PlaybackState Application::getPlaybackState() const {
+    Info_PlaybackState state;
+    state.set_frame(m_Playback.frame());
+    state.set_fps(m_FrameTimings.frequency());
+    MediaFrames frames;
+    m_Playlist.mediaFramesAt(state.frame(), frames);
+    for(MediaFrames::const_iterator itr = frames.begin(); itr!=frames.end();++itr)
+        state.add_filename(itr->filename());
+    return state;
+}
+
+void Application::consumeInfo(Info info, const MessageHolder_Action action) {
+    switch(info.content()){
+        case Info_Content_PLAYBACKSTATE:
+            info.mutable_playbackstate()->CopyFrom(getPlaybackState());
+            break;
+        case Info_Content_CACHESTATE:
+            break;
+        case Info_Content_IMAGEINFO:
+            break;
+        case Info_Content_EXTENSIONS:
+            break;
+        default:
+            return;
+    }
+    switch (action) {
+        case MessageHolder_Action_CREATE:
+            info.PrintDebugString();
+            break;
+        case MessageHolder_Action_RETRIEVE: {
+            MessageHolder tmp;
+            ::google::protobuf::serialize::pack(tmp, info);
+            pushEvent(tmp);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Application::consumeMessages() {
     SharedHolder pHolder;
     while (m_IO.tryPop(pHolder)) {
         if (handleQuitMessage(pHolder)) {
@@ -253,77 +353,26 @@ void Application::consumeTransport() {
         }
         const MessageHolder &holder = *pHolder;
         const Descriptor* pDescriptor = descriptorFor(holder);
-        if (isType<Renderer>(pDescriptor)) {
+        dump(pDescriptor, holder);
+        if (isType<duke::protocol::Renderer>(pDescriptor))
             cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
-        } else if (isType<Debug>(pDescriptor)) {
-            dump(pDescriptor, holder);
-            const Debug debug = unpackTo<Debug>(holder);
-#ifdef __linux__
-            cout << "\e[J";
-#endif
-            for (int i = 0; i < debug.line_size(); ++i) {
-                size_t found;
-                string line = debug.line(i);
-                found = line.find_first_of("%");
-
-                while (found != string::npos) {
-                    stringstream ss;
-                    ss << line[found + 1];
-                    int contentID = atoi(ss.str().c_str());
-                    if (contentID < debug.content_size())
-                        line.replace(found, 2, dumpInfo(debug.content(contentID)));
-                    found = line.find_first_of("%", found + 1);
-                }
-                cout << line << endl;
-            }
-#ifdef __linux__
-            stringstream ss;
-            ss << "\r\e[" << debug.line_size() + 1 << "A";
-            cout << ss.str() << endl;
-#endif
-            if (debug.has_pause())
-                ::boost::this_thread::sleep(::boost::posix_time::seconds(debug.pause()));
-        } else if (isType<Playlist>(pDescriptor)) {
-            dump(pDescriptor, holder);
-            PlaylistHelper(unpackTo<Playlist>(holder));
-            m_Playlist = PlaylistHelper(unpackTo<Playlist>(holder));
-            m_AudioEngine.load(unpackTo<Playlist>(holder));
-            updatePlayback(m_Playlist, m_Playback, m_Cache);
-        } else if (isType<Transport>(pDescriptor)) {
-            dump(pDescriptor, holder);
-            switch (pHolder->action()) {
-                case MessageHolder_Action_CREATE: {
-                    const Transport transport = unpackTo<Transport>(holder);
-                    applyTransport(transport);
-                    if (transport.has_autonotifyonframechange())
-                        m_bAutoNotifyOnFrameChange = transport.autonotifyonframechange();
-                    if (transport.has_dorender() && transport.dorender())
-                        return;
-                    break;
-                }
-                case MessageHolder_Action_RETRIEVE: {
-                    Transport transport;
-                    transport.set_type(::Transport_TransportType_CUE);
-                    Transport_Cue *cue = transport.mutable_cue();
-                    cue->set_value(m_Playback.frame());
-                    push(m_IO, transport);
-                    break;
-                }
-                default: {
-                    cerr << HEADER + "unknown action for transport message " << MessageHolder_Action_Name(holder.action()) << endl;
-                    break;
-                }
-            }
-        } else {
+        else if (isType<Debug>(pDescriptor))
+            consumeDebug(unpackTo<Debug>(holder));
+        else if (isType<Playlist>(pDescriptor))
+            consumePlaylist(unpackTo<Playlist>(holder));
+        else if (isType<Transport>(pDescriptor))
+            consumeTransport(unpackTo<Transport>(holder), holder.action());
+        else if (isType<Info>(pDescriptor))
+            consumeInfo(unpackTo<Info>(holder), holder.action());
+        else
             m_RendererMessages.push(pHolder);
-        }
     }
 }
 
 void Application::renderStart() {
     try {
         // consume message
-        consumeTransport();
+        consumeMessages();
 
         // update current frame
         if (m_Playback.adjustCurrentFrame())
@@ -405,6 +454,15 @@ const google::protobuf::serialize::MessageHolder * Application::popEvent() {
     return m_RendererMessageHolder.get();
 }
 
+struct FilenameExtractor {
+    const image::WorkUnitId& id;
+    FilenameExtractor(const image::WorkUnitId& id) : id(id){}
+};
+
+ostream& operator<<(ostream& stream, const FilenameExtractor& fe){
+    return stream << fe.id.filename;
+}
+
 string Application::dumpInfo(const Debug_Content& info) const {
     stringstream ss;
 
@@ -413,15 +471,11 @@ string Application::dumpInfo(const Debug_Content& info) const {
             ss << m_Playback.frame();
             break;
         case Debug_Content_FILENAMES: {
-            MediaFrames mediaFrames;
-            m_Playlist.mediaFramesAt(m_Playback.frame(), mediaFrames);
-
-            // FIXME
-#pragma message "Application::dumpInfo is missing Debug_Content_FILENAMES case"
-//            BOOST_FOREACH(size_t i, mediaFrames)
-//                    {
-//                        ss << m_Playlist.getPathAtIterator(i).filename() << " ";
-//                    }
+            image::WorkUnitIds ids;
+            ids.reserve(200);
+            m_Cache.dumpKeys(ids);
+            copy(ids.begin(), ids.end(), ostream_iterator<FilenameExtractor>(ss, "\n"));
+//            ss << "found " << ids.size() << " files in cache";
             break;
         }
         case Debug_Content_FPS: {

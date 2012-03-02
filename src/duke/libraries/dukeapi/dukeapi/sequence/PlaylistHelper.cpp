@@ -22,6 +22,22 @@ using namespace sequence;
 namespace duke {
 namespace protocol {
 
+string MediaFrame::filename() const {
+    boost::filesystem::path path;
+    switch (type) {
+        case duke::protocol::Media_Type_SINGLE_IMAGE:
+            path = item.path;
+            break;
+        case duke::protocol::Media_Type_IMAGE_SEQUENCE:
+            path = item.path / sequence::instanciatePattern(item.sequence.pattern, source);
+            break;
+        default:
+            cerr << "can't decode movies for the moment" << endl;
+            break;
+    }
+    return path.make_preferred().string();
+}
+
 template<class InputIterator, class Function>
 Function for_each_adjacent(InputIterator first, InputIterator last, Function f) {
     typedef typename InputIterator::value_type value_type;

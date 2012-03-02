@@ -33,11 +33,12 @@ typedef image::WorkUnitId id_type;
 typedef image::WorkUnitData data_type;
 typedef uint64_t metric_type;
 struct Job {
-    Job() : bEmpty(true) {
+    Job() :
+                    bEmpty(true) {
     }
 
     Job(const PlaylistHelper &helper, sequence::Range overRange, size_t frame, EPlaybackState state) :
-        playlistIterator(helper, state, frame, overRange), bEmpty(helper.empty()) {
+                    playlistIterator(helper, state, frame, overRange), bEmpty(helper.empty()) {
     }
 
     inline void clear() {
@@ -155,9 +156,13 @@ struct SmartCache::Impl : private boost::noncopyable {
         return imageHolder.error.empty();
     }
 
-    inline void init(const duke::protocol::PlaylistHelper &playlistHelper, const sequence::Range &overRange){
+    inline void init(const duke::protocol::PlaylistHelper &playlistHelper, const sequence::Range &overRange) {
         playlist = playlistHelper;
         cacheOverRange = overRange;
+    }
+
+    inline void dumpKeys(std::vector<image::WorkUnitId>& ids) const {
+        m_LookAheadCache.dumpKeys(ids);
     }
 
 private:
@@ -169,9 +174,6 @@ private:
     sequence::Range cacheOverRange;
     Job m_LastJob;
     boost::thread_group m_ThreadGroup;
-
-    mutable vector<id_type> m_AvailableKeys;
-    mutable set<uint64_t> m_QueryKeys;
 };
 
 SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory) :
@@ -181,7 +183,7 @@ SmartCache::SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory
 SmartCache::~SmartCache() {
 }
 
-void SmartCache::init(const duke::protocol::PlaylistHelper &playlist, const sequence::Range &over){
+void SmartCache::init(const duke::protocol::PlaylistHelper &playlist, const sequence::Range &over) {
     m_pImpl->init(playlist, over);
 }
 
@@ -193,3 +195,6 @@ void SmartCache::seek(unsigned int frame, EPlaybackState state) {
     m_pImpl->seek(frame, state);
 }
 
+void SmartCache::dumpKeys(image::WorkUnitIds &ids) const {
+    m_pImpl->dumpKeys(ids);
+}

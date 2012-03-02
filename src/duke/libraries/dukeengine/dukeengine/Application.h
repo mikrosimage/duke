@@ -37,9 +37,15 @@ public:
     const google::protobuf::serialize::MessageHolder * popEvent();
 
 private:
+    void consumeMessages();
+    void consumeDebug(const ::duke::protocol::Debug&) const;
+    void consumePlaylist(const ::duke::protocol::Playlist&);
+    void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
+    void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
+    ::duke::protocol::Info_PlaybackState getPlaybackState() const ;
+
     void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();
-    void consumeTransport();
     bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
 

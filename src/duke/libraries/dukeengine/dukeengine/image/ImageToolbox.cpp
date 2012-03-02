@@ -20,24 +20,11 @@ using namespace std;
 
 namespace image {
 WorkUnitId::WorkUnitId(const duke::protocol::MediaFrame &mf) :
-                duke::protocol::MediaFrame(mf) {
-    boost::filesystem::path path;
-    switch (mf.type) {
-        case duke::protocol::Media_Type_SINGLE_IMAGE:
-            path = mf.item.path;
-            break;
-        case duke::protocol::Media_Type_IMAGE_SEQUENCE:
-            path = mf.item.path / sequence::instanciatePattern(mf.item.sequence.pattern, mf.source);
-            break;
-        default:
-            filename = "can't decode movies for the moment";
-            break;
-    }
-    filename = path.make_preferred().string();
+                duke::protocol::MediaFrame(mf), filename(mf.filename()) {
 }
 
 bool WorkUnitId::operator==(const WorkUnitId &other) const {
-    if(filename.size()!=other.filename.size())
+    if (filename.size() != other.filename.size())
         return false;
     return filename == other.filename;
 }
@@ -160,6 +147,6 @@ void decode(const ImageDecoderFactory &factory, WorkUnitData &unit, uint64_t& si
 
 } // namespace image
 
-std::ostream& operator<<(std::ostream &stream, const image::WorkUnitId&id ){
+std::ostream& operator<<(std::ostream &stream, const image::WorkUnitId&id) {
     return id.operator <<(stream);
 }

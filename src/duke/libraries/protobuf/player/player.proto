@@ -257,6 +257,7 @@ message Transport {
 	optional bool autoNotifyOnFrameChange = 6; // if set, sends event on each frame change  
 }
 
+// we should probably deprecated this one
 message Debug {
 	enum Content {
 		FRAME				= 0;
@@ -266,6 +267,44 @@ message Debug {
 	repeated string line = 1;
 	repeated Content content = 2;
 	optional uint32 pause = 3;
+}
+
+// CREATE   : requested information are dumped to standard output
+// RETRIEVE : requested information are sent back over the wire
+message Info {
+    message ImageInfo {
+        required uint32 frame = 1; 
+        required uint32 track = 2; 
+        required uint32 width = 3; 
+        required uint32 height = 4;
+        required uint32 depth = 5;
+        required string format = 6;
+        required uint32 fileDataSize = 7;   // size on disk
+    }
+    message PlaybackState {
+        required uint32 frame = 1;          // current frame
+        repeated string filename = 2;       // current associated filename(s)
+        required float  fps = 3;            // current framerate (real)
+    }
+    message CacheState {
+        required uint32 ram = 1;            // memory used
+        message TrackCache {
+        	required string name = 1;
+        	repeated FrameRange range = 2;
+        }
+        repeated TrackCache track = 2;   // each frame already in cache
+    }
+    enum Content {
+        IMAGEINFO             = 0;
+        PLAYBACKSTATE         = 1;
+        CACHESTATE            = 2;
+        EXTENSIONS            = 3;    
+    }
+    required Content content = 1;
+    repeated ImageInfo images = 2;
+    optional PlaybackState playbackState = 3;
+    optional CacheState cacheState = 4;
+    repeated string extensions = 5;         // jpg, exr, dpx, ...
 }
 
 message RenderPass {

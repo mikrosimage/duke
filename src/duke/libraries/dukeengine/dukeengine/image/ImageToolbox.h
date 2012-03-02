@@ -20,17 +20,6 @@ struct ImageDecoderFactory;
 
 namespace image {
 
-//struct WorkUnitId {
-//    uint64_t hash;
-//    std::string filename;
-//
-//    WorkUnitId() {}
-//    WorkUnitId(uint64_t hash, const std::string &filename) : hash(hash), filename(filename) {}
-//    inline bool operator<(const WorkUnitId &other) const { return hash < other.hash; }
-//    inline bool operator==(const WorkUnitId &other) const { return hash == other.hash; }
-//    inline bool operator!=(const WorkUnitId &other) const { return hash != other.hash; }
-//};
-
 struct WorkUnitId : public duke::protocol::MediaFrame {
     std::string filename;
     WorkUnitId(){}
@@ -41,6 +30,8 @@ struct WorkUnitId : public duke::protocol::MediaFrame {
     bool operator<(const WorkUnitId&other)const;
     std::ostream& operator<<(std::ostream&) const;
 };
+
+typedef std::vector<WorkUnitId> WorkUnitIds;
 
 struct WorkUnitData {
     WorkUnitId id;

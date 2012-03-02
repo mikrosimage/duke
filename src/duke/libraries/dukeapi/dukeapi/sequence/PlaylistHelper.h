@@ -52,6 +52,7 @@ struct MediaFrame {
     sequence::BrowseItem item;
     MediaFrame() : index(0,0),source(0),type(Media_Type_SINGLE_IMAGE){}
     MediaFrame(const PlaylistIndex &index, const unsigned int source, const Media_Type type, const sequence::BrowseItem &item) : index(index),source(source),type(type),item(item){}
+    std::string filename() const;
 };
 
 typedef std::vector<MediaFrame> MediaFrames;
