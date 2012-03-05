@@ -254,22 +254,14 @@ void Configuration::displayVersion() {
 }
 
 void Configuration::displayHelp() {
-    cout << "Usage:" << endl;
-    cout << "   Playlist:                                 dukex playlist.ppl or duke playlist.ppl2" << endl;
-    cout << "   One File:                                 dukex foo.jpg" << endl;
-    cout << "   This Directory:                           dukex . or duke ./" << endl;
-    cout << "   Other Directory:                          dukex /path/to/dir" << endl;
-    cout << "   Multi Directories:                        dukex /path/to/dir1 /path/to/dir2" << endl;
-    cout << "   Directories, files, sequences, playlist:  dukex /path/to/dir /img/toto.###.jpg foo.jpg playlist.ppl2" << endl << endl;
-    cout << "Image Sequence Numbering" << endl;
-    cout << "   Frames with and without padding:          image.@.jpg" << endl;
-    cout << "   Frames 1 to 100 padding 4:                image.####.jpg -or- image.@.jpg" << endl;
-    cout << "   Frames 1 to 100 padding 5:                image.#####.jpg" << endl;
-    cout << "   printf style padding 4:                   image.%04d.jpg" << endl;
-    cout << "   printf style w/range:                     image.%04d.jpg 1 100" << endl;
-    //cout << "   All Frames in Sequence:                   duke /path/to/dir /img/toto.###.jpg" << endl;
-    cout << "   All Frames in Directory:                  /path/to/directory" << endl << endl;
-    //cout << "   All Frames in current dir:                ." << endl << endl;
+    cout << "Usage: " << endl;
+    cout << setiosflags ( ios_base::left );
+    cout << setw(30) << "   Open one file:" << "duke foo.jpg" <<  endl;
+    cout << setw(30) << "   Open a sequence:" << "duke img.1234.jpg -s" <<  endl;
+    cout << setw(30) << "   Open a playlist:" << "duke playlist.ppl" <<  endl;
+    cout << setw(30) << "   Browse this directory:" << "duke ." <<  endl;
+    cout << setw(30) << "   Browse N directories:" << "duke /path/to/dir1 /path/to/dir2" <<  endl;
+    cout << setw(30) << "   Open N inputs:" << "duke /path/to/dir /img/image.1234.jpg foo.jpg playlist.ppl -s" << endl << endl;
     cout << m_CmdlineOptionsGroup << endl;
 }
 
