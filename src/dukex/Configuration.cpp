@@ -13,7 +13,6 @@
 #ifndef BUILD_INFORMATION
 #define BUILD_INFORMATION "no information available - don't use in production"
 #endif // BUILD_INFORMATION
-
 // namespace
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -24,20 +23,18 @@ using namespace std;
 #define NOFRAMERATE_OPT     "no-framerate"
 #define REFRESHRATE         "refreshrate"
 #define REFRESHRATE_OPT     "refreshrate"
-#define FULLSCREEN          "fullscreen"
-#define FULLSCREEN_OPT      "fullscreen,f"
-#define RESOLUTION          "resolution"
-#define RESOLUTION_OPT      "resolution"
+//#define FULLSCREEN          "fullscreen"
+//#define FULLSCREEN_OPT      "fullscreen,f"
+//#define RESOLUTION          "resolution"
+//#define RESOLUTION_OPT      "resolution"
 #define CACHESIZE           "cache-size"
 #define CACHESIZE_OPT       "cache-size,c"
-#define FRAMERATE           "framerate"
-#define FRAMERATE_OPT       "framerate"
+//#define FRAMERATE           "framerate"
+//#define FRAMERATE_OPT       "framerate"
 #define THREADS             "threads"
 #define THREADS_OPT         "threads,t"
 #define BLANKING            "blanking"
 #define BLANKING_OPT        "blanking"
-#define PLAYLIST            "playlist"
-#define PLAYLIST_OPT        "playlist,p"
 #define RENDERER            "renderer"
 #define RENDERER_OPT        "renderer"
 //#define PLAYBACK            "playback"
@@ -48,8 +45,8 @@ using namespace std;
 #define NOSKIP_OPT          "no-skip"
 //#define RECORD              "record"
 //#define RECORD_OPT          "record"
-#define PORT                "port"
-#define PORT_OPT            "port"
+//#define PORT                "port"
+//#define PORT_OPT            "port"
 #define HELP                "help"
 #define HELP_OPT            "help,h"
 #define VERSION             "version"
@@ -61,10 +58,10 @@ void setDisplayOptions(boost::program_options::options_description& description,
     ostringstream resolution;
     resolution << Renderer.width() << 'x' << Renderer.height();
     description.add_options() //
-    (FULLSCREEN_OPT, "Sets the application to run fullscreen") //
+    //    (FULLSCREEN_OPT, "Sets the application to run fullscreen") //
     (BLANKING_OPT, po::value<unsigned int>()->default_value(1), "Blanking count before presentation, up to 4, 0 means immediate and results in tearing effect.") //
     (REFRESHRATE_OPT, po::value<unsigned int>()->default_value(Renderer.refreshrate()), "Forces the screen refresh rate (fullscreen mode)") //
-    (RESOLUTION_OPT, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
+    //    (RESOLUTION_OPT, po::value<string>()->default_value(resolution.str()), "Sets the dimensions of the display") //
     ;
 }
 const string HEADER = "[Configuration] ";
@@ -102,12 +99,12 @@ bool Configuration::parse(int argc, char** argv) {
 
     // available in the configuration file and command line
     m_Config.add_options() //
-        (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
+    (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
     //    (PLAYBACK_OPT, po::value<string>(), "Play a recorded session back from file") //
     //    (RECORD_OPT, po::value<string>(), "Record a session to file") //
-    (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
-        (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
-        (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
+    //    (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
+    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
+    (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
 
     // Adding display settings
     // Get Renderer from session descriptor
@@ -117,7 +114,7 @@ bool Configuration::parse(int argc, char** argv) {
     // adding interactive mode options
     m_Interactive.add_options() //
     (SEQUENCE_OPT, "Enable detection of sequences from filename") //
-    (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
+    //    (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
 
@@ -154,44 +151,44 @@ bool Configuration::parse(int argc, char** argv) {
     if (m_Vm.count(RENDERER) == 0)
         throw runtime_error("No renderer specified. Aborting.");
 
-    mSession->setRendererPath(m_Vm[RENDERER].as<std::string>());
+    mSession->setRendererPath(m_Vm[RENDERER].as<std::string> ());
 
     // threading
     if (m_Vm.count(THREADS))
-        mSession->setThreadSize(m_Vm[THREADS].as<size_t>());
+        mSession->setThreadSize(m_Vm[THREADS].as<size_t> ());
 
     // caching
     if (m_Vm.count(CACHESIZE))
-        mSession->setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
+        mSession->setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t> ()) * 1024) * 1024);
 
-    /**
-     * Client mode
-     */
-    // if port is specified turning into a client
-    if (m_Vm.count(PORT)) {
-        mSession->setPort(m_Vm[PORT].as<short> ());
-    }
+    //    /**
+    //     * Client mode
+    //     */
+    //    // if port is specified turning into a client
+    //    if (m_Vm.count(PORT)) {
+    //        mSession->setPort(m_Vm[PORT].as<short> ());
+    //    }
 
     /**
      * Interactive mode
      */
     renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned> ());
-    renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
+    //    renderer.set_fullscreen(m_Vm.count(FULLSCREEN) > 0);
     renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned> ());
-    if (m_Vm.count(RESOLUTION) != 0) {
-        std::string res = m_Vm[RESOLUTION].as<string> ();
-        std::replace(res.begin(), res.end(), 'x', ' ');
-        std::replace(res.begin(), res.end(), 'X', ' ');
-        istringstream stream(res);
-        int width = -1;
-        int height = -1;
-        stream >> width;
-        stream >> height;
-        if (stream.bad() || width == -1 || height == -1)
-            throw runtime_error(std::string("bad resolution \"") + res + '\"');
-        renderer.set_width(width);
-        renderer.set_height(height);
-    }
+    //    if (m_Vm.count(RESOLUTION) != 0) {
+    //        std::string res = m_Vm[RESOLUTION].as<string> ();
+    //        std::replace(res.begin(), res.end(), 'x', ' ');
+    //        std::replace(res.begin(), res.end(), 'X', ' ');
+    //        istringstream stream(res);
+    //        int width = -1;
+    //        int height = -1;
+    //        stream >> width;
+    //        stream >> height;
+    //        if (stream.bad() || width == -1 || height == -1)
+    //            throw runtime_error(std::string("bad resolution \"") + res + '\"');
+    //        renderer.set_width(width);
+    //        renderer.set_height(height);
+    //    }
 
     // checking renderer
     if (renderer.presentinterval() > 4)
@@ -200,8 +197,9 @@ bool Configuration::parse(int argc, char** argv) {
     // Get Playlist from session descriptor
     Playlist & playlist = mSession->descriptor().playlist();
 
-    const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int> ();
-    playlist.set_frameratenumerator((int) framerate);
+//    const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int> ();
+//    playlist.set_frameratenumerator((int) framerate);
+    playlist.set_frameratenumerator(25);
     if (m_Vm.count(NOFRAMERATE) > 0)
         playlist.set_playbackmode(Playlist::RENDER);
     else if (m_Vm.count(NOSKIP) > 0)
@@ -255,12 +253,12 @@ void Configuration::displayVersion() {
 
 void Configuration::displayHelp() {
     cout << "Usage: " << endl;
-    cout << setiosflags ( ios_base::left );
-    cout << setw(30) << "   Open one file:" << "duke foo.jpg" <<  endl;
-    cout << setw(30) << "   Open a sequence:" << "duke img.1234.jpg -s" <<  endl;
-    cout << setw(30) << "   Open a playlist:" << "duke playlist.ppl" <<  endl;
-    cout << setw(30) << "   Browse this directory:" << "duke ." <<  endl;
-    cout << setw(30) << "   Browse N directories:" << "duke /path/to/dir1 /path/to/dir2" <<  endl;
+    cout << setiosflags(ios_base::left);
+    cout << setw(30) << "   Open one file:" << "duke foo.jpg" << endl;
+    cout << setw(30) << "   Open a sequence:" << "duke img.1234.jpg -s" << endl;
+    cout << setw(30) << "   Open a playlist:" << "duke playlist.ppl" << endl;
+    cout << setw(30) << "   Browse this directory:" << "duke ." << endl;
+    cout << setw(30) << "   Browse N directories:" << "duke /path/to/dir1 /path/to/dir2" << endl;
     cout << setw(30) << "   Open N inputs:" << "duke /path/to/dir /img/image.1234.jpg foo.jpg playlist.ppl -s" << endl << endl;
     cout << m_CmdlineOptionsGroup << endl;
 }

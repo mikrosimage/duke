@@ -25,10 +25,10 @@ UIApplication::UIApplication(Session::ptr s) :
     ui.setupUi(this);
     setCentralWidget(m_RenderWindow);
 
-//    // Status bar (top right corner)
-//    m_statusInfo = new QLabel();
-//    m_statusInfo->setText("Starting...");
-//    menuBar()->setCornerWidget(m_statusInfo);
+    //    // Status bar (top right corner)
+    //    m_statusInfo = new QLabel();
+    //    m_statusInfo->setText("Starting...");
+    //    menuBar()->setCornerWidget(m_statusInfo);
 
     // Preferences
     m_Preferences.loadShortcuts(this);
@@ -80,7 +80,7 @@ UIApplication::UIApplication(Session::ptr s) :
 
     // Starting Session
     m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
-//    m_statusInfo->setText("Connecting...");
+    //    m_statusInfo->setText("Connecting...");
 
     // Starting Timer : so as to copute "IN" msgs every N ms
     m_timerID = QObject::startTimer(40);
@@ -90,8 +90,8 @@ UIApplication::UIApplication(Session::ptr s) :
 bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title) {
     QDockWidget * dockwidget = new QDockWidget(_title, this);
     dockwidget->setContentsMargins(0, 0, 0, 0);
-//    dockwidget->setMinimumSize(uiwidget->minimumSize());
-//    dockwidget->setMaximumSize(uiwidget->maximumSize());
+    //    dockwidget->setMinimumSize(uiwidget->minimumSize());
+    //    dockwidget->setMaximumSize(uiwidget->maximumSize());
     uiwidget->setParent(dockwidget);
 
     m_Session->addObserver(uiwidget);
@@ -159,14 +159,14 @@ void UIApplication::closeEvent(QCloseEvent *event) {
 // private
 void UIApplication::timerEvent(QTimerEvent *event) {
     m_Session->computeInMsg();
-//    // check connection status
-//    if (!m_Session->connected()) {
-//        m_statusInfo->setStyleSheet("QLabel { color : red; }");
-//        m_statusInfo->setText("Disconnected.");
-//    } else {
-//        m_statusInfo->setStyleSheet("QLabel { color : green; }");
-//        m_statusInfo->setText("Connected.");
-//    }
+    //    // check connection status
+    //    if (!m_Session->connected()) {
+    //        m_statusInfo->setStyleSheet("QLabel { color : red; }");
+    //        m_statusInfo->setText("Disconnected.");
+    //    } else {
+    //        m_statusInfo->setStyleSheet("QLabel { color : green; }");
+    //        m_statusInfo->setText("Connected.");
+    //    }
     event->accept();
 }
 
@@ -273,7 +273,7 @@ void UIApplication::updateRecentFilesMenu() {
         if (m_Preferences.history(i) == "")
             continue;
         boost::filesystem::path fn(m_Preferences.history(i));
-//        QAction * act = ui.openRecentMenu->addAction(fn.leaf().c_str());
+        //        QAction * act = ui.openRecentMenu->addAction(fn.leaf().c_str());
         QAction * act = ui.openRecentMenu->addAction(m_Preferences.history(i).c_str());
         act->setData(m_Preferences.history(i).c_str());
         connect(act, SIGNAL(triggered()), this, SLOT(openRecent()));
@@ -282,45 +282,31 @@ void UIApplication::updateRecentFilesMenu() {
 
 // private slot
 void UIApplication::openFiles(const QStringList & _list, const bool & asSequence, const bool & asDir) {
-    // get current frame
-    size_t currentFrame = m_Session->frame();
-    {
-        // open new files
-        INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
-        if (n.get() != NULL) {
-            PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
-            if (p.get() != NULL) {
-                if (!_list.isEmpty()) {
-                    // --- QStringList to STL vector<string>
-                    std::vector<std::string> v;
-                    v.resize(_list.count());
-                    for (int i = 0; i < _list.count(); ++i) {
-                        v[i] = _list[i].toStdString();
-                    }
-                    p->openFiles(v, asSequence);
-                    if(v.size() == 1) { // multi selection not handled in file history
-                        QString history = _list[0];
-                        if(asSequence){
-                            history.prepend("sequence://");
-                        } else if(asDir){
-                            history.prepend("directory://");
-                        } else {
-                            history.prepend("file://");
-                        }
-                        m_Preferences.addToHistory(history.toStdString());
-                        updateRecentFilesMenu();
-                    }
+    // open new files
+    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
+    if (n.get() != NULL) {
+        PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
+        if (p.get() != NULL) {
+            if (!_list.isEmpty()) {
+                // --- QStringList to STL vector<string>
+                std::vector<std::string> v;
+                v.resize(_list.count());
+                for (int i = 0; i < _list.count(); ++i) {
+                    v[i] = _list[i].toStdString();
                 }
-            }
-        }
-    }
-    {
-        // seek to registered frame
-        INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-        if (n.get() != NULL) {
-            TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-            if (t.get() != NULL) {
-                t->gotoFrame(currentFrame);
+                p->openFiles(v, asSequence);
+                if (v.size() == 1) { // multi selection not handled in file history
+                    QString history = _list[0];
+                    if (asSequence) {
+                        history.prepend("sequence://");
+                    } else if (asDir) {
+                        history.prepend("directory://");
+                    } else {
+                        history.prepend("file://");
+                    }
+                    m_Preferences.addToHistory(history.toStdString());
+                    updateRecentFilesMenu();
+                }
             }
         }
     }
@@ -343,11 +329,11 @@ void UIApplication::openRecent() {
         QString file = action->data().toString();
         if (!file.isEmpty()) {
             QStringList filenames;
-            if(file.startsWith("sequence://")){
+            if (file.startsWith("sequence://")) {
                 file.remove(0, 11);
                 filenames.append(file);
                 openFiles(filenames, true);
-            } else if(file.startsWith("directory://")){
+            } else if (file.startsWith("directory://")) {
                 file.remove(0, 12);
                 filenames.append(file);
                 openFiles(filenames, false, true);

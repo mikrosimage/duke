@@ -127,13 +127,13 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
         if (p.track_size() > 0) {
             for (int i = 0; i < p.track_size(); ++i) {
                 const Track & t = p.track(i);
-                if(t.clip_size() > 0) {
+                if (t.clip_size() > 0) {
                     for (int j = 0; j < t.clip_size(); ++j) {
                         const Clip & c = t.clip(j);
                         m_tracksView->addItem(c.record().first(), c.record().last() - c.record().first()); //TODO < handle track number here
                     }
                     qint64 clipLastFrame = t.clip(t.clip_size() - 1).record().last();
-                    if(clipLastFrame > lastFrame)
+                    if (clipLastFrame > lastFrame)
                         lastFrame = clipLastFrame;
                 }
             }
@@ -141,7 +141,10 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
         setDuration(lastFrame);
         fit();
     } else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
-        std::cerr << "INPUT: INFO MSG" << std::endl;
+        std::cerr << "-- INFO --" << std::endl;
+        const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
+        if (info.IsInitialized())
+            info.PrintDebugString();
     }
 }
 
@@ -178,13 +181,13 @@ void UITimeline::framerateChanged(double framerate) {
 
 void UITimeline::fit() {
     double factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
-    if(factor < 0.){
-        while(factor < 0 && m_zoom > MINZOOMRATIO){
+    if (factor < 0.) {
+        while (factor < 0 && m_zoom > MINZOOMRATIO) {
             zoomOut();
             factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
         }
     } else {
-        while(factor > 0 && m_zoom < MAXZOOMRATIO){
+        while (factor > 0 && m_zoom < MAXZOOMRATIO) {
             zoomIn();
             factor = m_tracksView->duration() - m_tracksView->visibleRect().width();
         }

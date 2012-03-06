@@ -79,16 +79,23 @@ public:
 
     bool debug() {
         try {
+//            MessageQueue queue;
+//            ::duke::protocol::Debug d;
+//            d.add_line("%0");
+//            d.add_line("%1");
+//            d.add_line("%2");
+//            d.add_content(::duke::protocol::Debug_Content_FRAME);
+//            d.add_content(::duke::protocol::Debug_Content_FILENAMES);
+//            d.add_content(::duke::protocol::Debug_Content_FPS);
+//            push(queue, d, google::protobuf::serialize::MessageHolder::RETRIEVE);
+//            session()->sendMsg(queue);
+
             MessageQueue queue;
-            ::duke::protocol::Debug d;
-            d.add_line("%0");
-            d.add_line("%1");
-            d.add_line("%2");
-            d.add_content(::duke::protocol::Debug_Content_FRAME);
-            d.add_content(::duke::protocol::Debug_Content_FILENAMES);
-            d.add_content(::duke::protocol::Debug_Content_FPS);
-            push(queue, d, google::protobuf::serialize::MessageHolder::RETRIEVE);
+            ::duke::protocol::Info info;
+            info.set_content(::duke::protocol::Info_Content_IMAGEINFO);
+            push(queue, info, google::protobuf::serialize::MessageHolder::RETRIEVE);
             session()->sendMsg(queue);
+
         } catch (std::exception & e) {
             std::cerr << e.what() << std::endl;
             return false;
