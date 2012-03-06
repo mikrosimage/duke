@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <dukeengine/Version.h>
 #include <dukeengine/Application.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/messageBuilder/QuitBuilder.h>
@@ -21,9 +22,6 @@
 #include <memory>
 #include <algorithm>
 
-#ifndef BUILD_INFORMATION
-#define BUILD_INFORMATION "no information available - don't use in production"
-#endif // BUILD_INFORMATION
 // namespace
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -300,13 +298,7 @@ void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFac
 }
 
 void Configuration::displayVersion() {
-    cout << "Duke Player" << endl;
-    cout << BUILD_INFORMATION;
-#if defined DEBUG
-    cout << " - DEBUG" << endl;
-#else
-    cout << " - RELEASE" << endl;
-#endif
+    cout << getVersion("Duke") << endl;
 }
 
 void Configuration::displayHelp() {

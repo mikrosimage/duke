@@ -16,6 +16,11 @@ using pb : $(PROTOC) ;
 
 ## Configuration
 
+local				GIT_COMMIT			= [ modules.peek : GIT_COMMIT ] ; 
+local 				GIT_BRANCH			= [ modules.peek : GIT_BRANCH ] ; 
+local 				BUILD_NUMBER		= [ modules.peek : BUILD_NUMBER ] ;
+local 				JAMDATE				= [ modules.peek : JAMDATE ] ;
+
 local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ;
 use-project /boost 						: $(BOOST_ROOT) ;
 use-project /dukeapi                    : src/duke/libraries/dukeapi ;
@@ -35,6 +40,10 @@ project : requirements
             <os>NT:<define>VC_EXTRALEAN
             <os>NT:<define>_WIN32_WINNT=0x0501
             <variant>debug:<define>DEBUG
+            <define>GIT_COMMIT=\"\\\"$(GIT_COMMIT)\\\"\"
+            <define>GIT_BRANCH=\"\\\"$(GIT_BRANCH)\\\"\"
+            <define>BUILD_NUMBER=\"\\\"$(BUILD_NUMBER)\\\"\"
+            <define>JAMDATE=\"\\\"$(JAMDATE)\\\"\"
         : build-dir bin	;
 
 

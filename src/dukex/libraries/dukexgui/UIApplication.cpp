@@ -3,16 +3,13 @@
 #include "UIRenderWindow.h"
 #include "UIFileDialog.h"
 #include "UIPluginDialog.h"
+#include <dukeengine/Version.h>
 #include <dukexcore/nodes/Commons.h>
 #include <boost/filesystem.hpp>
 //#include <QDeclarativeComponent>
 //#include <QDeclarativeContext>
 //#include <QDeclarativeItem>
 #include <iostream>
-
-#ifndef BUILD_INFORMATION
-#define BUILD_INFORMATION ""
-#endif
 
 UIApplication::UIApplication(Session::ptr s) :
     m_Session(s), //
@@ -544,8 +541,7 @@ void UIApplication::pan(double x, double y) {
 
 // private slot
 void UIApplication::about() {
-    QString msg("DukeX player\n");
-    msg += BUILD_INFORMATION;
+    QString msg(getVersion("DukeX").c_str());
     QMessageBox::about(this, tr("About DukeX"), msg);
 }
 

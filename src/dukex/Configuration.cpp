@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <dukeengine/Version.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/io/PlaybackReader.h>
 #include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
@@ -245,12 +246,7 @@ bool Configuration::parse(int argc, char** argv) {
 }
 
 void Configuration::displayVersion() {
-    cout << BUILD_INFORMATION;
-#if defined DEBUG
-    cout << " - DEBUG" << endl;
-#else
-    cout << " - RELEASE" << endl;
-#endif
+    cout << getVersion("DukeX") << endl;
 }
 
 void Configuration::displayHelp() {
