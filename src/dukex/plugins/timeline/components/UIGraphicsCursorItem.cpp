@@ -7,7 +7,9 @@
 UIGraphicsCursorItem::UIGraphicsCursorItem(const QPen& pen) :
     m_pen(pen), m_mouseDown(false), m_duration(0) {
     setFlags(QGraphicsItem::ItemIgnoresTransformations | QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+#if QT_VERSION >= 0x040600
+    setFlag( QGraphicsItem::ItemSendsGeometryChanges );
+#endif
     setCursor(QCursor(Qt::SizeHorCursor));
     setZValue(100);
     m_boundingRect = QRectF(-2, 0, 3, 0);
