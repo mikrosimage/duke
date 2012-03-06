@@ -58,6 +58,12 @@ inline void pack(MessageHolder &holder, const google::protobuf::Message &msg, Me
     msg.SerializeToString(holder.mutable_body());
 }
 
+MessageHolder inline pack(const google::protobuf::Message &msg, MessageHolder_Action action = MessageHolder::CREATE) {
+    MessageHolder holder;
+    pack(holder, msg, action);
+    return holder;
+}
+
 typedef boost::shared_ptr<google::protobuf::serialize::MessageHolder> SharedHolder;
 typedef boost::shared_ptr<google::protobuf::Message> SharedMessage;
 inline SharedMessage unpack(const MessageHolder &holder) {

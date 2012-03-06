@@ -21,11 +21,15 @@ private:
     QueueMessageIO& io;
 };
 
-void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io, uint64_t cache, size_t threads) {
+void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io, uint64_t cacheSize, size_t threads) {
     try {
         std::cerr << "[THREADING] " << threads << std::endl;
-        std::cerr << "[CACHE] " << (cache / 1024.) / 1024. << std::endl;
-        Application(rendererpath.c_str(), decoder, io, returnvalue, cache, threads);
+        std::cerr << "[CACHE] " << (cacheSize / 1024.) / 1024. << std::endl;
+        duke::protocol::Cache cache;
+        cache.set_size(cacheSize);
+        cache.set_threading(threads);
+        cache.clear_region();
+        Application(rendererpath.c_str(), decoder, io, returnvalue, cache);
     } catch (std::exception & e) {
         std::cerr << "[Session::launch] Error: " << e.what() << std::endl;
     } catch (...) {

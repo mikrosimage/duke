@@ -119,7 +119,7 @@ Configuration::Configuration(int argc, char** argv) :
     (RECORD_OPT, po::value<string>(), "Record a session to file") //
     (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
     (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
-    (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
+    (THREADS_OPT, po::value<size_t>()->default_value(0), "Number of load/decode threads. Cache size must be >0.");
     // adding display settings
     ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
@@ -294,7 +294,12 @@ void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imag
 void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     const string rendererFilename = m_Vm[RENDERER].as<string>();
     const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024;
-    Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cacheSize, m_Vm[THREADS].as<size_t>());
+    const size_t threads = m_Vm[THREADS].as<size_t>();
+    duke::protocol::Cache cache;
+    cache.set_size(cacheSize);
+    cache.set_threading(threads);
+    cache.clear_region();
+    Application(rendererFilename.c_str(), imageDecoderFactory, io, m_iReturnValue, cache);
 }
 
 void Configuration::displayVersion() {

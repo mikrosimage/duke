@@ -35,6 +35,10 @@ struct LookAheadCache {
     }
 
     // Cache functions
+    inline void setCacheSize(const metric_type size) {
+        boost::mutex::scoped_lock lock(m_CacheMutex);
+        m_SharedCache.setCacheSize(size);
+    }
 
     inline metric_type dumpKeys(std::vector<id_type> &allKeys) const {
         boost::mutex::scoped_lock lock(m_CacheMutex);
@@ -79,8 +83,8 @@ struct LookAheadCache {
         m_PendingJob.set(job);
     }
 
-    void terminate() {
-        m_PendingJob.terminate();
+    void terminate(bool value = true) {
+        m_PendingJob.terminate(value);
     }
 
 private:

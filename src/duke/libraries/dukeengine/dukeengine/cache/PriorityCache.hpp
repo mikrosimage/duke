@@ -135,6 +135,10 @@ public:
         data = itr->second.data;
         return true;
     }
+
+    inline void setCacheSize(const metric_type size) {
+        m_CacheLimit = size;
+    }
 private:
     void dump(const char* dumpMessage) const {
 #ifdef DEBUG_CACHE
@@ -253,7 +257,7 @@ private:
     }
 
 private:
-    const metric_type m_CacheLimit;
+    metric_type m_CacheLimit;
     IdContainer m_DiscardableIds;
     IdContainer m_PendingIds;
     CacheContainer m_Cache;

@@ -34,9 +34,9 @@ struct BlockingAccessor : private boost::noncopyable {
         m_Condition.notify_one();
     }
 
-    void terminate() {
+    void terminate(bool value = true) {
         ::boost::unique_lock<boost::mutex> lock(m_TerminateMutex);
-        m_SharedTerminate = true;
+        m_SharedTerminate = value;
         lock.unlock();
         m_Condition.notify_all();
     }

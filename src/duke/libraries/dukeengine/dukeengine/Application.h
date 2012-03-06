@@ -25,7 +25,7 @@ namespace google {namespace protobuf {class Message;}}
 
 class Application {
 public:
-    Application(const char* rendererFilename, ImageDecoderFactoryImpl& imageDecoderFactory, IMessageIO &IO, int &returnCode, const uint64_t cacheSize, const size_t cacheThreads);
+    Application(const char* rendererFilename, ImageDecoderFactoryImpl& imageDecoderFactory, IMessageIO &IO, int &returnCode, const duke::protocol::Cache& cacheConfigurationThreads);
     ~Application();
 
     void* fetchSuite(const char* suiteName, int suiteVersion);
@@ -42,6 +42,7 @@ private:
     void consumePlaylist(const ::duke::protocol::Playlist&);
     void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
+    void consumeCache(const ::duke::protocol::Cache&, const ::google::protobuf::serialize::MessageHolder_Action);
     void updatePlaybackState(::duke::protocol::Info_PlaybackState &) const ;
     void updateCacheState(::duke::protocol::Info_CacheState &cache) const ;
     void updateImagesInfo(::google::protobuf::RepeatedPtrField< duke::protocol::Info_ImageInfo> &imageInfos) const ;
@@ -52,6 +53,8 @@ private:
     bool handleQuitMessage(const ::google::protobuf::serialize::SharedHolder&);
     std::string dumpInfo(const ::duke::protocol::Debug_Content& debug) const;
 
+    void updatePlayback();
+
 private:
     // order of variables are very important because of multi threading issues
     IMessageIO &m_IO;
@@ -59,6 +62,7 @@ private:
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
     ImageDecoderFactoryImpl &m_ImageDecoderFactory;
     ::duke::protocol::PlaylistHelper m_Playlist;
+    ::duke::protocol::Cache m_CacheConfiguration;
     playback::Playback m_Playback;
     AudioEngine m_AudioEngine;
     SmartCache m_Cache;

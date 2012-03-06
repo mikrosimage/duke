@@ -92,12 +92,12 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const uint64_t cacheSize,
-                         const size_t cacheThreads) :
+Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const duke::protocol::Cache& cacheConfiguration) :
                 m_IO(io), //
                 m_ImageDecoderFactory(imageDecoderFactory), //
+                m_CacheConfiguration(cacheConfiguration), //
                 m_AudioEngine(), //
-                m_Cache(cacheThreads, cacheSize, m_ImageDecoderFactory), //
+                m_Cache(m_CacheConfiguration, m_ImageDecoderFactory), //
                 m_FileBufferHolder(), //
                 m_VbiTimings(VBI, 120), //
                 m_FrameTimings(FRAME, 10), //
@@ -244,14 +244,14 @@ static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
     }
 }
 
-static inline void updatePlayback(const PlaylistHelper &helper, playback::Playback &playback, SmartCache &cache) {
-    const Playlist &playlist = helper.playlist;
+void Application::updatePlayback() {
+    const Playlist &playlist = m_Playlist.playlist;
     const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
     using namespace boost::chrono;
     cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-    cache.init(helper, helper.range);
-    playback.init(helper.range, playlist.loop(), nsPerFrame);
-    playback.setType(get(playlist.playbackmode()));
+    m_Cache.init(m_Playlist, m_CacheConfiguration);
+    m_Playback.init(m_Playlist.range, playlist.loop(), nsPerFrame);
+    m_Playback.setType(get(playlist.playbackmode()));
 }
 
 /////////////////////
@@ -314,7 +314,7 @@ void Application::consumeTransport(const Transport &transport, const MessageHold
 void Application::consumePlaylist(const Playlist& playlist) {
     m_Playlist = PlaylistHelper(playlist);
     m_AudioEngine.load(playlist);
-    updatePlayback(m_Playlist, m_Playback, m_Cache);
+    updatePlayback();
     m_bForceRefresh = true;
 }
 
@@ -408,13 +408,20 @@ void Application::consumeInfo(Info info, const MessageHolder_Action action) {
             info.PrintDebugString();
             break;
         case MessageHolder_Action_RETRIEVE: {
-            MessageHolder tmp;
-            ::google::protobuf::serialize::pack(tmp, info);
-            pushEvent(tmp);
+            pushEvent(pack(info));
             break;
         }
         default:
             break;
+    }
+}
+
+void Application::consumeCache(const Cache &cache, const MessageHolder_Action action) {
+    if (action == MessageHolder_Action_CREATE) {
+        m_Cache.init(m_Playlist, cache);
+    } else if (action == MessageHolder_Action_RETRIEVE) {
+        m_Cache.configuration().PrintDebugString();
+        pushEvent(pack(m_Cache.configuration()));
     }
 }
 
@@ -439,6 +446,8 @@ void Application::consumeMessages() {
             consumeTransport(unpackTo<Transport>(holder), holder.action());
         else if (isType<Info>(pDescriptor))
             consumeInfo(unpackTo<Info>(holder), holder.action());
+        else if (isType<Cache>(pDescriptor))
+            consumeCache(unpackTo<Cache>(holder), holder.action());
         else
             m_RendererMessages.push(pHolder);
     }

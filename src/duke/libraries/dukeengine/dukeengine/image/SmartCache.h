@@ -30,14 +30,15 @@ struct Range;
 }  // namespace sequence
 
 struct SmartCache : private boost::noncopyable {
-    SmartCache(size_t threads, uint64_t limit, const ImageDecoderFactory& factory);
+    SmartCache(const duke::protocol::Cache& cacheConfiguration, const ImageDecoderFactory& factory);
     ~SmartCache();
-    void init(const duke::protocol::PlaylistHelper &playlist,const sequence::Range &over);
+    void init(const duke::protocol::PlaylistHelper &playlist,const duke::protocol::Cache& cacheConfiguration);
     void seek(unsigned int frame, EPlaybackState state);
     bool get(const duke::protocol::MediaFrame &frame, ImageHolder &imageHolder) const;
     uint64_t dumpKeys(image::WorkUnitIds &) const;
-    uint64_t getLimit() const;
+
     bool enabled() const;
+    const duke::protocol::Cache& configuration() const;
 private:
     struct Impl;
     const boost::scoped_ptr<Impl> m_pImpl;

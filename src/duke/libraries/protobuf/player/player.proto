@@ -307,6 +307,12 @@ message Info {
     repeated string extension = 5;         // jpg, exr, dpx, ...
 }
 
+message Cache {
+    optional FrameRange region = 1; // if set, only region will be cached, otherwise whole playlist
+    optional uint32 size       = 2; // size in byte
+    optional uint32 threading  = 3 [default = 0]; // 0 means cache disabled
+}
+
 message RenderPass {
 	enum RenderTarget {
 		SCREEN = 0;
