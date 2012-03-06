@@ -105,6 +105,7 @@ Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &
                 m_StoredFrame(-1), //
                 m_bRequestTermination(false), //
                 m_bAutoNotifyOnFrameChange(false), //
+                m_bForceRefresh(true), //
                 m_iReturnCode(returnCode), //
                 m_Renderer(buildHost(this), rendererFilename) {
     m_ImageDecoderFactory.dumpDecoderInfos();
@@ -314,6 +315,7 @@ void Application::consumePlaylist(const Playlist& playlist) {
     m_Playlist = PlaylistHelper(playlist);
     m_AudioEngine.load(playlist);
     updatePlayback(m_Playlist, m_Playback, m_Cache);
+    m_bForceRefresh = true;
 }
 
 typedef sequence::parser::details::LocationValueSet LocationValueSet;
@@ -463,11 +465,12 @@ void Application::renderStart() {
 
         // retrieve images
         Setup &setup(g_ApplicationRendererSuite.m_Setup);
-        if (m_PreviousFrame != frame) {
+        if (m_bForceRefresh || m_PreviousFrame != frame) {
             const int32_t speed = m_Playback.getSpeed();
             const EPlaybackState state = speed == 0 ? BALANCE : (speed > 0 ? FORWARD : REVERSE);
             m_Cache.seek(frame, state);
             m_FileBufferHolder.update(frame, m_Cache, m_Playlist);
+            m_bForceRefresh = false;
         }
 
         setup.m_Images.clear();

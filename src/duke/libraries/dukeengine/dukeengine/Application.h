@@ -70,6 +70,7 @@ private:
     uint32_t m_StoredFrame;
     bool m_bRequestTermination;
     bool m_bAutoNotifyOnFrameChange;
+    bool m_bForceRefresh;
     int &m_iReturnCode;
     // all the following objects are to be initialized in this order because of the dependencies between them
     // they also have to be initialized after the previous ones
