@@ -53,6 +53,7 @@ struct State {
                         range.offsetClampFrame(currentFrame, speed);
         if (newFrame.second) {
             epoch = s_Clock.now() + nsPerDisplay();
+            epochFrame = newFrame.first;
             if (!isLooping)
                 speed = 0;
         }
