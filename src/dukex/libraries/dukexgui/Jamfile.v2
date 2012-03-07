@@ -1,13 +1,13 @@
 project
 	: requirements
 		<library>/dukexcore//dukexcore/<link>static			# embedded
-		<library>/qt//QtCore/<variant>release
-		<library>/qt//QtGui/<variant>release
+		<library>/qt//QtCore/<variant>release/<link>shared
+		<library>/qt//QtGui/<variant>release/<link>shared
 		#<library>/qt//QtDeclarative/<variant>release
 		<include>..
 	: usage-requirements
-		<library>/qt//QtCore/<variant>release
-		<library>/qt//QtGui/<variant>release
+		<library>/qt//QtCore/<variant>release/<link>shared
+		<library>/qt//QtGui/<variant>release/<link>shared
 		#<library>/qt//QtDeclarative/<variant>release
 		<source>mainwindow.ui
 		<include>..
