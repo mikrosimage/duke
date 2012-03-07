@@ -9,14 +9,14 @@ project
 		<library>/dukerenderer//dukerenderer/<link>static		# header only library
 		<library>/duke/sub/dukeplugins//dukehost/<link>static	# plugin managed
 		<library>/dukeapi//dukeapi/<link>static					# dukeapi is embedded
-		<library>/user-config//sfml
-		<library>/boost//iostreams
-		<library>/boost//chrono
+		<library>/user-config//sfml/<link>shared
+		<library>/boost//iostreams/<link>shared
+		<library>/boost//chrono/<link>shared
     : usage-requirements 
     	<include>.
-		<library>/user-config//sfml
-		<library>/boost//iostreams
-		<library>/boost//chrono
+		<library>/user-config//sfml/<link>shared
+		<library>/boost//iostreams/<link>shared
+		<library>/boost//chrono/<link>shared
 	;
 
 explicit dukeengine ;

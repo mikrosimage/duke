@@ -3,7 +3,7 @@ exe duke
 	:
 		[ glob *.cpp ]
 		/dukeengine//dukeengine/<link>static	# embedded
-		/boost//program_options/<link>static	# embedded
+		/boost//program_options/<link>shared
 	:
 		<include>.
 	;
