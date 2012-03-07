@@ -2,8 +2,8 @@ explicit duke ;
 exe duke
 	:
 		[ glob *.cpp ]
-		/dukeengine//dukeengine
-		/boost//program_options
+		/dukeengine//dukeengine/<link>static	# embedded
+		/boost//program_options/<link>static	# embedded
 	:
 		<include>.
 	;

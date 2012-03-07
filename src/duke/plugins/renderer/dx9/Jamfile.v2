@@ -1,7 +1,7 @@
 project 
 	: requirements 
 		<include>.
-    	<library>/dukerendererplugin//dukerendererplugin 
+    	<library>/dukerendererplugin//dukerendererplugin/<link>static	# embedded
     	<library>/user-config//cgd3d
     	<cxxflags>-Wno-unknown-pragmas
     ;

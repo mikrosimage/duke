@@ -5,19 +5,15 @@
 project 
 	: requirements 
 		<include>.
-		<library>/duke/sub/dukeplugins//dukehost
-		<library>/dukeapi//dukeapi
-		<library>/dukeio//dukeio
-		<library>/dukerenderer//dukerenderer
+		<library>/dukeio//dukeio/<link>static					# header only library
+		<library>/dukerenderer//dukerenderer/<link>static		# header only library
+		<library>/duke/sub/dukeplugins//dukehost/<link>static	# plugin managed
+		<library>/dukeapi//dukeapi/<link>static					# dukeapi is embedded
 		<library>/user-config//sfml
 		<library>/boost//iostreams
 		<library>/boost//chrono
     : usage-requirements 
     	<include>.
-		<library>/duke/sub/dukeplugins//dukehost
-		<library>/dukeapi//dukeapi
-		<library>/dukeio//dukeio
-		<library>/dukerenderer//dukerenderer
 		<library>/user-config//sfml
 		<library>/boost//iostreams
 		<library>/boost//chrono

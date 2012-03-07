@@ -4,7 +4,7 @@ exe dukex
         [ glob *.cpp ] 
         resources/resources.qrc
 	:
-        <library>/dukexgui//dukexgui
-        <library>/boost//program_options
+        <library>/dukexgui//dukexgui/<link>static			# embedded
+        <library>/boost//program_options/<link>static
         <library>/boost//filesystem
 	;

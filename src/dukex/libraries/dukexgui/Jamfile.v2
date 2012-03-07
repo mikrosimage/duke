@@ -1,12 +1,11 @@
 project
 	: requirements
-		<library>/dukexcore//dukexcore
+		<library>/dukexcore//dukexcore/<link>static			# embedded
 		<library>/qt//QtCore/<variant>release
 		<library>/qt//QtGui/<variant>release
 		#<library>/qt//QtDeclarative/<variant>release
 		<include>..
 	: usage-requirements
-		<library>/dukexcore//dukexcore
 		<library>/qt//QtCore/<variant>release
 		<library>/qt//QtGui/<variant>release
 		#<library>/qt//QtDeclarative/<variant>release

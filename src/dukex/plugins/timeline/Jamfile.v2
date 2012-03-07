@@ -3,7 +3,7 @@ project
 	: requirements
 		<include>.
 		<include>components
-		<library>/dukexgui//dukexgui
+		<library>/dukexgui//dukexgui/<link>static		# embedded
 	;
 
 explicit timeline ;
