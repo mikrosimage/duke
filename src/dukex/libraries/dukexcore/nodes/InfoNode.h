@@ -16,14 +16,19 @@ public:
 
 public:
     void callCurrentImageInfo() {
-//        SessionDescriptor & descriptor = session()->descriptor();
-
         MessageQueue queue;
         ::duke::protocol::Info info;
         info.set_content(::duke::protocol::Info_Content_IMAGEINFO);
         push(queue, info, google::protobuf::serialize::MessageHolder::RETRIEVE);
         session()->sendMsg(queue);
+    }
 
+    void callCurrentCacheState() {
+        MessageQueue queue;
+        ::duke::protocol::Info info;
+        info.set_content(::duke::protocol::Info_Content_CACHESTATE);
+        push(queue, info, google::protobuf::serialize::MessageHolder::RETRIEVE);
+        session()->sendMsg(queue);
     }
 
 

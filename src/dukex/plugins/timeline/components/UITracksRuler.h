@@ -7,6 +7,7 @@
 
 // forward declaration
 class QPaintEvent;
+class QStylePainter;
 
 namespace { // empty namespace
 
@@ -57,6 +58,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event);
 
 private:
+    void drawCacheState(QStylePainter *painter);
     QString getTimeCode(int frames) const;
 
 signals:

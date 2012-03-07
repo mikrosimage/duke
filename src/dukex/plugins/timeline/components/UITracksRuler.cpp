@@ -82,16 +82,6 @@ void UITracksRuler::paintEvent(QPaintEvent* e) {
     offsetMin = (int) ((e->rect().left() + m_offset) / m_textSpacing);
     offsetMin = (int) (offsetMin * m_textSpacing);
 
-//    // Draw cache state
-//    painter.save();
-//    painter.setPen(QColor(77, 82, 95));
-//    step = m_scale * m_littleMarkDistance;
-//    for (f = offsetMin - m_offset; f < offsetMax - m_offset; f += step){
-//        QLine l(f, 0, f, 30);
-//        painter.drawLine(l);
-//    }
-//    painter.restore();
-
     // Draw text
     QPalette palette;
     painter.setPen(palette.dark().color());
@@ -99,6 +89,11 @@ void UITracksRuler::paintEvent(QPaintEvent* e) {
         QString time = getTimeCode((int) (f / m_factor + 0.5));
         painter.drawText((int) f - m_offset + 2, LABEL_SIZE + 1, time);
     }
+
+
+    // Draw cache state
+    drawCacheState(&painter);
+
 
     // Draw the marks
     offsetMin = (e->rect().left() + m_offset) / m_littleMarkDistance;
@@ -161,6 +156,28 @@ void UITracksRuler::moveRuler(int pos) {
 void UITracksRuler::framerateChanged(double framerate) {
     m_fps = framerate;
     update();
+}
+
+// private
+void UITracksRuler::drawCacheState(QStylePainter *painter) {
+    double step = m_scale * m_littleMarkDistance; // frame length (px)
+    double offsetMax = (width() + m_offset) ;
+    painter->save();
+//    painter.setPen(QColor(77, 82, 95));
+    painter->setPen(QColor(77, 255, 95));
+    std::cerr << "m_offset " << m_offset << std::endl;
+    std::cerr << "offsetMax " << offsetMax << std::endl;
+    std::cerr << "step " << step << std::endl;
+    for (double f = m_offset ; f < offsetMax ; f += step){
+        int frame = (f / m_factor);
+        if(frame >= 10 && frame <= 15){
+            int here = qRound(frame)*m_factor;
+            QLine l(here-m_offset, height()-1, here-m_offset+step, height()-1);
+            painter->drawLine(l);
+            std::cerr << frame << std::endl;
+        }
+    }
+    painter->restore();
 }
 
 // private

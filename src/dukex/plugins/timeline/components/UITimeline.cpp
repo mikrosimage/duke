@@ -96,12 +96,9 @@ UITracksRuler* UITimeline::tracksRuler() {
 }
 
 void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder) {
-    // TODO: catch QMouseEvents on this widget instead
-    if (QApplication::mouseButtons() != Qt::NoButton)
-        return;
-
     using namespace ::duke::protocol;
-    if (::google::protobuf::serialize::isType<Transport>(*sharedholder)) {
+    // do not update position when mouse button is down (==scrub)
+    if (::google::protobuf::serialize::isType<Transport>(*sharedholder) && QApplication::mouseButtons() == Qt::NoButton) {
         const Transport t = ::google::protobuf::serialize::unpackTo<Transport>(*sharedholder);
         switch (t.type()) {
             case Transport_TransportType_PLAY:
@@ -153,24 +150,25 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
         setDuration(lastFrame);
         fit();
     }
-//    else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
-//        std::cerr << "-- INFO --" << std::endl;
-//        const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
-//        if (info.IsInitialized())
-//            info.PrintDebugString();
-//    }
+    else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
+        std::cerr << "-- INFO --" << std::endl;
+        const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
+        if (info.IsInitialized())
+            info.PrintDebugString();
+    }
 }
 
 void UITimeline::frameChanged(qint64 pos) {
-//    {
-//        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
-//        if (n.get() != NULL) {
-//            InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
-//            if (p.get() != NULL) {
-//                p->callCurrentImageInfo();
-//            }
-//        }
-//    }
+    {
+        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
+        if (n.get() != NULL) {
+            InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
+            if (p.get() != NULL) {
+                p->callCurrentCacheState();
+                std::cerr << "callCurrentCacheState" << std::endl;
+            }
+        }
+    }
     {
         INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.transport");
         if (n.get() != NULL) {
