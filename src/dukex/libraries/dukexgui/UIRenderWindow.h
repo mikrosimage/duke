@@ -20,7 +20,7 @@ public:
 public:
     void showFullScreen();
     void showNormal();
-    void showInfo();
+//    void showInfo();
     void keyPressEvent(QKeyEvent * event);
     void mousePressEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);

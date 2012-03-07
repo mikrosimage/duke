@@ -31,6 +31,7 @@ public:
 //    QWidget* createWindow(QObject* _plugin, const Qt::DockWidgetArea & _area, const QString & _title);
     bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title);
 //    QDeclarativeItem* createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title);
+    void closeUI(QObject* _plug);
 
 private:
     void closeEvent(QCloseEvent *event);

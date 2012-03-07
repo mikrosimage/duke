@@ -7,6 +7,7 @@
 #include <dukexcore/dkxNodeManager.h>
 #include <dukexcore/nodes/TransportNode.h>
 #include <dukexcore/nodes/PlaylistNode.h>
+#include <dukexcore/nodes/InfoNode.h>
 #include <QHBoxLayout>
 #include <QScrollBar>
 
@@ -130,7 +131,18 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 if (t.clip_size() > 0) {
                     for (int j = 0; j < t.clip_size(); ++j) {
                         const Clip & c = t.clip(j);
-                        m_tracksView->addItem(c.record().first(), c.record().last() - c.record().first()); //TODO < handle track number here
+                        QString path = "N/A";
+                        qint64 srcin = -1;
+                        qint64 srcout = -1;
+                        if(c.has_media()){
+                            const ::duke::protocol::Media& m = c.media();
+                            path = QString::fromStdString(m.filename());
+                            if(m.has_source()){
+                                srcin = m.source().first();
+                                srcout = m.source().last();
+                            }
+                        }
+                        m_tracksView->addItem(path, c.record().first(), c.record().last(), srcin, srcout); //TODO < handle track number here
                     }
                     qint64 clipLastFrame = t.clip(t.clip_size() - 1).record().last();
                     if (clipLastFrame > lastFrame)
@@ -140,24 +152,25 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
         }
         setDuration(lastFrame);
         fit();
-    } else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
-        std::cerr << "-- INFO --" << std::endl;
-        const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
-        if (info.IsInitialized())
-            info.PrintDebugString();
     }
+//    else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
+//        std::cerr << "-- INFO --" << std::endl;
+//        const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
+//        if (info.IsInitialized())
+//            info.PrintDebugString();
+//    }
 }
 
 void UITimeline::frameChanged(qint64 pos) {
-    {
-        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.playlist");
-        if (n.get() != NULL) {
-            PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
-            if (p.get() != NULL) {
-//                p->debug();
-            }
-        }
-    }
+//    {
+//        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
+//        if (n.get() != NULL) {
+//            InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
+//            if (p.get() != NULL) {
+//                p->callCurrentImageInfo();
+//            }
+//        }
+//    }
     {
         INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.transport");
         if (n.get() != NULL) {

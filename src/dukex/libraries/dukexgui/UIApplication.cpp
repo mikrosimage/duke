@@ -68,6 +68,8 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Manager.addNode(f, m_Session);
     GradingNode::ptr g = GradingNode::ptr(new GradingNode());
     m_Manager.addNode(g, m_Session);
+    InfoNode::ptr info = InfoNode::ptr(new InfoNode());
+    m_Manager.addNode(info, m_Session);
 
     //FIXME OMG: erase this
     INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
@@ -140,6 +142,20 @@ bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt:
 //    m_LoadedUIElements.insert(_plugin, dockwidget);
 //    return item;
 //}
+
+void UIApplication::closeUI(QObject* _plug) {
+    QList<QObject*> values = m_LoadedUIElements.values(_plug);
+    for (int i = 0; i < values.size(); ++i){
+        if(qobject_cast<QDockWidget*>(values.at(i))){
+            QDockWidget* obj = qobject_cast<QDockWidget*>(values.at(i));
+            obj->close();
+            removeDockWidget(obj);
+            // FIXME : delete now
+//            obj->deleteLater();
+        }
+    }
+    m_LoadedUIElements.remove(_plug);
+}
 
 // private
 void UIApplication::closeEvent(QCloseEvent *event) {
@@ -435,7 +451,7 @@ void UIApplication::nextShot() {
 
 // private slot
 void UIApplication::info() {
-    m_RenderWindow->showInfo();
+//    m_RenderWindow->showInfo();
     setFocus();
 }
 

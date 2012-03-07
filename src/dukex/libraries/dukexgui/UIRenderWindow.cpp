@@ -32,12 +32,12 @@ void UIRenderWindow::showNormal() {
     QWidget::showNormal();
 }
 
-void UIRenderWindow::showInfo() {
-    if (mDialog->isVisible())
-        mDialog->hide();
-    else
-        mDialog->show();
-}
+//void UIRenderWindow::showInfo() {
+//    if (mDialog->isVisible())
+//        mDialog->hide();
+//    else
+//        mDialog->show();
+//}
 
 void UIRenderWindow::keyPressEvent(QKeyEvent * event) {
     switch (event->key()) {

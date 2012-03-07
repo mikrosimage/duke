@@ -35,7 +35,7 @@ public:
 
 public slots:
     void clear();
-    void addItem(qint64 start, qint64 width);
+    void addItem(const QString& path, qint64 recin, qint64 recout, qint64 srcin, qint64 srcout);
     void removeItem(UIAbstractGraphicsItem *item);
     Action currentAction() const;
 

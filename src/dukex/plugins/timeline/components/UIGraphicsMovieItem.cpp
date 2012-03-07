@@ -4,10 +4,13 @@
 #include "UITimeline.h"
 #include <QTime>
 
-UIGraphicsMovieItem::UIGraphicsMovieItem() {
-    QTime length = QTime().addMSecs(10000);
-    QString tooltip(tr("<p style='white-space:pre'><b>Name:</b> %1"
-        "<br><b>Length:</b> %2").arg("FILENAME").arg(length.toString("hh:mm:ss.zzz")));
+UIGraphicsMovieItem::UIGraphicsMovieItem(const QString& path, qint64 recin, qint64 recout, qint64 srcin, qint64 srcout) {
+    QString tooltip(tr(""
+                    "<p style='white-space:pre'>"
+                    "%1<br>"
+                    "<b>rec</b>[%2-%3]  "
+                    "<b>src</b>[%4-%5]"
+                    "</p>").arg(path).arg(recin).arg(recout).arg(srcin).arg(srcout));
     setToolTip(tooltip);
 }
 

@@ -3,7 +3,6 @@
 
 #include "UIWidget.h"
 #include <QObject>
-#include <QList>
 #include <QMultiMap>
 
 class IUIBuilder {
@@ -24,11 +23,7 @@ public:
 //    virtual QDeclarativeItem* createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title) = 0;
 
 public:
-    virtual void closeUI(QObject* _plug) {
-        QList<QObject*> values = m_LoadedUIElements.values(_plug);
-        for (int i = 0; i < values.size(); ++i)
-            delete values.at(i);
-    }
+    virtual void closeUI(QObject* _plug) = 0;
 
 protected:
     QMultiMap<QObject*, QObject*> m_LoadedUIElements;

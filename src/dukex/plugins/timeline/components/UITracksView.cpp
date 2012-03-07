@@ -110,20 +110,21 @@ void UITracksView::clear() {
     updateDuration();
 }
 
-void UITracksView::addItem(qint64 start, qint64 width) {
+void UITracksView::addItem(const QString& path, qint64 recin, qint64 recout, qint64 srcin, qint64 srcout) {
     qint32 track = 0;
     //    if (track + 1 >= m_numVideoTrack) {
     //        int nbTrackToAdd = (track + 2) - m_numVideoTrack;
     //        for (int i = 0; i < nbTrackToAdd; ++i)
     //            addTrack(VideoTrack);
     //    }
+    qint64 width = recout-recin;
     UIGraphicsMovieItem *mediaItem = NULL;
-    mediaItem = new UIGraphicsMovieItem();
+    mediaItem = new UIGraphicsMovieItem(path, recin, recout, srcin, srcout);
     mediaItem->setHeight(mediaItem->itemHeight());
     mediaItem->setTrack(getTrack(VideoTrack, track));
     mediaItem->setWidth(width);
-    mediaItem->setStartPos(start);
-    moveItem(mediaItem, track, start);
+    mediaItem->setStartPos(recin);
+    moveItem(mediaItem, track, recin);
     updateDuration();
 }
 

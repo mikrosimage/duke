@@ -12,7 +12,7 @@ public:
     };
 
 public:
-    UIGraphicsMovieItem();
+    UIGraphicsMovieItem(const QString& path, qint64 recin, qint64 recout, qint64 srcin, qint64 srcout);
     virtual ~UIGraphicsMovieItem() {
     }
 

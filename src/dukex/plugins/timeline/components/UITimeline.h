@@ -22,6 +22,7 @@ class UITimeline : public UIWidget {
 public:
     UITimeline(NodeManager*);
     virtual ~UITimeline() {
+        std::cerr << "deleting UITimeline" << std::endl;
     }
 
 public:
