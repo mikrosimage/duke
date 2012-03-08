@@ -23,8 +23,8 @@ local 				JAMDATE				= [ modules.peek : JAMDATE ] ;
 
 local 				BOOST_ROOT 			= [ modules.peek : BOOST_ROOT ] ;
 use-project /boost 						: $(BOOST_ROOT) ;
-use-project /dukeapi                    : src/duke/libraries/dukeapi ;
-use-project /dukeengine                 : src/duke/libraries/dukeengine ;
+use-project /dukeapi                    : src/duke/libraries/dukeapi/dukeapi ;
+use-project /dukeengine                 : src/duke/libraries/dukeengine/dukeengine ;
 use-project /dukeioplugin               : src/duke/libraries/dukeio/dukeio/plugin ;
 use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin ;
 use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
@@ -85,45 +85,44 @@ alias mingw_runtime     ;
 alias mingw_runtime     : /user-config//mwingw_runtime : <os>NT <toolset>gcc ;
 
 install dist :
-    #src/diskbench//diskbench
-    src/duke//duke
-    src/dukex//dukex
-    dukeplugins
-    dukexplugins
-    mingw_runtime
+	    #src/diskbench
+	    src/duke/app
+	    src/dukex/app
+	    dukeplugins
+	    dukexplugins
+	    mingw_runtime
     :
-    <install-dependencies>on
-    <install-type>SHARED_LIB
-    <install-type>SEARCHED_LIB
-    <install-type>EXE
-    <variant>debug:<location>dist/debug
-    <variant>release:<location>dist/release
+	    <install-dependencies>on
+	    <install-type>SHARED_LIB
+	    <install-type>SEARCHED_LIB
+	    <install-type>EXE
+	    <variant>debug:<location>dist/debug
+	    <variant>release:<location>dist/release
     ;
     
 install distduke :
-    #src/diskbench//diskbench
-    src/duke//duke
-    dukeplugins
-    mingw_runtime
+	    #src/diskbench
+	    src/duke/app
+	    dukeplugins
+	    mingw_runtime
     :
-    <install-dependencies>on
-    <install-type>SHARED_LIB
-    <install-type>SEARCHED_LIB
-    <install-type>EXE
-    <variant>debug:<location>dist/debug
-    <variant>release:<location>dist/release
+	    <install-dependencies>on
+	    <install-type>SHARED_LIB
+	    <install-type>SEARCHED_LIB
+	    <install-type>EXE
+	    <variant>debug:<location>dist/debug
+	    <variant>release:<location>dist/release
     ;
 
 install distdukex :
-    src/dukex//dukex
-    dukexplugins
-    mingw_runtime
+	    src/dukex/app
+	    dukexplugins
+	    mingw_runtime
     :
-    <install-dependencies>on
-    <install-type>SHARED_LIB
-    <install-type>SEARCHED_LIB
-    <install-type>EXE
-    <variant>debug:<location>dist/debug
-    <variant>release:<location>dist/release
+	    <install-dependencies>on
+	    <install-type>SHARED_LIB
+	    <install-type>SEARCHED_LIB
+	    <install-type>EXE
+	    <variant>debug:<location>dist/debug
+	    <variant>release:<location>dist/release
     ;
-

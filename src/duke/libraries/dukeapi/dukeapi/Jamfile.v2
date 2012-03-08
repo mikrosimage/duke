@@ -1,0 +1,17 @@
+project
+    : requirements
+     	<library>/concurrent//concurrent/<link>static					# header only library
+     	<library>/duke/sub/sequenceparser//sequence_parser/<link>static	# embedded
+     	<library>/pb/serialize//serialize/<link>shared
+     	<library>/pb/player//player/<link>shared
+     	<library>/pb/playlist//playlist/<link>shared
+    : usage-requirements 
+     	<library>/pb/serialize//serialize/<link>shared
+     	<library>/pb/player//player/<link>shared
+     	<library>/pb/playlist//playlist/<link>shared
+        <os>NT:<find-shared-library>Ws2_32
+        <os>NT:<find-shared-library>Mswsock
+    ;
+
+explicit dukeapi ;
+lib dukeapi	: [ glob-tree *.cpp ] ;

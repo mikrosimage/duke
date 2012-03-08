@@ -1,0 +1,22 @@
+#
+# dukeengine
+#
+
+project 
+	: requirements 
+		<library>/dukeio//dukeio/<link>static					# header only library
+		<library>/dukerenderer//dukerenderer/<link>static		# header only library
+		<library>/duke/sub/dukeplugins//dukehost/<link>static	# plugin manager embedded
+		<library>/dukeapi//dukeapi/<link>static					# dukeapi is embedded
+		
+		<library>/user-config//sfml/<link>shared
+		<library>/boost//iostreams/<link>shared
+		<library>/boost//chrono/<link>shared
+    : usage-requirements 
+		<library>/user-config//sfml/<link>shared
+		<library>/boost//iostreams/<link>shared
+		<library>/boost//chrono/<link>shared
+	;
+
+explicit dukeengine ;
+lib dukeengine	:	[ glob-tree *.cpp ] ;

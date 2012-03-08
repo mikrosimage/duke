@@ -1,0 +1,8 @@
+project
+    : requirements
+     	<include>.
+        <library>/dukexgui//dukexgui/<link>shared
+        <library>/boost//program_options/<link>static
+    ;
+
+exe dukex : [ glob *.cpp ] resources/resources.qrc ;

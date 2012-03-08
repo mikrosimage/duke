@@ -1,28 +1,6 @@
-#
-# dukeengine
-#
-
 project 
 	: requirements 
 		<include>.
     : usage-requirements 
     	<include>.
 	;
-
-explicit dukeengine ;
-lib dukeengine	:	[ glob-tree *.cpp : tests ]
-				:
-					<library>/dukeio//dukeio/<link>static					# header only library
-					<library>/dukerenderer//dukerenderer/<link>static		# header only library
-					<library>/duke/sub/dukeplugins//dukehost/<link>static	# plugin managed
-					<library>/dukeapi//dukeapi/<link>static					# dukeapi is embedded
-					
-					<library>/user-config//sfml/<link>shared
-					<library>/boost//iostreams/<link>shared
-					<library>/boost//chrono/<link>shared
-				:
-				:
-					<library>/user-config//sfml/<link>shared
-					<library>/boost//iostreams/<link>shared
-					<library>/boost//chrono/<link>shared
-				;

@@ -3,25 +3,21 @@ project
 		<library>/dukexcore//dukexcore/<link>static			# embedded
 		<library>/qt//QtCore/<variant>release/<link>shared
 		<library>/qt//QtGui/<variant>release/<link>shared
-		#<library>/qt//QtDeclarative/<variant>release
-		<include>..
 	: usage-requirements
 		<library>/qt//QtCore/<variant>release/<link>shared
 		<library>/qt//QtGui/<variant>release/<link>shared
-		#<library>/qt//QtDeclarative/<variant>release
 		<source>mainwindow.ui
-		<include>..
 	;
 
 explicit dukexgui ;
 lib dukexgui
     : 
-        [ glob *.ui *.cpp *.qrc : moc_* qrc_* ] 
-        UIApplication.h
-        UIRenderWindow.h
-        UIFileDialog.h
-        UIInfoDialog.h
-        UIPluginDialog.h
-        UIWidget.h
-        UserPreferences.h
+        [ glob *.ui *.cpp *.qrc *.h ] 
+#        UIApplication.h
+#        UIRenderWindow.h
+#        UIFileDialog.h
+#        UIInfoDialog.h
+#        UIPluginDialog.h
+#        UIWidget.h
+#        UserPreferences.h
 	;

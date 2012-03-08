@@ -1,9 +1,11 @@
 project
     : requirements
      	<include>.
-		<library>/dukeapi//dukeapi
 		<library>/boost//program_options/<link>shared
-    : usage-requirements 
     ;
 
-exe diskbench :  [ glob *.cpp ] ;
+exe duke
+		:
+			[ glob *.cpp ] 
+			/dukeengine//dukeengine/<link>static	# embedded
+		;

@@ -1,6 +1,0 @@
-body: "return @0 * ((940 - 64) / 1023.) + (64 / 1023.);"
-signature {
-	name: "expand_cgrtosmpte"
-	returnType: "float4"
-	operandType: "float4"
-}

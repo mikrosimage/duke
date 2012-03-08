@@ -1,13 +1,8 @@
 project
 	: requirements
 		<library>/dukeengine//dukeengine/<link>static		# embedded
-		<include>..
 	: usage-requirements
-		<include>..
 	;
 
 explicit dukexcore ;
-lib dukexcore
-    : 
-        [ glob *.cpp ] 
-	;
+lib dukexcore :  [ glob *.cpp ] ;
