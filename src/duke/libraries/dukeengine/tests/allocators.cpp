@@ -1,7 +1,8 @@
-#define BOOST_TEST_MODULE VirtualMemoryBlock
-#include <boost/test/unit_test.hpp>
 #include <dukeengine/memory/alloc/MemoryBlock.h>
 #include <dukeengine/memory/alloc/Allocators.h>
+
+#define BOOST_TEST_MODULE VirtualMemoryBlock
+#include <boost/test/unit_test.hpp>
 
 using namespace ::mikrosimage::alloc;
 

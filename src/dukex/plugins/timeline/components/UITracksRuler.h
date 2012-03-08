@@ -76,6 +76,7 @@ private:
     int m_mediumMarkDistance;
     int m_bigMarkDistance;
     RULER_DISPLAY_MODE m_displayMode;
+//    ::duke::protocol::Info::CacheState mCacheState;
 };
 
 #endif // UITRACKSRULER_H

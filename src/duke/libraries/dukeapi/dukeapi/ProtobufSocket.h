@@ -34,7 +34,7 @@ typedef buffers_iterator<streambuf::const_buffers_type> asio_buffer_itr;
 /**
  * this function is used by boost::asio::read_until to read a varint
  */
-std::pair<asio_buffer_itr, bool> match_varint(asio_buffer_itr begin, asio_buffer_itr end) {
+static inline std::pair<asio_buffer_itr, bool> match_varint(asio_buffer_itr begin, asio_buffer_itr end) {
     asio_buffer_itr i = begin;
     while (i != end)
         if (((uint8_t) *i++) < 0x80)

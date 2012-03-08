@@ -5,4 +5,4 @@ explicit diskbench ;
 exe diskbench : 
 		[ glob *.cpp ]
 		/dukeapi//dukeapi
-		/boost//program_options ;
+		/boost//program_options/<link>shared ;

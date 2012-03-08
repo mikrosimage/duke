@@ -12,4 +12,8 @@ unit-test test_sequence
 				sequence.cpp
 				[ glob ../dukeapi/sequence/*.cpp ]
 				[ glob ../dukeapi/protobuf_builder/*.cpp ]
+			:
+				<library>/duke/sub/sequenceparser//sequence_parser/<link>static	# embedded
+				<library>/pb/serialize//serialize/<link>shared
+				<library>/pb/player//player/<link>shared
 			;

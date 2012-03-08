@@ -1,9 +1,8 @@
 project
 	: requirements
-		<library>/dukeengine//dukeengine
+		<library>/dukeengine//dukeengine/<link>static		# embedded
 		<include>..
 	: usage-requirements
-		<library>/dukeengine//dukeengine
 		<include>..
 	;
 

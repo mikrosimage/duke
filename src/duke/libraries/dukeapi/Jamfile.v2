@@ -1,21 +1,24 @@
 project
     : requirements
-     	<library>/concurrent//concurrent
-     	<library>/pb/player//player
-     	<library>/pb/playlist//playlist
-     	<library>/pb/serialize//serialize
-     	<library>/duke/sub/sequenceparser//sequence_parser
      	<include>.
     : usage-requirements 
-     	<library>/concurrent//concurrent
-     	<library>/pb/player//player
-     	<library>/pb/playlist//playlist
-     	<library>/pb/serialize//serialize
-     	<library>/duke/sub/sequenceparser//sequence_parser
-        <os>NT:<find-shared-library>Ws2_32
-        <os>NT:<find-shared-library>Mswsock
      	<include>.
     ;
 
-lib dukeapi : [ glob-tree *.cpp : tests ] ;
 explicit dukeapi ;
+lib dukeapi	:
+				[ glob-tree *.cpp : tests ]
+			:
+		     	<library>/concurrent//concurrent/<link>static					# header only library
+		     	<library>/duke/sub/sequenceparser//sequence_parser/<link>static	# embedded
+		     	<library>/pb/serialize//serialize/<link>shared
+		     	<library>/pb/player//player/<link>shared
+		     	<library>/pb/playlist//playlist/<link>shared
+			:
+			:
+		     	<library>/pb/serialize//serialize/<link>shared
+		     	<library>/pb/player//player/<link>shared
+		     	<library>/pb/playlist//playlist/<link>shared
+		        <os>NT:<find-shared-library>Ws2_32
+		        <os>NT:<find-shared-library>Mswsock
+			;

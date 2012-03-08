@@ -1,13 +1,24 @@
 import testing ;
 
-project		:
-				requirements 
-	            <define>BOOST_TEST_MAIN
-	            <define>BOOST_TEST_DYN_LINK
-	            <library>/boost//unit_test_framework
-	            <library>/dukeengine//dukeengine
-            ;
-
+explicit dukeengine_test_subset ;
+lib dukeengine_test_subset
+			:
+				[ glob ../dukeengine/utils/*.cpp ]
+				[ glob ../dukeengine/memory/pool/*.cpp ]
+				[ glob ../dukeengine/memory/alloc/*.cpp ]
+				[ glob ../dukeengine/file/*.cpp ]
+			:
+				<library>/dukeapi//dukeapi/<link>static
+			;
+ 
 for local l in [ glob *.cpp ] {
-	unit-test $(l)_tests : $(l) ;
+	unit-test $(l)_tests
+		:
+			$(l)
+		:
+			<define>BOOST_TEST_MAIN=1
+            <define>BOOST_TEST_DYN_LINK=1
+            <library>/boost//unit_test_framework
+			<library>dukeengine_test_subset/<link>static
+		;
 }
