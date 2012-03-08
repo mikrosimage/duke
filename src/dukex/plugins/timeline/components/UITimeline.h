@@ -5,6 +5,7 @@
 #include "player.pb.h"
 #include "ui_Timeline.h"
 #include <dukexgui/UIWidget.h>
+#include <set>
 
 // forward declaration
 class UITracksScene;
@@ -21,8 +22,7 @@ class UITimeline : public UIWidget {
 
 public:
     UITimeline(NodeManager*);
-    virtual ~UITimeline() {
-    }
+    virtual ~UITimeline();
 
 public:
     UITracksView* tracksView();
@@ -39,6 +39,10 @@ public slots:
     void setDuration(int duration);
     void frameChanged(qint64 pos);
     void framerateChanged(double framerate);
+    void launchUpdateLoop(); //FIXME workaround
+
+private:
+    void timerEvent(QTimerEvent *event);
 
 private:
     Ui::Timeline m_ui;
@@ -49,6 +53,8 @@ private:
     UITimelineControls* m_timelineControls;
     NodeManager* m_manager;
     size_t m_zoom;
+    std::set<size_t> mCachedFrames;
+    int m_timerID;
 };
 
 #endif // UITIMELINE_H

@@ -31,7 +31,6 @@ public:
         session()->sendMsg(queue);
     }
 
-
 };
 
 #endif // INFONODE_H

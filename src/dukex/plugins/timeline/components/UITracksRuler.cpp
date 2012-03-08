@@ -163,21 +163,19 @@ void UITracksRuler::drawCacheState(QStylePainter *painter) {
     double step = m_scale * m_littleMarkDistance; // frame length (px)
     double offsetMax = (width() + m_offset) ;
     painter->save();
-//    painter.setPen(QColor(77, 82, 95));
     painter->setPen(QColor(77, 255, 95));
-    std::cerr << "m_offset " << m_offset << std::endl;
-    std::cerr << "offsetMax " << offsetMax << std::endl;
-    std::cerr << "step " << step << std::endl;
+
     for (double f = m_offset ; f < offsetMax ; f += step){
-        int frame = (f / m_factor);
-        if(frame >= 10 && frame <= 15){
-            int here = qRound(frame)*m_factor;
-            QLine l(here-m_offset, height()-1, here-m_offset+step, height()-1);
+        size_t frame = (f / m_factor);
+        std::set<size_t>::const_iterator it = mCacheState.find(frame);
+        if(it != mCacheState.end()){
+            int pxframe = qRound(frame)*m_factor;
+            QLine l(pxframe-m_offset, height()-1, pxframe-m_offset+step, height()-1);
             painter->drawLine(l);
-            std::cerr << frame << std::endl;
         }
     }
     painter->restore();
+
 }
 
 // private

@@ -81,7 +81,7 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
     //    m_statusInfo->setText("Connecting...");
 
-    // Starting Timer : so as to copute "IN" msgs every N ms
+    // Starting Timer : so as to compute "IN" msgs every N ms
     m_timerID = QObject::startTimer(40);
 
 }
@@ -145,13 +145,13 @@ bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt:
 
 void UIApplication::closeUI(QObject* _plug) {
     QList<QObject*> values = m_LoadedUIElements.values(_plug);
-    for (int i = 0; i < values.size(); ++i){
-        if(qobject_cast<QDockWidget*>(values.at(i))){
-            QDockWidget* obj = qobject_cast<QDockWidget*>(values.at(i));
+    for (int i = 0; i < values.size(); ++i) {
+        if (qobject_cast<QDockWidget*> (values.at(i))) {
+            QDockWidget* obj = qobject_cast<QDockWidget*> (values.at(i));
             obj->close();
             removeDockWidget(obj);
             // FIXME : delete now
-//            obj->deleteLater();
+            //            obj->deleteLater();
         }
     }
     m_LoadedUIElements.remove(_plug);
@@ -171,7 +171,6 @@ void UIApplication::closeEvent(QCloseEvent *event) {
 
 // private
 void UIApplication::timerEvent(QTimerEvent *event) {
-    m_Session->computeInMsg();
     //    // check connection status
     //    if (!m_Session->connected()) {
     //        m_statusInfo->setStyleSheet("QLabel { color : red; }");
@@ -180,6 +179,7 @@ void UIApplication::timerEvent(QTimerEvent *event) {
     //        m_statusInfo->setStyleSheet("QLabel { color : green; }");
     //        m_statusInfo->setText("Connected.");
     //    }
+    m_Session->computeInMsg();
     event->accept();
 }
 
@@ -451,7 +451,7 @@ void UIApplication::nextShot() {
 
 // private slot
 void UIApplication::info() {
-//    m_RenderWindow->showInfo();
+    //    m_RenderWindow->showInfo();
     setFocus();
 }
 

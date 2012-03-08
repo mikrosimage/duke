@@ -10,6 +10,7 @@
 #include <dukexcore/nodes/InfoNode.h>
 #include <QHBoxLayout>
 #include <QScrollBar>
+#include <QTimer>
 
 #define MINZOOMRATIO 0
 #define MAXZOOMRATIO 13
@@ -77,6 +78,14 @@ UITimeline::UITimeline(NodeManager* _manager) :
     connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), this, SLOT( setFocus() ));
 
     m_tracksView->createLayout();
+
+    // Starting Timer : to update cache state every N ms
+//    m_timerID = QObject::startTimer(40);
+    QTimer::singleShot(1000, this, SLOT(launchUpdateLoop()));
+}
+
+UITimeline::~UITimeline() {
+    QObject::killTimer(m_timerID);
 }
 
 UITracksView* UITimeline::tracksView() {
@@ -151,31 +160,32 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
         fit();
     }
     else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
-        std::cerr << "-- INFO --" << std::endl;
         const Info & info = ::google::protobuf::serialize::unpackTo<Info>(*sharedholder);
-        if (info.IsInitialized())
-            info.PrintDebugString();
+        if (info.IsInitialized()){
+//            info.PrintDebugString();
+            if(info.has_cachestate()){
+                mCachedFrames.clear();
+                for(int i = 0; i < info.cachestate().track_size(); ++i){
+                    const ::duke::protocol::Info_CacheState_TrackCache& t = info.cachestate().track(i);
+                    for(int j = 0; j < t.range_size(); ++j){
+                        const ::duke::protocol::FrameRange& r = t.range(j);
+                        for(size_t k = r.first(); k < r.last(); ++k){
+                            mCachedFrames.insert(k);
+                        }
+                    }
+                }
+                m_tracksRuler->setCacheState(mCachedFrames);
+            }
+        }
     }
 }
 
 void UITimeline::frameChanged(qint64 pos) {
-    {
-        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
-        if (n.get() != NULL) {
-            InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
-            if (p.get() != NULL) {
-                p->callCurrentCacheState();
-                std::cerr << "callCurrentCacheState" << std::endl;
-            }
-        }
-    }
-    {
-        INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.transport");
-        if (n.get() != NULL) {
-            TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-            if (t.get() != NULL) {
-                t->gotoFrame(pos);
-            }
+    INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.transport");
+    if (n.get() != NULL) {
+        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
+        if (t.get() != NULL) {
+            t->gotoFrame(pos);
         }
     }
 }
@@ -226,4 +236,21 @@ void UITimeline::zoomOut() {
 void UITimeline::setDuration(int duration) {
     m_tracksView->setDuration(duration);
     m_tracksRuler->setDuration(duration);
+}
+
+// private
+void UITimeline::launchUpdateLoop(){
+    m_timerID = QObject::startTimer(40);
+}
+
+// private
+void UITimeline::timerEvent(QTimerEvent *event) {
+    INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
+    if (n.get() != NULL) {
+        InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
+        if (p.get() != NULL) {
+            p->callCurrentCacheState();
+        }
+    }
+    event->accept();
 }

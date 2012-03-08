@@ -4,6 +4,7 @@
 #include "UITracksView.h"
 #include <QWidget>
 #include <QString>
+#include <set>
 
 // forward declaration
 class QPaintEvent;
@@ -42,6 +43,10 @@ public:
 public:
     void setDuration(int duration);
     void setPixelPerMark(double rate);
+    void setCacheState(const std::set<size_t> & set){
+        mCacheState = set;
+        update();
+    }
     static const int comboScale[];
     int offset() const {
         return m_offset;
@@ -76,7 +81,7 @@ private:
     int m_mediumMarkDistance;
     int m_bigMarkDistance;
     RULER_DISPLAY_MODE m_displayMode;
-//    ::duke::protocol::Info::CacheState mCacheState;
+    std::set<size_t> mCacheState;
 };
 
 #endif // UITRACKSRULER_H
