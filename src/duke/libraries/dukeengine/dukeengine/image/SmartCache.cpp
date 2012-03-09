@@ -142,13 +142,8 @@ struct SmartCache::Impl : private boost::noncopyable {
     inline bool get(const MediaFrame &frame, ImageHolder & imageHolder) const {
         image::WorkUnitData data(frame);
         bool loaded = false;
-        if (enabled()) {
-            if (m_LookAheadCache.get(frame, data)) {
-                loaded = true;
-            } else {
-                cout << "image not in cache, loading in main thread" << endl;
-            }
-        }
+        if (enabled() && m_LookAheadCache.get(frame, data))
+            loaded = true;
 
         if (!loaded) {
             metric_type weight;
