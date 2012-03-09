@@ -22,7 +22,7 @@ class UITimeline : public UIWidget {
 
 public:
     UITimeline(NodeManager*);
-    virtual ~UITimeline();
+    virtual ~UITimeline(){}
 
 public:
     UITracksView* tracksView();
@@ -39,9 +39,10 @@ public slots:
     void setDuration(int duration);
     void frameChanged(qint64 pos);
     void framerateChanged(double framerate);
-    void launchUpdateLoop(); //FIXME workaround
 
 private:
+    void showEvent(QShowEvent *event);
+    void closeEvent(QCloseEvent *event);
     void timerEvent(QTimerEvent *event);
 
 private:
