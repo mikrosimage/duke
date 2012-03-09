@@ -69,7 +69,7 @@ void UIPluginDialog::populate() {
 
         // Hard coded AutoLoad
         // TODO: store AutoLoad settings in user preferences
-        if(QDir(m_Loader.path()).relativeFilePath(it.key()) == "plugin_dukex_timeline.so"){
+        if(QDir(m_Loader.path()).relativeFilePath(it.key()).startsWith("plugin_dukex_timeline")){
             button->setChecked(true);
         }
 
