@@ -27,18 +27,19 @@ void NodeManager::clearNodes() {
     mNodes.clear();
 }
 
-INode::ptr NodeManager::nodeByName(const std::string & _nodename) {
+void NodeManager::setSessionOnNodes(Session::ptr _session) {
+    NodeMap::iterator it = mNodes.begin();
+    while(it != mNodes.end()){
+        it->second->setSession(_session);
+    }
+}
+
+// private
+INode::ptr NodeManager::findNode(const std::string & _nodename) {
     NodeMap::const_iterator it = mNodes.find(_nodename);
     if (it != mNodes.end())
         return it->second;
     std::cerr << "Error: Unable to find node "<< _nodename << std::endl;
     INode::ptr p;
     return p;
-}
-
-void NodeManager::setSessionOnNodes(Session::ptr _session) {
-    NodeMap::iterator it = mNodes.begin();
-    while(it != mNodes.end()){
-        it->second->setSession(_session);
-    }
 }

@@ -181,23 +181,17 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
 }
 
 void UITimeline::frameChanged(qint64 pos) {
-    INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->gotoFrame(pos);
-        }
-    }
+    TransportNode::ptr t = m_manager->nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->gotoFrame(pos);
 }
 
 void UITimeline::framerateChanged(double framerate) {
-    INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.playlist");
-    if (n.get() != NULL) {
-        PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
-        if (p.get() != NULL) {
-            p->setFramerate(framerate);
-        }
-    }
+    PlaylistNode::ptr p = m_manager->nodeByName<PlaylistNode>("fr.mikrosimage.dukex.playlist");
+    if (p.get() == NULL)
+        return;
+    p->setFramerate(framerate);
 }
 
 void UITimeline::fit() {
@@ -245,12 +239,9 @@ void UITimeline::launchUpdateLoop(){
 
 // private
 void UITimeline::timerEvent(QTimerEvent *event) {
-    INode::ptr n = m_manager->nodeByName("fr.mikrosimage.dukex.info");
-    if (n.get() != NULL) {
-        InfoNode::ptr p = boost::dynamic_pointer_cast<InfoNode>(n);
-        if (p.get() != NULL) {
-            p->callCurrentCacheState();
-        }
-    }
+    InfoNode::ptr i = m_manager->nodeByName<InfoNode>("fr.mikrosimage.dukex.info");
+    if (i.get() == NULL)
+        return;
+    i->callCurrentCacheState();
     event->accept();
 }

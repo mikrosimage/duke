@@ -71,11 +71,11 @@ UIApplication::UIApplication(Session::ptr s) :
     InfoNode::ptr info = InfoNode::ptr(new InfoNode());
     m_Manager.addNode(info, m_Session);
 
-    //FIXME OMG: erase this
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
-    if (n.get() != NULL) {
-        GradingNode::ptr grading = boost::dynamic_pointer_cast<GradingNode>(n);
-    }
+//    //FIXME OMG: erase this
+//    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
+//    if (n.get() != NULL) {
+//        GradingNode::ptr grading = boost::dynamic_pointer_cast<GradingNode>(n);
+//    }
 
     // Starting Session
     m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
@@ -295,32 +295,28 @@ void UIApplication::updateRecentFilesMenu() {
 
 // private slot
 void UIApplication::openFiles(const QStringList & _list, const bool & asSequence, const bool & asDir) {
-    // open new files
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.playlist");
-    if (n.get() != NULL) {
-        PlaylistNode::ptr p = boost::dynamic_pointer_cast<PlaylistNode>(n);
-        if (p.get() != NULL) {
-            if (!_list.isEmpty()) {
-                // --- QStringList to STL vector<string>
-                std::vector<std::string> v;
-                v.resize(_list.count());
-                for (int i = 0; i < _list.count(); ++i) {
-                    v[i] = _list[i].toStdString();
-                }
-                p->openFiles(v, asSequence);
-                if (v.size() == 1) { // multi selection not handled in file history
-                    QString history = _list[0];
-                    if (asSequence) {
-                        history.prepend("sequence://");
-                    } else if (asDir) {
-                        history.prepend("directory://");
-                    } else {
-                        history.prepend("file://");
-                    }
-                    m_Preferences.addToHistory(history.toStdString());
-                    updateRecentFilesMenu();
-                }
+    PlaylistNode::ptr p = m_Manager.nodeByName<PlaylistNode>("fr.mikrosimage.dukex.playlist");
+    if (p.get() == NULL)
+        return;
+    if (!_list.isEmpty()) {
+        // --- QStringList to STL vector<string>
+        std::vector<std::string> v;
+        v.resize(_list.count());
+        for (int i = 0; i < _list.count(); ++i) {
+            v[i] = _list[i].toStdString();
+        }
+        p->openFiles(v, asSequence);
+        if (v.size() == 1) { // multi selection not handled in file history
+            QString history = _list[0];
+            if (asSequence) {
+                history.prepend("sequence://");
+            } else if (asDir) {
+                history.prepend("directory://");
+            } else {
+                history.prepend("file://");
             }
+            m_Preferences.addToHistory(history.toStdString());
+            updateRecentFilesMenu();
         }
     }
 }
@@ -371,82 +367,61 @@ void UIApplication::browseDirectory() {
 
 // private slot
 void UIApplication::playStop() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            if (m_Session->isPlaying())
-                t->stop();
-            else
-                t->play();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    if (m_Session->isPlaying())
+        t->stop();
+    else
+        t->play();
 }
 
 // private slot
 void UIApplication::previousFrame() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->previousFrame();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->previousFrame();
 }
 
 // private slot
 void UIApplication::nextFrame() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->nextFrame();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->nextFrame();
 }
 
 // private slot
 void UIApplication::firstFrame() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->firstFrame();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->firstFrame();
 }
 
 // private slot
 void UIApplication::lastFrame() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->lastFrame();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->lastFrame();
 }
 
 // private slot
 void UIApplication::previousShot() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->previousShot();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->previousShot();
 }
 
 // private slot
 void UIApplication::nextShot() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.transport");
-    if (n.get() != NULL) {
-        TransportNode::ptr t = boost::dynamic_pointer_cast<TransportNode>(n);
-        if (t.get() != NULL) {
-            t->nextShot();
-        }
-    }
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    if (t.get() == NULL)
+        return;
+    t->nextShot();
 }
 
 // private slot
@@ -466,79 +441,50 @@ void UIApplication::fullscreen() {
 
 // private slot
 void UIApplication::toggleFitMode() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.fit");
-    if (n.get() != NULL) {
-        FitNode::ptr f = boost::dynamic_pointer_cast<FitNode>(n);
-        if (f.get() != NULL) {
-            f->toggle();
-        }
-    }
+    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    if (f.get() == NULL)
+        return;
+    f->toggle();
 }
 
 // private slot
 void UIApplication::fitToNormalSize() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.fit");
-    if (n.get() != NULL) {
-        FitNode::ptr f = boost::dynamic_pointer_cast<FitNode>(n);
-        if (f.get() != NULL) {
-            f->fitToNormalSize();
-        }
-    }
+    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    if (f.get() == NULL)
+        return;
+    f->fitToNormalSize();
 }
 
 // private slot
 void UIApplication::fitImageToWindowWidth() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.fit");
-    if (n.get() != NULL) {
-        FitNode::ptr f = boost::dynamic_pointer_cast<FitNode>(n);
-        if (f.get() != NULL) {
-            f->fitImageToWindowWidth();
-        }
-    }
+    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    if (f.get() == NULL)
+        return;
+    f->fitImageToWindowWidth();
 }
 
 // private slot
 void UIApplication::fitImageToWindowHeight() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.fit");
-    if (n.get() != NULL) {
-        FitNode::ptr f = boost::dynamic_pointer_cast<FitNode>(n);
-        if (f.get() != NULL) {
-            f->fitImageToWindowHeight();
-        }
-    }
-}
-
-// private slot
-void UIApplication::stretchImageToWindow() {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.fit");
-    if (n.get() != NULL) {
-        FitNode::ptr f = boost::dynamic_pointer_cast<FitNode>(n);
-        if (f.get() != NULL) {
-            f->stretchImageToWindow();
-        }
-    }
+    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    if (f.get() == NULL)
+        return;
+    f->fitImageToWindowHeight();
 }
 
 // private slot
 void UIApplication::zoom(double z) {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
-    if (n.get() != NULL) {
-        GradingNode::ptr f = boost::dynamic_pointer_cast<GradingNode>(n);
-        if (f.get() != NULL) {
-            f->setZoom(z);
-        }
-    }
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode>("fr.mikrosimage.dukex.grading");
+    if (g.get() == NULL)
+        return;
+    g->setZoom(z);
 }
 
 // private slot
 void UIApplication::pan(double x, double y) {
-    INode::ptr n = m_Manager.nodeByName("fr.mikrosimage.dukex.grading");
-    if (n.get() != NULL) {
-        GradingNode::ptr f = boost::dynamic_pointer_cast<GradingNode>(n);
-        if (f.get() != NULL) {
-            f->setPan(x, y);
-        }
-    }
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode>("fr.mikrosimage.dukex.grading");
+    if (g.get() == NULL)
+        return;
+    g->setPan(x, y);
 }
 
 // private slot

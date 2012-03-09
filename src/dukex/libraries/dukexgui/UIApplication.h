@@ -65,7 +65,6 @@ private slots:
     void fitToNormalSize();
     void fitImageToWindowWidth();
     void fitImageToWindowHeight();
-    void stretchImageToWindow();
     void zoom(double);
     void pan(double, double);
     // ?
