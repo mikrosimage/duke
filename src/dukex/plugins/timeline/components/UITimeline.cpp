@@ -81,7 +81,7 @@ UITimeline::UITimeline(NodeManager* _manager) :
 
     // Starting Timer : to update cache state every N ms
 //    m_timerID = QObject::startTimer(40);
-    QTimer::singleShot(1000, this, SLOT(launchUpdateLoop()));
+//    QTimer::singleShot(1000, this, SLOT(launchUpdateLoop()));
 }
 
 UITimeline::~UITimeline() {

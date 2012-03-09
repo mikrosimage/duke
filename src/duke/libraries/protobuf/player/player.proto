@@ -287,7 +287,7 @@ message Info {
         required float  fps = 2;            // current framerate (real)
     }
     message CacheState {
-        required uint32 ram = 1;            // memory used
+        optional uint32 ram = 1 [default = 0];            // memory used
         message TrackCache {
         	required string name = 1;
         	repeated FrameRange range = 2;
