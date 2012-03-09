@@ -162,9 +162,10 @@ void UITracksRuler::drawCacheState(QStylePainter *painter) {
     double offsetMax = (width() + m_offset) ;
     painter->save();
     painter->setPen(QColor(77, 255, 95));
-
     for (double f = m_offset-step ; f < offsetMax+step ; f += step){
         size_t frame = qRound(f / m_factor);
+        if((int)frame > m_duration)
+            continue;
         std::set<size_t>::const_iterator it = mCacheState.find(frame);
         if(it != mCacheState.end()){
             int pxframe = qRound(frame)*m_factor;
