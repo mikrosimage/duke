@@ -10,7 +10,7 @@
 #include <dukexcore/nodes/InfoNode.h>
 #include <QHBoxLayout>
 #include <QScrollBar>
-#include <QTimer>
+#include <QCloseEvent>
 
 #define MINZOOMRATIO 0
 #define MAXZOOMRATIO 13
@@ -77,15 +77,10 @@ UITimeline::UITimeline(NodeManager* _manager) :
     connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), this, SLOT( framerateChanged(double) ));
     connect(m_timelineControls, SIGNAL( framerateControlChanged(double) ), this, SLOT( setFocus() ));
 
+    // create main layout
     m_tracksView->createLayout();
-
-    // Starting Timer : to update cache state every N ms
+    // starting timer: to update cache state every N ms
     m_timerID = QObject::startTimer(40);
-    QTimer::singleShot(0, this, SLOT(launchUpdateLoop()));
-}
-
-UITimeline::~UITimeline() {
-    QObject::killTimer(m_timerID);
 }
 
 UITracksView* UITimeline::tracksView() {
@@ -156,7 +151,6 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 }
             }
         }
-        setDuration(lastFrame);
         fit();
     }
     else if (::google::protobuf::serialize::isType<Info>(*sharedholder)) {
@@ -233,8 +227,14 @@ void UITimeline::setDuration(int duration) {
 }
 
 // private
-void UITimeline::launchUpdateLoop(){
-    m_timerID = QObject::startTimer(40);
+void UITimeline::showEvent(QShowEvent *event) {
+    fit();
+}
+
+// private
+void UITimeline::closeEvent(QCloseEvent *event) {
+    QObject::killTimer(m_timerID);
+    event->accept();
 }
 
 // private

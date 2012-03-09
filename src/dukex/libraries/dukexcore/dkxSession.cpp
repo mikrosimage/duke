@@ -23,8 +23,6 @@ private:
 
 void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io, uint64_t cacheSize, size_t threads) {
     try {
-        std::cerr << "[THREADING] " << threads << std::endl;
-        std::cerr << "[CACHE] " << (cacheSize / 1024.) / 1024. << std::endl;
         duke::protocol::Cache cache;
         cache.set_size(cacheSize);
         cache.set_threading(threads);

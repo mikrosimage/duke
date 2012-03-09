@@ -90,10 +90,8 @@ void UITracksRuler::paintEvent(QPaintEvent* e) {
         painter.drawText((int) f - m_offset + 2, LABEL_SIZE + 1, time);
     }
 
-
     // Draw cache state
     drawCacheState(&painter);
-
 
     // Draw the marks
     offsetMin = (e->rect().left() + m_offset) / m_littleMarkDistance;
@@ -165,8 +163,8 @@ void UITracksRuler::drawCacheState(QStylePainter *painter) {
     painter->save();
     painter->setPen(QColor(77, 255, 95));
 
-    for (double f = m_offset ; f < offsetMax ; f += step){
-        size_t frame = (f / m_factor);
+    for (double f = m_offset-step ; f < offsetMax+step ; f += step){
+        size_t frame = qRound(f / m_factor);
         std::set<size_t>::const_iterator it = mCacheState.find(frame);
         if(it != mCacheState.end()){
             int pxframe = qRound(frame)*m_factor;
