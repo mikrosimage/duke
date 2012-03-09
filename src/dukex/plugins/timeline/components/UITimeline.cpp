@@ -80,8 +80,8 @@ UITimeline::UITimeline(NodeManager* _manager) :
     m_tracksView->createLayout();
 
     // Starting Timer : to update cache state every N ms
-//    m_timerID = QObject::startTimer(40);
-//    QTimer::singleShot(1000, this, SLOT(launchUpdateLoop()));
+    m_timerID = QObject::startTimer(40);
+    QTimer::singleShot(0, this, SLOT(launchUpdateLoop()));
 }
 
 UITimeline::~UITimeline() {
