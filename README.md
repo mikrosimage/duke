@@ -1,4 +1,4 @@
-Duke version 1.1.0
+Duke version 1.2.0
 ==================
 
 Duke is an **opensource high resolution image and sequence viewer** dedicated to visual effect and post production companies.
@@ -19,10 +19,9 @@ Compilation
 
 * Getting the source
 
-    ```git clone git://github.com/mikrosimage/duke.git
+    git clone git://github.com/mikrosimage/duke.git
     cd duke
     git submodule update -i
-    ```
 
 * Compilation
 
