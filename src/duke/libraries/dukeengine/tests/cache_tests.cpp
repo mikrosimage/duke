@@ -1,10 +1,10 @@
-#include <dukeengine/cache/PriorityCache.hpp>
+#include <concurrent/cache/PriorityCache.hpp>
 
 #define BOOST_TEST_MODULE CacheTestModule
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
-using namespace cache;
+using namespace concurrent::cache;
 
 typedef PriorityCache<size_t, size_t, int> CACHE;
 

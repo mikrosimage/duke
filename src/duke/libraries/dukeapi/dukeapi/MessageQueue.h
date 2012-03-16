@@ -2,12 +2,12 @@
 #define MESSAGEQUEUE_H_
 
 #include "IMessageIO.h"
-#include <concurrent/ConcurrentQueue.h>
+#include <concurrent/ConcurrentQueue.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <queue>
 
-struct MessageQueue : public IMessageIO, private ConcurrentQueue<google::protobuf::serialize::SharedHolder> {
+struct MessageQueue : public IMessageIO, private concurrent::ConcurrentQueue<google::protobuf::serialize::SharedHolder> {
 private:
     typedef ConcurrentQueue<google::protobuf::serialize::SharedHolder> UP;
 public:

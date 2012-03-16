@@ -4,3 +4,6 @@
 [submodule "src/duke/submodules/sequenceparser"]
 	path = src/duke/submodules/sequenceparser
 	url = git://github.com/mikrosimage/SequenceParser.git
+[submodule "src/duke/submodules/concurrent_utils"]
+	path = src/duke/submodules/concurrent_utils
+	url = git://github.com/mikrosimage/concurrent_utils.git

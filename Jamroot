@@ -30,6 +30,7 @@ use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin
 use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
 use-project /duke/sub/sequence      	: src/duke/submodules/sequenceparser/src/sequence ;
 use-project /duke/sub/sequenceparser	: src/duke/submodules/sequenceparser/src/sequence/parser ;
+use-project /duke/sub/concurrent		: src/duke/submodules/concurrent_utils/src ;
 use-project /dukexcore                  : src/dukex/libraries/dukexcore ;
 use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
@@ -77,7 +78,7 @@ alias plugin-timeline   : src/dukex/plugins/timeline//timeline ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
-alias duketests 	    : src/duke/libraries//tests ;
+alias duketests 	    : src/duke/libraries//tests src/duke/submodules//tests ;
 alias dukexplugins 		: plugin-timeline ;
 alias dukextests 	    : [ glob src/dukex/tests/* ] ;
 alias tests 	        : duketests dukextests ;

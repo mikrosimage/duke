@@ -1,6 +1,6 @@
 project
     : requirements
-     	<library>/concurrent//concurrent/<link>static					# header only library
+     	<library>/duke/sub/concurrent//concurrent/<link>static			# header only library
      	<library>/duke/sub/sequenceparser//sequence_parser/<link>static	# embedded
      	<library>/pb/serialize//serialize/<link>shared
      	<library>/pb/player//player/<link>shared

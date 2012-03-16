@@ -10,11 +10,11 @@
 #include "ImageHolder.h"
 #include "ImageToolbox.h"
 
-#include <dukeengine/cache/LookAheadCache.hpp>
 #include <dukeengine/host/io/ImageDecoderFactory.h>
 #include <dukeengine/utils/CacheIterator.h>
 
-#include <concurrent/ConcurrentQueue.h>
+#include <concurrent/ConcurrentQueue.hpp>
+#include <concurrent/cache/LookAheadCache.hpp>
 #include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <boost/thread.hpp>
@@ -26,7 +26,7 @@
 #include <cassert>
 
 using namespace std;
-using namespace cache;
+using namespace concurrent::cache;
 using namespace duke::protocol;
 
 typedef image::WorkUnitId id_type;
@@ -61,7 +61,7 @@ private:
 };
 
 typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
-typedef ConcurrentQueue<data_type> QUEUE;
+typedef concurrent::ConcurrentQueue<data_type> QUEUE;
 
 static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
     const string &error = unit.imageHolder.error;
@@ -97,7 +97,7 @@ static void worker(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE
             else
                 waitLoadAndPush(factory, jobProducer, decodeQueue);
         }
-    } catch (terminated &e) {
+    } catch (concurrent::terminated &e) {
     }
     while (decodeQueue.tryPop(data))
         decodeAndPush(factory, jobProducer, data);
