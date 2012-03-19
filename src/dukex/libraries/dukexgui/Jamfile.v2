@@ -12,12 +12,5 @@ project
 explicit dukexgui ;
 lib dukexgui
     : 
-        [ glob *.ui *.cpp *.qrc *.h ] 
-#        UIApplication.h
-#        UIRenderWindow.h
-#        UIFileDialog.h
-#        UIInfoDialog.h
-#        UIPluginDialog.h
-#        UIWidget.h
-#        UserPreferences.h
+        [ glob *.ui *.cpp *.qrc *.h : IUIBuilder.h IUIPluginInterfaces.h UIPluginLoader.h ] 
 	;
