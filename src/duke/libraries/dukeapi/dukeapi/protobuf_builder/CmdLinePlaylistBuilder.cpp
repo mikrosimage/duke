@@ -18,6 +18,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -54,9 +55,35 @@ static string g_ppl2(".ppl2");
 static string g_ppl(".ppl");
 static string HEADER("[Playlist] ");
 
+enum EntryType {
+    ET_PATTERN, ET_FILE, ET_PPL, ET_PPL2, ET_FOLDER
+};
+
+static inline bool isPattern(const string &entry) {
+    return entry.find_first_of("#@") != string::npos;
+}
+
+EntryType getEntryType(const string &entry) {
+    const path filename(entry);
+    if (isPattern(entry))
+        return ET_PATTERN;
+    // it is either a Playlist, a filename or a directory, it therefore must exists
+    if (!exists(filename))
+        throw ios_base::failure(string("Unable to open ") + filename.string());
+    if (iends_with(entry, g_ppl2))
+        return ET_PPL2;
+    else if (iends_with(entry, g_ppl))
+        return ET_PPL;
+    else if (is_directory(filename))
+        return ET_FOLDER;
+    else
+        return ET_FILE;
+}
+
 struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
-    Pimpl(IOQueueInserter &inserter, bool useContainingSequence, const char **validExtensions) :
-                    inserter(inserter), useContainingSequence(useContainingSequence), trackBuilder(playlistBuilder.addTrack("default")), clipIndex(0) {
+
+    Pimpl(IOQueueInserter &inserter, bool browseMode, const char **validExtensions) :
+                    inserter(inserter), browseMode(browseMode), trackBuilder(playlistBuilder.addTrack("default")), clipIndex(0) {
         for (; validExtensions != NULL && *validExtensions != NULL; ++validExtensions) {
             string extension = *validExtensions;
             if (!extension.empty() && extension[0] != '.')
@@ -67,6 +94,8 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
         transport.set_type(Transport_TransportType_CUE);
         transport.mutable_cue()->set_value(0);
     }
+
+    void processEntry(const string& entry);
 
     void ingest(const BrowseItem &item, unsigned record = UINT_MAX) {
         if (isInvalid(item))
@@ -80,8 +109,8 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
     }
 
     void ingestAll(const BrowseItems &items) {
-        for (BrowseItems::const_iterator itr = items.begin(); itr != items.end(); ++itr)
-            ingest(*itr);
+        BOOST_FOREACH(const BrowseItem &item, items)
+                    ingest(item);
     }
 
     Playlist finalize() {
@@ -92,23 +121,35 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
         return clipIndex == 0;
     }
 
+    Transport getTransport() const {
+        return transport;
+    }
+
+private:
     IOQueueInserter &inserter;
-    const bool useContainingSequence;
+    const bool browseMode;
     PlaylistBuilder playlistBuilder;
     TrackBuilder trackBuilder;
+    size_t clipIndex;
+    Transport transport;
+    set<string, details::ci_less> extensions;
     bool isInvalid(const BrowseItem &item) const {
         return extensions.find(item.extension()) == extensions.end();
     }
-    set<string, details::ci_less> extensions;
-    size_t clipIndex;
-    Transport transport;
+
+    void parsePPL2(const path &filename);
+    void parsePPLSequenceLine(const string &line);
+    void parsePPL(const path &filename);
+    void parsePattern(const path &filename);
+    void parseDirectory(const path &directory);
+    void parseFilename(const path &absoluteFilename);
 };
 
-static inline void parsePPL2(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+void CmdLinePlaylistBuilder::Pimpl::parsePPL2(const path &filename) {
     throw runtime_error(string("I can't parse PPL2 for the moment : ") + filename.string());
 }
 
-static inline void parsePPLSequenceLine(CmdLinePlaylistBuilder::Pimpl &pimpl, const string &line) {
+void CmdLinePlaylistBuilder::Pimpl::parsePPLSequenceLine(const string &line) {
     boost::escaped_list_separator<char> els("", "\t ", "\"");
     boost::tokenizer<boost::escaped_list_separator<char> > tok(line, els);
     vector<string> parts;
@@ -128,10 +169,10 @@ static inline void parsePPLSequenceLine(CmdLinePlaylistBuilder::Pimpl &pimpl, co
     const long last = atol(parts[3].c_str());
     if (record < 0 || first < 0 || last < 0)
         throw runtime_error("negative numbers are not allowed");
-    pimpl.ingest(sequence::create_sequence(path, pattern, sequence::Range(first, last)), record);
+    ingest(sequence::create_sequence(path, pattern, sequence::Range(first, last)), record);
 }
 
-static inline void parsePPL(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+void CmdLinePlaylistBuilder::Pimpl::parsePPL(const path &filename) {
     ifstream ppl(filename.string().c_str(), ios::in);
     string line;
     unsigned currentLine = 1;
@@ -140,7 +181,7 @@ static inline void parsePPL(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &fi
             getline(ppl, line);
             boost::algorithm::trim(line);
             if (!line.empty() && line[0] != '#')
-                parsePPLSequenceLine(pimpl, line);
+                parsePPLSequenceLine(line);
             ++currentLine;
         }
     } catch (exception &e) {
@@ -150,12 +191,12 @@ static inline void parsePPL(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &fi
     }
 }
 
-static inline void parsePattern(const CmdLinePlaylistBuilder::Pimpl &pimpl, const path &filename) {
+void CmdLinePlaylistBuilder::Pimpl::parsePattern(const path &filename) {
     throw runtime_error(string("I can't parse a filename pattern for the moment : ") + filename.string());
 }
 
-static inline void parseDirectory(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &directory) {
-    pimpl.ingestAll(sequence::parser::browse(directory.string().c_str(), false));
+void CmdLinePlaylistBuilder::Pimpl::parseDirectory(const path &directory) {
+    ingestAll(sequence::parser::browse(directory.string().c_str(), false));
 }
 
 static inline bool contained(const string& filename, const BrowseItem & item) {
@@ -166,34 +207,74 @@ static inline bool notContained(const string& filename, const BrowseItem & item)
     return !contained(filename, item);
 }
 
-static inline void parseFilename(CmdLinePlaylistBuilder::Pimpl &pimpl, const path &absoluteFilename) {
+void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) {
     BrowseItem item = sequence::create_file(absoluteFilename);
-    if (pimpl.useContainingSequence) {
-        BrowseItems items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
-        const string filename = absoluteFilename.filename().string();
-        sequence::filterOut(items, bind(&notContained, filename, _1));
-        if (!items.empty()) {
-            const BrowseItem &containingSequence = items[0];
-            item = containingSequence;
-            assert(containingSequence.type==sequence::SEQUENCE);
-            assert(containingSequence.sequence.step==1);
-            const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
-            const unsigned int filenameFrameNumber = atoi(pFrameString);
-            const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
-            const unsigned int gotoRec = pimpl.trackBuilder.currentRecord() + sequenceOffset;
-            pimpl.transport.mutable_cue()->set_value(gotoRec);
-            cout << HEADER + "cueing to record " << gotoRec << endl;
+//    if (pimpl.useContainingSequence) {
+//        BrowseItems items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
+//        const string filename = absoluteFilename.filename().string();
+//        sequence::filterOut(items, bind(&notContained, filename, _1));
+//        if (!items.empty()) {
+//            const BrowseItem &containingSequence = items[0];
+//            item = containingSequence;
+//            assert(containingSequence.type==sequence::SEQUENCE);
+//            assert(containingSequence.sequence.step==1);
+//            const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
+//            const unsigned int filenameFrameNumber = atoi(pFrameString);
+//            const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
+//            const unsigned int gotoRec = trackBuilder.currentRecord() + sequenceOffset;
+//            transport.mutable_cue()->set_value(gotoRec);
+//            // cout << HEADER + "cueing to record " << gotoRec << endl;
+//        }
+//    }
+    ingest(item);
+}
+
+void CmdLinePlaylistBuilder::Pimpl::processEntry(const string& entry) {
+    const EntryType type = getEntryType(entry);
+    const path filename(entry);
+    if (browseMode) {
+        if(type!=ET_FILE)
+            throw std::logic_error("");
+
+    }else{
+        switch (type) {
+            case ET_PATTERN:
+                parsePattern(filename);
+                break;
+            case ET_PPL2:
+                parsePPL2(filename);
+                break;
+            case ET_PPL:
+                parsePPL(filename);
+                break;
+            case ET_FOLDER:
+                parseDirectory(filename);
+                break;
+            case ET_FILE:
+                parseFilename(filename);
+                break;
         }
     }
-    pimpl.ingest(item);
+
+    if (isPattern(entry)) {
+        parsePattern(filename);
+        return;
+    }
+    // it is either a Playlist, a filename or a directory, it therefore must exists
+    if (!exists(filename))
+        throw ios_base::failure(string("Unable to open ") + filename.string());
+    if (iends_with(entry, g_ppl2))
+        parsePPL2(filename);
+    else if (iends_with(entry, g_ppl))
+        parsePPL(filename);
+    else if (is_directory(filename))
+        parseDirectory(filename);
+    else
+        parseFilename(filename);
 }
 
-static inline bool isPattern(const string &entry) {
-    return entry.find_first_of("#@") != string::npos;
-}
-
-CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool useContainingSequence, const char **validExtensions) :
-                m_Pimpl(new Pimpl(inserter, useContainingSequence, validExtensions)) {
+CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool browseMode, const char **validExtensions) :
+                m_Pimpl(new Pimpl(inserter, browseMode, validExtensions)) {
 }
 
 Playlist CmdLinePlaylistBuilder::getPlaylist() {
@@ -201,27 +282,11 @@ Playlist CmdLinePlaylistBuilder::getPlaylist() {
 }
 
 Transport CmdLinePlaylistBuilder::getCue() {
-    return m_Pimpl->transport;
+    return m_Pimpl->getTransport();
 }
 
 void CmdLinePlaylistBuilder::process(const string& entry) {
-    Pimpl &pimpl = *m_Pimpl.get();
-    const path filename(entry);
-    if (isPattern(entry)) {
-        parsePattern(pimpl, filename);
-        return;
-    }
-    // it is either a Playlist, a filename or a directory, it therefore must exists
-    if (!exists(filename))
-        throw ios_base::failure(string("Unable to open ") + filename.string());
-    if (iends_with(entry, g_ppl2))
-        parsePPL2(pimpl, filename);
-    else if (iends_with(entry, g_ppl))
-        parsePPL(pimpl, filename);
-    else if (is_directory(filename))
-        parseDirectory(pimpl, filename);
-    else
-        parseFilename(pimpl, filename);
+    m_Pimpl->processEntry(entry);
 }
 
 bool CmdLinePlaylistBuilder::empty() const {

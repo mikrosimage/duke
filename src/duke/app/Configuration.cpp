@@ -48,9 +48,9 @@ static const char* const RENDERER = "renderer";
 static const char* const RENDERER_OPT = RENDERER;
 static const char* const PLAYBACK = "playback";
 static const char* const PLAYBACK_OPT = PLAYBACK;
-static const char* const SEQUENCE = "sequence";
-static const char* const SEQUENCE_OPT = "sequence,s";
 static const char* const VERSION = "version";
+static const char* const BROWSE = "browse";
+static const char* const BROWSE_OPT = "browse,b";
 static const char* const NOSKIP = "no-skip";
 static const char* const NOSKIP_OPT = NOSKIP;
 static const char* const RECORD = "record";
@@ -126,7 +126,7 @@ Configuration::Configuration(int argc, char** argv) :
 
     // adding interactive mode options
     m_Interactive.add_options() //
-    (SEQUENCE_OPT, "Enable detection of sequences from filename") //
+    (BROWSE_OPT, "Browse mode, act as an image browser") //
     (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
@@ -233,7 +233,13 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
         // checking command line
-        if (!m_Vm.count(INPUTS))
+        const bool browseMode = m_Vm.count(BROWSE);
+        const size_t inputsCount = m_Vm.count(INPUTS);
+
+        if (browseMode) {
+            if (inputsCount != 1)
+                throw cmdline_exception("You are in browse mode, you must specify one and only one input.");
+        } else if (inputsCount == 0)
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         MessageQueue queue;
@@ -245,7 +251,7 @@ Configuration::Configuration(int argc, char** argv) :
         stop.set_action(Engine_Action_RENDER_STOP);
         queueInserter << stop; // stopping rendering for now
 
-        CmdLinePlaylistBuilder playlistBuilder(queueInserter, m_Vm.count(SEQUENCE) > 0, listOfExtensions);
+        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, listOfExtensions);
 
         const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
