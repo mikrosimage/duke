@@ -9,7 +9,8 @@
 
 struct MessageQueue : public IMessageIO, private concurrent::ConcurrentQueue<google::protobuf::serialize::SharedHolder> {
 private:
-    typedef ConcurrentQueue<google::protobuf::serialize::SharedHolder> UP;
+    typedef concurrent::ConcurrentQueue<google::protobuf::serialize::SharedHolder> UP;
+
 public:
     using UP::drainTo;
     using UP::drainFrom;

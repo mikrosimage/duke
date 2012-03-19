@@ -1,6 +1,7 @@
 #include "OGLTexture.h"
 #include "OGLRenderer.h"
 #include "OGLEnum.h"
+#include <dukerenderer/plugin/utils/PixelUtils.h>
 #include <dukerenderer/Setup.h>
 #ifndef __APPLE__
 #include <GL/gl.h>
@@ -11,8 +12,7 @@
 #include <cassert>
 
 OGLTexture::OGLTexture(const ImageDescription& description, unsigned long usageFlag, const OGLRenderer& renderer) :
-    ITextureBase(description, renderer.getCompliantFormat(description.format), usageFlag), m_Texture(0), m_Pbo(renderer.getPBO()),
-                    m_bUsePBO(renderer.hasCapability(CAP_PIXEL_BUFFER_OBJECT)) {
+    ITextureBase(description, renderer.getCompliantFormat(description.format), usageFlag), m_Texture(0), m_Renderer(renderer) {
 
     glGenTextures(1, &m_Texture);
     TPixelFormat format = getFormat();
@@ -33,19 +33,15 @@ OGLTexture::~OGLTexture() {
 
 void OGLTexture::update(const ImageDescription& description, const unsigned char* pData) {
 
-    //  TPixelFormat format = getFormat();
-    //  if (format != description.format)
-    //      throw runtime_error("cannot update texture, format doesn't match");
+    OGLRenderer &r = const_cast<OGLRenderer&> (m_Renderer);
+    if (r.hasCapability(CAP_PIXEL_BUFFER_OBJECT)) {
 
-    if (m_bUsePBO) {
+        const int imageLineSize = description.width * GetBytesPerPixel(getFormat());
+        const int dataSize = imageLineSize * description.height;
+
         glBindTexture(GL_TEXTURE_2D, m_Texture);
-        glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, m_Pbo);
-        glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, description.width * description.height * 4, 0, GL_DYNAMIC_DRAW);
-        void* ptr = glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY);
-        if (ptr) {
-            memcpy(ptr, pData, description.width * description.height * 4);
-            glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB); // release the mapped buffer
-        }
+        glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, r.getPBO());
+        glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, dataSize, pData, GL_STREAM_DRAW_ARB);
         if (description.depth <= 1) {
             glBindTexture(GL_TEXTURE_2D, m_Texture);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, description.width, description.height, OGLEnum::GetFormat(description.format), OGLEnum::GetType(description.format), 0);
@@ -55,6 +51,7 @@ void OGLTexture::update(const ImageDescription& description, const unsigned char
                             OGLEnum::GetType(description.format), 0);
         }
         glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
     } else {
         if (description.depth <= 1) {
             glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -66,26 +63,25 @@ void OGLTexture::update(const ImageDescription& description, const unsigned char
         }
     }
 
-    /*
-     #ifdef DEBUG
-     const GLenum errCode = glGetError();
-     if (errCode != GL_NO_ERROR) {
-     std::cerr << "OGL Error: ";
-     switch(errCode) {
-     case GL_INVALID_OPERATION:
-     std::cerr << "GL_INVALID_OPERATION" << std::endl;
-     break;
-     case GL_INVALID_VALUE:
-     std::cerr << "GL_INVALID_VALUE" << std::endl;
-     break;
-     case GL_INVALID_ENUM:
-     std::cerr << "GL_INVALID_ENUM" << std::endl;
-     break;
-     default:
-     break;
-     }
-     }
-     #endif
-     */
+#ifdef DEBUG
+    const GLenum errCode = glGetError();
+    if (errCode != GL_NO_ERROR) {
+        std::cerr << "OGL Error: ";
+        switch (errCode) {
+            case GL_INVALID_OPERATION:
+                std::cerr << "GL_INVALID_OPERATION" << std::endl;
+                break;
+            case GL_INVALID_VALUE:
+                std::cerr << "GL_INVALID_VALUE" << std::endl;
+                break;
+            case GL_INVALID_ENUM:
+                std::cerr << "GL_INVALID_ENUM" << std::endl;
+                break;
+            default:
+                break;
+        }
+    }
+#endif
+
 }
 

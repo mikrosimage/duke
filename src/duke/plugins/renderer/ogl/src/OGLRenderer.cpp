@@ -47,7 +47,7 @@ int CheckGLError(const char* msg, const char* file, int line) {
 }
 
 OGLRenderer::OGLRenderer(const duke::protocol::Renderer& Renderer, sf::Window& window, const RendererSuite& suite) :
-    IRenderer(Renderer, window, suite) {
+    IRenderer(Renderer, window, suite), m_lastPBOUsed(0) {
 
     // Initializing OGL Extensions
     GLenum err = glewInit();
@@ -92,8 +92,9 @@ OGLRenderer::OGLRenderer(const duke::protocol::Renderer& Renderer, sf::Window& w
     cgGLSetOptimalOptions(m_PSProfile);
 
     if(hasCapability(CAP_PIXEL_BUFFER_OBJECT)){
-        glGenBuffersARB(1, &m_Pbo);
-        glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, m_Pbo);
+        glGenBuffersARB(2, m_Pbo);
+        glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, m_Pbo[0]);
+        glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, m_Pbo[1]);
         glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
     }
 
@@ -104,7 +105,7 @@ OGLRenderer::OGLRenderer(const duke::protocol::Renderer& Renderer, sf::Window& w
 
 OGLRenderer::~OGLRenderer() {
     if (m_Pbo)
-        glDeleteBuffersARB(1, &m_Pbo);
+        glDeleteBuffersARB(2, m_Pbo);
 }
 
 // IFactory
@@ -152,7 +153,7 @@ ITextureBase* OGLRenderer::createTexture(const ImageDescription& description, un
 void OGLRenderer::checkCaps() {
     m_Capabilities[CAP_TEX_NON_POWER_2] = GLEW_ARB_texture_non_power_of_two;
     m_Capabilities[CAP_HW_MIPMAPPING] = GLEW_SGIS_generate_mipmap;
-    m_Capabilities[CAP_PIXEL_BUFFER_OBJECT] = false; //GLEW_ARB_pixel_buffer_object
+    m_Capabilities[CAP_PIXEL_BUFFER_OBJECT] = GLEW_ARB_pixel_buffer_object;
 }
 
 // IRenderer
@@ -222,10 +223,6 @@ void OGLRenderer::drawIndexedPrimitives(TPrimitiveType meshType, unsigned long c
             glDrawElements(GL_POINTS, count, indicesType, 0);
             break;
     }
-
-    //    glDisableClientState(GL_VERTEX_ARRAY);
-    //    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-    //    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
 GLenum Get(const ::duke::protocol::SamplerState_Type type) {
@@ -391,68 +388,6 @@ Image OGLRenderer::dumpTexture(ITextureBase* pTextureBase) {
     description.format = pTexture->getFormat();
     description.depth = pTexture->getDepth();
 
-    //    if (pTextureBase) {
-    //        std::string filename = "output.ppm";
-    //        bool fileExist = false;
-    //        /*
-    //         std::ifstream filein;
-    //         filein.open(filename.c_str(), std::ios::in);
-    //         if( filein.is_open() )
-    //         fileExist = true;
-    //         filein.close();
-    //         */
-    //        std::ofstream file(filename.c_str(), std::ios::out | std::ios::trunc);
-    //        if (file && !fileExist) {
-    //            std::cout << "rendering to file " << filename << std::endl;
-    //
-    //            // PPM header
-    //            file << "P3" << std::endl; // ASCII mode
-    //            file << description.width << " " << description.height << std::endl; // image width & height
-    //            file << 255 << std::endl; // max color value
-    //
-    //            glGenBuffersARB(1, &m_Pbo);
-    //            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, m_Pbo);
-    //            glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, description.width * description.height * 4, 0, GL_STREAM_READ_ARB);
-    //
-    //            //glReadBuffer(GL_FRONT);
-    //            glReadPixels(0, 0, description.width, description.height, GL_BGRA, GL_UNSIGNED_BYTE, 0);
-    //
-    //            // map the PBO that contain framebuffer pixels before processing it
-    //            GLubyte* src = (GLubyte*) glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
-    //            if (src) {
-    //                //for (int i = 0; i < description.width * description.height * 4; i += 4) {
-    //                //    file << (int) src[i] << " " << (int) src[i + 1] << " " << (int) src[i + 2] << " " /*<< (int) src[i + 3]*/<< std::endl;
-    //                //}
-    //
-    //                for (int i = 0; i < description.width; ++i) {
-    //                    for (int j = 0; j < description.height * 4; j += 4) {
-    //                        file << (int) src[(i * description.height * 4) + j] << " " << (int) src[(i * description.height * 4) + j + 1] << " " << (int) src[(i * description.height
-    //                                * 4) + j + 2] << std::endl;
-    //                    }
-    //                }
-    //
-    //                glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB); // release pointer to the mapped buffer
-    //            }
-    //            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
-    //            glDeleteBuffersARB(1, &m_Pbo);
-    //
-    //            file.close();
-    //
-    //        } else {
-    //            std::cerr << "Unable to write file " << filename << std::endl;
-    //        }
-    //    }
-    /*
-     const GLenum errCode = glGetError();
-     if (errCode != GL_NO_ERROR) {
-     if (errCode == GL_INVALID_OPERATION)
-     std::cerr << "GL_INVALID_OPERATION" << std::endl;
-     if (errCode == GL_INVALID_VALUE)
-     std::cerr << "GL_INVALID_VALUE" << std::endl;
-     if (errCode == GL_INVALID_ENUM)
-     std::cerr << "GL_INVALID_ENUM" << std::endl;
-     }
-     */
     Image image(*this, "", description);
     return image;
 }

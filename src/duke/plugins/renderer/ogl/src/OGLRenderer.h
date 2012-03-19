@@ -37,14 +37,16 @@ public: OGLRenderer( const duke::protocol::Renderer& Renderer, sf::Window& windo
     virtual void setRenderState( const ::duke::protocol::Effect &renderState ) const;
 	virtual void setTexture( const CGparameter sampler, const ::google::protobuf::RepeatedPtrField< ::duke::protocol::SamplerState >& samplerStates, const ITextureBase* pTextureBase ) const;
 
-    virtual GLuint getPBO() const {
-        return m_Pbo;
+    virtual GLuint getPBO() {
+        m_lastPBOUsed = (m_lastPBOUsed + 1) % 2;
+        return m_Pbo[m_lastPBOUsed];
     }
 
 private:
 	GLuint m_Fbo;
 	GLuint m_RenderBuffer;
-	GLuint m_Pbo;
+	GLuint m_Pbo[2];
+	size_t m_lastPBOUsed;
 };
 
 #endif /* OGLRENDERER_H_ */
