@@ -6,7 +6,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace OpenImageIO::v0;
+using namespace OpenImageIO::v1_0;
 
 OIIODecoder::OIIODecoder() :
     m_pImageInput(NULL), m_PropertySuite(*this) {
@@ -74,26 +74,28 @@ OfxStatus OIIODecoder::readHeader(const void* handle, OfxPropertySetHandle in, O
             return safeClose();
         }
 
-        //        // ------- DUMP
-        //        cerr << "width: " << spec.width << endl;
-        //        cerr << "full_width: " << spec.full_width << endl;
-        //        cerr << "height: " << spec.height << endl;
-        //        cerr << "full_height: " << spec.full_height << endl;
-        //        cerr << "x: " << spec.x << endl;
-        //        cerr << "y: " << spec.y << endl;
-        //        cerr << "z: " << spec.z << endl;
-        //        cerr << "full_x: " << spec.full_x << endl;
-        //        cerr << "full_y: " << spec.full_y << endl;
-        //        cerr << "full_z: " << spec.full_z << endl;
-        //        cerr << "tile_width: " << spec.tile_width << endl;
-        //        cerr << "tile_height: " << spec.tile_height << endl;
-        //        cerr << "tile_depth: " << spec.tile_depth << endl;
-        //        cerr << "nchannels: " << spec.nchannels << endl;
-        //        cerr << "alpha_channel: " << spec.alpha_channel << endl;
-        //        cerr << "z_channel: " << spec.z_channel << endl;
-        //        cerr << "channelnames: " ;
-        //        BOOST_FOREACH(string s, spec.channelnames){cerr << s << ", ";}
-        //        cerr << endl ;
+        /*
+        // ------- DUMP
+        cerr << "width: " << spec.width << endl;
+        cerr << "full_width: " << spec.full_width << endl;
+        cerr << "height: " << spec.height << endl;
+        cerr << "full_height: " << spec.full_height << endl;
+        cerr << "x: " << spec.x << endl;
+        cerr << "y: " << spec.y << endl;
+        cerr << "z: " << spec.z << endl;
+        cerr << "full_x: " << spec.full_x << endl;
+        cerr << "full_y: " << spec.full_y << endl;
+        cerr << "full_z: " << spec.full_z << endl;
+        cerr << "tile_width: " << spec.tile_width << endl;
+        cerr << "tile_height: " << spec.tile_height << endl;
+        cerr << "tile_depth: " << spec.tile_depth << endl;
+        cerr << "nchannels: " << spec.nchannels << endl;
+        cerr << "alpha_channel: " << spec.alpha_channel << endl;
+        cerr << "z_channel: " << spec.z_channel << endl;
+        cerr << "channelnames: " ;
+        BOOST_FOREACH(string s, spec.channelnames){cerr << s << ", ";}
+        cerr << endl ;
+        */
 
         int dataSize = height * width * spec.nchannels * sizeof(float) / 2;
         openfx::plugin::PropertyHelper outArgHelper = m_PropertySuite.getHelper(out);

@@ -39,7 +39,9 @@ INode::ptr NodeManager::findNode(const std::string & _nodename) {
     NodeMap::const_iterator it = mNodes.find(_nodename);
     if (it != mNodes.end())
         return it->second;
+#ifdef DEBUG
     std::cerr << "Error: Unable to find node "<< _nodename << std::endl;
+#endif
     INode::ptr p;
     return p;
 }

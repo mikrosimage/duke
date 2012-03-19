@@ -21,8 +21,7 @@ public:
 private:
 	virtual void update( const ImageDescription& description, const unsigned char* pData );
 	GLuint m_Texture;
-	GLuint m_Pbo;
-	bool m_bUsePBO;
+	const OGLRenderer& m_Renderer;
 };
 
 #endif /* OGLTEXTURE_H_ */

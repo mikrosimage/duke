@@ -9,15 +9,15 @@
 
 
 namespace OpenImageIO{
-namespace v0{
+namespace v1_0{
 	class ImageInput;
-} // namespace v0
+} // namespace v1_0
 } // namespace OpenImageIO
 
 class OIIODecoder : public IBoostPlugin
 {
 public:
-    typedef OpenImageIO::v0::ImageInput ImageInput;
+    typedef OpenImageIO::v1_0::ImageInput ImageInput;
     typedef boost::thread_specific_ptr<ImageInput> ImageInputPtr;
 private:
     ImageInputPtr m_pImageInput;
