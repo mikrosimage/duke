@@ -234,12 +234,13 @@ Configuration::Configuration(int argc, char** argv) :
 
         // checking command line
         const bool browseMode = m_Vm.count(BROWSE);
-        const size_t inputsCount = m_Vm.count(INPUTS);
+        const bool hasInputs = m_Vm.count(INPUTS);
+        const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>() ;
 
         if (browseMode) {
-            if (inputsCount != 1)
+            if (inputs.empty() || inputs.size()>1)
                 throw cmdline_exception("You are in browse mode, you must specify one and only one input.");
-        } else if (inputsCount == 0)
+        } else if (inputs.empty())
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
 
         MessageQueue queue;
@@ -253,7 +254,6 @@ Configuration::Configuration(int argc, char** argv) :
 
         CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, listOfExtensions);
 
-        const vector<string> inputs = m_Vm[INPUTS].as<vector<string> >();
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
         if (playlistBuilder.empty())

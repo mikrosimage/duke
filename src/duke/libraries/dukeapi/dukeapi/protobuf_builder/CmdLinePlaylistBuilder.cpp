@@ -97,22 +97,6 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
 
     void processEntry(const string& entry);
 
-    void ingest(const BrowseItem &item, unsigned record = UINT_MAX) {
-        if (isInvalid(item))
-            return;
-        Clip &clip = trackBuilder.addBrowseItem(item, record);
-        ostringstream name;
-        name << "clip_" << clipIndex++;
-        clip.set_name(name.str());
-        shader_builder::adapt(inserter, clip, item.extension());
-        cout << HEADER << item << endl;
-    }
-
-    void ingestAll(const BrowseItems &items) {
-        BOOST_FOREACH(const BrowseItem &item, items)
-                    ingest(item);
-    }
-
     Playlist finalize() {
         return playlistBuilder;
     }
@@ -135,6 +119,22 @@ private:
     set<string, details::ci_less> extensions;
     bool isInvalid(const BrowseItem &item) const {
         return extensions.find(item.extension()) == extensions.end();
+    }
+
+    void ingest(const BrowseItem &item, unsigned record = UINT_MAX) {
+        if (isInvalid(item))
+            return;
+        Clip &clip = trackBuilder.addBrowseItem(item, record);
+        ostringstream name;
+        name << "clip_" << clipIndex++;
+        clip.set_name(name.str());
+        shader_builder::adapt(inserter, clip, item.extension());
+        cout << HEADER << item << endl;
+    }
+
+    void ingestAll(const BrowseItems &items) {
+        BOOST_FOREACH(const BrowseItem &item, items)
+                    ingest(item);
     }
 
     void parsePPL2(const path &filename);
@@ -199,78 +199,45 @@ void CmdLinePlaylistBuilder::Pimpl::parseDirectory(const path &directory) {
     ingestAll(sequence::parser::browse(directory.string().c_str(), false));
 }
 
-static inline bool contained(const string& filename, const BrowseItem & item) {
-    return item.type == sequence::SEQUENCE && item.sequence.pattern.match(filename);
-}
-
-static inline bool notContained(const string& filename, const BrowseItem & item) {
-    return !contained(filename, item);
-}
-
 void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) {
-    BrowseItem item = sequence::create_file(absoluteFilename);
-//    if (pimpl.useContainingSequence) {
-//        BrowseItems items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
-//        const string filename = absoluteFilename.filename().string();
-//        sequence::filterOut(items, bind(&notContained, filename, _1));
-//        if (!items.empty()) {
-//            const BrowseItem &containingSequence = items[0];
-//            item = containingSequence;
-//            assert(containingSequence.type==sequence::SEQUENCE);
-//            assert(containingSequence.sequence.step==1);
-//            const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
-//            const unsigned int filenameFrameNumber = atoi(pFrameString);
-//            const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
-//            const unsigned int gotoRec = trackBuilder.currentRecord() + sequenceOffset;
-//            transport.mutable_cue()->set_value(gotoRec);
-//            // cout << HEADER + "cueing to record " << gotoRec << endl;
-//        }
-//    }
-    ingest(item);
+    if (browseMode) {
+        const string filename = absoluteFilename.filename().string();
+        const boost::filesystem::path folder = absoluteFilename.parent_path();
+        for (directory_iterator itr(folder), end; itr != end; ++itr) {
+            if(!is_regular_file(*itr))
+                continue;
+            if(absoluteFilename==*itr)
+                transport.mutable_cue()->set_value(trackBuilder.currentRecord());
+            ingest(sequence::create_file(*itr));
+        }
+    } else {
+        ingest(sequence::create_file(absoluteFilename));
+    }
 }
 
 void CmdLinePlaylistBuilder::Pimpl::processEntry(const string& entry) {
     const EntryType type = getEntryType(entry);
     const path filename(entry);
-    if (browseMode) {
-        if(type!=ET_FILE)
-            throw std::logic_error("");
+    if (browseMode && type != ET_FILE)
+        throw std::logic_error("Browse mode require a file as argument");
 
-    }else{
-        switch (type) {
-            case ET_PATTERN:
-                parsePattern(filename);
-                break;
-            case ET_PPL2:
-                parsePPL2(filename);
-                break;
-            case ET_PPL:
-                parsePPL(filename);
-                break;
-            case ET_FOLDER:
-                parseDirectory(filename);
-                break;
-            case ET_FILE:
-                parseFilename(filename);
-                break;
-        }
+    switch (type) {
+        case ET_PATTERN:
+            parsePattern(filename);
+            break;
+        case ET_PPL2:
+            parsePPL2(filename);
+            break;
+        case ET_PPL:
+            parsePPL(filename);
+            break;
+        case ET_FOLDER:
+            parseDirectory(filename);
+            break;
+        case ET_FILE:
+            parseFilename(filename);
+            break;
     }
-
-    if (isPattern(entry)) {
-        parsePattern(filename);
-        return;
-    }
-    // it is either a Playlist, a filename or a directory, it therefore must exists
-    if (!exists(filename))
-        throw ios_base::failure(string("Unable to open ") + filename.string());
-    if (iends_with(entry, g_ppl2))
-        parsePPL2(filename);
-    else if (iends_with(entry, g_ppl))
-        parsePPL(filename);
-    else if (is_directory(filename))
-        parseDirectory(filename);
-    else
-        parseFilename(filename);
 }
 
 CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool browseMode, const char **validExtensions) :
