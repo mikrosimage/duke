@@ -196,7 +196,15 @@ void CmdLinePlaylistBuilder::Pimpl::parsePattern(const path &filename) {
 }
 
 void CmdLinePlaylistBuilder::Pimpl::parseDirectory(const path &directory) {
-    ingestAll(sequence::parser::browse(directory.string().c_str(), false));
+    if (browseMode) {
+        for (directory_iterator itr(directory), end; itr != end; ++itr) {
+            if (!is_regular_file(*itr))
+                continue;
+            ingest(sequence::create_file(*itr));
+        }
+    } else {
+        ingestAll(sequence::parser::browse(directory.string().c_str(), false));
+    }
 }
 
 void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) {
@@ -204,9 +212,9 @@ void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) 
         const string filename = absoluteFilename.filename().string();
         const boost::filesystem::path folder = absoluteFilename.parent_path();
         for (directory_iterator itr(folder), end; itr != end; ++itr) {
-            if(!is_regular_file(*itr))
+            if (!is_regular_file(*itr))
                 continue;
-            if(absoluteFilename==*itr)
+            if (absoluteFilename == *itr)
                 transport.mutable_cue()->set_value(trackBuilder.currentRecord());
             ingest(sequence::create_file(*itr));
         }
@@ -218,8 +226,8 @@ void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) 
 void CmdLinePlaylistBuilder::Pimpl::processEntry(const string& entry) {
     const EntryType type = getEntryType(entry);
     const path filename(entry);
-    if (browseMode && type != ET_FILE)
-        throw std::logic_error("Browse mode require a file as argument");
+    if (browseMode && !(type == ET_FILE || type == ET_FOLDER))
+        throw std::logic_error("Browse mode require a file or browser as argument");
 
     switch (type) {
         case ET_PATTERN:
