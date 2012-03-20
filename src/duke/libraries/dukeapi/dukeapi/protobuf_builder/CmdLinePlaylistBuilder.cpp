@@ -82,8 +82,11 @@ EntryType getEntryType(const string &entry) {
 
 struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
 
-    Pimpl(IOQueueInserter &inserter, bool browseMode, const char **validExtensions) :
-                    inserter(inserter), browseMode(browseMode), trackBuilder(playlistBuilder.addTrack("default")), clipIndex(0) {
+    Pimpl(IOQueueInserter &inserter, bool browseMode, bool useSequence, const char **validExtensions) :
+                    inserter(inserter), browseMode(browseMode), useSequence(useSequence), trackBuilder(playlistBuilder.addTrack("default")), clipIndex(0) {
+        if(browseMode && useSequence)
+            throw logic_error("Can't have browse mode and useSequence at the same time");
+
         for (; validExtensions != NULL && *validExtensions != NULL; ++validExtensions) {
             string extension = *validExtensions;
             if (!extension.empty() && extension[0] != '.')
@@ -112,6 +115,7 @@ struct CmdLinePlaylistBuilder::Pimpl : private boost::noncopyable {
 private:
     IOQueueInserter &inserter;
     const bool browseMode;
+    const bool useSequence;
     PlaylistBuilder playlistBuilder;
     TrackBuilder trackBuilder;
     size_t clipIndex;
@@ -207,6 +211,14 @@ void CmdLinePlaylistBuilder::Pimpl::parseDirectory(const path &directory) {
     }
 }
 
+static inline bool contained(const string& filename, const BrowseItem & item) {
+    return item.type == sequence::SEQUENCE && item.sequence.pattern.match(filename);
+}
+
+static inline bool notContained(const string& filename, const BrowseItem & item) {
+    return !contained(filename, item);
+}
+
 void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) {
     if (browseMode) {
         const string filename = absoluteFilename.filename().string();
@@ -219,7 +231,25 @@ void CmdLinePlaylistBuilder::Pimpl::parseFilename(const path &absoluteFilename) 
             ingest(sequence::create_file(*itr));
         }
     } else {
-        ingest(sequence::create_file(absoluteFilename));
+        BrowseItem item = sequence::create_file(absoluteFilename);
+        if (useSequence) {
+            BrowseItems items = sequence::parser::browse(absoluteFilename.parent_path().string().c_str(), false);
+            const string filename = absoluteFilename.filename().string();
+            sequence::filterOut(items, bind(&notContained, filename, _1));
+            if (!items.empty()) {
+                const BrowseItem &containingSequence = items[0];
+                item = containingSequence;
+                assert(containingSequence.type==sequence::SEQUENCE);
+                assert(containingSequence.sequence.step==1);
+                const char * const pFrameString = filename.c_str() + containingSequence.sequence.pattern.prefix.size();
+                const unsigned int filenameFrameNumber = atoi(pFrameString);
+                const unsigned int sequenceOffset = filenameFrameNumber - containingSequence.sequence.range.first;
+                const unsigned int gotoRec = trackBuilder.currentRecord() + sequenceOffset;
+                transport.mutable_cue()->set_value(gotoRec);
+                cout << HEADER + "cueing to record " << gotoRec << endl;
+            }
+        }
+        ingest(item);
     }
 }
 
@@ -248,8 +278,8 @@ void CmdLinePlaylistBuilder::Pimpl::processEntry(const string& entry) {
     }
 }
 
-CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool browseMode, const char **validExtensions) :
-                m_Pimpl(new Pimpl(inserter, browseMode, validExtensions)) {
+CmdLinePlaylistBuilder::CmdLinePlaylistBuilder(IOQueueInserter &inserter, bool browseMode, bool useSequence, const char **validExtensions) :
+                m_Pimpl(new Pimpl(inserter, browseMode, useSequence, validExtensions)) {
 }
 
 Playlist CmdLinePlaylistBuilder::getPlaylist() {

@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <dukeengine/CmdLineOptions.h>
 #include <dukeengine/Version.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/io/PlaybackReader.h>
@@ -15,37 +16,6 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
-
-// command line options
-static const char* const NOFRAMERATE = "no-framerate";
-static const char* const NOFRAMERATE_OPT = NOFRAMERATE;
-static const char* const REFRESHRATE = "refreshrate";
-static const char* const REFRESHRATE_OPT = REFRESHRATE;
-static const char* const CACHESIZE = "cache-size";
-static const char* const CACHESIZE_OPT = "cache-size,c";
-static const char* const FRAMERATE = "framerate";
-static const char* const FRAMERATE_OPT = FRAMERATE;
-static const char* const THREADS = "threads";
-static const char* const THREADS_OPT = "threads,t";
-static const char* const BLANKING = "blanking";
-static const char* const BLANKING_OPT = BLANKING;
-static const char* const RENDERER = "renderer";
-static const char* const RENDERER_OPT = RENDERER;
-static const char* const VERSION = "version";
-static const char* const VERSION_OPT = VERSION;
-static const char* const BROWSE = "browse";
-static const char* const BROWSE_OPT = "browse,b";
-static const char* const NOSKIP = "no-skip";
-static const char* const NOSKIP_OPT = NOSKIP;
-static const char* const INPUTS = "inputs";
-static const char* const HELP = "help";
-static const char* const HELP_OPT = "help,h";
-
-struct cmdline_exception : public runtime_error {
-    cmdline_exception(const string &msg) :
-                    runtime_error(msg) {
-    }
-};
 
 namespace { // empty namespace
 
@@ -105,6 +75,7 @@ bool Configuration::parse(int argc, char** argv) {
     // adding interactive mode options
     m_Interactive.add_options() //
     (BROWSE_OPT, "Browse mode, act as an image browser") //
+    (SEQUENCE_OPT, "Take the containing sequence for unit file") //
     (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
@@ -173,7 +144,13 @@ bool Configuration::parse(int argc, char** argv) {
         stop.set_action(::duke::protocol::Engine_Action_RENDER_STOP);
         push(queue, stop);
 
+        // checking command line
+        const bool useContainingSequence = m_Vm.count(SEQUENCE);
         const bool browseMode = m_Vm.count(BROWSE);
+
+        if (useContainingSequence && browseMode)
+            throw cmdline_exception("Choose either browse or sequence option but not both at the same time.");
+
         const bool hasInputs = m_Vm.count(INPUTS);
         const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>();
 
@@ -183,7 +160,7 @@ bool Configuration::parse(int argc, char** argv) {
 
             IOQueueInserter queueInserter(queue);
 
-            CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, mSession->getAvailableExtensions());
+            CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, mSession->getAvailableExtensions());
 
             for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
@@ -227,6 +204,7 @@ void Configuration::displayHelp() {
     cout << "Usage: " << endl;
     cout << "\tOpen a file in browse mode            duke -b /path/to/img.1234.jpg" << endl;
     cout << "\tOpen a folder in browse mode          duke -b /path/to" << endl;
+    cout << "\tOpen a sequence containing file       duke -s /path/to/img.1234.jpg" << endl;
     cout << "\tOpen a single file                    duke foo.jpg" << endl;
     cout << "\tOpen a playlist                       duke playlist.ppl" << endl;
     cout << "\tParse current folder for sequences    duke ." << endl;

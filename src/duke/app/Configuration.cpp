@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <dukeengine/CmdLineOptions.h>
 #include <dukeengine/Version.h>
 #include <dukeengine/Application.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
@@ -26,47 +27,6 @@
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
-
-// command line options
-static const char* const NOFRAMERATE = "no-framerate";
-static const char* const NOFRAMERATE_OPT = NOFRAMERATE;
-static const char* const REFRESHRATE = "refreshrate";
-static const char* const REFRESHRATE_OPT = REFRESHRATE;
-static const char* const FULLSCREEN = "fullscreen";
-static const char* const FULLSCREEN_OPT = "fullscreen,f";
-static const char* const RESOLUTION = "resolution";
-static const char* const RESOLUTION_OPT = RESOLUTION;
-static const char* const CACHESIZE = "cache-size";
-static const char* const CACHESIZE_OPT = "cache-size,c";
-static const char* const FRAMERATE = "framerate";
-static const char* const FRAMERATE_OPT = FRAMERATE;
-static const char* const THREADS = "threads";
-static const char* const THREADS_OPT = "threads,t";
-static const char* const BLANKING = "blanking";
-static const char* const BLANKING_OPT = BLANKING;
-static const char* const RENDERER = "renderer";
-static const char* const RENDERER_OPT = RENDERER;
-static const char* const PLAYBACK = "playback";
-static const char* const PLAYBACK_OPT = PLAYBACK;
-static const char* const VERSION = "version";
-static const char* const VERSION_OPT = VERSION;
-static const char* const BROWSE = "browse";
-static const char* const BROWSE_OPT = "browse,b";
-static const char* const NOSKIP = "no-skip";
-static const char* const NOSKIP_OPT = NOSKIP;
-static const char* const RECORD = "record";
-static const char* const RECORD_OPT = RECORD;
-static const char* const INPUTS = "inputs";
-static const char* const HELP = "help";
-static const char* const HELP_OPT = "help,h";
-static const char* const PORT = "port";
-static const char* const PORT_OPT = PORT;
-
-struct cmdline_exception : public runtime_error {
-    cmdline_exception(const string &msg) :
-                    runtime_error(msg) {
-    }
-};
 
 void setDisplayOptions(boost::program_options::options_description& description, const ::duke::protocol::Renderer& Renderer) {
     ostringstream resolution;
@@ -128,6 +88,7 @@ Configuration::Configuration(int argc, char** argv) :
     // adding interactive mode options
     m_Interactive.add_options() //
     (BROWSE_OPT, "Browse mode, act as an image browser") //
+    (SEQUENCE_OPT, "Take the containing sequence for unit file") //
     (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
@@ -234,7 +195,12 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
         // checking command line
+        const bool useContainingSequence = m_Vm.count(SEQUENCE);
         const bool browseMode = m_Vm.count(BROWSE);
+
+        if (useContainingSequence && browseMode)
+            throw cmdline_exception("Choose either browse or sequence option but not both at the same time.");
+
         const bool hasInputs = m_Vm.count(INPUTS);
         const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>() ;
 
@@ -253,7 +219,7 @@ Configuration::Configuration(int argc, char** argv) :
         stop.set_action(Engine_Action_RENDER_STOP);
         queueInserter << stop; // stopping rendering for now
 
-        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, listOfExtensions);
+        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, listOfExtensions);
 
         for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
@@ -317,6 +283,7 @@ void Configuration::displayHelp() {
     cout << "Usage: " << endl;
     cout << "\tOpen a file in browse mode            duke -b /path/to/img.1234.jpg" << endl;
     cout << "\tOpen a folder in browse mode          duke -b /path/to" << endl;
+    cout << "\tOpen a sequence containing file       duke -s /path/to/img.1234.jpg" << endl;
     cout << "\tOpen a single file                    duke foo.jpg" << endl;
     cout << "\tOpen a playlist                       duke playlist.ppl" << endl;
     cout << "\tParse current folder for sequences    duke ." << endl;

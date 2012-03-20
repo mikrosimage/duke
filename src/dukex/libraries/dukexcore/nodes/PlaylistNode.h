@@ -31,7 +31,8 @@ public:
             // Parse all inputs
             MessageQueue queue;
             IOQueueInserter inserter(queue);
-            CmdLinePlaylistBuilder playlistBuilder(inserter, asSequence, session()->getAvailableExtensions());
+            const bool browseMode = false; // FIXME
+            CmdLinePlaylistBuilder playlistBuilder(inserter, browseMode ,asSequence, session()->getAvailableExtensions());
             for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
             // Push engine stop
