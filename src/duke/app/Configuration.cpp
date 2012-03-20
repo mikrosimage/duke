@@ -49,6 +49,7 @@ static const char* const RENDERER_OPT = RENDERER;
 static const char* const PLAYBACK = "playback";
 static const char* const PLAYBACK_OPT = PLAYBACK;
 static const char* const VERSION = "version";
+static const char* const VERSION_OPT = VERSION;
 static const char* const BROWSE = "browse";
 static const char* const BROWSE_OPT = "browse,b";
 static const char* const NOSKIP = "no-skip";
@@ -110,7 +111,7 @@ Configuration::Configuration(int argc, char** argv) :
     // available on the command line
     m_CmdLineOnly.add_options() //
     (HELP_OPT, "Displays this help") //
-    (VERSION, "Displays the version informations");
+    (VERSION_OPT, "Displays the version informations");
 
     // available in the configuration file and command line
     m_Config.add_options() //
