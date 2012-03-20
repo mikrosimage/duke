@@ -26,6 +26,8 @@ public:
     }
 
 public:
+    void start();
+
     // IUIBuilder Interface
 //    QMenu * createMenu(QObject* _plugin, const QString & _title);
 //    QWidget* createWindow(QObject* _plugin, const Qt::DockWidgetArea & _area, const QString & _title);
@@ -45,7 +47,7 @@ private:
 
 private slots:
     // file
-    void openFiles(const QStringList &, const bool & = false, const bool & = false);
+    void openFiles(const QStringList &, const bool &, const bool &);
     void openFiles();
     void openRecent();
     void browseDirectory();

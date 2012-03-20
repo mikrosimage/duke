@@ -116,6 +116,7 @@ bool Configuration::parse(int argc, char** argv) {
         if (m_Vm.count(RENDERER) == 0)
             throw cmdline_exception("No renderer specified. Aborting.");
 
+        // renderer plugin path
         mSession->setRendererPath(m_Vm[RENDERER].as<std::string>());
 
         // threading
@@ -126,9 +127,7 @@ bool Configuration::parse(int argc, char** argv) {
         if (m_Vm.count(CACHESIZE))
             mSession->setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
 
-        /**
-         * Interactive mode
-         */
+        // blanking / refreshrate
         renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());
         renderer.set_refreshrate(m_Vm[REFRESHRATE].as<unsigned>());
 
@@ -137,6 +136,7 @@ bool Configuration::parse(int argc, char** argv) {
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
         // no special mode specified, using interactive mode
+        Playlist & playlist = mSession->descriptor().playlist();
         MessageQueue & queue = mSession->getInitTimeMsgQueue();
 
         // Push engine stop
@@ -159,30 +159,26 @@ bool Configuration::parse(int argc, char** argv) {
                 throw cmdline_exception("You are in browse mode, you must specify one and only one input.");
 
             IOQueueInserter queueInserter(queue);
-
             CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, mSession->getAvailableExtensions());
-
             for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
-            // Push the new playlist
-            Playlist playlist = playlistBuilder.getPlaylist();
-
-            const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
-            playlist.set_frameratenumerator((int) framerate);
-            if (m_Vm.count(NOFRAMERATE) > 0)
-                playlist.set_playbackmode(Playlist::RENDER);
-            else if (m_Vm.count(NOSKIP) > 0)
-                playlist.set_playbackmode(Playlist::NO_SKIP);
-            else
-                playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
-
-            queueInserter << playlist;
+            // Update & Push the new playlist
+            playlist = playlistBuilder.getPlaylist(); // updating playlist
             queueInserter << playlistBuilder.getCue();
-
-            mSession->descriptor().playlist() = playlist; // updating playlist
-        } else {
-            push(queue, mSession->descriptor().playlist());
         }
+
+        // Playlist parameters
+        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
+        playlist.set_frameratenumerator((int) framerate);
+        if (m_Vm.count(NOFRAMERATE) > 0)
+            playlist.set_playbackmode(Playlist::RENDER);
+        else if (m_Vm.count(NOSKIP) > 0)
+            playlist.set_playbackmode(Playlist::NO_SKIP);
+        else
+            playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
+
+        // Push Playlist
+        push(queue, playlist);
 
         // Push engine start
         ::duke::protocol::Engine start;

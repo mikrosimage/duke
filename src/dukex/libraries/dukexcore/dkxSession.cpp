@@ -39,13 +39,11 @@ void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFac
 
 
 Session::Session() :
-    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false), mRendererPath("") {
+    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false) {
 }
 
-bool Session::startSession(const std::string& ip, short port, void* handle) {
+bool Session::startSession(void* handle) {
     try {
-        mIP = ip;
-        mPort = port;
         if (connected())
             return false;
 

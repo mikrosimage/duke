@@ -1,111 +1,138 @@
 * {
-	background: #494949;
-	color: #d3d3d3;
-	font-size: 10px;
+    background: #343434;
+    color: #d3d3d3;
+    font-size: 10px;
 }
 
 QGraphicsView {
-	border: 0px;
+    border: 0px;
 }
 
 QScrollArea {
-	border: 0px;
-	padding: 0px;
-	margin: 0px;
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 QTreeView
 {
-	border: 0px;
-	background: #313131;
-	alternate-background-color: #373737;
-	qproperty-alternatingRowColors: true;
-	selection-background-color: #6c6c6c;
-	selection-color: #afaf96;
+    border: 0px;
+    background: #202020;
+    alternate-background-color: #272727;
+    qproperty-alternatingRowColors: true;
+    selection-background-color: #6c6c6c;
+    selection-color: #afaf96;
 }
 
 QTreeView:active {
-	selection-background-color: #a9d9fe;
-	selection-color: black;
+    selection-background-color: #a9d9fe;
+    selection-color: black;
 }
 
 QMenu {
-	border: 1px solid black;
+    border: 1px solid black;
 }
 
 QMenu::separator {
-	background: #6f6f6f;
-	height: 1px;
-	margin-left: 5px;
-	margin-right: 5px;
+    background: #6f6f6f;
+    height: 1px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 QMenu::item {
-	padding-left: 20px;
-	padding-right: 20px;
-	padding-top: 2px;
-	padding-bottom: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 QMenu::item:selected {
-	background: #303030;
-	color: white;
+    background: #202020;
+    color: white;
 }
 
 QMenu::item:disabled {
-	color: #6f6f6f;
+    color: #6f6f6f;
 }
 
 QSplitter::handle:vertical
 {
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #494949, stop:1 #6f6f6f);
-	height: 2px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #494949, stop:1 #6f6f6f);
+    height: 2px;
 }
 
 QSplitter::handle:horizontal
 {
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #494949, stop:1 #6f6f6f);
-	width: 2px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #494949, stop:1 #6f6f6f);
+    width: 2px;
 }
 
-QToolBox {
-	background: #373737;
+QToolBox::tab {
+    background: #6f6f6f;
+    border-radius: 5px;
+    color: darkgray;
 }
 
-QToolBox > QScrollArea {
-	background: #373737;
+QToolBox::tab:selected { 
+    font: italic;
+    color: white;
+}
+
+QPushButton { 
+    border: 0px;
+}
+
+QPushButton:hover {
+    background: #414141;
+}
+
+QPushButton:pressed {
+    background: #6f6f6f;
+}
+
+QToolButton { 
+    border: 0px;
+}
+
+QToolButton:hover {
+    background: #414141;
+}
+
+QToolButton:pressed {
+    background: #6f6f6f;
 }
 
 QMainWindow::separator {
-	background: #373737;
-	width: 3px; /* when vertical */
-	height: 3px; /* when horizontal */
+    background: #000000;
+    width: 3px;
+    height: 3px;
 }
 
 QMainWindow::separator:hover {
-     background: gray;
+     background: yellow;
 }
 
-QSlider::groove:horizontal {
-	border: 1px solid #999999;
-	height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
-	margin: 2px 0;
-}
+     QSlider::groove:horizontal {
+         border: 1px solid #999999;
+         height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+         background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+         margin: 2px 0;
+     }
 
-QSlider::handle:horizontal {
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
-	border: 1px solid #5c5c5c;
-	width: 18px;
-	margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-	border-radius: 3px;
-}
+     QSlider::handle:horizontal {
+         background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+         border: 1px solid #5c5c5c;
+         width: 18px;
+         margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+         border-radius: 3px;
+     }
 
 QLineEdit {
-    border: 2px solid gray;
-    border-radius: 5px;
+    border: 1px solid #191919;
+    border-radius: 3px;
     padding: 0 8px;
-    background: #373737;
+    background: #212121;
     selection-background-color: #999999;
 }
  
@@ -116,7 +143,7 @@ QDockWidget {
 
 QDockWidget::title {
     text-align: left; /* align the text to the left */
-    background: #373737;
+    background: #212121;
     padding-left: 5px;
     border: 0px;
     padding: 0px;
@@ -138,12 +165,12 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
 }
 
 QScrollBar:horizontal {
-     background: #373737;
+     background: #212121;
      height: 8px;
 }
 
 QScrollBar:vertical {
-     background: #373737;
+     background: #212121;
      width: 8px;
 }
 
@@ -152,9 +179,35 @@ QMessageBox {
 }
 
 QSpinBox, QDoubleSpinBox {
-    background: #373737;
+    background: #212121;
 }
 
 QDialog#infoDialog {
     border-radius: 3px;
 }
+
+QComboBox {
+    border: 1px solid #191919;
+    border-radius: 3px;
+    background: #212121;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+ 
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+    border-left-width: 1px;
+    border-left-color: #414141;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background: #313131;
+}
+

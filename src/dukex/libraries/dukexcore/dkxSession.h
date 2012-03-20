@@ -19,7 +19,7 @@ public:
     Session();
 
 public:
-    bool startSession(const std::string& ip, short port, void* handle = NULL);
+    bool startSession(void* handle = NULL);
     bool stopSession();
     bool computeInMsg();
     bool sendMsg(MessageQueue & queue);

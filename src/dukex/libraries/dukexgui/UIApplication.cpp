@@ -65,9 +65,12 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Manager.addNode(g, m_Session);
     InfoNode::ptr info = InfoNode::ptr(new InfoNode());
     m_Manager.addNode(info, m_Session);
-    // Starting session
-    m_Session->startSession("127.0.0.1", 7171, m_RenderWindow->renderWindowID());
-    // Starting timer: to compute 'IN' msgs every N ms
+}
+
+void UIApplication::start() {
+    // starting session
+    m_Session->startSession(m_RenderWindow->renderWindowID());
+    // starting timer (to compute 'IN' msgs every N ms)
     m_timerID = QObject::startTimer(40);
 }
 
@@ -278,8 +281,8 @@ void UIApplication::updateRecentFilesMenu() {
 }
 
 // private slot
-void UIApplication::openFiles(const QStringList & _list, const bool & asSequence, const bool & asDir) {
-    PlaylistNode::ptr p = m_Manager.nodeByName<PlaylistNode>("fr.mikrosimage.dukex.playlist");
+void UIApplication::openFiles(const QStringList & _list, const bool & browseMode, const bool & parseSequence) {
+    PlaylistNode::ptr p = m_Manager.nodeByName<PlaylistNode> ("fr.mikrosimage.dukex.playlist");
     if (p.get() == NULL)
         return;
     if (!_list.isEmpty()) {
@@ -289,15 +292,16 @@ void UIApplication::openFiles(const QStringList & _list, const bool & asSequence
         for (int i = 0; i < _list.count(); ++i) {
             v[i] = _list[i].toStdString();
         }
-        p->openFiles(v, asSequence);
+        p->openFiles(v, browseMode, parseSequence);
         if (v.size() == 1) { // multi selection not handled in file history
             QString history = _list[0];
-            if (asSequence) {
-                history.prepend("sequence://");
-            } else if (asDir) {
-                history.prepend("directory://");
+            if (browseMode) {
+                history.prepend("browse://");
             } else {
-                history.prepend("file://");
+                if (parseSequence)
+                    history.prepend("sequence://");
+                else
+                    history.prepend("file://");
             }
             m_Preferences.addToHistory(history.toStdString());
             updateRecentFilesMenu();
@@ -311,7 +315,7 @@ void UIApplication::openFiles() {
     if (m_FileDialog->exec()) {
         list = m_FileDialog->selectedFiles();
         if (list.size() != 0)
-            openFiles(list, m_FileDialog->asSequence());
+            openFiles(list, false, m_FileDialog->asSequence());
     }
 }
 
@@ -325,15 +329,15 @@ void UIApplication::openRecent() {
             if (file.startsWith("sequence://")) {
                 file.remove(0, 11);
                 filenames.append(file);
-                openFiles(filenames, true);
-            } else if (file.startsWith("directory://")) {
-                file.remove(0, 12);
-                filenames.append(file);
                 openFiles(filenames, false, true);
+            } else if (file.startsWith("browse://")) {
+                file.remove(0, 9);
+                filenames.append(file);
+                openFiles(filenames, true, false);
             } else { // "file://"
                 file.remove(0, 7);
                 filenames.append(file);
-                openFiles(filenames);
+                openFiles(filenames, false, false);
             }
         }
     }
@@ -345,13 +349,13 @@ void UIApplication::browseDirectory() {
     if (!dir.isEmpty()) {
         QStringList list;
         list.append(dir);
-        openFiles(list, false, true);
+        openFiles(list, true, false);
     }
 }
 
 // private slot
 void UIApplication::playStop() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     if (m_Session->isPlaying())
@@ -362,7 +366,7 @@ void UIApplication::playStop() {
 
 // private slot
 void UIApplication::previousFrame() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->previousFrame();
@@ -370,7 +374,7 @@ void UIApplication::previousFrame() {
 
 // private slot
 void UIApplication::nextFrame() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->nextFrame();
@@ -378,7 +382,7 @@ void UIApplication::nextFrame() {
 
 // private slot
 void UIApplication::firstFrame() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->firstFrame();
@@ -386,7 +390,7 @@ void UIApplication::firstFrame() {
 
 // private slot
 void UIApplication::lastFrame() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->lastFrame();
@@ -394,7 +398,7 @@ void UIApplication::lastFrame() {
 
 // private slot
 void UIApplication::previousShot() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->previousShot();
@@ -402,7 +406,7 @@ void UIApplication::previousShot() {
 
 // private slot
 void UIApplication::nextShot() {
-    TransportNode::ptr t = m_Manager.nodeByName<TransportNode>("fr.mikrosimage.dukex.transport");
+    TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
     t->nextShot();
@@ -425,7 +429,7 @@ void UIApplication::fullscreen() {
 
 // private slot
 void UIApplication::toggleFitMode() {
-    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    FitNode::ptr f = m_Manager.nodeByName<FitNode> ("fr.mikrosimage.dukex.fit");
     if (f.get() == NULL)
         return;
     f->toggle();
@@ -433,7 +437,7 @@ void UIApplication::toggleFitMode() {
 
 // private slot
 void UIApplication::fitToNormalSize() {
-    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    FitNode::ptr f = m_Manager.nodeByName<FitNode> ("fr.mikrosimage.dukex.fit");
     if (f.get() == NULL)
         return;
     f->fitToNormalSize();
@@ -441,7 +445,7 @@ void UIApplication::fitToNormalSize() {
 
 // private slot
 void UIApplication::fitImageToWindowWidth() {
-    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    FitNode::ptr f = m_Manager.nodeByName<FitNode> ("fr.mikrosimage.dukex.fit");
     if (f.get() == NULL)
         return;
     f->fitImageToWindowWidth();
@@ -449,7 +453,7 @@ void UIApplication::fitImageToWindowWidth() {
 
 // private slot
 void UIApplication::fitImageToWindowHeight() {
-    FitNode::ptr f = m_Manager.nodeByName<FitNode>("fr.mikrosimage.dukex.fit");
+    FitNode::ptr f = m_Manager.nodeByName<FitNode> ("fr.mikrosimage.dukex.fit");
     if (f.get() == NULL)
         return;
     f->fitImageToWindowHeight();
@@ -457,7 +461,7 @@ void UIApplication::fitImageToWindowHeight() {
 
 // private slot
 void UIApplication::zoom(double z) {
-    GradingNode::ptr g = m_Manager.nodeByName<GradingNode>("fr.mikrosimage.dukex.grading");
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode> ("fr.mikrosimage.dukex.grading");
     if (g.get() == NULL)
         return;
     g->setZoom(z);
@@ -465,7 +469,7 @@ void UIApplication::zoom(double z) {
 
 // private slot
 void UIApplication::pan(double x, double y) {
-    GradingNode::ptr g = m_Manager.nodeByName<GradingNode>("fr.mikrosimage.dukex.grading");
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode> ("fr.mikrosimage.dukex.grading");
     if (g.get() == NULL)
         return;
     g->setPan(x, y);

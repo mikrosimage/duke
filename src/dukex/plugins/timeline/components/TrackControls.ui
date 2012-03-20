@@ -28,6 +28,9 @@
    </property>
    <item>
     <widget class="QPushButton" name="disableButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="maximumSize">
       <size>
        <width>22</width>
@@ -53,6 +56,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="fxButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="maximumSize">
       <size>
        <width>22</width>

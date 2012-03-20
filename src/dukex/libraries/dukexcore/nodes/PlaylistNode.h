@@ -16,7 +16,7 @@ public:
     }
 
 public:
-    bool openFiles(const std::vector<std::string> inputs, const bool asSequence = false) {
+    bool openFiles(const std::vector<std::string> inputs, const bool browseMode = false, const bool parseSequence = true) {
         try {
             SessionDescriptor & descriptor = session()->descriptor();
 
@@ -31,8 +31,8 @@ public:
             // Parse all inputs
             MessageQueue queue;
             IOQueueInserter inserter(queue);
-            const bool browseMode = false; // FIXME
-            CmdLinePlaylistBuilder playlistBuilder(inserter, browseMode ,asSequence, session()->getAvailableExtensions());
+
+            CmdLinePlaylistBuilder playlistBuilder(inserter, browseMode, parseSequence, session()->getAvailableExtensions());
             for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
 
             // Push engine stop

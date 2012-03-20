@@ -307,7 +307,7 @@ void UITracksView::drawBackground(QPainter *painter, const QRectF &rect) {
     // Fill the background
     painter->fillRect(rect, QBrush(palette().base()));
     // Draw the tracks separators
-    painter->setPen(QPen(QColor(50, 50, 50)));
+    painter->setPen(QPen(QColor(30, 30, 30)));
     for (int i = 0; i < m_layout->count(); ++i) {
         QGraphicsItem* gi = m_layout->itemAt(i)->graphicsItem();
         if (!gi)
