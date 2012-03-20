@@ -315,13 +315,12 @@ void Configuration::displayVersion() {
 
 void Configuration::displayHelp() {
     cout << "Usage: " << endl;
-    cout << setiosflags ( ios_base::left );
-    cout << setw(30) << "   Open one file:" << "duke foo.jpg" <<  endl;
-    cout << setw(30) << "   Open a sequence:" << "duke img.1234.jpg -s" <<  endl;
-    cout << setw(30) << "   Open a playlist:" << "duke playlist.ppl" <<  endl;
-    cout << setw(30) << "   Browse this directory:" << "duke ." <<  endl;
-    cout << setw(30) << "   Browse N directories:" << "duke /path/to/dir1 /path/to/dir2" <<  endl;
-    cout << setw(30) << "   Open N inputs:" << "duke /path/to/dir /img/image.1234.jpg foo.jpg playlist.ppl -s" << endl << endl;
+    cout << "\tOpen a file in browse mode            duke -b /path/to/img.1234.jpg" << endl;
+    cout << "\tOpen a folder in browse mode          duke -b /path/to" << endl;
+    cout << "\tOpen a single file                    duke foo.jpg" << endl;
+    cout << "\tOpen a playlist                       duke playlist.ppl" << endl;
+    cout << "\tParse current folder for sequences    duke ." << endl;
+    cout << "\tParse several folders for sequences   duke /path/to/dir1 /path/to/dir2" << endl << endl;
     cout << m_CmdlineOptionsGroup << endl;
 }
 
