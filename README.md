@@ -1,4 +1,4 @@
-Duke version 1.2.0
+Duke version 1.3.0
 ==================
 
 Duke is an **opensource high resolution image and sequence viewer** dedicated to visual effect and post production companies.
