@@ -26,8 +26,6 @@ public:
     }
 
 public:
-    void start();
-
     // IUIBuilder Interface
 //    QMenu * createMenu(QObject* _plugin, const QString & _title);
 //    QWidget* createWindow(QObject* _plugin, const Qt::DockWidgetArea & _area, const QString & _title);

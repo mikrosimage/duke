@@ -65,9 +65,7 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Manager.addNode(g, m_Session);
     InfoNode::ptr info = InfoNode::ptr(new InfoNode());
     m_Manager.addNode(info, m_Session);
-}
 
-void UIApplication::start() {
     // starting session
     m_Session->startSession(m_RenderWindow->renderWindowID());
     // starting timer (to compute 'IN' msgs every N ms)

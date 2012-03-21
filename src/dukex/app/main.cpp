@@ -45,7 +45,6 @@ int main(int argc, char *argv[]) {
         // Starts our main Qt Application
         UIApplication uiapp(session);
         uiapp.show();
-        uiapp.start();
         return qapp.exec(); // blocking
 
     } catch (std::exception & e) {
