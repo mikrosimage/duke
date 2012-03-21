@@ -53,7 +53,7 @@ bool Session::startSession(void* handle) {
 
         int returnvalue = 0;
         mThread = boost::thread(&launch, returnvalue, mRendererPath, boost::ref(mImageDecoderFactory), boost::ref(mIo), mCacheSize, mThreadSize);
-        boost::this_thread::sleep(boost::posix_time::millisec(40));
+//        boost::this_thread::sleep(boost::posix_time::millisec(40));
         mConnected = true;
 
         // edit the renderer with the right handle

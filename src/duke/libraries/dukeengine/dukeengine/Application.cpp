@@ -463,8 +463,11 @@ void Application::renderStart() {
         consumeMessages();
 
         // update current frame
-        if (m_Playback.adjustCurrentFrame())
+        if (m_Playback.adjustCurrentFrame()){
+#ifdef DEBUG
             cout << "unstable" << endl;
+#endif
+        }
 
         const size_t frame = m_Playback.frame();
 
