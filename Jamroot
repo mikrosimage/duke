@@ -58,6 +58,7 @@ explicit plugin-jpg
          plugin-ogl
          plugin-dx9
          plugin-timeline
+         plugin-imageinfo
          dukeplugins
          duketests
          shader_prototypes
@@ -75,11 +76,12 @@ alias plugin-oiio       : src/duke/plugins/io/oiio//oiio ;
 alias plugin-ogl        : src/duke/plugins/renderer/ogl//ogl ;
 alias plugin-dx9        : src/duke/plugins/renderer/dx9//dx9 ;
 alias plugin-timeline   : src/dukex/plugins/timeline//timeline ;
+alias plugin-imageinfo   : src/dukex/plugins/imageinfo//imageinfo ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>LINUX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-oiio plugin-ogl : <os>MACOSX ;
 alias dukeplugins 		: plugin-jpg plugin-dpx plugin-dx9 plugin-ogl : <os>NT ;
 alias duketests 	    : src/duke/libraries//tests src/duke/submodules//tests ;
-alias dukexplugins 		: plugin-timeline ;
+alias dukexplugins 		: plugin-timeline plugin-imageinfo ;
 alias dukextests 	    : [ glob src/dukex/tests/* ] ;
 alias tests 	        : duketests dukextests ;
 alias mingw_runtime     ;

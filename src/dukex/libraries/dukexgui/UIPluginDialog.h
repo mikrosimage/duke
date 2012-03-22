@@ -13,6 +13,9 @@ Q_OBJECT
 public:
     UIPluginDialog(QWidget*, IUIBuilder*, NodeManager*, const QString&);
 
+public:
+    void load(const QString &);
+
 private:
     void populate();
     void addItems(QTreeWidgetItem* pluginItem, const char *interfaceName, const QStringList &features);

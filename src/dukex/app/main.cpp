@@ -23,9 +23,11 @@ int main(int argc, char *argv[]) {
 
         // Qt resources & CSS
         Q_INIT_RESOURCE(resources);
+
         // NOTE: GraphicsSystem "raster" is needed on unix systems to
         //       fix huge QML performance issue.
-        QApplication::setGraphicsSystem("raster");
+//        QApplication::setGraphicsSystem("raster");
+
         QApplication qapp(argc, argv);
         qapp.setStyle(new QCleanlooksStyle());
         QFile file(":/CSS/dark.qss");

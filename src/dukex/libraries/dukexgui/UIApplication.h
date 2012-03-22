@@ -12,6 +12,7 @@
 class UIRenderWindow;
 class UIFileDialog;
 class UIPluginDialog;
+
 //QT_BEGIN_NAMESPACE
 //class QDeclarativeItem;
 //QT_END_NAMESPACE
@@ -27,13 +28,12 @@ public:
 
 public:
     // IUIBuilder Interface
-//    QMenu * createMenu(QObject* _plugin, const QString & _title);
-//    QWidget* createWindow(QObject* _plugin, const Qt::DockWidgetArea & _area, const QString & _title);
-    bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title);
-//    QDeclarativeItem* createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title);
+    bool createMenu(QObject* _plugin, QMenu* _menu, const QString & _previousAction);
+    bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title, bool floating);
     void closeUI(QObject* _plug);
 
 private:
+    void showEvent(QShowEvent* event);
     void closeEvent(QCloseEvent *event);
     void timerEvent(QTimerEvent *event);
     void keyPressEvent(QKeyEvent * event);
@@ -71,6 +71,8 @@ private slots:
     void about();
     void aboutPlugins();
 
+    void topLevelChanged(bool); // TEST
+
 private:
     Ui::mainWindow ui;
 //    QDeclarativeEngine m_Engine;
@@ -80,7 +82,6 @@ private:
     UIRenderWindow* m_RenderWindow;
     UIFileDialog* m_FileDialog;
     UIPluginDialog* m_PluginDialog;
-//    QLabel* m_statusInfo;
     int m_timerID;
 };
 

@@ -65,33 +65,69 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Manager.addNode(g, m_Session);
     InfoNode::ptr info = InfoNode::ptr(new InfoNode());
     m_Manager.addNode(info, m_Session);
-
-    // starting session
-    m_Session->startSession(m_RenderWindow->renderWindowID());
-    // starting timer (to compute 'IN' msgs every N ms)
-    m_timerID = QObject::startTimer(40);
 }
 
-bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title) {
+void UIApplication::showEvent(QShowEvent* event){
+    // load needed plugins
+    m_PluginDialog->load(QString("plugin_dukex_imageinfo"));
+    m_PluginDialog->load(QString("plugin_dukex_timeline"));
+    // starting timer (to compute 'IN' msgs every N ms)
+    m_timerID = QObject::startTimer(40);
+    // starting session
+    m_Session->startSession(m_RenderWindow->renderWindowID());
+    event->accept();
+}
+
+bool UIApplication::createMenu(QObject* _plugin, QMenu* _menu, const QString & _menuName) {
+    bool menuInserted = false;
+    if(!_menuName.isEmpty()){
+        QList<QMenu *> menus = findChildren<QMenu *> ();
+        QListIterator<QMenu *> iter(menus);
+        while (iter.hasNext()) {
+            QMenu *pMenu = iter.next();
+            if (pMenu->objectName() != _menuName)
+                continue;
+            pMenu->addMenu(_menu);
+            menuInserted = true;
+            break;
+        }
+    } else {
+        menuBar()->addMenu(_menu);
+        _menu->setParent(menuBar());
+        menuInserted = true;
+    }
+    m_LoadedUIElements.insert(_plugin, _menu);
+    return menuInserted;
+}
+
+bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title, bool floating) {
     QDockWidget * dockwidget = new QDockWidget(_title, this);
     dockwidget->setContentsMargins(0, 0, 0, 0);
-    //    dockwidget->setMinimumSize(uiwidget->minimumSize());
-    //    dockwidget->setMaximumSize(uiwidget->maximumSize());
+    connect(dockwidget, SIGNAL(topLevelChanged(bool)), this, SLOT(topLevelChanged(bool)));
     uiwidget->setParent(dockwidget);
     m_Session->addObserver(uiwidget);
     dockwidget->setWidget(uiwidget);
     addDockWidget(_area, dockwidget);
     m_LoadedUIElements.insert(_plugin, dockwidget);
+
+    if(floating){
+        dockwidget->setFloating(true);
+        dockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
+        dockwidget->adjustSize();
+    }
+
     return true;
 }
 
-//QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _title) {
-//    QMenu * m = new QMenu(_title, this);
-//    menuBar()->addMenu(m);
-//    m_LoadedUIElements.insert(_plugin, m);
-//    return m;
-//}
-//
+void UIApplication::topLevelChanged(bool b){
+    QDockWidget *dockwidget = qobject_cast<QDockWidget *> (sender());
+    if (dockwidget && b) {
+        dockwidget->setWindowOpacity(0.6);
+        dockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
+        dockwidget->adjustSize();
+    }
+}
+
 //QDeclarativeItem* UIApplication::createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title) {
 //    QDockWidget * dockwidget = new QDockWidget(_title, this);
 //    UIView * view = new UIView(dockwidget);
@@ -137,6 +173,9 @@ void UIApplication::closeUI(QObject* _plug) {
             removeDockWidget(obj);
             // FIXME : delete asap
             //            obj->deleteLater();
+        } else if (qobject_cast<QMenu*> (values.at(i))) {
+            QMenu* obj = qobject_cast<QMenu*> (values.at(i));
+            obj->close();
         }
     }
     m_LoadedUIElements.remove(_plug);
@@ -260,6 +299,8 @@ void UIApplication::resizeCentralWidget(const QSize& resolution) {
             case Qt::BottomDockWidgetArea:
                 dock->setMinimumHeight(sizes.takeFirst());
                 dock->setMaximumHeight(sizes.takeFirst());
+                break;
+            default:
                 break;
         }
     }

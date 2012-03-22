@@ -362,6 +362,8 @@ void Application::updatePlaybackState(Info_PlaybackState &infos) const {
 }
 
 void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) const {
+    if(m_FileBufferHolder.getImages().empty())
+       return;
     MediaFrames frames;
     m_Playlist.mediaFramesAt(m_Playback.frame(), frames);
     for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr){
