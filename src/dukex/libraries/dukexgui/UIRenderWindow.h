@@ -3,15 +3,9 @@
 
 #include <QtGui>
 
-class UIInfoDialog;
-
 class UIRenderWindow : public QWidget {
 
     Q_OBJECT
-
-    enum MOUSEMODE {
-        MM_PANZOOM = 0, MM_INFODIALOG
-    };
 
 public:
     UIRenderWindow(QWidget* parent);
@@ -20,7 +14,6 @@ public:
 public:
     void showFullScreen();
     void showNormal();
-//    void showInfo();
     void keyPressEvent(QKeyEvent * event);
     void mousePressEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
@@ -29,19 +22,16 @@ public:
 
 public:
     void* renderWindowID() const;
+    QWidget* renderWidget() const;
 
 signals:
     void zoomChanged(double);
     void panChanged(double, double);
 
 private:
-    QWidget* m_renderWidget;
-    double zoomRatio;
-    QPointF onMousePressPos;
-    QPointF currentCenterPos;
-
-    MOUSEMODE mMode;
-    UIInfoDialog* mDialog;
+    QWidget* mRenderWidget;
+    double mZoomRatio;
+    QPoint mDragPosition;
 };
 
 #endif // UIRENDERWINDOW_H

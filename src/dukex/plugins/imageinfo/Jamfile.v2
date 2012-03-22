@@ -1,0 +1,19 @@
+
+project
+	: requirements
+		<include>.
+		<include>components
+		<library>/dukexgui//dukexgui/<link>shared
+	;
+
+explicit imageinfo ;
+dukexplugin imageinfo
+	: 
+		[ glob-tree *.cpp *.ui *.qrc : moc_* qrc_* ]
+		ImageInfoPlugin.h
+		components/UIImageInfo.h
+		components/UIVideoPage.h
+	:
+	   <build>$(build-imageinfo)
+	;
+

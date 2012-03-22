@@ -1,6 +1,7 @@
 #include "UIPluginDialog.h"
 #include "IUIPluginInterfaces.h"
 #include <QPushButton>
+#include <QList>
 #include <iostream>
 
 UIPluginDialog::UIPluginDialog(QWidget *parent, IUIBuilder* _builder, NodeManager* _manager, const QString &path) :
@@ -17,11 +18,20 @@ UIPluginDialog::UIPluginDialog(QWidget *parent, IUIBuilder* _builder, NodeManage
     populate();
 }
 
+void UIPluginDialog::load(const QString & _s) {
+    QList<QPushButton*> list = findChildren<QPushButton*> ();
+    for (int i = 0; i < list.size(); ++i) {
+        const QString& filename = list.at(i)->property("fileName").toString();
+        if (filename.startsWith(_s))
+            list.at(i)->toggle();
+    }
+}
+
 // private slot
 void UIPluginDialog::load(bool _b) {
     QPushButton *button = qobject_cast<QPushButton *> (sender());
     if (button) {
-        const QString& file = button->property("fileToLoad").toString();
+        const QString& file = button->property("filePath").toString();
         if (file.isEmpty())
             return;
         if (_b) {
@@ -59,19 +69,14 @@ void UIPluginDialog::populate() {
         pluginItem->setText(0, filename);
         // load/unload button on column 1
         QPushButton* button = new QPushButton("Load", ui.treeWidget);
-        button->setProperty("fileToLoad", it.key());
+        button->setProperty("fileName", filename);
+        button->setProperty("filePath", it.key());
         button->setCheckable(true);
         connect(button, SIGNAL(toggled(bool)), this, SLOT(load(bool)));
         ui.treeWidget->setItemWidget(pluginItem, 1, button);
 
         // plugin description in subitems
         addItems(pluginItem, "DukeXUIPlugin", p->describe());
-
-        // Hard coded AutoLoad
-        // TODO: store AutoLoad settings in user preferences
-        if(QDir(m_Loader.path()).relativeFilePath(it.key()).startsWith("plugin_dukex_timeline")){
-            button->setChecked(true);
-        }
 
         ++it;
     }

@@ -28,7 +28,7 @@
    <string>DukeX</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources/resources.qrc">
+   <iconset>
     <normaloff>:/IMG/img/duke.png</normaloff>:/IMG/img/duke.png</iconset>
   </property>
   <property name="animated">
@@ -148,8 +148,6 @@
     </widget>
     <addaction name="menuColorspace"/>
     <addaction name="menuZoom"/>
-    <addaction name="separator"/>
-    <addaction name="infoAction"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuControl"/>
@@ -636,6 +634,11 @@
   <action name="zoom200Action">
    <property name="text">
     <string>200%</string>
+   </property>
+  </action>
+  <action name="undefinedAction">
+   <property name="text">
+    <string>dock1</string>
    </property>
   </action>
  </widget>
