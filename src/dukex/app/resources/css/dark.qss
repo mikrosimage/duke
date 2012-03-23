@@ -69,13 +69,14 @@ QSplitter::handle:horizontal
 }
 
 QToolBox::tab {
-    background: #6f6f6f;
-    border-radius: 5px;
+    align: right;
+    background: #414141;
     color: darkgray;
 }
 
 QToolBox::tab:selected { 
     font: italic;
+    font-size: 12px;
     color: white;
 }
 
@@ -113,20 +114,20 @@ QMainWindow::separator:hover {
      background: yellow;
 }
 
-     QSlider::groove:horizontal {
-         border: 1px solid #999999;
-         height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
-         background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
-         margin: 2px 0;
-     }
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+    margin: 2px 0;
+}
 
-     QSlider::handle:horizontal {
-         background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
-         border: 1px solid #5c5c5c;
-         width: 18px;
-         margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-         border-radius: 3px;
-     }
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}
 
 QLineEdit {
     border: 1px solid #191919;
@@ -142,7 +143,7 @@ QDockWidget {
 }
 
 QDockWidget::title {
-    text-align: left; /* align the text to the left */
+    text-align: left;
     background: #212121;
     padding-left: 5px;
     border: 0px;
@@ -151,6 +152,7 @@ QDockWidget::title {
 }
 
 QDockWidget::close-button, QDockWidget::float-button {
+    border: 0px;
     background: transparent;
     icon-size: 12px; /* maximum icon size */
     margin: 0px 0;
