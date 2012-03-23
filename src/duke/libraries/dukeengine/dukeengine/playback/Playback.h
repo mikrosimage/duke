@@ -29,7 +29,7 @@ struct Playback {
     boost::chrono::high_resolution_clock::duration playlistTime() const;
     unsigned int frame() const;
     int getSpeed() const;
-    void cue(unsigned int frame) { play(frame,0); }
+    void cue(unsigned int frame) { play(frame,getSpeed()); }
     bool playing() const { return getSpeed()!=0; }
 private:
     struct PlaybackImpl;
