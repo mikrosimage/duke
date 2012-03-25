@@ -30,7 +30,7 @@ use-project /dukerendererplugin	        : src/duke/libraries/dukerenderer/plugin
 use-project /duke/sub/dukeplugins		: src/duke/submodules/dukeplugins ;
 use-project /duke/sub/sequence      	: src/duke/submodules/sequenceparser/src/sequence ;
 use-project /duke/sub/sequenceparser	: src/duke/submodules/sequenceparser/src/sequence/parser ;
-use-project /duke/sub/concurrent		: src/duke/submodules/concurrent_utils/src ;
+use-project /duke/sub/concurrent		: src/duke/submodules/concurrent_utils ;
 use-project /dukexcore                  : src/dukex/libraries/dukexcore ;
 use-project /dukexgui                   : src/dukex/libraries/dukexgui ;
 
