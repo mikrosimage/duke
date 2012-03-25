@@ -202,7 +202,7 @@ void Application::applyTransport(const Transport& transport) {
             m_AudioEngine.play();
             break;
         case Transport_TransportType_STOP:
-            m_Playback.cue(currentFrame);
+            m_Playback.stop();
             m_AudioEngine.pause();
             break;
         case Transport_TransportType_STORE:
