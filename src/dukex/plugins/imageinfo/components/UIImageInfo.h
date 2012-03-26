@@ -1,14 +1,13 @@
 #ifndef UIIMAGEINFO_H
 #define UIIMAGEINFO_H
 
-#include "player.pb.h"
 #include "ui_imageinfo.h"
-#include <dukexgui/UIWidget.h>
+#include <dukexcore/dkxIObserver.h>
 
 // forward declaration
 class NodeManager;
 
-class UIImageInfo : public UIWidget {
+class UIImageInfo : public QWidget, public IObserver {
 
     Q_OBJECT
     Q_DISABLE_COPY(UIImageInfo)

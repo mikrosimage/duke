@@ -69,7 +69,6 @@ QSplitter::handle:horizontal
 }
 
 QToolBox::tab {
-    align: right;
     background: #414141;
     color: darkgray;
 }

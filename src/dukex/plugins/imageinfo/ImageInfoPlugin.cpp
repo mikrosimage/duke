@@ -2,6 +2,11 @@
 #include "UIImageInfo.h"
 #include <iostream>
 #include <QtGui>
+#include <QtDebug>
+
+ImageInfoPlugin::ImageInfoPlugin() :
+    mDockWidget(NULL), mAction(NULL) {
+}
 
 // DukeXUIPlugin
 QStringList ImageInfoPlugin::describe() const {
@@ -9,16 +14,34 @@ QStringList ImageInfoPlugin::describe() const {
 }
 
 void ImageInfoPlugin::initialize(IUIBuilder* _builder, NodeManager* _manager) {
-    if (!_builder)
+    if (!_builder || !_manager)
         return;
-    UIImageInfo* imageInfo = new UIImageInfo(_manager);
-    _builder->createWindow(this, imageInfo, Qt::LeftDockWidgetArea, "ImageInfo", true);
 
-//    QMenu* menu = new QMenu("Image Info");
-//    menu->addAction("test01");
-//    menu->addAction("test02");
-//    menu->addAction("test03");
-//    _builder->createMenu(this, menu, "menuDisplay");
+    // window
+    UIImageInfo * widget = new UIImageInfo(_manager);
+    mDockWidget = _builder->createWindow(this, Qt::RightDockWidgetArea, true);
+    mDockWidget->setWindowTitle("Image Info");
+    mDockWidget->setWidget(widget);
+    mDockWidget->adjustSize();
+    mDockWidget->hide();
+    // register as observer
+    _builder->addObserver(this, widget);
+    // action
+    mAction = _builder->createAction(this, "menuDisplay");
+    mAction->setText("Image &Info");
+    mAction->setShortcut(Qt::Key_I);
+    mAction->setCheckable(true);
+    mAction->setChecked(false);
+    connect(mAction, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+    connect(mDockWidget, SIGNAL(visibilityChanged(bool)), mAction, SLOT(setChecked(bool)));
+}
+
+void ImageInfoPlugin::actionTriggered(bool _b) {
+    if (!mAction || !mDockWidget)
+        return;
+    mDockWidget->setVisible(_b);
+    if(_b && mDockWidget->isTopLevel())
+        mDockWidget->adjustSize();
 }
 
 QT_BEGIN_NAMESPACE

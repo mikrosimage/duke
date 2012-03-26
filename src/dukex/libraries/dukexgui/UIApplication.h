@@ -1,21 +1,16 @@
 #ifndef UIAPPLICATION_H
 #define UIAPPLICATION_H
 
-#include "ui_mainwindow.h"
 #include "IUIBuilder.h"
+#include "ui_mainwindow.h"
 #include "UserPreferences.h"
 #include <dukexcore/dkxNodeManager.h>
 #include <dukexcore/dkxSession.h>
-//#include <QDeclarativeEngine>
 #include <QtGui>
 
 class UIRenderWindow;
 class UIFileDialog;
 class UIPluginDialog;
-
-//QT_BEGIN_NAMESPACE
-//class QDeclarativeItem;
-//QT_END_NAMESPACE
 
 class UIApplication : public QMainWindow, public IUIBuilder {
 
@@ -28,8 +23,10 @@ public:
 
 public:
     // IUIBuilder Interface
-    bool createMenu(QObject* _plugin, QMenu* _menu, const QString & _previousAction);
-    bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title, bool floating);
+    void addObserver(QObject* _plugin, IObserver* _observer);
+    QAction* createAction(QObject* _plugin, const QString & _parentMenuName);
+    QMenu* createMenu(QObject* _plugin, const QString & _parentMenuName);
+    QDockWidget* createWindow(QObject* _plugin, Qt::DockWidgetArea _area, bool floating);
     void closeUI(QObject* _plug);
 
 private:

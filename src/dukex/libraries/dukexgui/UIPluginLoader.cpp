@@ -12,11 +12,14 @@ void UIPluginLoader::find(const QString& path) {
     QFileInfoList list = m_PluginsDir.entryInfoList(QDir::Files | QDir::NoSymLinks);
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
+        if(!fileInfo.fileName().startsWith("plugin_dukex_"))
+            continue;
         QPluginLoader loader(fileInfo.absoluteFilePath());
         QObject* plugin = loader.instance();
+#ifdef DEBUG
         loader.dumpObjectInfo();
-        //TODO log / verbose mode
-        //std::cerr << loader.errorString().toStdString() << std::endl;
+        std::cerr << loader.errorString().toStdString() << std::endl;
+#endif
         if (plugin) {
             m_FoundPlugins[fileInfo.absoluteFilePath()] = plugin;
         }

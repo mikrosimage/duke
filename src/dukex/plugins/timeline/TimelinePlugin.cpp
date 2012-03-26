@@ -9,10 +9,19 @@ QStringList TimelinePlugin::describe() const {
 }
 
 void TimelinePlugin::initialize(IUIBuilder* _builder, NodeManager* _manager) {
-    if (!_builder)
-        return;
+    if (!_builder || !_manager)
+            return;
+
+    // window
     UITimeline* timeline = new UITimeline(_manager);
-    _builder->createWindow(this, timeline, Qt::BottomDockWidgetArea, "Timeline");
+    QDockWidget * dockwidget = _builder->createWindow(this, Qt::BottomDockWidgetArea, false);
+    dockwidget->setWindowTitle("Timeline");
+    dockwidget->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    dockwidget->setWidget(timeline);
+    dockwidget->adjustSize();
+
+    // register as observer
+    _builder->addObserver(this, timeline);
 }
 
 QT_BEGIN_NAMESPACE
