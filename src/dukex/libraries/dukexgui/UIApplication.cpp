@@ -1,14 +1,10 @@
 #include "UIApplication.h"
-//#include "UIView.h"
 #include "UIRenderWindow.h"
 #include "UIFileDialog.h"
 #include "UIPluginDialog.h"
 #include <dukeengine/Version.h>
 #include <dukexcore/nodes/Commons.h>
 #include <boost/filesystem.hpp>
-//#include <QDeclarativeComponent>
-//#include <QDeclarativeContext>
-//#include <QDeclarativeItem>
 #include <iostream>
 
 UIApplication::UIApplication(Session::ptr s) :
@@ -78,8 +74,15 @@ void UIApplication::showEvent(QShowEvent* event){
     event->accept();
 }
 
-bool UIApplication::createMenu(QObject* _plugin, QMenu* _menu, const QString & _menuName) {
-    bool menuInserted = false;
+void UIApplication::addObserver(QObject* _plugin, IObserver* _observer) {
+    if(!_observer)
+        return;
+    m_Session->addObserver(_observer);
+    m_RegisteredObservers.insert(_plugin, _observer);
+}
+
+QAction* UIApplication::createAction(QObject* _plugin, const QString & _menuName) {
+    QAction * customaction = NULL;
     if(!_menuName.isEmpty()){
         QList<QMenu *> menus = findChildren<QMenu *> ();
         QListIterator<QMenu *> iter(menus);
@@ -87,36 +90,50 @@ bool UIApplication::createMenu(QObject* _plugin, QMenu* _menu, const QString & _
             QMenu *pMenu = iter.next();
             if (pMenu->objectName() != _menuName)
                 continue;
-            pMenu->addMenu(_menu);
-            menuInserted = true;
+            customaction = new QAction(menuBar());
+            pMenu->addAction(customaction);
+            break;
+        }
+    }
+
+    if(customaction)
+        m_LoadedUIElements.insert(_plugin, customaction);
+
+    return customaction;
+}
+
+QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _menuName) {
+    QMenu * custommenu = new QMenu(menuBar());
+    if(!_menuName.isEmpty()){
+        QList<QMenu *> menus = findChildren<QMenu *> ();
+        QListIterator<QMenu *> iter(menus);
+        while (iter.hasNext()) {
+            QMenu *pMenu = iter.next();
+            if (pMenu->objectName() != _menuName)
+                continue;
+            pMenu->addMenu(custommenu);
             break;
         }
     } else {
-        menuBar()->addMenu(_menu);
-        _menu->setParent(menuBar());
-        menuInserted = true;
+        menuBar()->addMenu(custommenu);
+        custommenu->setParent(menuBar());
     }
-    m_LoadedUIElements.insert(_plugin, _menu);
-    return menuInserted;
+    m_LoadedUIElements.insert(_plugin, custommenu);
+    return custommenu;
 }
 
-bool UIApplication::createWindow(QObject* _plugin, UIWidget* uiwidget, const Qt::DockWidgetArea & _area, const QString & _title, bool floating) {
-    QDockWidget * dockwidget = new QDockWidget(_title, this);
-    dockwidget->setContentsMargins(0, 0, 0, 0);
-    connect(dockwidget, SIGNAL(topLevelChanged(bool)), this, SLOT(topLevelChanged(bool)));
-    uiwidget->setParent(dockwidget);
-    m_Session->addObserver(uiwidget);
-    dockwidget->setWidget(uiwidget);
-    addDockWidget(_area, dockwidget);
-    m_LoadedUIElements.insert(_plugin, dockwidget);
-
+QDockWidget* UIApplication::createWindow(QObject* _plugin, Qt::DockWidgetArea _area, bool floating) {
+    QDockWidget * customdockwidget = new QDockWidget("undefined", this);
+    customdockwidget->setContentsMargins(0, 0, 0, 0);
+    connect(customdockwidget, SIGNAL(topLevelChanged(bool)), this, SLOT(topLevelChanged(bool)));
+    addDockWidget(_area, customdockwidget);
+    m_LoadedUIElements.insert(_plugin, customdockwidget);
     if(floating){
-        dockwidget->setFloating(true);
-        dockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
-        dockwidget->adjustSize();
+        customdockwidget->setFloating(true);
+        customdockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
+        customdockwidget->adjustSize();
     }
-
-    return true;
+    return customdockwidget;
 }
 
 void UIApplication::topLevelChanged(bool b){
@@ -128,54 +145,30 @@ void UIApplication::topLevelChanged(bool b){
     }
 }
 
-//QDeclarativeItem* UIApplication::createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title) {
-//    QDockWidget * dockwidget = new QDockWidget(_title, this);
-//    UIView * view = new UIView(dockwidget);
-//    QGraphicsScene* scene = new QGraphicsScene();
-//    QGraphicsWidget *widget = new QGraphicsWidget();
-//    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout();
-//    widget->setLayout(layout);
-//    scene->addItem(widget);
-//    view->setScene(scene);
-//
-//    //Add the QML snippet into the layout
-//    QDeclarativeContext * rootContext = m_Engine.rootContext();
-//    QDeclarativeContext * context = new QDeclarativeContext(rootContext);
-//    QDeclarativeComponent * c = new QDeclarativeComponent(&m_Engine, qmlfile, view);
-//    qDebug() << c->errors();
-//    if (!c) {
-//        return NULL;
-//    }
-//    QDeclarativeItem * item = qobject_cast<QDeclarativeItem *> (c->create(context));
-//    if (!item)
-//        return NULL;
-//    QGraphicsLayoutItem* obj = qobject_cast<QGraphicsLayoutItem*> (item);
-//    if (!obj)
-//        return NULL;
-//    layout->addItem(obj);
-//
-//    //	widget->setGeometry(QRectF(0,0, 400,400));
-//    view->setSceneRect(item->childrenRect());
-//    view->show();
-//    dockwidget->setWidget(view);
-//    addDockWidget(_area, dockwidget);
-//
-//    m_LoadedUIElements.insert(_plugin, dockwidget);
-//    return item;
-//}
-
 void UIApplication::closeUI(QObject* _plug) {
-    QList<QObject*> values = m_LoadedUIElements.values(_plug);
-    for (int i = 0; i < values.size(); ++i) {
-        if (qobject_cast<QDockWidget*> (values.at(i))) {
-            QDockWidget* obj = qobject_cast<QDockWidget*> (values.at(i));
+    // deregister observers
+    QList<IObserver*> registeredobservers = m_RegisteredObservers.values(_plug);
+    for (int i = 0; i < registeredobservers.size(); ++i) {
+        IObserver* obs = registeredobservers.at(i);
+        m_Session->removeObserver(obs);
+    }
+    m_RegisteredObservers.remove(_plug);
+
+    // close & delete UI elements
+    QList<QObject*> uielements = m_LoadedUIElements.values(_plug);
+    for (int i = 0; i < uielements.size(); ++i) {
+        if (qobject_cast<QDockWidget*> (uielements.at(i))) {
+            QDockWidget* obj = qobject_cast<QDockWidget*> (uielements.at(i));
             obj->close();
             removeDockWidget(obj);
-            // FIXME : delete asap
-            //            obj->deleteLater();
-        } else if (qobject_cast<QMenu*> (values.at(i))) {
-            QMenu* obj = qobject_cast<QMenu*> (values.at(i));
+            obj->deleteLater();
+        } else if (qobject_cast<QMenu*> (uielements.at(i))) {
+            QMenu* obj = qobject_cast<QMenu*> (uielements.at(i));
             obj->close();
+            obj->deleteLater();
+        } else if (qobject_cast<QAction*> (uielements.at(i))) {
+            QAction* obj = qobject_cast<QAction*> (uielements.at(i));
+            obj->deleteLater();
         }
     }
     m_LoadedUIElements.remove(_plug);

@@ -2,9 +2,8 @@
 #define UITIMELINE_H
 
 #include "TimelineTypes.h"
-#include "player.pb.h"
 #include "ui_Timeline.h"
-#include <dukexgui/UIWidget.h>
+#include <dukexcore/dkxIObserver.h>
 #include <set>
 
 // forward declaration
@@ -15,7 +14,7 @@ class UITracksRuler;
 class UITimelineControls;
 class NodeManager;
 
-class UITimeline : public UIWidget {
+class UITimeline : public QWidget, public IObserver {
 
     Q_OBJECT
     Q_DISABLE_COPY(UITimeline)

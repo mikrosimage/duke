@@ -1,12 +1,14 @@
 #ifndef IUIBUILDER_H
 #define IUIBUILDER_H
 
-#include "UIWidget.h"
+#include <dukexcore/dkxIObserver.h>
 #include <QObject>
 #include <QMultiMap>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QMenu;
+class QDockWidget;
 QT_END_NAMESPACE
 
 class IUIBuilder {
@@ -21,15 +23,17 @@ public:
     }
 
 public:
-    virtual bool createMenu(QObject* _plugin, QMenu* _menu, const QString & _previousAction) = 0;
-    virtual bool createWindow(QObject* _plugin, UIWidget* _widget, const Qt::DockWidgetArea & _area, const QString & _title, bool floating = false) = 0;
-//    virtual QDeclarativeItem* createQMLWindow(QObject* _plugin, const QUrl &qmlfile, const Qt::DockWidgetArea & _area, const QString & _title) = 0;
+    virtual void addObserver(QObject* _plugin, IObserver* _observer) = 0;
+    virtual QAction* createAction(QObject* _plugin, const QString & _parentMenuName) = 0;
+    virtual QMenu* createMenu(QObject* _plugin, const QString & _parentMenuName) = 0;
+    virtual QDockWidget* createWindow(QObject* _plugin, Qt::DockWidgetArea _area, bool floating) = 0;
 
 public:
     virtual void closeUI(QObject* _plug) = 0;
 
 protected:
     QMultiMap<QObject*, QObject*> m_LoadedUIElements;
+    QMultiMap<QObject*, IObserver*> m_RegisteredObservers;
 };
 
 #endif // IUIBUILDER_H
