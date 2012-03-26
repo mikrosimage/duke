@@ -2,14 +2,14 @@
 #define MESSAGEQUEUE_H_
 
 #include "IMessageIO.h"
-#include <concurrent/ConcurrentQueue.hpp>
+#include <concurrent/queue.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <queue>
 
-struct MessageQueue : public IMessageIO, private concurrent::ConcurrentQueue<google::protobuf::serialize::SharedHolder> {
+struct MessageQueue : public IMessageIO, private concurrent::queue<google::protobuf::serialize::SharedHolder> {
 private:
-    typedef concurrent::ConcurrentQueue<google::protobuf::serialize::SharedHolder> UP;
+    typedef concurrent::queue<google::protobuf::serialize::SharedHolder> UP;
 
 public:
     using UP::drainTo;
@@ -21,7 +21,7 @@ public:
     }
 
     virtual void waitPop(google::protobuf::serialize::SharedHolder& holder) {
-        UP::waitPop(holder);
+        UP::pop(holder);
     }
 
     virtual bool tryPop(google::protobuf::serialize::SharedHolder& holder) {

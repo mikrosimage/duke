@@ -13,8 +13,8 @@
 #include <dukeengine/host/io/ImageDecoderFactory.h>
 #include <dukeengine/utils/CacheIterator.h>
 
-#include <concurrent/ConcurrentQueue.hpp>
-#include <concurrent/cache/LookAheadCache.hpp>
+#include <concurrent/queue.hpp>
+#include <concurrent/cache/lookahead_cache.hpp>
 #include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <boost/thread.hpp>
@@ -60,14 +60,14 @@ private:
     bool bEmpty;
 };
 
-typedef LookAheadCache<id_type, metric_type, data_type, Job> CACHE;
-typedef concurrent::ConcurrentQueue<data_type> QUEUE;
+typedef concurrent::cache::lookahead_cache<id_type, metric_type, data_type, Job> CACHE;
+typedef concurrent::queue<data_type> QUEUE;
 
 static inline void checkValidAndPush(CACHE &jobProducer, const metric_type &weight, const data_type &unit) {
     const string &error = unit.imageHolder.error;
     if (!error.empty())
         cerr << "error while loading '" << unit.id.filename << "' : " << error << endl;
-    jobProducer.put(unit.id, weight == 0 ? 1 : weight, unit);
+    jobProducer.push(unit.id, weight == 0 ? 1 : weight, unit);
 }
 
 static inline void decodeAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, data_type &unit) {
@@ -78,7 +78,7 @@ static inline void decodeAndPush(const ImageDecoderFactory& factory, CACHE &jobP
 
 static inline void waitLoadAndPush(const ImageDecoderFactory& factory, CACHE &jobProducer, QUEUE &decodeQueue) {
     id_type id;
-    jobProducer.waitAndPop(id);
+    jobProducer.pop(id);
     metric_type weight;
     data_type data(id);
     const bool isReady = image::load(factory, data, weight);
@@ -117,7 +117,7 @@ struct SmartCache::Impl : private boost::noncopyable {
 
     inline void seek(const unsigned int frame, const EPlaybackState state) {
         m_LastJob = Job(playlist, cacheOverRange, frame, state);
-        m_LookAheadCache.pushJob(m_LastJob);
+        m_LookAheadCache.process(m_LastJob);
     }
 
     inline void init(const PlaylistHelper &playlistHelper, const Cache &cache) {
@@ -125,7 +125,7 @@ struct SmartCache::Impl : private boost::noncopyable {
         playlist = playlistHelper;
         m_Configuration.CopyFrom(cache);
         if (cache.has_size())
-            m_LookAheadCache.setCacheSize(cache.size());
+            m_LookAheadCache.setMaxWeight(cache.size());
         if (cache.has_region()) {
             Range cacheRange(cache.region().first(), cache.region().last());
             if (playlist.range.contains(cacheRange.first) && playlist.range.contains(cacheRange.last)) {
