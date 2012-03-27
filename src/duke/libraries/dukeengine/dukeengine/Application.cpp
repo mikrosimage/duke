@@ -92,7 +92,8 @@ static inline void dump(const google::protobuf::Descriptor* pDescriptor, const g
 #endif
 }
 
-Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode, const duke::protocol::Cache& cacheConfiguration) :
+Application::Application(const char* rendererFilename, ImageDecoderFactoryImpl &imageDecoderFactory, IMessageIO &io, int &returnCode,
+                         const duke::protocol::Cache& cacheConfiguration) :
                 m_IO(io), //
                 m_ImageDecoderFactory(imageDecoderFactory), //
                 m_CacheConfiguration(cacheConfiguration), //
@@ -196,31 +197,31 @@ void Application::applyTransport(const Transport& transport) {
     //                        m_AudioEngine.applyTransport(transport);
     const uint32_t currentFrame = m_Playback.frame();
     switch (transport.type()) {
-        case Transport_TransportType_PLAY:
+        case Transport::PLAY:
             m_Playback.play(currentFrame, 1);
             m_AudioEngine.sync(m_Playback.playlistTime());
             m_AudioEngine.play();
             break;
-        case Transport_TransportType_STOP:
+        case Transport::STOP:
             m_Playback.stop();
             m_AudioEngine.pause();
             break;
-        case Transport_TransportType_STORE:
+        case Transport::STORE:
             m_StoredFrame = currentFrame;
             break;
-        case Transport_TransportType_CUE:
+        case Transport::CUE:
             m_Playback.cue(getFrameFromCueMessage(transport.cue(), m_Playlist, currentFrame));
             m_AudioEngine.pause();
             break;
-        case Transport_TransportType_CUE_FIRST:
+        case Transport::CUE_FIRST:
             m_Playback.cue(m_Playlist.range.first);
             m_AudioEngine.pause();
             break;
-        case Transport_TransportType_CUE_LAST:
+        case Transport::CUE_LAST:
             m_Playback.cue(m_Playlist.range.last);
             m_AudioEngine.pause();
             break;
-        case Transport_TransportType_CUE_STORED:
+        case Transport::CUE_STORED:
             m_Playback.cue(m_StoredFrame);
             m_AudioEngine.pause();
             break;
@@ -231,13 +232,13 @@ void Application::applyTransport(const Transport& transport) {
 // Playback section //
 //////////////////////
 
-static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
+static inline playback::PlaybackType get(Scene_PlaybackMode mode) {
     switch (mode) {
-        case Playlist_PlaybackMode_RENDER:
+        case Scene::RENDER:
             return playback::RENDER;
-        case Playlist_PlaybackMode_NO_SKIP:
+        case Scene::NO_SKIP:
             return playback::REALTIME_NO_SKIP;
-        case Playlist_PlaybackMode_DROP_FRAME_TO_KEEP_REALTIME:
+        case Scene::DROP_FRAME_TO_KEEP_REALTIME:
             return playback::REALTIME;
         default:
             throw runtime_error("bad enum");
@@ -245,13 +246,13 @@ static inline playback::PlaybackType get(Playlist_PlaybackMode mode) {
 }
 
 void Application::updatePlayback() {
-    const Playlist &playlist = m_Playlist.playlist;
-    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(playlist.frameratenumerator(), playlist.frameratedenominator());
+    const Scene &scene = m_Playlist.scene;
+    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(scene.frameratenumerator(), scene.frameratedenominator());
     using namespace boost::chrono;
     cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
     m_Cache.init(m_Playlist, m_CacheConfiguration);
-    m_Playback.init(m_Playlist.range, playlist.loop(), nsPerFrame);
-    m_Playback.setType(get(playlist.playbackmode()));
+    m_Playback.init(m_Playlist.range, scene.loop(), nsPerFrame);
+    m_Playback.setType(get(scene.playbackmode()));
 }
 
 /////////////////////
@@ -311,9 +312,9 @@ void Application::consumeTransport(const Transport &transport, const MessageHold
     }
 }
 
-void Application::consumePlaylist(const Playlist& playlist) {
-    m_Playlist = PlaylistHelper(playlist);
-    m_AudioEngine.load(playlist);
+void Application::consumeScene(const Scene& scene) {
+    m_Playlist = PlaylistHelper(scene);
+    m_AudioEngine.load(scene);
     updatePlayback();
     m_bForceRefresh = true;
 }
@@ -334,7 +335,7 @@ struct CacheStateGatherer {
     void update() const {
         for (size_t i = 0; i < frames.size(); ++i) {
             Info_CacheState_TrackCache &trackCache = *cache.add_track();
-            trackCache.set_name(playlist.playlist.track(i).name());
+            trackCache.set_name(playlist.scene.track(i).name());
             unsigned step = 0;
             const Ranges ranges = frames[i].getConsecutiveRanges(step);
             for (Ranges::const_iterator itr = ranges.begin(); itr != ranges.end(); ++itr) {
@@ -362,11 +363,11 @@ void Application::updatePlaybackState(Info_PlaybackState &infos) const {
 }
 
 void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) const {
-    if(m_FileBufferHolder.getImages().empty())
-       return;
+    if (m_FileBufferHolder.getImages().empty())
+        return;
     MediaFrames frames;
     m_Playlist.mediaFramesAt(m_Playback.frame(), frames);
-    for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr){
+    for (MediaFrames::const_iterator itr = frames.begin(); itr != frames.end(); ++itr) {
         const unsigned track = itr->index.track;
         const ImageHolder &holder = m_FileBufferHolder.getImages()[track];
         const ImageDescription &description = holder.getImageDescription();
@@ -442,8 +443,8 @@ void Application::consumeMessages() {
             cerr << HEADER + "calling INIT_RENDERER twice is forbidden" << endl;
         else if (isType<Debug>(pDescriptor))
             consumeDebug(unpackTo<Debug>(holder));
-        else if (isType<Playlist>(pDescriptor))
-            consumePlaylist(unpackTo<Playlist>(holder));
+        else if (isType<Scene>(pDescriptor))
+            consumeScene(unpackTo<Scene>(holder));
         else if (isType<Transport>(pDescriptor))
             consumeTransport(unpackTo<Transport>(holder), holder.action());
         else if (isType<Info>(pDescriptor))
@@ -465,7 +466,7 @@ void Application::renderStart() {
         consumeMessages();
 
         // update current frame
-        if (m_Playback.adjustCurrentFrame()){
+        if (m_Playback.adjustCurrentFrame()) {
 #ifdef DEBUG
             cout << "unstable" << endl;
 #endif

@@ -3,7 +3,7 @@
 
 #include <dukexcore/dkxINode.h>
 #include <dukexcore/dkxSessionDescriptor.h>
-#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/CmdLineParser.h>
 #include <boost/filesystem.hpp>
 #include "player.pb.h"
 

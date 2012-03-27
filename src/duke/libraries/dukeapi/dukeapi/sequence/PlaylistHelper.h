@@ -59,12 +59,12 @@ typedef std::vector<MediaFrame> MediaFrames;
 typedef std::vector<Clip> Clips;
 
 struct PlaylistHelper {
-    Playlist playlist;
+    Scene scene;
     Range range;
     std::vector<TrackHelper> tracks;
     Ranges allClips;
     PlaylistHelper();
-    PlaylistHelper(const Playlist &playlist);
+    PlaylistHelper(const Scene &scene);
     bool empty() const;
     unsigned int index(const unsigned int frame) const;
     uint16_t tracksAt(const unsigned int frame) const;

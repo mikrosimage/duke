@@ -44,8 +44,4 @@ static const char* const HELP_OPT = "help,h";
 static const char* const PORT = "port";
 static const char* const PORT_OPT = PORT;
 
-struct cmdline_exception : public std::runtime_error {
-    cmdline_exception(const std::string &msg) : std::runtime_error(msg) { }
-};
-
 #endif /* CMDLINEOPTIONS_H_ */

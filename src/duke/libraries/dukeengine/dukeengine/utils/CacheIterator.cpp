@@ -12,7 +12,7 @@
 using namespace duke::protocol;
 
 CacheIterator::CacheIterator() :
-                helper(Playlist()), iterator() {
+                helper(Scene()), iterator() {
 }
 
 CacheIterator::CacheIterator(const duke::protocol::PlaylistHelper &helper, EPlaybackState state, unsigned int frame, const sequence::Range &overRange) :

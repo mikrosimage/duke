@@ -6,34 +6,30 @@ message Playlist {
 	repeated Shot shot 					= 1;
 	optional Display display 			= 2;
 	optional AudioSource audioSource	= 3;
+	optional uint32 startFrame			= 4;
+	optional bool loop					= 5 [ default = true ];
+	optional float framerate 			= 6 [ default = 25 ];
 }
 
 message Shot {
-	required string path 				= 1;
-	required uint32 start 				= 2;
-	required uint32 in 					= 3;
-	required uint32 out					= 4;
+	required string media 				= 1;
+	optional uint32 mediaStart 			= 2;
+	optional uint32 mediaEnd			= 3;
+	optional uint32 trackStart 			= 4;
+	optional uint32 trackEnd			= 5;
 	optional Display display 			= 6;
+	optional string track 				= 7 [ default = "default" ];
+	optional bool reverse 				= 8 [ default = false ];
 }
 
 message Display {
-	enum ImageRatio {
-		_1_1							= 0;
-		_4_3 							= 1;
-		_16_9							= 2;
-	}
 	enum ColorSpace {
-		LOGTOLIN						= 0;
-		SRGBTOLIN 						= 1;
-		LINTOLOG						= 2;
-		LINTOSRGB 						= 3;
-		FULLHEADTOSMPTE					= 4;
-		SMPTETOFULLHEAD					= 5;
+		LIN								= 0;
+		SRGB							= 1;
+		LOG								= 2;
 	}
-	optional float framerate 			= 1;
-	optional string lut 				= 2;
-	optional ColorSpace colorspace		= 3;
-	optional ImageRatio imageratio		= 4;
+	optional ColorSpace colorspace		= 1;
+//	optional string lut 				= 2;
 }
 
 message AudioSource {

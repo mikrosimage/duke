@@ -177,11 +177,11 @@ static inline bool rangeLess(const Range &a, const Range &b) {
     return a.first == b.first ? a.last < b.last : a.first < b.first;
 }
 
-PlaylistHelper::PlaylistHelper(const Playlist &playlist) :
-                playlist(playlist) {
+PlaylistHelper::PlaylistHelper(const Scene &_scene) :
+                scene(_scene) {
     Ranges trackRanges;
-    for (int i = 0; i < playlist.track_size(); ++i) {
-        tracks.push_back(TrackHelper(playlist.track(i)));
+    for (int i = 0; i < scene.track_size(); ++i) {
+        tracks.push_back(TrackHelper(scene.track(i)));
         trackRanges.push_back(tracks.back().range);
     }
     range = for_each(trackRanges.begin(), trackRanges.end(), MinMaxRange());

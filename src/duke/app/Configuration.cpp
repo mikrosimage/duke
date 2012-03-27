@@ -5,10 +5,10 @@
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/messageBuilder/QuitBuilder.h>
 #include <dukeapi/io/PlaybackReader.h>
-#include <dukeapi/io/PlaylistReader.h>
 #include <dukeapi/io/FileRecorder.h>
 #include <dukeapi/io/InteractiveMessageIO.h>
-#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/CmdLineParser.h>
+#include <dukeapi/protobuf_builder/SceneBuilder.h>
 #include <dukeapi/SocketMessageIO.h>
 #include <dukeapi/QueueMessageIO.h>
 #include <dukeapi/ProtobufSocket.h>
@@ -216,33 +216,51 @@ Configuration::Configuration(int argc, char** argv) :
         queueInserter << renderer; // setting renderer
 
         Engine stop;
-        stop.set_action(Engine_Action_RENDER_STOP);
+        stop.set_action(Engine::RENDER_STOP);
         queueInserter << stop; // stopping rendering for now
 
-        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, listOfExtensions);
+        const extension_set validExtensions = extension_set::create(listOfExtensions);
+        duke::playlist::Playlist playlist = browsePlayer(validExtensions, inputs);
 
-        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
-
-        if (playlistBuilder.empty())
+        if (playlist.shot_size()==0)
             throw runtime_error("No media found, nothing to render. Aborting.");
 
-        Playlist playlist = playlistBuilder.getPlaylist();
+        if(m_Vm.count(FRAMERATE))
+            playlist.set_framerate(m_Vm[FRAMERATE].as<unsigned int>());
 
-        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
-        playlist.set_frameratenumerator((int) framerate);
-        if (m_Vm.count(NOFRAMERATE) > 0)
-            playlist.set_playbackmode(Playlist::RENDER);
-        else if (m_Vm.count(NOSKIP) > 0)
-            playlist.set_playbackmode(Playlist::NO_SKIP);
-        else
-            playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
+        normalize(playlist);
+        deque<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist);
+        queue.drainFrom(messages);
 
-        queueInserter << playlist;
+        if(playlist.has_startframe()){
+            duke::protocol::Transport cue;
+            cue.set_type(Transport::CUE);
+            cue.mutable_cue()->set_value(playlist.startframe());
+            push(queue, cue);
+        }
 
-        queueInserter << playlistBuilder.getCue();
+//        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, listOfExtensions);
+//
+//        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
+//
+//
+//        Playlist playlist = playlistBuilder.getPlaylist();
+//
+//        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
+//        playlist.set_frameratenumerator((int) framerate);
+//        if (m_Vm.count(NOFRAMERATE) > 0)
+//            playlist.set_playbackmode(Scene::RENDER);
+//        else if (m_Vm.count(NOSKIP) > 0)
+//            playlist.set_playbackmode(Scene::NO_SKIP);
+//        else
+//            playlist.set_playbackmode(Scene::DROP_FRAME_TO_KEEP_REALTIME);
+//
+//        queueInserter << playlist;
+//
+//        queueInserter << playlistBuilder.getCue();
 
         Engine start;
-        start.set_action(Engine_Action_RENDER_START);
+        start.set_action(Engine::RENDER_START);
         queueInserter << start;
 
         InteractiveMessageIO decoder(queue);

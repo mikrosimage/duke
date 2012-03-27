@@ -39,7 +39,7 @@ public:
 private:
     void consumeMessages();
     void consumeDebug(const ::duke::protocol::Debug&) const;
-    void consumePlaylist(const ::duke::protocol::Playlist&);
+    void consumeScene(const ::duke::protocol::Scene&);
     void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeCache(const ::duke::protocol::Cache&, const ::google::protobuf::serialize::MessageHolder_Action);
