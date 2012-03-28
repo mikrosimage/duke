@@ -22,10 +22,14 @@ struct ci_less : std::binary_function<std::string, std::string, bool> {
 
 struct extension_set : public std::set<std::string, details::ci_less> {
     bool match(const std::string &filename) const {
+        return find(extension(filename)) != end();
+    }
+
+    static std::string extension(const std::string &filename) {
         const size_t dotPos = filename.find_last_of('.');
         if (dotPos == std::string::npos)
-            return false;
-        return find(filename.substr(dotPos)) != end();
+            return "";
+        return filename.substr(dotPos);
     }
 
     static extension_set create(const char **pNullTerminatedExtList) {

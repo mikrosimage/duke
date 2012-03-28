@@ -135,11 +135,18 @@ struct CmdLineParser {
     }
 
     Playlist browsePlayer(const vector<string>& args) {
+        checkSingleDk(args);
         Playlist playlist;
         for_each(args.begin(), args.end(), boost::bind(&CmdLineParser::browsePlayerArgument, this, boost::ref(playlist), _1));
         return playlist;
     }
 private:
+    void checkSingleDk(const vector<string>& args) {
+        extension_set all;
+        transform(args.begin(), args.end(), inserter(all, all.begin()), &extension_set::extension);
+        if (all.match(g_dk) && args.size() > 1)
+            throw cmdline_exception("You can't load more than one duke playlist");
+    }
     void checkValidImage(const string& filename) const {
         if (!boost::filesystem::is_regular_file(filename))
             throw cmdline_exception(HEADER + "The provided argument is not a file : " + filename);
