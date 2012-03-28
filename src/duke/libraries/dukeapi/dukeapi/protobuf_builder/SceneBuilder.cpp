@@ -110,6 +110,8 @@ static StaticParameter staticClipSampler(const string& name, const string &clipN
 struct SceneBuilder {
     SceneBuilder(const Playlist &playlist, float framerate, const duke::protocol::Scene::PlaybackMode mode) {
         const vector<string> tracks = getTracks(playlist);
+        if(playlist.has_loop())
+            scene.set_loop(playlist.loop());
         scene.set_playbackmode(mode);
         scene.set_frameratenumerator(framerate);
         scene.set_frameratedenominator(1);
@@ -145,16 +147,16 @@ struct SceneBuilder {
 private:
     void setMedia(const Shot &shot, Clip &clip) {
         Media &media = *clip.mutable_media();
-        if (shot.has_mediastart() && shot.has_mediaend()) {
+        if (shot.has_in() && shot.has_out()) {
             media.set_type(Media::IMAGE_SEQUENCE);
-            setRange(media.mutable_source(), shot.mediastart(), shot.mediaend());
+            setRange(media.mutable_source(), shot.in(), shot.out());
         } else {
             media.set_type(Media::SINGLE_IMAGE);
         }
         media.set_filename(shot.media());
         if (shot.has_reverse())
             media.set_reverse(shot.reverse());
-        setRange(clip.mutable_record(), shot.trackstart(), shot.trackend());
+        setRange(clip.mutable_record(), shot.recin(), shot.recout());
     }
 
     void setGrading(const Shot &shot, Clip &clip) {

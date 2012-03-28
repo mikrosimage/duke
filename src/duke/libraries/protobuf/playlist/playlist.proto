@@ -13,10 +13,10 @@ message Playlist {
 
 message Shot {
 	required string media 				= 1;
-	optional uint32 mediaStart 			= 2;
-	optional uint32 mediaEnd			= 3;
-	optional uint32 trackStart 			= 4;
-	optional uint32 trackEnd			= 5;
+	optional uint32 in      			= 2;
+	optional uint32 out     			= 3;
+	optional uint32 recIn 			    = 4;
+	optional uint32 recOut			    = 5;
 	optional Display display 			= 6;
 	optional string track 				= 7 [ default = "default" ];
 	optional bool reverse 				= 8 [ default = false ];

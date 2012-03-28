@@ -11,6 +11,8 @@
 #include <sequence/BrowseItem.h>
 #include <sequence/Sequence.h>
 
+#include <google/protobuf/text_format.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
@@ -20,7 +22,7 @@
 using namespace std;
 using namespace duke::playlist;
 
-static string g_ppl2(".ppl2");
+static string g_dk(".dk");
 static string g_ppl(".ppl");
 static string HEADER("[Playlist] ");
 
@@ -28,10 +30,10 @@ static size_t currentRecord(const Playlist &playlist) {
     if (playlist.shot_size() == 0)
         return 0;
     const Shot &lastShot = playlist.shot().Get(playlist.shot_size() - 1);
-    if (lastShot.has_trackend())
-        return lastShot.trackend() + 1;
-    if (lastShot.has_mediastart())
-        return lastShot.trackend() + lastShot.mediaend() - lastShot.mediastart() + 1;
+    if (lastShot.has_recout())
+        return lastShot.recout() + 1;
+    if (lastShot.has_in())
+        return lastShot.recout() + lastShot.in() - lastShot.out() + 1;
     return 0;
 }
 static void addMedia(Playlist &playlist, const sequence::BrowseItem &item, size_t record = UINT_MAX) {
@@ -51,9 +53,9 @@ static void addMedia(Playlist &playlist, const sequence::BrowseItem &item, size_
             preferred.make_preferred();
             shot.set_media(preferred.string());
             const sequence::Range &range(item.sequence.range);
-            shot.set_mediastart(range.first);
-            shot.set_mediaend(range.last);
-            duration = range.last-range.first;
+            shot.set_in(range.first);
+            shot.set_out(range.last);
+            duration = range.last - range.first;
             break;
         }
         case sequence::UNITFILE: {
@@ -65,8 +67,8 @@ static void addMedia(Playlist &playlist, const sequence::BrowseItem &item, size_
         default:
             throw runtime_error("can't convert BrowseItem to media");
     }
-    shot.set_trackstart(record);
-    shot.set_trackend(record + duration);
+    shot.set_recin(record);
+    shot.set_recout(record + duration);
 }
 
 static bool contained(const sequence::BrowseItem &item, const string &filename) {
@@ -107,7 +109,7 @@ struct CmdLineParser {
     CmdLineParser(const extension_set &supportedFormat) :
                     supportedFormat(supportedFormat) {
         playlistFormat.insert(g_ppl);
-        playlistFormat.insert(g_ppl2);
+        playlistFormat.insert(g_dk);
     }
 
     Playlist browseViewer(const string& filename) {
@@ -125,7 +127,7 @@ struct CmdLineParser {
         typedef google::protobuf::RepeatedPtrField<duke::playlist::Shot> Shots;
         for (Shots::const_iterator itr = playlist.shot().begin(), end = playlist.shot().end(); itr != end; ++itr) {
             if (itr->media() == absoluteFilename) {
-                playlist.set_startframe(itr->trackstart());
+                playlist.set_startframe(itr->recin());
                 break;
             }
         }
@@ -152,8 +154,8 @@ private:
         else if (boost::filesystem::is_regular(arg)) {
             if (boost::iends_with(arg, g_ppl))
                 handlePPL(playlist, arg);
-            else if (boost::iends_with(arg, g_ppl2))
-                handlePPL2(playlist, arg);
+            else if (boost::iends_with(arg, g_dk))
+                handleDK(playlist, arg);
             else
                 handleFile(playlist, path);
         } else
@@ -203,8 +205,14 @@ private:
         addMedia(playlist, sequence::create_sequence(path, pattern, sequence::Range(first, last)), record);
     }
 
-    void handlePPL2(Playlist &playlist, const string &path) {
-        throw cmdline_exception(HEADER + "PPL2 are not supported for the moment");
+    void handleDK(Playlist &playlist, const string &filename) {
+        ifstream file(filename.c_str(), ios::in | ios::binary | ios::ate);
+        string content(file.tellg(), ' ');
+        file.seekg(0);
+        file.read(&*content.begin(), content.size());
+        if (!google::protobuf::TextFormat::ParseFromString(content, &playlist))
+            throw cmdline_exception(HEADER + "File is corrupted : " + filename);
+        file.close();
     }
 
     void handleFile(Playlist &playlist, boost::filesystem::path path) {
