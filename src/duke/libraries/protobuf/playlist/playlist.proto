@@ -29,6 +29,7 @@ message Display {
 		LOG								= 2;
 	}
 	optional ColorSpace colorspace		= 1;
+	repeated string shader				= 2;
 //	optional string lut 				= 2;
 }
 
