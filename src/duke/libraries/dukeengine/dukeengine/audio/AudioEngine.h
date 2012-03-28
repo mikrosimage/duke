@@ -3,6 +3,7 @@
 
 #include <SFML/Audio.hpp>
 #include <boost/chrono.hpp>
+#include <player.pb.h>
 
 namespace duke {namespace protocol {class Playlist;}}
 
@@ -13,8 +14,8 @@ public:
     ~AudioEngine();
 
 public:
-    bool load(const ::duke::protocol::Playlist & _playlist);
-    bool load(const std::string & _file);
+    bool load(const ::duke::protocol::Scene & scene);
+    bool load(const std::string & file);
     void play();
     void pause();
     void stop();

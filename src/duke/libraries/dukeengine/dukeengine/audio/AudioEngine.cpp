@@ -22,10 +22,10 @@ AudioEngine::~AudioEngine() {
     stop();
 }
 
-bool AudioEngine::load(const Playlist & _playlist) {
-    if (!_playlist.has_audiosource())
+bool AudioEngine::load(const Scene & scene) {
+    if (!scene.has_audiosource())
         return false;
-    AudioSource source = _playlist.audiosource();
+    AudioSource source = scene.audiosource();
     if (!source.has_name())
         return false;
     return load(source.name());

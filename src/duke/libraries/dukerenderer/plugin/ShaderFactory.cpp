@@ -54,7 +54,7 @@ void ShaderFactory::applyParameters() {
 
 TResourcePtr ShaderFactory::getParam(const string &name) const {
     for (ScopesRItr it = m_RenderingContext.scopes.rbegin(); it < m_RenderingContext.scopes.rend(); ++it) {
-        const string scopedParamName = *it + "|" + name;
+        const string scopedParamName = *it + '|' + name;
         TResourcePtr pParam = m_ResourceManager.get<ProtoBufResource>(::resource::PROTOBUF, scopedParamName);
         if (pParam != NULL)
             return pParam;

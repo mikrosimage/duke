@@ -18,8 +18,6 @@ static const char* const RESOLUTION = "resolution";
 static const char* const RESOLUTION_OPT = RESOLUTION;
 static const char* const CACHESIZE = "cache-size";
 static const char* const CACHESIZE_OPT = "cache-size,c";
-static const char* const SEQUENCE = "sequence";
-static const char* const SEQUENCE_OPT = "sequence,s";
 static const char* const FRAMERATE = "framerate";
 static const char* const FRAMERATE_OPT = FRAMERATE;
 static const char* const THREADS = "threads";
@@ -43,9 +41,5 @@ static const char* const HELP = "help";
 static const char* const HELP_OPT = "help,h";
 static const char* const PORT = "port";
 static const char* const PORT_OPT = PORT;
-
-struct cmdline_exception : public std::runtime_error {
-    cmdline_exception(const std::string &msg) : std::runtime_error(msg) { }
-};
 
 #endif /* CMDLINEOPTIONS_H_ */

@@ -77,11 +77,11 @@ Clip& TrackBuilder::addMedia(const char *filename, const Range &record, const un
 }
 
 TrackBuilder PlaylistBuilder::addTrack(const char *trackName, unsigned int recStart) {
-    return TrackBuilder(*playlist.add_track(), trackName, recStart);
+    return TrackBuilder(*scene.add_track(), trackName, recStart);
 }
 
-PlaylistBuilder::operator ::duke::protocol::Playlist() {
-    return playlist;
+PlaylistBuilder::operator ::duke::protocol::Scene() {
+    return scene;
 }
 
 } // namespace protocol

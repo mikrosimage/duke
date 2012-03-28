@@ -46,9 +46,9 @@ private:
 
 struct PlaylistBuilder {
     TrackBuilder addTrack(const char *trackName, unsigned int recStart = 0);
-    operator Playlist();
+    operator Scene();
 private:
-    Playlist playlist;
+    Scene scene;
 };
 
 } // namespace protocol

@@ -9,11 +9,11 @@ public:
     SessionDescriptor() {
     }
     SessionDescriptor(const SessionDescriptor& d) :
-        mRenderer(d.renderer()), mPlaylist(d.playlist()), mDisplayMode(d.displayMode()) {
+        mRenderer(d.renderer()), mScene(d.scene()), mDisplayMode(d.displayMode()) {
     }
     const SessionDescriptor& operator=(const SessionDescriptor& d) {
         mRenderer = d.renderer();
-        mPlaylist = d.playlist();
+        mScene = d.scene();
         mDisplayMode = d.displayMode();
         return *this;
     }
@@ -25,11 +25,11 @@ public:
     inline const ::duke::protocol::Renderer & renderer() const {
         return mRenderer;
     }
-    inline ::duke::protocol::Playlist & playlist() {
-        return mPlaylist;
+    inline ::duke::protocol::Scene & scene() {
+        return mScene;
     }
-    inline const ::duke::protocol::Playlist & playlist() const {
-        return mPlaylist;
+    inline const ::duke::protocol::Scene & scene() const {
+        return mScene;
     }
     inline ::duke::protocol::StaticParameter & displayMode() {
         return mDisplayMode;
@@ -40,7 +40,7 @@ public:
 
 private:
     ::duke::protocol::Renderer mRenderer;
-    ::duke::protocol::Playlist mPlaylist;
+    ::duke::protocol::Scene mScene;
     ::duke::protocol::StaticParameter mDisplayMode;
 };
 

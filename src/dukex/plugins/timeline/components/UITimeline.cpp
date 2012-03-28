@@ -121,10 +121,10 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
                 m_timelineControls->frameChanged(t.cue().value());
                 break;
         }
-    } else if (::google::protobuf::serialize::isType<Playlist>(*sharedholder)) {
+    } else if (::google::protobuf::serialize::isType<Scene>(*sharedholder)) {
         m_tracksControls->clear();
         m_tracksView->clear();
-        const Playlist & p = ::google::protobuf::serialize::unpackTo<Playlist>(*sharedholder);
+        const Scene & p = ::google::protobuf::serialize::unpackTo<Scene>(*sharedholder);
         qint64 lastFrame = 0;
         if (p.track_size() > 0) {
             for (int i = 0; i < p.track_size(); ++i) {

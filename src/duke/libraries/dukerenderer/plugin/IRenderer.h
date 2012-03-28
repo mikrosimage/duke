@@ -59,6 +59,7 @@ private:
     void displayClip(const ::duke::protocol::Clip&);
     void displayPass(const ::duke::protocol::RenderPass&);
     void displayMesh(const ::duke::protocol::Mesh&);
+    void displayMeshWithName(const std::string& name);
     void compileAndSetShader(const TShaderType&, const std::string&);
     friend class ShaderFactory;
     const ImageDescription& getSafeImageDescription(const ImageDescription*) const;

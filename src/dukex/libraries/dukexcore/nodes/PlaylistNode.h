@@ -3,54 +3,61 @@
 
 #include <dukexcore/dkxINode.h>
 #include <dukexcore/dkxSessionDescriptor.h>
-#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/CmdLineParser.h>
+#include <dukeapi/protobuf_builder/SceneBuilder.h>
+
+#include <player.pb.h>
+
 #include <boost/filesystem.hpp>
-#include "player.pb.h"
+#include <deque>
 
 class PlaylistNode : public INode {
 
 public:
     typedef boost::shared_ptr<PlaylistNode> ptr;
     PlaylistNode() :
-        INode("fr.mikrosimage.dukex.playlist") {
+                    INode("fr.mikrosimage.dukex.playlist") {
     }
 
 public:
-    bool openFiles(const std::vector<std::string> inputs, const bool browseMode = false, const bool parseSequence = true) {
+    bool openFiles(const std::vector<std::string> inputs, const bool browseMode = false) {
         try {
             SessionDescriptor & descriptor = session()->descriptor();
 
             // Save current playlist parameters
-            ::duke::protocol::Playlist & playlist = descriptor.playlist();
-            ::google::protobuf::uint32 framerate = playlist.frameratenumerator();
-            ::duke::protocol::Playlist_PlaybackMode playbackmode = playlist.playbackmode();
+            ::duke::protocol::Scene & scene = descriptor.scene();
+            ::google::protobuf::uint32 framerate = scene.frameratenumerator();
+            ::duke::protocol::Scene_PlaybackMode playbackmode = scene.playbackmode();
 
             // Clear current playlist
-            playlist.Clear();
+            scene.Clear();
 
             // Parse all inputs
             MessageQueue queue;
             IOQueueInserter inserter(queue);
 
-            CmdLinePlaylistBuilder playlistBuilder(inserter, browseMode, parseSequence, session()->getAvailableExtensions());
-            for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
-
             // Push engine stop
             ::duke::protocol::Engine stop;
-            stop.set_action(::duke::protocol::Engine_Action_RENDER_STOP);
+            stop.set_action(::duke::protocol::Engine::RENDER_STOP);
             inserter << stop;
 
-            // Update and push the current playlist
-            ::duke::protocol::Playlist newplaylist = playlistBuilder.getPlaylist();
-            newplaylist.set_frameratenumerator(framerate);
-            newplaylist.set_playbackmode(playbackmode);
-            playlist = newplaylist;
-            inserter << playlist;
-            inserter << playlistBuilder.getCue();
+            const extension_set validExtensions = extension_set::create(session()->getAvailableExtensions());
+            duke::playlist::Playlist playlist = browseMode ? browseViewerComplete(validExtensions, inputs[0]) : browsePlayer(validExtensions, inputs);
+            playlist.set_framerate(framerate);
+            normalize(playlist);
+            std::vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist, playbackmode);
+            queue.drainFrom(messages);
+
+            if (playlist.has_startframe()) {
+                duke::protocol::Transport cue;
+                cue.set_type(duke::protocol::Transport::CUE);
+                cue.mutable_cue()->set_value(playlist.startframe());
+                push(queue, cue);
+            }
 
             // Push engine start
             ::duke::protocol::Engine start;
-            start.set_action(::duke::protocol::Engine_Action_RENDER_START);
+            start.set_action(::duke::protocol::Engine::RENDER_START);
             inserter << start;
 
             // send everything
@@ -66,7 +73,7 @@ public:
     bool setFramerate(float framerate) {
         try {
             SessionDescriptor & descriptor = session()->descriptor();
-            ::duke::protocol::Playlist & p = descriptor.playlist();
+            ::duke::protocol::Scene & p = descriptor.scene();
             p.set_frameratenumerator((int) framerate);
             MessageQueue queue;
             push(queue, p);

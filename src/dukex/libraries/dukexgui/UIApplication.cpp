@@ -324,7 +324,7 @@ void UIApplication::openFiles(const QStringList & _list, const bool & browseMode
         for (int i = 0; i < _list.count(); ++i) {
             v[i] = _list[i].toStdString();
         }
-        p->openFiles(v, browseMode, parseSequence);
+        p->openFiles(v, browseMode);
         if (v.size() == 1) { // multi selection not handled in file history
             QString history = _list[0];
             if (browseMode) {

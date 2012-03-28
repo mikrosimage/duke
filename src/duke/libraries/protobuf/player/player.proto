@@ -181,7 +181,7 @@ message Renderer {
 	optional uint64 handle = 9;
 }
 
-message Playlist {
+message Scene {
 	required uint32 framerateNumerator = 1 [ default = 1 ];
 	optional uint32 framerateDenominator = 2 [ default = 1 ];
 	repeated Track track = 3;
@@ -190,7 +190,6 @@ message Playlist {
 	
 	enum PlaybackMode {
 		DROP_FRAME_TO_KEEP_REALTIME = 0;
-		PAUSE = 1;
 		RENDER = 2;
 		NO_SKIP = 3;
 	}

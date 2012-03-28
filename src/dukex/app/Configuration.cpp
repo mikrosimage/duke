@@ -3,7 +3,9 @@
 #include <dukeengine/Version.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <dukeapi/io/PlaybackReader.h>
-#include <dukeapi/protobuf_builder/CmdLinePlaylistBuilder.h>
+#include <dukeapi/protobuf_builder/CmdLineParser.h>
+#include <dukeapi/protobuf_builder/SceneBuilder.h>
+#include <dukeapi/extension_set.hpp>
 #include <dukeapi/io/InteractiveMessageIO.h>
 #include <dukeapi/SocketMessageIO.h>
 #include <dukeapi/QueueMessageIO.h>
@@ -75,7 +77,6 @@ bool Configuration::parse(int argc, char** argv) {
     // adding interactive mode options
     m_Interactive.add_options() //
     (BROWSE_OPT, "Browse mode, act as an image browser") //
-    (SEQUENCE_OPT, "Take the containing sequence for unit file") //
     (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
@@ -135,55 +136,48 @@ bool Configuration::parse(int argc, char** argv) {
         if (renderer.presentinterval() > 4)
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
-        // no special mode specified, using interactive mode
-        Playlist & playlist = mSession->descriptor().playlist();
-        MessageQueue & queue = mSession->getInitTimeMsgQueue();
-
-        // Push engine stop
-        ::duke::protocol::Engine stop;
-        stop.set_action(::duke::protocol::Engine_Action_RENDER_STOP);
-        push(queue, stop);
-
         // checking command line
-        const bool useContainingSequence = m_Vm.count(SEQUENCE);
         const bool browseMode = m_Vm.count(BROWSE);
-
-        if (useContainingSequence && browseMode)
-            throw cmdline_exception("Choose either browse or sequence option but not both at the same time.");
-
         const bool hasInputs = m_Vm.count(INPUTS);
         const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>();
+
+        // no special mode specified, using interactive mode
+        // Scene & scene = mSession->descriptor().scene();
+        MessageQueue & queue = mSession->getInitTimeMsgQueue();
+        IOQueueInserter queueInserter(queue);
+
+        Engine stop;
+        stop.set_action(Engine::RENDER_STOP);
+        queueInserter << stop; // stopping rendering for now
+
+        const extension_set validExtensions = extension_set::create(mSession->getAvailableExtensions());
+        duke::playlist::Playlist playlist = browseMode ?  browseViewerComplete(validExtensions, inputs[0]) :  browsePlayer(validExtensions, inputs);
+
+        if (m_Vm.count(FRAMERATE))
+            playlist.set_framerate(m_Vm[FRAMERATE].as<unsigned int>());
+
+        normalize(playlist);
 
         if (hasInputs) {
             if (browseMode && inputs.size() > 1)
                 throw cmdline_exception("You are in browse mode, you must specify one and only one input.");
 
-            IOQueueInserter queueInserter(queue);
-            CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, mSession->getAvailableExtensions());
-            for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
+            const Scene::PlaybackMode mode = m_Vm.count(NOFRAMERATE) > 0 ? Scene::RENDER : m_Vm.count(NOSKIP) > 0 ? Scene::NO_SKIP : Scene::DROP_FRAME_TO_KEEP_REALTIME;
+            vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist, mode);
+            queue.drainFrom(messages);
 
-            // Update & Push the new playlist
-            playlist = playlistBuilder.getPlaylist(); // updating playlist
-            queueInserter << playlistBuilder.getCue();
+            if (playlist.has_startframe()) {
+                duke::protocol::Transport cue;
+                cue.set_type(Transport::CUE);
+                cue.mutable_cue()->set_value(playlist.startframe());
+                queueInserter << cue;
+            }
         }
 
-        // Playlist parameters
-        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
-        playlist.set_frameratenumerator((int) framerate);
-        if (m_Vm.count(NOFRAMERATE) > 0)
-            playlist.set_playbackmode(Playlist::RENDER);
-        else if (m_Vm.count(NOSKIP) > 0)
-            playlist.set_playbackmode(Playlist::NO_SKIP);
-        else
-            playlist.set_playbackmode(Playlist::DROP_FRAME_TO_KEEP_REALTIME);
-
-        // Push Playlist
-        push(queue, playlist);
-
         // Push engine start
-        ::duke::protocol::Engine start;
-        start.set_action(::duke::protocol::Engine_Action_RENDER_START);
-        push(queue, start);
+        Engine start;
+        start.set_action(Engine::RENDER_START);
+        queueInserter << start;
     } catch (cmdline_exception &e) {
         cout << "invalid command line : " << e.what() << endl << endl;
         displayHelp();
