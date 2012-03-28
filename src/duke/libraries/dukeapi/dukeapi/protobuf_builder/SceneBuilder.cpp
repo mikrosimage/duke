@@ -61,7 +61,19 @@ void normalize(Playlist &playlist) {
     playlist.mutable_display()->CopyFrom(globalDisplay);
     for (int i = 0; i < playlist.shot_size(); ++i) {
         Shot &current = *playlist.mutable_shot(i);
-        current.mutable_display()->CopyFrom(current.has_display() ? update(current.display(), globalDisplay) : globalDisplay);
+        Display &display = *current.mutable_display();
+        display.CopyFrom(current.has_display() ? update(current.display(), globalDisplay) : globalDisplay);
+        switch (display.colorspace()) {
+            case Display::LIN:
+                display.add_shader("lintosrgb");
+                break;
+            case Display::LOG:
+                display.add_shader("cineontolin");
+                display.add_shader("lintosrgb");
+                break;
+            case Display::SRGB:
+                break;
+        }
     }
 }
 
@@ -72,19 +84,19 @@ static AutomaticParameter automaticTexDim(const string& name) {
     return param;
 }
 
-static void setClipSamplingSource(SamplingSource *pSource, const string &clipName){
+static void setClipSamplingSource(SamplingSource *pSource, const string &clipName) {
     pSource->set_type(SamplingSource::CLIP);
     pSource->set_name(clipName);
 }
 
-static string tweakName(const string& name, const string &clipName){
-    if(clipName.empty())
+static string tweakName(const string& name, const string &clipName) {
+    if (clipName.empty())
         return name;
-    return clipName+"|"+name;
+    return clipName + "|" + name;
 }
 
 static AutomaticParameter automaticClipSource(const string& name, const string &clipName) {
-    AutomaticParameter param = automaticTexDim(tweakName(name,clipName));
+    AutomaticParameter param = automaticTexDim(tweakName(name, clipName));
     setClipSamplingSource(param.mutable_samplingsource(), clipName);
     return param;
 }
@@ -97,7 +109,7 @@ static void addSamplerState(StaticParameter &param, SamplerState_Type type, Samp
 
 static StaticParameter staticClipSampler(const string& name, const string &clipName) {
     StaticParameter param;
-    param.set_name(tweakName(name,clipName));
+    param.set_name(tweakName(name, clipName));
     param.set_type(StaticParameter::SAMPLER);
     addSamplerState(param, SamplerState::MIN_FILTER, SamplerState::TEXF_POINT);
     addSamplerState(param, SamplerState::MAG_FILTER, SamplerState::TEXF_POINT);
@@ -107,10 +119,17 @@ static StaticParameter staticClipSampler(const string& name, const string &clipN
     return param;
 }
 
+static string shaderName(const vector<string> effects) {
+    ostringstream out;
+    out << "ps_";
+    copy(effects.begin(), effects.end(), ostream_iterator<string>(out, "_"));
+    return out.str();
+}
+
 struct SceneBuilder {
     SceneBuilder(const Playlist &playlist, float framerate, const duke::protocol::Scene::PlaybackMode mode) {
         const vector<string> tracks = getTracks(playlist);
-        if(playlist.has_loop())
+        if (playlist.has_loop())
             scene.set_loop(playlist.loop());
         scene.set_playbackmode(mode);
         scene.set_frameratenumerator(framerate);
@@ -140,7 +159,7 @@ struct SceneBuilder {
 //        message.PrintDebugString();
     }
 
-    vector<SharedHolder> finish(){
+    vector<SharedHolder> finish() {
         packAndShare(scene);
         return result;
     }
@@ -165,16 +184,36 @@ private:
         pass.set_clean(true);
         pass.add_meshname(MeshBuilder::plane);
         Effect &effect = *pass.mutable_effect();
-        const string psName = boost::iends_with(shot.media(), ".dpx") ? "ps_dpx" : "ps_normal";
-        effect.set_pixelshadername(psName);
         effect.set_vertexshadername("vs");
+        vector<string> effects;
+        const Display &display = shot.display();
+        effects.push_back("rgbatobgra");
+        if (boost::iends_with(shot.media(), ".dpx"))
+            effects.push_back("tenbitunpackfloat");
+        copy(display.shader().begin(), display.shader().end(), back_inserter(effects));
+        const string psName = generateShader(effects);
+        effect.set_pixelshadername(psName);
         packAndShare(automaticClipSource(IMAGE_DIM, clip.name()));
         packAndShare(staticClipSampler("sampler", clip.name()));
     }
 
+    string generateShader(const vector<string> &effects) {
+        const string name = shaderName(effects);
+        if (shaders.find(name) == shaders.end()) {
+            Shader ps;
+            buildPixelShader(ps, name, NULL);
+            int i = 1;
+            for (vector<string>::const_iterator itr = effects.begin(), end = effects.end(); itr != end; ++itr, ++i)
+                addShadingNode(ps, *itr, i);
+            packAndShare(ps);
+            shaders.insert(name);
+        }
+        return name;
+    }
+
+    set<string> shaders;
     map<string, Track*> m_Track;
     Scene scene;
-public:
     vector<SharedHolder> result;
 };
 
@@ -209,17 +248,6 @@ vector<google::protobuf::serialize::SharedHolder> getMessages(const Playlist &pl
     vertexShader.add_parametername(PANX);
     vertexShader.add_parametername(PANY);
     builder.packAndShare(vertexShader);
-
-    Shader normalPS;
-    buildPixelShader(normalPS, "ps_normal", NULL);
-    addShadingNode(normalPS, "rgbatobgra", 1);
-    builder.packAndShare(normalPS);
-
-    Shader dpxPS;
-    buildPixelShader(dpxPS, "ps_dpx", NULL);
-    addShadingNode(dpxPS, "rgbatobgra", 1);
-    addShadingNode(dpxPS, "tenbitunpackfloat", 2);
-    builder.packAndShare(dpxPS);
 
     for_each(shots.begin(), shots.end(), boost::bind(&SceneBuilder::handleShot, boost::ref(builder), _1));
 
