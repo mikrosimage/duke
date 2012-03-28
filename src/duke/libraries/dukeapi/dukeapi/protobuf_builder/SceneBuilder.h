@@ -10,10 +10,10 @@
 
 #include <dukeapi/ProtobufSerialize.h>
 #include <playlist.pb.h>
-#include <deque>
+#include <player.pb.h>
 #include <vector>
 
 void normalize(duke::playlist::Playlist &playlist);
-std::deque<google::protobuf::serialize::SharedHolder> getMessages(const duke::playlist::Playlist &playlist);
+std::vector<google::protobuf::serialize::SharedHolder> getMessages(const duke::playlist::Playlist &playlist, const duke::protocol::Scene::PlaybackMode mode);
 
 #endif /* SCENEBUILDER_H_ */

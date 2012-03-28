@@ -26,7 +26,7 @@ const string HEADER = "[IRenderer] ";
  */
 struct RAIIScene {
     RAIIScene(IRenderer& renderer, bool shouldClean, uint32_t cleanColor, ITextureBase* pRenderTarget = NULL) :
-        m_Renderer(renderer) {
+                    m_Renderer(renderer) {
         m_Renderer.beginScene(shouldClean, cleanColor, pRenderTarget);
     }
     ~RAIIScene() {
@@ -42,7 +42,7 @@ private:
  */
 struct RAIIContext {
     RAIIContext(RenderingContext& context, const string& name, const bool doPush) :
-        m_Scopes(context.scopes), m_doPush(doPush) {
+                    m_Scopes(context.scopes), m_doPush(doPush) {
         if (m_doPush)
             m_Scopes.push_back(name);
     }
@@ -60,16 +60,16 @@ private:
  */
 template<typename T>
 inline void IRenderer::addResource(const ::google::protobuf::serialize::MessageHolder& holder) {
-    const T msg = unpackTo<T> (holder);
+    const T msg = unpackTo<T>(holder);
     getResourceManager().add( //
-                             msg.name(), //
-                             new ProtoBufResource(msg), //
-                             false //
-    );
+                    msg.name(), //
+                    new ProtoBufResource(msg), //
+                    false //
+                    );
 }
 
 IRenderer::IRenderer(const duke::protocol::Renderer& renderer, sf::Window& window, const RendererSuite& suite) :
-    m_Window(window), m_Renderer(renderer), m_RendererSuite(suite), m_pSetup(NULL), m_DisplayedFrameCount(0), m_bRenderOccured(false) {
+                m_Window(window), m_Renderer(renderer), m_RendererSuite(suite), m_pSetup(NULL), m_DisplayedFrameCount(0), m_bRenderOccured(false) {
     m_EmptyImageDescription.width = 1;
     m_EmptyImageDescription.height = 1;
     m_EmptyImageDescription.depth = 0;
@@ -115,17 +115,17 @@ void IRenderer::consumeUntilEngine() {
         holder.CheckInitialized();
         dump(pDescriptor, holder);
 
-        if (isType<Shader> (pDescriptor)) {
-            const Shader shader = unpackTo<Shader> (holder); // fixme gchatelet : unpack to shared for addResource
+        if (isType<Shader>(pDescriptor)) {
+            const Shader shader = unpackTo<Shader>(holder); // fixme gchatelet : unpack to shared for addResource
             getResourceManager().remove(::resource::SHADER, shader.name());
-            addResource<Shader> (holder);
-        } else if (isType<duke::protocol::Mesh> (pDescriptor)) {
+            addResource<Shader>(holder);
+        } else if (isType<duke::protocol::Mesh>(pDescriptor)) {
             using duke::protocol::Mesh;
-            const Mesh mesh = unpackTo<Mesh> (holder); // fixme gchatelet : unpack to shared for addResource
+            const Mesh mesh = unpackTo<Mesh>(holder); // fixme gchatelet : unpack to shared for addResource
             getResourceManager().remove(::resource::MESH, mesh.name());
-            addResource<Mesh> (holder);
-        } else if (isType<Texture> (pDescriptor)) {
-            const Texture texture = unpackTo<Texture> (holder); // fixme gchatelet : unpack to shared for addResource
+            addResource<Mesh>(holder);
+        } else if (isType<Texture>(pDescriptor)) {
+            const Texture texture = unpackTo<Texture>(holder); // fixme gchatelet : unpack to shared for addResource
             switch (holder.action()) {
                 case MessageHolder_Action_CREATE:
                 case MessageHolder_Action_UPDATE:
@@ -137,14 +137,14 @@ void IRenderer::consumeUntilEngine() {
                     throw runtime_error(msg.str());
                 }
             }
-        } else if (isType<StaticParameter> (pDescriptor)) {
-            addResource<StaticParameter> (holder);
-        } else if (isType<AutomaticParameter> (pDescriptor)) {
-            addResource<AutomaticParameter> (holder);
-        } else if (isType<Grading> (pDescriptor)) {
-            addResource<Grading> (holder);
-        } else if (isType<Event> (pDescriptor)) {
-            const Event event = unpackTo<Event> (holder);
+        } else if (isType<StaticParameter>(pDescriptor)) {
+            addResource<StaticParameter>(holder);
+        } else if (isType<AutomaticParameter>(pDescriptor)) {
+            addResource<AutomaticParameter>(holder);
+        } else if (isType<Grading>(pDescriptor)) {
+            addResource<Grading>(holder);
+        } else if (isType<Event>(pDescriptor)) {
+            const Event event = unpackTo<Event>(holder);
             if (event.type() == Event_Type_RESIZED) {
                 const ResizeEvent &resizeEvent = event.resizeevent();
                 if (resizeEvent.has_height() && resizeEvent.has_width())
@@ -152,10 +152,10 @@ void IRenderer::consumeUntilEngine() {
                 if (resizeEvent.has_x() && resizeEvent.has_y())
                     m_Window.SetPosition(resizeEvent.x(), resizeEvent.y());
             }
-        } else if (isType<FunctionPrototype> (pDescriptor)) {
-            getPrototypeFactory().setPrototype(unpackTo<FunctionPrototype> (holder));
-        } else if (isType<Engine> (pDescriptor)) {
-            m_EngineStatus.CopyFrom(unpackTo<Engine> (holder));
+        } else if (isType<FunctionPrototype>(pDescriptor)) {
+            getPrototypeFactory().setPrototype(unpackTo<FunctionPrototype>(holder));
+        } else if (isType<Engine>(pDescriptor)) {
+            m_EngineStatus.CopyFrom(unpackTo<Engine>(holder));
             if (m_EngineStatus.action() != Engine_Action_RENDER_STOP)
                 return;
         } else {
@@ -186,9 +186,7 @@ bool IRenderer::simulationStep() {
         if (renderAvailable) {
             try {
                 m_bRenderOccured = false;
-                BOOST_FOREACH( const duke::protocol::Clip &clip, m_pSetup->m_Clips) {
-                    displayClip(clip);
-                }
+                for_each(m_pSetup->m_Clips.begin(), m_pSetup->m_Clips.end(), boost::bind(&IRenderer::displayClip, this, _1));
                 if (!m_bRenderOccured) {
                     ::boost::this_thread::sleep(::boost::posix_time::milliseconds(10));
                 } else {
@@ -227,14 +225,15 @@ bool IRenderer::simulationStep() {
         return false;
     }
 
-    BOOST_FOREACH ( const DumpedImages::value_type &pair, m_Context.dumpedImages) {
-        const string &name = pair.first;
-        Texture texture;
-        pair.second->dump(texture);
-        texture.set_name(name);
-        pack(holder, texture);
-        m_RendererSuite.pushEvent(holder);
-    }
+    BOOST_FOREACH ( const DumpedImages::value_type &pair, m_Context.dumpedImages)
+            {
+                const string &name = pair.first;
+                Texture texture;
+                pair.second->dump(texture);
+                texture.set_name(name);
+                pack(holder, texture);
+                m_RendererSuite.pushEvent(holder);
+            }
     return m_RendererSuite.renderEnd(0);
 }
 
@@ -261,12 +260,11 @@ void IRenderer::displayClip(const ::duke::protocol::Clip& clip) {
         if (clip.has_grade()) {
             pGrading = &clip.grade();
         } else {
-            pResource = getResourceManager().safeGet<ProtoBufResource> (::resource::PROTOBUF, clip.gradename());
-            pGrading = pResource->get<duke::protocol::Grading> ();
+            pResource = getResourceManager().safeGet<ProtoBufResource>(::resource::PROTOBUF, clip.gradename());
+            pGrading = pResource->get<duke::protocol::Grading>();
         }
         RAIIContext gradingContext(m_Context, pGrading->name(), pGrading->has_name());
-        for (int passIndex = 0; passIndex < pGrading->pass_size(); ++passIndex)
-            displayPass(pGrading->pass(passIndex));
+        for_each(pGrading->pass().begin(), pGrading->pass().end(), boost::bind(&IRenderer::displayPass, this, _1));
     } catch (exception &ex) {
         cerr << HEADER + ex.what() << " occurred while displaying clip " << clip.DebugString() << endl;
     }
@@ -319,8 +317,7 @@ void IRenderer::displayPass(const ::duke::protocol::RenderPass& pass) {
                     overrideClipDimension(clipDescription, pass.rendertarget());
                 pRenderTarget.reset(new VolatileTexture(*this, clipDescription, TEX_RENTERTARGET));
                 m_Context.renderTargets[renderTargetName] = pRenderTarget;
-            }
-            assert(pRenderTarget);
+            }assert(pRenderTarget);
             pRenderTargetTexture = pRenderTarget->getTexture();
             //            cout << "rendering to " << renderTargetName << " : " << pRenderTargetTexture << endl;
         }
@@ -331,22 +328,21 @@ void IRenderer::displayPass(const ::duke::protocol::RenderPass& pass) {
         else
             m_Context.setRenderTarget(m_Window.GetWidth(), m_Window.GetHeight());
 
-        if (pass.has_effect() && pass.meshname_size() != 0) {
+        {
             RAIIScene scenePass(*this, pass.clean(), pass.cleancolor(), pRenderTargetTexture);
+            if (pass.has_effect() && pass.meshname_size() != 0) {
+                const Effect& effect = pass.effect();
+                // setting render state
+                setRenderState(effect);
 
-            const Effect& effect = pass.effect();
-            // setting render state
-            setRenderState(effect);
+                // setting shaders
+                assert(effect.has_vertexshadername());
+                compileAndSetShader(SHADER_VERTEX, effect.vertexshadername());
+                assert(effect.has_pixelshadername());
+                compileAndSetShader(SHADER_PIXEL, effect.pixelshadername());
 
-            // setting shaders
-            assert(effect.has_vertexshadername());
-            compileAndSetShader(SHADER_VERTEX, effect.vertexshadername());
-            assert(effect.has_pixelshadername());
-            compileAndSetShader(SHADER_PIXEL, effect.pixelshadername());
-
-            // render all meshes
-            BOOST_FOREACH( const string& name, pass.meshname()) {
-                displayMesh(getResourceManager().safeGetProto<duke::protocol::Mesh> (name));
+                // render all meshes
+                for_each(pass.meshname().begin(), pass.meshname().end(), boost::bind(&IRenderer::displayMeshWithName, this, _1));
             }
         }
 
@@ -365,12 +361,16 @@ void IRenderer::displayPass(const ::duke::protocol::RenderPass& pass) {
     }
 }
 
+void IRenderer::displayMeshWithName(const std::string& name) {
+    displayMesh(getResourceManager().safeGetProto<duke::protocol::Mesh>(name));
+}
+
 void IRenderer::displayMesh(const ::duke::protocol::Mesh& mesh) {
     ::Mesh(*this, mesh).render(*this);
 }
 
 void IRenderer::compileAndSetShader(const TShaderType& type, const string& name) {
-    ShaderFactory(*this, getResourceManager().safeGetProto<Shader> (name), m_Context, type);
+    ShaderFactory(*this, getResourceManager().safeGetProto<Shader>(name), m_Context, type);
 }
 
 inline const ImageDescription& IRenderer::getSafeImageDescription(const ImageDescription* pImage) const {
@@ -383,11 +383,12 @@ const ImageDescription& IRenderer::getImageDescriptionFromClip(const string &cli
         return getSafeImageDescription(images.empty() ? NULL : &images[0]);
 
     size_t index = 0;
-    BOOST_FOREACH(const duke::protocol::Clip &clip ,m_pSetup->m_Clips) {
-        if (clip.has_name() && clip.name() == clipName)
-            return getSafeImageDescription(&images[index]);
-        ++index;
-    }
+    BOOST_FOREACH(const duke::protocol::Clip &clip ,m_pSetup->m_Clips)
+            {
+                if (clip.has_name() && clip.name() == clipName)
+                    return getSafeImageDescription(&images[index]);
+                ++index;
+            }
 
     cerr << HEADER + "no clip associated to " << clipName << endl;
     return m_EmptyImageDescription;

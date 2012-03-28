@@ -88,7 +88,6 @@ Configuration::Configuration(int argc, char** argv) :
     // adding interactive mode options
     m_Interactive.add_options() //
     (BROWSE_OPT, "Browse mode, act as an image browser") //
-    (SEQUENCE_OPT, "Take the containing sequence for unit file") //
     (FRAMERATE_OPT, po::value<unsigned int>()->default_value(25), "Sets the playback framerate") //
     (NOFRAMERATE_OPT, "Reads the playlist as fast as possible. All images are displayed . Testing purpose only.") //
     (NOSKIP_OPT, "Try to keep the framerate but still ensures all images are displayed. Testing purpose only.");
@@ -195,17 +194,12 @@ Configuration::Configuration(int argc, char** argv) :
             throw cmdline_exception(string(BLANKING) + " must be between 0 an 4");
 
         // checking command line
-        const bool useContainingSequence = m_Vm.count(SEQUENCE);
         const bool browseMode = m_Vm.count(BROWSE);
-
-        if (useContainingSequence && browseMode)
-            throw cmdline_exception("Choose either browse or sequence option but not both at the same time.");
-
         const bool hasInputs = m_Vm.count(INPUTS);
-        const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>() ;
+        const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>();
 
         if (browseMode) {
-            if (inputs.empty() || inputs.size()>1)
+            if (inputs.empty() || inputs.size() > 1)
                 throw cmdline_exception("You are in browse mode, you must specify one and only one input.");
         } else if (inputs.empty())
             throw cmdline_exception("You should specify at least one input : filename, directory or playlist files.");
@@ -220,44 +214,26 @@ Configuration::Configuration(int argc, char** argv) :
         queueInserter << stop; // stopping rendering for now
 
         const extension_set validExtensions = extension_set::create(listOfExtensions);
-        duke::playlist::Playlist playlist = browsePlayer(validExtensions, inputs);
+        duke::playlist::Playlist playlist = browseMode ?  browseViewerComplete(validExtensions, inputs[0]) :  browsePlayer(validExtensions, inputs);
 
-        if (playlist.shot_size()==0)
+        if (playlist.shot_size() == 0)
             throw runtime_error("No media found, nothing to render. Aborting.");
 
-        if(m_Vm.count(FRAMERATE))
+        if (m_Vm.count(FRAMERATE))
             playlist.set_framerate(m_Vm[FRAMERATE].as<unsigned int>());
 
         normalize(playlist);
-        deque<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist);
+
+        const Scene::PlaybackMode mode = m_Vm.count(NOFRAMERATE) > 0 ? Scene::RENDER : m_Vm.count(NOSKIP) > 0 ? Scene::NO_SKIP : Scene::DROP_FRAME_TO_KEEP_REALTIME;
+        vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist, mode);
         queue.drainFrom(messages);
 
-        if(playlist.has_startframe()){
+        if (playlist.has_startframe()) {
             duke::protocol::Transport cue;
             cue.set_type(Transport::CUE);
             cue.mutable_cue()->set_value(playlist.startframe());
-            push(queue, cue);
+            queueInserter << cue;
         }
-
-//        CmdLinePlaylistBuilder playlistBuilder(queueInserter, browseMode, useContainingSequence, listOfExtensions);
-//
-//        for_each(inputs.begin(), inputs.end(), playlistBuilder.appender());
-//
-//
-//        Playlist playlist = playlistBuilder.getPlaylist();
-//
-//        const unsigned int framerate = m_Vm[FRAMERATE].as<unsigned int>();
-//        playlist.set_frameratenumerator((int) framerate);
-//        if (m_Vm.count(NOFRAMERATE) > 0)
-//            playlist.set_playbackmode(Scene::RENDER);
-//        else if (m_Vm.count(NOSKIP) > 0)
-//            playlist.set_playbackmode(Scene::NO_SKIP);
-//        else
-//            playlist.set_playbackmode(Scene::DROP_FRAME_TO_KEEP_REALTIME);
-//
-//        queueInserter << playlist;
-//
-//        queueInserter << playlistBuilder.getCue();
 
         Engine start;
         start.set_action(Engine::RENDER_START);

@@ -13,7 +13,7 @@ void UIImageInfo::update(::google::protobuf::serialize::SharedHolder sharedholde
     using namespace ::duke::protocol;
     using namespace ::google::protobuf::serialize;
 
-    if (isType<Playlist> (*sharedholder) || isType<Transport> (*sharedholder)) {
+    if (isType<Scene> (*sharedholder) || isType<Transport> (*sharedholder)) {
         InfoNode::ptr i = m_manager->nodeByName<InfoNode> ("fr.mikrosimage.dukex.info");
         if (i.get() == NULL)
             return;

@@ -190,7 +190,6 @@ message Scene {
 	
 	enum PlaybackMode {
 		DROP_FRAME_TO_KEEP_REALTIME = 0;
-		PAUSE = 1;
 		RENDER = 2;
 		NO_SKIP = 3;
 	}

@@ -6,13 +6,16 @@
  */
 
 #include "SceneBuilder.h"
+#include "details/MeshBuilder.h"
+#include <dukeapi/messageBuilder/ShaderBuilder.h>
+#include <dukeapi/messageBuilder/ParameterBuilder.h>
 
 #include <player.pb.h>
 
 #include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <sstream>
-#include <vector>
 #include <set>
 #include <map>
 
@@ -23,6 +26,11 @@ using namespace google::protobuf;
 using namespace google::protobuf::serialize;
 using namespace duke::playlist;
 using namespace duke::protocol;
+
+static void setRange(FrameRange *pRange, uint32_t first, uint32_t last) {
+    pRange->set_first(first);
+    pRange->set_last(last);
+}
 
 static vector<string> getTracks(const Playlist &playlist) {
     set<string> tracks;
@@ -57,10 +65,54 @@ void normalize(Playlist &playlist) {
     }
 }
 
+static AutomaticParameter automaticTexDim(const string& name) {
+    AutomaticParameter param;
+    param.set_name(name);
+    param.set_type(AutomaticParameter::FLOAT3_TEX_DIM);
+    return param;
+}
+
+static void setClipSamplingSource(SamplingSource *pSource, const string &clipName){
+    pSource->set_type(SamplingSource::CLIP);
+    pSource->set_name(clipName);
+}
+
+static string tweakName(const string& name, const string &clipName){
+    if(clipName.empty())
+        return name;
+    return clipName+"|"+name;
+}
+
+static AutomaticParameter automaticClipSource(const string& name, const string &clipName) {
+    AutomaticParameter param = automaticTexDim(tweakName(name,clipName));
+    setClipSamplingSource(param.mutable_samplingsource(), clipName);
+    return param;
+}
+
+static void addSamplerState(StaticParameter &param, SamplerState_Type type, SamplerState_Value value) {
+    SamplerState &state = *param.add_samplerstate();
+    state.set_type(type);
+    state.set_value(value);
+}
+
+static StaticParameter staticClipSampler(const string& name, const string &clipName) {
+    StaticParameter param;
+    param.set_name(tweakName(name,clipName));
+    param.set_type(StaticParameter::SAMPLER);
+    addSamplerState(param, SamplerState::MIN_FILTER, SamplerState::TEXF_POINT);
+    addSamplerState(param, SamplerState::MAG_FILTER, SamplerState::TEXF_POINT);
+    addSamplerState(param, SamplerState::WRAP_S, SamplerState::WRAP_BORDER);
+    addSamplerState(param, SamplerState::WRAP_T, SamplerState::WRAP_BORDER);
+    setClipSamplingSource(param.mutable_samplingsource(), clipName);
+    return param;
+}
+
 struct SceneBuilder {
-    SceneBuilder(const Playlist &playlist) :
-                    playlist(playlist) {
+    SceneBuilder(const Playlist &playlist, float framerate, const duke::protocol::Scene::PlaybackMode mode) {
         const vector<string> tracks = getTracks(playlist);
+        scene.set_playbackmode(mode);
+        scene.set_frameratenumerator(framerate);
+        scene.set_frameratedenominator(1);
         scene.mutable_track()->Reserve(tracks.size());
         for (vector<string>::const_iterator itr = tracks.begin(), end = tracks.end(); itr != end; ++itr) {
             const string &name(*itr);
@@ -69,57 +121,105 @@ struct SceneBuilder {
             m_Track[name] = pTrack;
         }
     }
-    ~SceneBuilder() {
-        scene.PrintDebugString();
-    }
+
     void handleShot(const Shot &shot) {
         Track &track = *m_Track[shot.track()];
         Clip &clip = *track.add_clip();
         ostringstream msg;
         msg << track.name() << '/' << track.clip_size();
         clip.set_name(msg.str());
-        translate(shot, clip);
+        setMedia(shot, clip);
+        setGrading(shot, clip);
+    }
+
+    template<typename T>
+    void packAndShare(const T& message) {
+        result.push_back(google::protobuf::serialize::packAndShare(message));
+//        message.PrintDebugString();
+    }
+
+    vector<SharedHolder> finish(){
+        packAndShare(scene);
+        return result;
     }
 private:
-    void translate(const Shot &shot, Clip &clip) {
+    void setMedia(const Shot &shot, Clip &clip) {
         Media &media = *clip.mutable_media();
         if (shot.has_mediastart() && shot.has_mediaend()) {
             media.set_type(Media::IMAGE_SEQUENCE);
-            FrameRange &range = *media.mutable_source();
-            range.set_first(shot.mediastart());
-            range.set_last(shot.mediaend());
+            setRange(media.mutable_source(), shot.mediastart(), shot.mediaend());
         } else {
             media.set_type(Media::SINGLE_IMAGE);
         }
         media.set_filename(shot.media());
         if (shot.has_reverse())
             media.set_reverse(shot.reverse());
-        FrameRange &range = *clip.mutable_record();
-        range.set_first(shot.trackstart());
-        range.set_last(shot.trackend());
+        setRange(clip.mutable_record(), shot.trackstart(), shot.trackend());
     }
 
-    const Playlist &playlist;
+    void setGrading(const Shot &shot, Clip &clip) {
+        Grading &grading = *clip.mutable_grade();
+        RenderPass &pass = *grading.add_pass();
+        pass.set_clean(true);
+        pass.add_meshname(MeshBuilder::plane);
+        Effect &effect = *pass.mutable_effect();
+        const string psName = boost::iends_with(shot.media(), ".dpx") ? "ps_dpx" : "ps_normal";
+        effect.set_pixelshadername(psName);
+        effect.set_vertexshadername("vs");
+        packAndShare(automaticClipSource(IMAGE_DIM, clip.name()));
+        packAndShare(staticClipSampler("sampler", clip.name()));
+    }
+
     map<string, Track*> m_Track;
     Scene scene;
+public:
+    vector<SharedHolder> result;
 };
 
-deque<google::protobuf::serialize::SharedHolder> getMessages(const Playlist &playlist) {
-    const RepeatedPtrField<Shot> &shots = playlist.shot();
-    SceneBuilder builder(playlist);
-    for_each(shots.begin(), shots.end(), boost::bind(&SceneBuilder::handleShot, boost::ref(builder), _1));
-    deque<SharedHolder> result;
-    return result;
+static StaticParameter staticFloat(const string& name, float value) {
+    StaticParameter param;
+    param.set_name(name);
+    param.set_type(StaticParameter::FLOAT);
+    param.add_floatvalue(value);
+    return param;
 }
 
-//static Scene createSceneFrom(const Playlist &playlist_) {
-//    Playlist playlist(playlist_);
-//    const map<string, size_t> tracks = getTracks(playlist);
-//    Scene scene;
-//    scene.mutable_track()->Reserve(tracks.size());
-//    for (int i = 0; i < playlist.shot_size(); ++i) {
-//        const Shot &shot = playlist.shot(i);
-//        Track &track = *scene.mutable_track(tracks.find(shot.track())->second);
-//    }
-//    return scene;
-//}
+vector<google::protobuf::serialize::SharedHolder> getMessages(const Playlist &playlist, const duke::protocol::Scene::PlaybackMode mode) {
+    const RepeatedPtrField<Shot> &shots = playlist.shot();
+    SceneBuilder builder(playlist, playlist.framerate(), mode);
+    // mesh
+    builder.packAndShare(MeshBuilder::buildPlane(MeshBuilder::plane));
+    // appending unbound parameters
+    builder.packAndShare(automaticTexDim(DISPLAY_DIM));
+    builder.packAndShare(staticFloat(DISPLAY_MODE, 0));
+    builder.packAndShare(staticFloat(IMAGE_RATIO, 0));
+    builder.packAndShare(staticFloat(ZOOM, 1));
+    builder.packAndShare(staticFloat(PANX, 0));
+    builder.packAndShare(staticFloat(PANY, 0));
+
+    Shader vertexShader;
+    buildVertexShader(vertexShader, "vs", fittableTransformVs);
+    vertexShader.add_parametername(DISPLAY_DIM);
+    vertexShader.add_parametername(IMAGE_DIM);
+    vertexShader.add_parametername(DISPLAY_MODE);
+    vertexShader.add_parametername(IMAGE_RATIO);
+    vertexShader.add_parametername(ZOOM);
+    vertexShader.add_parametername(PANX);
+    vertexShader.add_parametername(PANY);
+    builder.packAndShare(vertexShader);
+
+    Shader normalPS;
+    buildPixelShader(normalPS, "ps_normal", NULL);
+    addShadingNode(normalPS, "rgbatobgra", 1);
+    builder.packAndShare(normalPS);
+
+    Shader dpxPS;
+    buildPixelShader(dpxPS, "ps_dpx", NULL);
+    addShadingNode(dpxPS, "rgbatobgra", 1);
+    addShadingNode(dpxPS, "tenbitunpackfloat", 2);
+    builder.packAndShare(dpxPS);
+
+    for_each(shots.begin(), shots.end(), boost::bind(&SceneBuilder::handleShot, boost::ref(builder), _1));
+
+    return builder.finish();
+}
