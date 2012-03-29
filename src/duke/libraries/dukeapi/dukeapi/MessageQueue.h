@@ -7,7 +7,7 @@
 #include <boost/thread/condition_variable.hpp>
 #include <queue>
 
-struct MessageQueue : public IMessageIO, private concurrent::queue<google::protobuf::serialize::SharedHolder> {
+class MessageQueue : public IMessageIO, private concurrent::queue<google::protobuf::serialize::SharedHolder> {
 private:
     typedef concurrent::queue<google::protobuf::serialize::SharedHolder> UP;
 

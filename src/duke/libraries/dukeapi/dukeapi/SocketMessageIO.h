@@ -43,7 +43,7 @@ protected:
             sendLoopThread->join();
             close();
         }
-        inputQueue.push(makeSharedHolder(msg));
+        inputQueue.push(make_shared(msg));
     }
 
     virtual void disconnecting(const boost::system::error_code&e) {

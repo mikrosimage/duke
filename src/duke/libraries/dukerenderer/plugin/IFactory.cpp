@@ -64,7 +64,7 @@ IFactory::IFactory() :
         const char * pFolder = "shader_prototypes";
         m_PrototypeFactory.loadFromFolder(pFolder);
         std::cout << "[Shader] loading additional shaders from " << pFolder << std::endl;
-    } catch (boost::filesystem3::filesystem_error &e) {
+    } catch (std::exception &e) {
         std::cout << "[Shader] using default shaders" << std::endl;
     }
 }

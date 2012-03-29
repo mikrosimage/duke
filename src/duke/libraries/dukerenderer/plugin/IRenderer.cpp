@@ -7,6 +7,8 @@
 
 #include <dukeapi/ProtobufSerialize.h>
 
+#include <google/protobuf/descriptor.h>
+
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 
@@ -217,7 +219,7 @@ bool IRenderer::simulationStep() {
             event.Clear();
             // transcoding the event to protocol buffer
             Update(event, m_Event);
-            pack(holder, event);
+            pack(event, holder);
             m_RendererSuite.pushEvent(holder);
         }
     } catch (exception& e) {
@@ -231,7 +233,7 @@ bool IRenderer::simulationStep() {
                 Texture texture;
                 pair.second->dump(texture);
                 texture.set_name(name);
-                pack(holder, texture);
+                pack(texture, holder);
                 m_RendererSuite.pushEvent(holder);
             }
     return m_RendererSuite.renderEnd(0);

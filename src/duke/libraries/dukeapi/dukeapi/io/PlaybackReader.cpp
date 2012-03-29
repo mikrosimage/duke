@@ -25,7 +25,7 @@ void PlaybackReader::push(const SharedHolder& holder) {
 void PlaybackReader::waitPop(SharedHolder& holder) {
     MessageHolder tmp;
     if (parseDelimitedFrom(m_Stream, tmp))
-        holder = makeSharedHolder(tmp);
+        holder = make_shared(tmp);
 }
 
 bool PlaybackReader::tryPop(SharedHolder& holder) {

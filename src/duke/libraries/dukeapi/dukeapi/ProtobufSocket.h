@@ -96,7 +96,7 @@ protected:
     }
 
     virtual void packAndPost(const google::protobuf::Message &msg) {
-        pack(post_msg_holder_, msg);
+        pack(msg, post_msg_holder_);
         post(post_msg_holder_);
     }
 

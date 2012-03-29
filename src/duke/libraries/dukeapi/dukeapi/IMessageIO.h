@@ -4,7 +4,8 @@
 #include <dukeapi/ProtobufSerialize.h>
 #include <iterator>
 
-struct IMessageIO {
+class IMessageIO {
+public:
     virtual void push(const google::protobuf::serialize::SharedHolder& holder) = 0;
     virtual void waitPop(google::protobuf::serialize::SharedHolder& holder) = 0;
     virtual bool tryPop(google::protobuf::serialize::SharedHolder& holder) = 0;

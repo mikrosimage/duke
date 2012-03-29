@@ -10,7 +10,7 @@ namespace {
 
 void quitRenderer(IMessageIO & _queue) {
     using namespace ::google::protobuf::serialize;
-    _queue.push(makeSharedHolder(quitSuccess()));
+    _queue.push(make_shared(quitSuccess()));
 }
 
 } // empty namespace

@@ -87,7 +87,7 @@ bool Session::stopSession() {
 //    mThread.join();
 
     quitRenderer(mIo.inputQueue);
-    mIo.inputQueue.push(makeSharedHolder(quitSuccess()));
+    mIo.inputQueue.push(make_shared(quitSuccess()));
     mThread.join();
     return true;
 }

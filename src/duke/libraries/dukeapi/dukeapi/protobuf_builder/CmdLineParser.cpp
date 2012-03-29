@@ -17,7 +17,9 @@
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 
+#include <fstream>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace duke::playlist;

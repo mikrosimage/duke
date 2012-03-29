@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <tr1/functional_hash.h>
 

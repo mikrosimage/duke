@@ -1,7 +1,5 @@
 #include "Application.h"
 
-#include "host/renderer/Renderer.h"
-
 #include <player.pb.h>
 
 #include <sequence/parser/ParserUtils.h>
@@ -9,6 +7,9 @@
 #include <dukeapi/sequence/PlaylistHelper.h>
 
 #include <dukeengine/image/ImageToolbox.h>
+#include <dukeengine/host/renderer/Renderer.h>
+
+#include <google/protobuf/descriptor.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -545,7 +546,7 @@ bool Application::renderFinished(unsigned msToPresent) {
 
 void Application::pushEvent(const google::protobuf::serialize::MessageHolder& event) {
     dump(descriptorFor(event), event, true);
-    m_IO.push(makeSharedHolder(event));
+    m_IO.push(make_shared(event));
 }
 
 const google::protobuf::serialize::MessageHolder * Application::popEvent() {

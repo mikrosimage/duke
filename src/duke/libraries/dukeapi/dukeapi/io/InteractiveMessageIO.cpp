@@ -96,7 +96,7 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
                     PUSH(MAKE(Transport_TransportType_CUE_LAST));
                     break;
                 case KeyEvent_KeyCode_Escape:
-                    m_ToApplicationQueue.push(makeSharedHolder(quitSuccess()));
+                    m_ToApplicationQueue.push(make_shared(quitSuccess()));
                     break;
                 case KeyEvent_KeyCode_PageUp:
                     PUSH(MAKE(Transport_TransportType_CUE, 1, true, true));
@@ -216,7 +216,7 @@ void InteractiveMessageIO::push(const SharedHolder& pHolder) {
             break;
         }
         case Event_Type_CLOSED:
-            m_ToApplicationQueue.push(makeSharedHolder(quitSuccess()));
+            m_ToApplicationQueue.push(make_shared(quitSuccess()));
             break;
         default:
             break;
