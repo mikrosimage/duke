@@ -63,6 +63,7 @@ void normalize(Playlist &playlist) {
         Shot &current = *playlist.mutable_shot(i);
         Display &display = *current.mutable_display();
         display.CopyFrom(current.has_display() ? update(current.display(), globalDisplay) : globalDisplay);
+        display.mutable_shader()->Clear();
         switch (display.colorspace()) {
             case Display::LIN:
                 display.add_shader("lintosrgb");

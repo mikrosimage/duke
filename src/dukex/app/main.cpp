@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         Session::ptr session(new Session());
 
         // Configure session with command line options
-        Configuration conf(session);
+        Configuration conf(session->descriptor(), session->factory().getAvailableExtensions());
         if (!conf.parse(argc, argv))
             return EXIT_SUCCESS;
 

@@ -5,11 +5,12 @@
 #include "dkxSessionDescriptor.h"
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
 #include <boost/thread.hpp>
+#include <boost/noncopyable.hpp>
 
 // forward declaration
 class NodeManager;
 
-class Session : public Observable {
+class Session : public Observable, private boost::noncopyable {
 
 public:
     typedef boost::shared_ptr<Session> ptr;
@@ -45,11 +46,6 @@ public:
     inline const QueueMessageIO & queue() const {
         return mIo;
     }
-
-private:
-    Session(const Session&);
-    const Session& operator=(const Session&);
-
 private:
     void updateDescriptor(::google::protobuf::serialize::SharedHolder);
     void analyseTransport(::duke::protocol::Transport transport);

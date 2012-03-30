@@ -1,4 +1,7 @@
 #include "Configuration.h"
+
+#include <dukexcore/dkxSessionDescriptor.h>
+
 #include <dukeengine/CmdLineOptions.h>
 #include <dukeengine/Version.h>
 #include <dukeengine/host/io/ImageDecoderFactoryImpl.h>
@@ -35,7 +38,7 @@ const string HEADER = "[Configuration] ";
 
 } // empty namespace
 
-Configuration::Configuration(Session::ptr s) :
+Configuration::Configuration(SessionDescriptor &descriptor, const char** availableExtensions) :
                 m_CmdLineOnly("command line only options"), //
                 m_Config("configuration options"), //
                 m_Display("display options"), //
@@ -43,7 +46,8 @@ Configuration::Configuration(Session::ptr s) :
                 m_CmdlineOptionsGroup("Command line options"), //
                 m_ConfigFileOptions("Configuration file options"), //
                 m_HiddenOptions("hidden options"), //
-                mSession(s) {
+                m_Descriptor(descriptor), //
+                m_AvailableExtensions(availableExtensions) {
 }
 
 bool Configuration::parse(int argc, char** argv) {
@@ -117,15 +121,15 @@ bool Configuration::parse(int argc, char** argv) {
             throw cmdline_exception("No renderer specified. Aborting.");
 
         // renderer plugin path
-        mSession->descriptor().setRendererPath(m_Vm[RENDERER].as<std::string>());
+        m_Descriptor.setRendererPath(m_Vm[RENDERER].as<std::string>());
 
         // threading
         if (m_Vm.count(THREADS))
-            mSession->descriptor().setThreadSize(m_Vm[THREADS].as<size_t>());
+            m_Descriptor.setThreadSize(m_Vm[THREADS].as<size_t>());
 
         // caching
         if (m_Vm.count(CACHESIZE))
-            mSession->descriptor().setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
+            m_Descriptor.setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
 
         // blanking / refreshrate
         renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());
@@ -141,7 +145,7 @@ bool Configuration::parse(int argc, char** argv) {
         const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>();
 
         // no special mode specified, using interactive mode
-        MessageQueue & queue = mSession->descriptor().getInitTimeQueue();
+        MessageQueue & queue = m_Descriptor.getInitTimeQueue();
         IOQueueInserter queueInserter(queue);
 
         // first, push the renderer msg
@@ -152,13 +156,15 @@ bool Configuration::parse(int argc, char** argv) {
         stop.set_action(Engine::RENDER_STOP);
         queueInserter << stop;
 
-        const extension_set validExtensions = extension_set::create(mSession->factory().getAvailableExtensions());
+        const extension_set validExtensions = extension_set::create(m_AvailableExtensions);
         duke::playlist::Playlist playlist = browseMode ?  browseViewerComplete(validExtensions, inputs[0]) :  browsePlayer(validExtensions, inputs);
 
         if (m_Vm.count(FRAMERATE))
             playlist.set_framerate(m_Vm[FRAMERATE].as<unsigned int>());
 
         normalize(playlist);
+
+        m_Descriptor.setPlaylist(playlist);
 
         if (hasInputs) {
             if (browseMode && inputs.size() > 1)
@@ -191,6 +197,7 @@ bool Configuration::parse(int argc, char** argv) {
         Engine start;
         start.set_action(Engine::RENDER_START);
         queueInserter << start;
+
     } catch (cmdline_exception &e) {
         cout << "invalid command line : " << e.what() << endl << endl;
         displayHelp();

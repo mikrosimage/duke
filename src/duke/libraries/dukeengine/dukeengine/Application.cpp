@@ -231,7 +231,7 @@ void Application::consumePlaybackState(const PlaybackState &playbackState) {
 void Application::updatePlaybackState() {
     using namespace boost::chrono;
     const high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(m_PlaybackState.frameratenumerator(), m_PlaybackState.frameratedenominator());
-    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
+//    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
     m_Playback.init(m_Playlist.range, m_PlaybackState.loop(), nsPerFrame);
     m_Playback.setType(get(m_PlaybackState.playbackmode()));
 }

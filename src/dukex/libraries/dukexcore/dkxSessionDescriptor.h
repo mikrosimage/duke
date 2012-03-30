@@ -4,8 +4,9 @@
 #include "player.pb.h"
 #include "playlist.pb.h"
 #include <dukeapi/QueueMessageIO.h>
+#include <boost/noncopyable.hpp>
 
-class SessionDescriptor {
+class SessionDescriptor : private boost::noncopyable {
 
 public:
     SessionDescriptor() :
@@ -49,13 +50,13 @@ public:
     inline void setRendererPath(const std::string& path) {
         mRendererPath = path;
     }
-    inline ::duke::playlist::Playlist & playlist() {
+    ::duke::playlist::Playlist & playlist() {
         return mPlaylist;
     }
-    inline const ::duke::playlist::Playlist & playlist() const {
+    const ::duke::playlist::Playlist & playlist() const {
         return mPlaylist;
     }
-    inline void setPlaylist(const ::duke::playlist::Playlist & p) {
+    void setPlaylist(const ::duke::playlist::Playlist & p) {
         mPlaylist = p;
     }
     inline ::duke::protocol::StaticParameter & displayMode() {
@@ -70,11 +71,6 @@ public:
     inline MessageQueue & getInitTimeQueue() {
         return mInitTimeQueue;
     }
-
-private:
-    SessionDescriptor(const SessionDescriptor&);
-    const SessionDescriptor& operator=(const SessionDescriptor&);
-
 private:
     bool mConnected;
     size_t mFrame;

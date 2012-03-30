@@ -4,8 +4,5 @@ project
 		<library>/boost//program_options/<link>shared
     ;
 
-exe duke
-		:
-			[ glob *.cpp ] 
-			/dukeengine//dukeengine/<link>static	# embedded
-		;
+
+exe duke : [ glob *.cpp ] /dukeengine//dukeengine/<link>static ;

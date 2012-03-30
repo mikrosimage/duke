@@ -1,13 +1,14 @@
 #ifndef CONFIGURATION_H_
 #define CONFIGURATION_H_
 
-#include <boost/utility.hpp>
 #include <boost/program_options.hpp>
-#include <dukexcore/dkxSession.h>
+#include <boost/noncopyable.hpp>
+
+class SessionDescriptor;
 
 class Configuration : boost::noncopyable {
 public:
-    Configuration(Session::ptr);
+    Configuration(SessionDescriptor &descriptor, const char** availableExtensions);
 
 public:
     bool parse(int argcc, char** argvv);
@@ -24,7 +25,8 @@ public:
     boost::program_options::variables_map       m_Vm;
 
 private:
-    Session::ptr mSession;
+    SessionDescriptor &m_Descriptor;
+    const char** m_AvailableExtensions;
 };
 
 #endif /* CONFIGURATION_H_ */

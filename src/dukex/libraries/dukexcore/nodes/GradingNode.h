@@ -57,9 +57,8 @@ public:
             // Get playlist from session
             ::duke::playlist::Playlist & playlist = session()->descriptor().playlist();
             // Set the right colorspace
-            if(playlist.has_display()){
-                playlist.mutable_display()->set_colorspace(colorspace);
-            }
+            for(int i=0;i<playlist.shot_size();++i)
+                playlist.mutable_shot(i)->mutable_display()->set_colorspace(colorspace);
             normalize(playlist);
             session()->descriptor().setPlaylist(playlist);
             std::vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist);
