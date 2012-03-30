@@ -134,7 +134,7 @@ void Application::consumeUntilRenderOrQuit() {
             m_Renderer.initRender(unpackTo<Renderer>(holder));
             break;
         }
-        cerr << HEADER + "First message must be either InitRenderer or Quit, ignoring message of type " << descriptor->name() << endl;
+        cerr << HEADER + "First message must be either Renderer or Quit, ignoring message of type " << descriptor->name() << endl;
     }
 }
 

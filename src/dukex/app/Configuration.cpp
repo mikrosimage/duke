@@ -70,8 +70,7 @@ bool Configuration::parse(int argc, char** argv) {
     (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
 
     // Adding display settings
-    // Get Renderer from session descriptor
-    ::duke::protocol::Renderer & renderer = mSession->descriptor().renderer();
+    ::duke::protocol::Renderer renderer;
     setDisplayOptions(m_Display, renderer);
 
     // adding interactive mode options
@@ -118,15 +117,15 @@ bool Configuration::parse(int argc, char** argv) {
             throw cmdline_exception("No renderer specified. Aborting.");
 
         // renderer plugin path
-        mSession->setRendererPath(m_Vm[RENDERER].as<std::string>());
+        mSession->descriptor().setRendererPath(m_Vm[RENDERER].as<std::string>());
 
         // threading
         if (m_Vm.count(THREADS))
-            mSession->setThreadSize(m_Vm[THREADS].as<size_t>());
+            mSession->descriptor().setThreadSize(m_Vm[THREADS].as<size_t>());
 
         // caching
         if (m_Vm.count(CACHESIZE))
-            mSession->setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
+            mSession->descriptor().setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
 
         // blanking / refreshrate
         renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());
@@ -142,15 +141,18 @@ bool Configuration::parse(int argc, char** argv) {
         const vector<string> inputs = hasInputs ? m_Vm[INPUTS].as<vector<string> >() : vector<string>();
 
         // no special mode specified, using interactive mode
-        // Scene & scene = mSession->descriptor().scene();
-        MessageQueue & queue = mSession->getInitTimeMsgQueue();
+        MessageQueue & queue = mSession->descriptor().getInitTimeQueue();
         IOQueueInserter queueInserter(queue);
 
+        // first, push the renderer msg
+        queueInserter << renderer;
+
+        // stopping rendering for now
         Engine stop;
         stop.set_action(Engine::RENDER_STOP);
-        queueInserter << stop; // stopping rendering for now
+        queueInserter << stop;
 
-        const extension_set validExtensions = extension_set::create(mSession->getAvailableExtensions());
+        const extension_set validExtensions = extension_set::create(mSession->factory().getAvailableExtensions());
         duke::playlist::Playlist playlist = browseMode ?  browseViewerComplete(validExtensions, inputs[0]) :  browsePlayer(validExtensions, inputs);
 
         if (m_Vm.count(FRAMERATE))

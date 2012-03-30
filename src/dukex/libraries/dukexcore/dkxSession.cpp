@@ -21,13 +21,16 @@ private:
     QueueMessageIO& io;
 };
 
-void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFactoryImpl& decoder, QueueMessageIO & io, uint64_t cacheSize, size_t threads) {
+void launch(Session& s) {
     try {
+        const SessionDescriptor & descriptor = s.descriptor();
+
         duke::protocol::Cache cache;
-        cache.set_size(cacheSize);
-        cache.set_threading(threads);
+        cache.set_size(descriptor.cacheSize());
+        cache.set_threading(descriptor.threadSize());
         cache.clear_region();
-        Application(rendererpath.c_str(), decoder, io, returnvalue, cache);
+        int returnvalue = 0;
+        Application(descriptor.rendererPath().c_str(), s.factory(), s.queue(), returnvalue, cache);
     } catch (std::exception & e) {
         std::cerr << "[Session::launch] Error: " << e.what() << std::endl;
     } catch (...) {
@@ -39,36 +42,17 @@ void launch(int & returnvalue, const std::string & rendererpath, ImageDecoderFac
 
 
 Session::Session() :
-    mFrame(0), mPlaying(false), mIP("127.0.0.1"), mPort(7171), mConnected(false) {
+    mConnected(false) {
 }
 
-bool Session::startSession(void* handle) {
+bool Session::start(void* handle) {
     try {
         if (connected())
             return false;
 
-//        // CLIENT MODE
-//        mThread = boost::thread(&Session::run, this);
-//        boost::this_thread::sleep(boost::posix_time::millisec(40));
-
-        int returnvalue = 0;
-        mThread = boost::thread(&launch, returnvalue, mRendererPath, boost::ref(mImageDecoderFactory), boost::ref(mIo), mCacheSize, mThreadSize);
-//        boost::this_thread::sleep(boost::posix_time::millisec(40));
+        mThread = boost::thread(&launch, boost::ref(*this));
         mConnected = true;
-
-        // edit the renderer with the right handle
-        ::duke::protocol::Renderer & renderer = mDescriptor.renderer();
-        renderer.set_handle((::google::protobuf::uint64) handle);
-
-        MessageQueue q;
-
-        // send the renderer
-        push(q, renderer);
-        sendMsg(q);
-
-        // after the renderer, send all init-time msgs
-        sendMsg(mInitTimeMsgQueue);
-
+        sendMsg(descriptor().getInitTimeQueue(), handle);
 
     } catch (std::exception& e) {
         std::cerr << "Error while connecting to server." << std::endl;
@@ -77,14 +61,9 @@ bool Session::startSession(void* handle) {
     return true;
 }
 
-bool Session::stopSession() {
+bool Session::stop() {
     if (!connected())
         return false;
-
-//    // CLIENT MODE
-//    quitRenderer(mIo.outputQueue);
-//    mIo.outputQueue.push(makeSharedHolder(quitSuccess()));
-//    mThread.join();
 
     quitRenderer(mIo.inputQueue);
     mIo.inputQueue.push(make_shared(quitSuccess()));
@@ -92,7 +71,10 @@ bool Session::stopSession() {
     return true;
 }
 
-bool Session::computeInMsg() {
+bool Session::receiveMsg() {
+    if (!connected())
+        return false;
+
     using namespace ::duke::protocol;
     SharedHolder holder;
     while (mIo.outputQueue.tryPop(holder)) {
@@ -113,7 +95,7 @@ bool Session::computeInMsg() {
                         break;
                     if (t.cue().cuerelative())
                         break;
-                    mFrame = t.cue().value();
+                    descriptor().setCurrentFrame(t.cue().value());
                     break;
             }
         }
@@ -121,8 +103,19 @@ bool Session::computeInMsg() {
     return false;
 }
 
-bool Session::sendMsg(MessageQueue & queue) {
+bool Session::sendMsg(MessageQueue & queue, void* handle) {
+    if (!connected())
+        return false;
+
     SharedHolder holder;
+    if(handle){ // set handle on Renderer msg
+        queue.tryPop(holder); // must be first in queue
+        if (::google::protobuf::serialize::isType< ::duke::protocol::Renderer>(*holder)) {
+            ::duke::protocol::Renderer r = ::google::protobuf::serialize::unpackTo< ::duke::protocol::Renderer>(*holder);
+            r.set_handle((::google::protobuf::uint64)handle);
+            push(mIo.inputQueue, r);
+        }
+    }
     while (queue.tryPop(holder)) {
         notify(holder);
         mIo.inputQueue.push(holder);
@@ -130,23 +123,23 @@ bool Session::sendMsg(MessageQueue & queue) {
     return false;
 }
 
-// private - separate thread
-void Session::run() {
-    try {
-        using namespace boost::asio;
-        using namespace boost::asio::ip;
-        using google::protobuf::serialize::duke_server;
-        SessionCreator creator(mIo);
-        boost::asio::ip::tcp::resolver::query query(mIP, boost::lexical_cast<std::string>(mPort));
-        duke_client client(query, boost::bind(&SessionCreator::create, &creator, _1));
-        if (client.error())
-            return;
-        mConnected = true;
-        client.run(); // blocking
-    } catch (std::exception & e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    } catch (...) {
-        std::cerr << "Unknown error." << std::endl;
-    }
-    mConnected = false;
-}
+//// private - separate thread
+//void Session::run() {
+//    try {
+//        using namespace boost::asio;
+//        using namespace boost::asio::ip;
+//        using google::protobuf::serialize::duke_server;
+//        SessionCreator creator(mIo);
+//        boost::asio::ip::tcp::resolver::query query(mIP, boost::lexical_cast<std::string>(mPort));
+//        duke_client client(query, boost::bind(&SessionCreator::create, &creator, _1));
+//        if (client.error())
+//            return;
+//        mConnected = true;
+//        client.run(); // blocking
+//    } catch (std::exception & e) {
+//        std::cerr << "Error: " << e.what() << std::endl;
+//    } catch (...) {
+//        std::cerr << "Unknown error." << std::endl;
+//    }
+//    mConnected = false;
+//}

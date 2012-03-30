@@ -2,34 +2,61 @@
 #define DKXSESSIONDESCRIPTOR_H
 
 #include "player.pb.h"
+#include "playlist.pb.h"
+#include <dukeapi/QueueMessageIO.h>
 
 class SessionDescriptor {
 
 public:
-    SessionDescriptor() {
-    }
-    SessionDescriptor(const SessionDescriptor& d) :
-        mRenderer(d.renderer()), mScene(d.scene()), mDisplayMode(d.displayMode()) {
-    }
-    const SessionDescriptor& operator=(const SessionDescriptor& d) {
-        mRenderer = d.renderer();
-        mScene = d.scene();
-        mDisplayMode = d.displayMode();
-        return *this;
+    SessionDescriptor() :
+        mFrame(0), mFramerate(25.), mPlaying(false), mCacheSize(0), mThreadSize(1) {
     }
 
 public:
-    inline ::duke::protocol::Renderer & renderer() {
-        return mRenderer;
+    inline const size_t currentFrame() const {
+        return mFrame;
     }
-    inline const ::duke::protocol::Renderer & renderer() const {
-        return mRenderer;
+    inline void setCurrentFrame(const size_t f) {
+        mFrame = f;
     }
-    inline ::duke::protocol::Scene & scene() {
-        return mScene;
+    inline const double framerate() const {
+        return mFramerate;
     }
-    inline const ::duke::protocol::Scene & scene() const {
-        return mScene;
+    inline void setFramerate(double f) {
+        mFramerate = f;
+    }
+    inline const bool isPlaying() const {
+        return mPlaying;
+    }
+    inline void setIsPlaying(const bool b) {
+        mPlaying = b;
+    }
+    inline const uint64_t cacheSize() const {
+        return mCacheSize;
+    }
+    inline void setCacheSize(const uint64_t size) {
+        mCacheSize = size;
+    }
+    inline const size_t threadSize() const {
+        return mThreadSize;
+    }
+    inline void setThreadSize(const size_t size) {
+        mThreadSize = size;
+    }
+    inline const std::string rendererPath() const {
+        return mRendererPath;
+    }
+    inline void setRendererPath(const std::string& path) {
+        mRendererPath = path;
+    }
+    inline ::duke::playlist::Playlist & playlist() {
+        return mPlaylist;
+    }
+    inline const ::duke::playlist::Playlist & playlist() const {
+        return mPlaylist;
+    }
+    inline void setPlaylist(const ::duke::playlist::Playlist & p) {
+        mPlaylist = p;
     }
     inline ::duke::protocol::StaticParameter & displayMode() {
         return mDisplayMode;
@@ -37,11 +64,30 @@ public:
     inline const ::duke::protocol::StaticParameter & displayMode() const {
         return mDisplayMode;
     }
+    inline const ::duke::protocol::Scene_PlaybackMode & playbackMode() const {
+        return mPlaybackMode;
+    }
+    inline MessageQueue & getInitTimeQueue() {
+        return mInitTimeQueue;
+    }
 
 private:
-    ::duke::protocol::Renderer mRenderer;
-    ::duke::protocol::Scene mScene;
+    SessionDescriptor(const SessionDescriptor&);
+    const SessionDescriptor& operator=(const SessionDescriptor&);
+
+private:
+    bool mConnected;
+    size_t mFrame;
+    double mFramerate;
+    bool mPlaying;
+    uint64_t mCacheSize;
+    size_t mThreadSize;
+    std::string mRendererPath;
+    ::duke::playlist::Playlist mPlaylist;
     ::duke::protocol::StaticParameter mDisplayMode;
+    ::duke::protocol::Scene_PlaybackMode mPlaybackMode;
+    MessageQueue mInitTimeQueue;
+
 };
 
 #endif // DKXSESSIONDESCRIPTOR_H

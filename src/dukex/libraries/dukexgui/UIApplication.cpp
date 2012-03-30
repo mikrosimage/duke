@@ -51,8 +51,8 @@ UIApplication::UIApplication(Session::ptr s) :
     connect(ui.aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
 
     // Registering nodes
-    PlaylistNode::ptr p = PlaylistNode::ptr(new PlaylistNode());
-    m_Manager.addNode(p, m_Session);
+    SceneNode::ptr sc = SceneNode::ptr(new SceneNode());
+    m_Manager.addNode(sc, m_Session);
     TransportNode::ptr t = TransportNode::ptr(new TransportNode());
     m_Manager.addNode(t, m_Session);
     FitNode::ptr f = FitNode::ptr(new FitNode());
@@ -70,7 +70,7 @@ void UIApplication::showEvent(QShowEvent* event){
     // starting timer (to compute 'IN' msgs every N ms)
     m_timerID = QObject::startTimer(40);
     // starting session
-    m_Session->startSession(m_RenderWindow->renderWindowID());
+    m_Session->start(m_RenderWindow->renderWindowID());
     event->accept();
 }
 
@@ -177,7 +177,7 @@ void UIApplication::closeUI(QObject* _plug) {
 // private
 void UIApplication::closeEvent(QCloseEvent *event) {
     m_RenderWindow->close();
-    m_Session->stopSession();
+    m_Session->stop();
     QObject::killTimer(m_timerID);
     m_Manager.clearNodes();
     m_Preferences.saveShortcuts(this);
@@ -188,15 +188,8 @@ void UIApplication::closeEvent(QCloseEvent *event) {
 
 // private
 void UIApplication::timerEvent(QTimerEvent *event) {
-    //    // check connection status
-    //    if (!m_Session->connected()) {
-    //        m_statusInfo->setStyleSheet("QLabel { color : red; }");
-    //        m_statusInfo->setText("Disconnected.");
-    //    } else {
-    //        m_statusInfo->setStyleSheet("QLabel { color : green; }");
-    //        m_statusInfo->setText("Connected.");
-    //    }
-    m_Session->computeInMsg();
+    // retrieve in msgs
+    m_Session->receiveMsg();
     event->accept();
 }
 
@@ -314,8 +307,8 @@ void UIApplication::updateRecentFilesMenu() {
 
 // private slot
 void UIApplication::openFiles(const QStringList & _list, const bool & browseMode, const bool & parseSequence) {
-    PlaylistNode::ptr p = m_Manager.nodeByName<PlaylistNode> ("fr.mikrosimage.dukex.playlist");
-    if (p.get() == NULL)
+    SceneNode::ptr s = m_Manager.nodeByName<SceneNode> ("fr.mikrosimage.dukex.scene");
+    if (s.get() == NULL)
         return;
     if (!_list.isEmpty()) {
         // --- QStringList to STL vector<string>
@@ -324,7 +317,7 @@ void UIApplication::openFiles(const QStringList & _list, const bool & browseMode
         for (int i = 0; i < _list.count(); ++i) {
             v[i] = _list[i].toStdString();
         }
-        p->openFiles(v, browseMode);
+        s->openFiles(v, browseMode);
         if (v.size() == 1) { // multi selection not handled in file history
             QString history = _list[0];
             if (browseMode) {
@@ -390,7 +383,7 @@ void UIApplication::playStop() {
     TransportNode::ptr t = m_Manager.nodeByName<TransportNode> ("fr.mikrosimage.dukex.transport");
     if (t.get() == NULL)
         return;
-    if (m_Session->isPlaying())
+    if (m_Session->descriptor().isPlaying())
         t->stop();
     else
         t->play();
