@@ -65,30 +65,6 @@ public:
         }
         return true;
     }
-
-    void registerFramerate(float framerate) {
-        SessionDescriptor & descriptor = session()->descriptor();
-        descriptor.setFramerate(framerate);
-    }
-
-    bool setFramerate(float framerate) {
-        try {
-            // register new framerate value
-            registerFramerate(framerate);
-
-            // re-build & push the entire scene
-            MessageQueue queue;
-            duke::protocol::PlaybackState playback;
-            playback.set_frameratenumerator(framerate);
-            push(queue, playback);
-
-            session()->sendMsg(queue);
-        } catch (std::exception & e) {
-            std::cerr << e.what() << std::endl;
-            return false;
-        }
-        return true;
-    }
 };
 
 #endif // SCENENODE_H

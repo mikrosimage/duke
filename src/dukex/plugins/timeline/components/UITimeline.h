@@ -55,6 +55,7 @@ private:
     size_t m_zoom;
     std::set<size_t> mCachedFrames;
     int m_timerID;
+    int m_isPlaying;
 };
 
 #endif // UITIMELINE_H

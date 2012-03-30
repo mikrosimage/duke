@@ -21,7 +21,7 @@ public:
     bool start(void* handle = NULL);
     bool stop();
     bool receiveMsg();
-    bool sendMsg(MessageQueue & queue, void* =NULL);
+    bool sendMsg(MessageQueue & queue);
 
 public:
     inline const bool connected() const {
@@ -49,6 +49,11 @@ public:
 private:
     Session(const Session&);
     const Session& operator=(const Session&);
+
+private:
+    void updateDescriptor(::google::protobuf::serialize::SharedHolder);
+    void analyseTransport(::duke::protocol::Transport transport);
+    void analysePlaybackState(::duke::protocol::PlaybackState playback);
 
 private:
     bool mConnected;

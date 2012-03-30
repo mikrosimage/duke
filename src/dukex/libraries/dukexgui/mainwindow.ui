@@ -70,8 +70,9 @@
      </property>
     </widget>
     <addaction name="openFileAction"/>
-    <addaction name="browseDirectoryAction"/>
     <addaction name="openRecentMenu"/>
+    <addaction name="browseDirectoryAction"/>
+    <addaction name="actionSave_2"/>
     <addaction name="separator"/>
     <addaction name="quitAction"/>
    </widget>
@@ -120,34 +121,16 @@
     </property>
     <widget class="QMenu" name="menuColorspace">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>&amp;Colorspace</string>
      </property>
-     <addaction name="actionLin_to_Cineon"/>
-     <addaction name="actionLin_to_SRGB"/>
-     <addaction name="actionCineon_to_Lin"/>
-     <addaction name="actionCineon_to_SRGB"/>
-     <addaction name="actionSRGB_to_Lin"/>
-    </widget>
-    <widget class="QMenu" name="menuZoom">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>&amp;Zoom</string>
-     </property>
-     <addaction name="zoom12Action"/>
-     <addaction name="zoom25Action"/>
-     <addaction name="zoom50Action"/>
-     <addaction name="zoom75Action"/>
-     <addaction name="zoom100Action"/>
-     <addaction name="zoom150Action"/>
-     <addaction name="zoom200Action"/>
+     <addaction name="LINAction"/>
+     <addaction name="LOGAction"/>
+     <addaction name="SRGBAction"/>
     </widget>
     <addaction name="menuColorspace"/>
-    <addaction name="menuZoom"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuControl"/>
@@ -576,9 +559,9 @@
     <string>I</string>
    </property>
   </action>
-  <action name="actionCineon_to_Lin">
+  <action name="LOGAction">
    <property name="text">
-    <string>Cineon to Lin</string>
+    <string>LOG</string>
    </property>
   </action>
   <action name="actionLin_to_Cineon">
@@ -586,9 +569,9 @@
     <string>Lin to Cineon</string>
    </property>
   </action>
-  <action name="actionLin_to_SRGB">
+  <action name="LINAction">
    <property name="text">
-    <string>Lin to SRGB</string>
+    <string>LIN</string>
    </property>
   </action>
   <action name="actionSRGB_to_Lin">
@@ -596,9 +579,9 @@
     <string>SRGB to Lin</string>
    </property>
   </action>
-  <action name="actionCineon_to_SRGB">
+  <action name="SRGBAction">
    <property name="text">
-    <string>Cineon to SRGB</string>
+    <string>SRGB</string>
    </property>
   </action>
   <action name="zoom12Action">
@@ -639,6 +622,11 @@
   <action name="undefinedAction">
    <property name="text">
     <string>dock1</string>
+   </property>
+  </action>
+  <action name="actionSave_2">
+   <property name="text">
+    <string>Save Playlist...</string>
    </property>
   </action>
  </widget>

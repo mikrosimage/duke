@@ -11,6 +11,12 @@ void UITimelineControls::frameChanged(qint64 pos) {
     m_ui.frameSpinBox->blockSignals(false);
 }
 
+void UITimelineControls::framerateChanged(double f) {
+    m_ui.framerateSpinBox->blockSignals(true);
+    m_ui.framerateSpinBox->setValue(f);
+    m_ui.framerateSpinBox->blockSignals(false);
+}
+
 void UITimelineControls::on_frameSpinBox_valueChanged(int frame) {
     emit frameControlChanged(frame);
 }

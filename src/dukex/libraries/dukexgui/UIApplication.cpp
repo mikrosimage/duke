@@ -37,7 +37,9 @@ UIApplication::UIApplication(Session::ptr s) :
     connect(ui.nextShotAction, SIGNAL(triggered()), this, SLOT(nextShot()));
     connect(ui.previousShotAction, SIGNAL(triggered()), this, SLOT(previousShot()));
     // Display Actions
-    connect(ui.infoAction, SIGNAL(triggered()), this, SLOT(info()));
+    connect(ui.LINAction, SIGNAL(triggered()), this, SLOT(colorspaceLIN()));
+    connect(ui.LOGAction, SIGNAL(triggered()), this, SLOT(colorspaceLOG()));
+    connect(ui.SRGBAction, SIGNAL(triggered()), this, SLOT(colorspaceSRGB()));
     // Window Actions
     connect(ui.fullscreenAction, SIGNAL(triggered()), this, SLOT(fullscreen()));
     connect(ui.toggleFitModeAction, SIGNAL(triggered()), this, SLOT(toggleFitMode()));
@@ -61,9 +63,11 @@ UIApplication::UIApplication(Session::ptr s) :
     m_Manager.addNode(g, m_Session);
     InfoNode::ptr info = InfoNode::ptr(new InfoNode());
     m_Manager.addNode(info, m_Session);
+    PlaybackNode::ptr pb = PlaybackNode::ptr(new PlaybackNode());
+    m_Manager.addNode(pb, m_Session);
 }
 
-void UIApplication::showEvent(QShowEvent* event){
+void UIApplication::showEvent(QShowEvent* event) {
     // load needed plugins
     m_PluginDialog->load(QString("plugin_dukex_imageinfo"));
     m_PluginDialog->load(QString("plugin_dukex_timeline"));
@@ -75,7 +79,7 @@ void UIApplication::showEvent(QShowEvent* event){
 }
 
 void UIApplication::addObserver(QObject* _plugin, IObserver* _observer) {
-    if(!_observer)
+    if (!_observer)
         return;
     m_Session->addObserver(_observer);
     m_RegisteredObservers.insert(_plugin, _observer);
@@ -83,7 +87,7 @@ void UIApplication::addObserver(QObject* _plugin, IObserver* _observer) {
 
 QAction* UIApplication::createAction(QObject* _plugin, const QString & _menuName) {
     QAction * customaction = NULL;
-    if(!_menuName.isEmpty()){
+    if (!_menuName.isEmpty()) {
         QList<QMenu *> menus = findChildren<QMenu *> ();
         QListIterator<QMenu *> iter(menus);
         while (iter.hasNext()) {
@@ -96,7 +100,7 @@ QAction* UIApplication::createAction(QObject* _plugin, const QString & _menuName
         }
     }
 
-    if(customaction)
+    if (customaction)
         m_LoadedUIElements.insert(_plugin, customaction);
 
     return customaction;
@@ -104,7 +108,7 @@ QAction* UIApplication::createAction(QObject* _plugin, const QString & _menuName
 
 QMenu* UIApplication::createMenu(QObject* _plugin, const QString & _menuName) {
     QMenu * custommenu = new QMenu(menuBar());
-    if(!_menuName.isEmpty()){
+    if (!_menuName.isEmpty()) {
         QList<QMenu *> menus = findChildren<QMenu *> ();
         QListIterator<QMenu *> iter(menus);
         while (iter.hasNext()) {
@@ -128,19 +132,19 @@ QDockWidget* UIApplication::createWindow(QObject* _plugin, Qt::DockWidgetArea _a
     connect(customdockwidget, SIGNAL(topLevelChanged(bool)), this, SLOT(topLevelChanged(bool)));
     addDockWidget(_area, customdockwidget);
     m_LoadedUIElements.insert(_plugin, customdockwidget);
-    if(floating){
+    if (floating) {
         customdockwidget->setFloating(true);
-        customdockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
+        customdockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos()) + QPoint(40, 60));
         customdockwidget->adjustSize();
     }
     return customdockwidget;
 }
 
-void UIApplication::topLevelChanged(bool b){
+void UIApplication::topLevelChanged(bool b) {
     QDockWidget *dockwidget = qobject_cast<QDockWidget *> (sender());
     if (dockwidget && b) {
         dockwidget->setWindowOpacity(0.6);
-        dockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos())+QPoint(40,60));
+        dockwidget->move(mapToGlobal(m_RenderWindow->renderWidget()->pos()) + QPoint(40, 60));
         dockwidget->adjustSize();
     }
 }
@@ -438,9 +442,27 @@ void UIApplication::nextShot() {
 }
 
 // private slot
-void UIApplication::info() {
-    //    m_RenderWindow->showInfo();
-    setFocus();
+void UIApplication::colorspaceLIN() {
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode> ("fr.mikrosimage.dukex.grading");
+    if (g.get() == NULL)
+        return;
+    g->setColorspace(::duke::playlist::Display::LIN);
+}
+
+// private slot
+void UIApplication::colorspaceLOG() {
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode> ("fr.mikrosimage.dukex.grading");
+    if (g.get() == NULL)
+        return;
+    g->setColorspace(::duke::playlist::Display::LOG);
+}
+
+// private slot
+void UIApplication::colorspaceSRGB() {
+    GradingNode::ptr g = m_Manager.nodeByName<GradingNode> ("fr.mikrosimage.dukex.grading");
+    if (g.get() == NULL)
+        return;
+    g->setColorspace(::duke::playlist::Display::SRGB);
 }
 
 // private slot

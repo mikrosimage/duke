@@ -13,6 +13,7 @@ public:
 
 public slots:
     void frameChanged(qint64 pos);
+    void framerateChanged(double f);
     void on_frameSpinBox_valueChanged(int);
     void on_framerateSpinBox_valueChanged(double);
 

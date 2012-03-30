@@ -55,7 +55,9 @@ private slots:
     void previousShot();
     void nextShot();
     // display
-    void info();
+    void colorspaceLIN();
+    void colorspaceLOG();
+    void colorspaceSRGB();
     // window
     void fullscreen();
     void toggleFitMode();

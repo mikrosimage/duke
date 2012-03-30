@@ -1,6 +1,7 @@
 #include "FitNode.h"
 #include "GradingNode.h"
 #include "InfoNode.h"
+#include "PlaybackNode.h"
 #include "SceneNode.h"
 #include "ShadingNode.h"
 #include "TransportNode.h"

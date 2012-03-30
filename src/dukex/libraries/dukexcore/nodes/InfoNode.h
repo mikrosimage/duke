@@ -31,6 +31,14 @@ public:
         session()->sendMsg(queue);
     }
 
+    void callCurrentPlaybackState() {
+        MessageQueue queue;
+        ::duke::protocol::Info info;
+        info.set_content(::duke::protocol::Info_Content_PLAYBACKSTATE);
+        push(queue, info, google::protobuf::serialize::MessageHolder::RETRIEVE);
+        session()->sendMsg(queue);
+    }
+
 };
 
 #endif // INFONODE_H
