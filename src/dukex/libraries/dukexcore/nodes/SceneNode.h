@@ -7,7 +7,9 @@
 #include <dukeapi/protobuf_builder/SceneBuilder.h>
 #include <player.pb.h>
 #include <boost/filesystem.hpp>
+#include <google/protobuf/text_format.h>
 #include <deque>
+#include <fstream>
 
 class SceneNode : public INode {
 
@@ -61,6 +63,25 @@ public:
 
         } catch (std::exception & e) {
             std::cerr << "[PlaylistNode] " << e.what() << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+
+    bool save(const std::string & file) {
+        try {
+            // Get playlist from session
+            ::duke::playlist::Playlist & playlist = session()->descriptor().playlist();
+            // Serialize playlist object to string
+            std::string outputstring;
+            ::google::protobuf::TextFormat::PrintToString(playlist, &outputstring);
+            // Write
+            std::ofstream out(file.c_str(), std::ios::out);
+            out << outputstring;
+            out.close();
+        } catch (std::exception & e) {
+            std::cerr << e.what() << std::endl;
             return false;
         }
         return true;

@@ -83,7 +83,6 @@ private:
     ::duke::protocol::StaticParameter mDisplayMode;
     ::duke::protocol::PlaybackState::PlaybackMode mPlaybackMode;
     MessageQueue mInitTimeQueue;
-
 };
 
 #endif // DKXSESSIONDESCRIPTOR_H

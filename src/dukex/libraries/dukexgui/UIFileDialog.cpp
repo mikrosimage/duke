@@ -29,7 +29,7 @@ void UIFileDialog::setupCustomUI() {
     // global filedialog settings
     setViewMode(QFileDialog::Detail);
     setFileMode(QFileDialog::ExistingFile);
-    setNameFilter(tr("All (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm *.ppl *.ppl2);;Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm);;Playlists (*.ppl *.ppl2)"));
+    setNameFilter(tr("All (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm *.dk *.ppl);;Images (*.pic *.pbm *.dpx *.tpic *.png *.pgm *.jpg *.pnm *.bmp *.exr *.sgi *.tiff *.tif *.dds *.tga *.jp2 *.rgb *.j2k *.jpeg *.ico *.hdr *.ppm);;Playlists (*.dk *.ppl)"));
     // custom checkbox
     mSequenceCheckbox = new QCheckBox(this);
     mSequenceCheckbox->setText("Load As Sequence");
