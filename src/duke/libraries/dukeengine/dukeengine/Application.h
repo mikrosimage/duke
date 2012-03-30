@@ -44,10 +44,11 @@ private:
     void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeCache(const ::duke::protocol::Cache&, const ::google::protobuf::serialize::MessageHolder_Action);
-    void updatePlaybackState(::duke::protocol::Info_PlaybackState &) const ;
-    void updateCacheState(::duke::protocol::Info_CacheState &cache) const ;
-    void updateImagesInfo(::google::protobuf::RepeatedPtrField<duke::protocol::Info_ImageInfo> &imageInfos) const ;
-    void updateExtensions(::google::protobuf::RepeatedPtrField<std::string> &extensions) const ;
+    void updatePlaybackState();
+    void updateInfoPlaybackState(::duke::protocol::Info_PlaybackState &) const ;
+    void updateInfoCacheState(::duke::protocol::Info_CacheState &cache) const ;
+    void updateInfoImages(::google::protobuf::RepeatedPtrField<duke::protocol::Info_ImageInfo> &imageInfos) const ;
+    void updateInfoExtensions(::google::protobuf::RepeatedPtrField<std::string> &extensions) const ;
 
     void applyTransport(const ::duke::protocol::Transport&);
     void consumeUntilRenderOrQuit();

@@ -6,3 +6,4 @@ project
     ;
 
 exe dukex : [ glob *.cpp ] resources/resources.qrc ;
+explicit dukex ;
