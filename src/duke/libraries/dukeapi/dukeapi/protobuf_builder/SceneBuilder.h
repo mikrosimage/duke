@@ -14,6 +14,6 @@
 #include <vector>
 
 void normalize(duke::playlist::Playlist &playlist);
-std::vector<google::protobuf::serialize::SharedHolder> getMessages(const duke::playlist::Playlist &playlist, const duke::protocol::Scene::PlaybackMode mode);
+std::vector<google::protobuf::serialize::SharedHolder> getMessages(const duke::playlist::Playlist &playlist);
 
 #endif /* SCENEBUILDER_H_ */

@@ -40,12 +40,13 @@ private:
     void consumeMessages();
     void consumeDebug(const ::duke::protocol::Debug&) const;
     void consumeScene(const ::duke::protocol::Scene&);
+    void consumePlaybackState(const ::duke::protocol::PlaybackState&);
     void consumeTransport(const ::duke::protocol::Transport&, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeInfo(::duke::protocol::Info, const ::google::protobuf::serialize::MessageHolder_Action);
     void consumeCache(const ::duke::protocol::Cache&, const ::google::protobuf::serialize::MessageHolder_Action);
     void updatePlaybackState(::duke::protocol::Info_PlaybackState &) const ;
     void updateCacheState(::duke::protocol::Info_CacheState &cache) const ;
-    void updateImagesInfo(::google::protobuf::RepeatedPtrField< duke::protocol::Info_ImageInfo> &imageInfos) const ;
+    void updateImagesInfo(::google::protobuf::RepeatedPtrField<duke::protocol::Info_ImageInfo> &imageInfos) const ;
     void updateExtensions(::google::protobuf::RepeatedPtrField<std::string> &extensions) const ;
 
     void applyTransport(const ::duke::protocol::Transport&);
@@ -61,6 +62,7 @@ private:
     MessageQueue m_RendererMessages;
     ::google::protobuf::serialize::SharedHolder m_RendererMessageHolder;
     ImageDecoderFactoryImpl &m_ImageDecoderFactory;
+    ::duke::protocol::PlaybackState m_PlaybackState;
     ::duke::protocol::PlaylistHelper m_Playlist;
     ::duke::protocol::Cache m_CacheConfiguration;
     playback::Playback m_Playback;

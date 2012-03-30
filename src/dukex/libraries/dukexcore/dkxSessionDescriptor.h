@@ -64,7 +64,7 @@ public:
     inline const ::duke::protocol::StaticParameter & displayMode() const {
         return mDisplayMode;
     }
-    inline const ::duke::protocol::Scene_PlaybackMode & playbackMode() const {
+    inline const ::duke::protocol::PlaybackState::PlaybackMode & playbackMode() const {
         return mPlaybackMode;
     }
     inline MessageQueue & getInitTimeQueue() {
@@ -85,7 +85,7 @@ private:
     std::string mRendererPath;
     ::duke::playlist::Playlist mPlaylist;
     ::duke::protocol::StaticParameter mDisplayMode;
-    ::duke::protocol::Scene_PlaybackMode mPlaybackMode;
+    ::duke::protocol::PlaybackState::PlaybackMode mPlaybackMode;
     MessageQueue mInitTimeQueue;
 
 };

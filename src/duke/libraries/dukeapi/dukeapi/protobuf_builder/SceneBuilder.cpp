@@ -127,13 +127,8 @@ static string shaderName(const vector<string> effects) {
 }
 
 struct SceneBuilder {
-    SceneBuilder(const Playlist &playlist, float framerate, const duke::protocol::Scene::PlaybackMode mode) {
+    SceneBuilder(const Playlist &playlist) {
         const vector<string> tracks = getTracks(playlist);
-        if (playlist.has_loop())
-            scene.set_loop(playlist.loop());
-        scene.set_playbackmode(mode);
-        scene.set_frameratenumerator(framerate);
-        scene.set_frameratedenominator(1);
         scene.mutable_track()->Reserve(tracks.size());
         for (vector<string>::const_iterator itr = tracks.begin(), end = tracks.end(); itr != end; ++itr) {
             const string &name(*itr);
@@ -225,9 +220,9 @@ static StaticParameter staticFloat(const string& name, float value) {
     return param;
 }
 
-vector<google::protobuf::serialize::SharedHolder> getMessages(const Playlist &playlist, const duke::protocol::Scene::PlaybackMode mode) {
+vector<google::protobuf::serialize::SharedHolder> getMessages(const Playlist &playlist) {
     const RepeatedPtrField<Shot> &shots = playlist.shot();
-    SceneBuilder builder(playlist, playlist.framerate(), mode);
+    SceneBuilder builder(playlist);
     // mesh
     builder.packAndShare(MeshBuilder::buildPlane(MeshBuilder::plane));
     // appending unbound parameters

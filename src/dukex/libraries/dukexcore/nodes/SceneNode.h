@@ -25,7 +25,6 @@ public:
 
             // retrieve playlist parameters
             ::google::protobuf::uint32 framerate = session()->descriptor().framerate();
-            ::duke::protocol::Scene_PlaybackMode playbackmode = session()->descriptor().playbackMode();
 
             // Push engine stop
             ::duke::protocol::Engine stop;
@@ -42,7 +41,7 @@ public:
             session()->descriptor().setPlaylist(playlist);
 
             // Build messages from playlist
-            std::vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist, playbackmode);
+            std::vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist);
             queue.drainFrom(messages);
 
             if (playlist.has_startframe()) {
@@ -79,16 +78,9 @@ public:
 
             // re-build & push the entire scene
             MessageQueue queue;
-            SessionDescriptor & descriptor = session()->descriptor();
-            const ::duke::playlist::Playlist & p = descriptor.playlist();
-
-            std::vector<google::protobuf::serialize::SharedHolder> messages = getMessages(p, descriptor.playbackMode());
-            queue.drainFrom(messages);
-
-            duke::protocol::Transport cue;
-            cue.set_type(duke::protocol::Transport::CUE);
-            cue.mutable_cue()->set_value(descriptor.currentFrame());
-            push(queue, cue);
+            duke::protocol::PlaybackState playback;
+            playback.set_frameratenumerator(framerate);
+            push(queue, playback);
 
             session()->sendMsg(queue);
         } catch (std::exception & e) {

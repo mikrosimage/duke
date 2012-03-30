@@ -182,19 +182,9 @@ message Renderer {
 }
 
 message Scene {
-	required uint32 framerateNumerator = 1 [ default = 1 ];
-	optional uint32 framerateDenominator = 2 [ default = 1 ];
-	repeated Track track = 3;
-	optional uint32 recin = 4;
-	optional bool loop = 5 [ default = true ];
-	
-	enum PlaybackMode {
-		DROP_FRAME_TO_KEEP_REALTIME = 0;
-		RENDER = 2;
-		NO_SKIP = 3;
-	}
-	optional PlaybackMode playbackMode = 6 [default = DROP_FRAME_TO_KEEP_REALTIME ];
-	optional AudioSource audioSource = 7 ;
+	repeated Track track = 1;
+	optional uint32 recin = 2;
+	optional AudioSource audioSource = 3 ;
 }
 
 message Track {
@@ -233,6 +223,18 @@ message Grading {
     repeated RenderPass pass = 2;
 }
 
+message PlaybackState {
+	enum PlaybackMode {
+		DROP_FRAME_TO_KEEP_REALTIME = 0;
+		RENDER = 2;
+		NO_SKIP = 3;
+	}
+	optional uint32 framerateNumerator = 1 [ default = 25 ];
+	optional uint32 framerateDenominator = 2 [ default = 1 ];
+	optional PlaybackMode playbackMode = 3 [default = DROP_FRAME_TO_KEEP_REALTIME ];
+	optional bool loop = 4 [ default = true ];
+}
+
 message Transport {
 	enum TransportType {
 		PLAY				= 0;
@@ -249,11 +251,12 @@ message Transport {
 		optional bool cueRelative = 2; // if set cue relative instead of absolute
 		required int32 value = 3;
 	}
-	
+
 	required TransportType type = 1;
 	optional Cue cue = 2;
-	optional bool doRender = 5; // if set the player will render after this action, otherwise it'll try to consume as much as Transport as possible
-	optional bool autoNotifyOnFrameChange = 6; // if set, sends event on each frame change  
+	optional bool doRender = 3; // if set the player will render after this action, otherwise it'll try to consume as much as Transport as possible
+	optional bool autoNotifyOnFrameChange = 4; // if set, sends event on each frame change  
+
 }
 
 // we should probably deprecated this one

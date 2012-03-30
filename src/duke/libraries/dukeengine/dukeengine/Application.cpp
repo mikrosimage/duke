@@ -194,6 +194,45 @@ static inline uint32_t getFrameFromCueMessage(const Transport_Cue& cue, const Pl
     return cue.cueclip() ? cueClip(cue, helper, current) : cueFrame(cue, helper, current);
 }
 
+static inline playback::PlaybackType get(PlaybackState_PlaybackMode mode) {
+    switch (mode) {
+        case PlaybackState::RENDER:
+            return playback::RENDER;
+        case PlaybackState::NO_SKIP:
+            return playback::REALTIME_NO_SKIP;
+        case PlaybackState::DROP_FRAME_TO_KEEP_REALTIME:
+            return playback::REALTIME;
+        default:
+            throw runtime_error("bad enum");
+    }
+}
+
+void Application::consumePlaybackState(const PlaybackState &playbackState){
+    // update playback
+    bool changed = false;
+    if (playbackState.has_frameratenumerator()) {
+        m_PlaybackState.set_frameratenumerator(playbackState.frameratenumerator());
+        if (playbackState.has_frameratedenominator())
+            m_PlaybackState.set_frameratedenominator(playbackState.frameratedenominator());
+        changed = true;
+    }
+    if (playbackState.has_loop()) {
+        m_PlaybackState.set_loop(playbackState.loop());
+        changed = true;
+    }
+    if (playbackState.has_playbackmode()) {
+        m_PlaybackState.set_playbackmode(playbackState.playbackmode());
+        changed = true;
+    }
+    if (changed) {
+        using namespace boost::chrono;
+        const high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(m_PlaybackState.frameratenumerator(), m_PlaybackState.frameratedenominator());
+        cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
+        m_Playback.init(m_Playlist.range, m_PlaybackState.loop(), nsPerFrame);
+        m_Playback.setType(get(m_PlaybackState.playbackmode()));
+    }
+}
+
 void Application::applyTransport(const Transport& transport) {
     //                        m_AudioEngine.applyTransport(transport);
     const uint32_t currentFrame = m_Playback.frame();
@@ -227,33 +266,7 @@ void Application::applyTransport(const Transport& transport) {
             m_AudioEngine.pause();
             break;
     }
-}
 
-//////////////////////
-// Playback section //
-//////////////////////
-
-static inline playback::PlaybackType get(Scene_PlaybackMode mode) {
-    switch (mode) {
-        case Scene::RENDER:
-            return playback::RENDER;
-        case Scene::NO_SKIP:
-            return playback::REALTIME_NO_SKIP;
-        case Scene::DROP_FRAME_TO_KEEP_REALTIME:
-            return playback::REALTIME;
-        default:
-            throw runtime_error("bad enum");
-    }
-}
-
-void Application::updatePlayback() {
-    const Scene &scene = m_Playlist.scene;
-    const boost::chrono::high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(scene.frameratenumerator(), scene.frameratedenominator());
-    using namespace boost::chrono;
-    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-    m_Cache.init(m_Playlist, m_CacheConfiguration);
-    m_Playback.init(m_Playlist.range, scene.loop(), nsPerFrame);
-    m_Playback.setType(get(scene.playbackmode()));
 }
 
 /////////////////////
@@ -316,7 +329,7 @@ void Application::consumeTransport(const Transport &transport, const MessageHold
 void Application::consumeScene(const Scene& scene) {
     m_Playlist = PlaylistHelper(scene);
     m_AudioEngine.load(scene);
-    updatePlayback();
+    m_Cache.init(m_Playlist, m_CacheConfiguration);
     m_bForceRefresh = true;
 }
 
@@ -448,6 +461,8 @@ void Application::consumeMessages() {
             consumeScene(unpackTo<Scene>(holder));
         else if (isType<Transport>(pDescriptor))
             consumeTransport(unpackTo<Transport>(holder), holder.action());
+        else if (isType<PlaybackState>(pDescriptor))
+            consumePlaybackState(unpackTo<PlaybackState>(holder));
         else if (isType<Info>(pDescriptor))
             consumeInfo(unpackTo<Info>(holder), holder.action());
         else if (isType<Cache>(pDescriptor))

@@ -224,10 +224,21 @@ Configuration::Configuration(int argc, char** argv) :
 
         normalize(playlist);
 
-        const Scene::PlaybackMode mode = m_Vm.count(NOFRAMERATE) > 0 ? Scene::RENDER : m_Vm.count(NOSKIP) > 0 ? Scene::NO_SKIP : Scene::DROP_FRAME_TO_KEEP_REALTIME;
-        vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist, mode);
+        vector<google::protobuf::serialize::SharedHolder> messages = getMessages(playlist);
         queue.drainFrom(messages);
 
+        {
+            duke::protocol::PlaybackState playback;
+            const PlaybackState::PlaybackMode mode = m_Vm.count(NOFRAMERATE) > 0 ? //
+                            PlaybackState::RENDER : //
+                            m_Vm.count(NOSKIP) > 0 ? //
+                                            PlaybackState::NO_SKIP : //
+                                            PlaybackState::DROP_FRAME_TO_KEEP_REALTIME;
+            playback.set_playbackmode(mode);
+            playback.set_frameratenumerator(playlist.framerate());
+            playback.set_loop(playlist.loop());
+            queueInserter << playback;
+        }
         if (playlist.has_startframe()) {
             duke::protocol::Transport cue;
             cue.set_type(Transport::CUE);
