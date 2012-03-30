@@ -6,7 +6,7 @@
 #include "components/UITimelineControls.h"
 #include <dukexcore/dkxNodeManager.h>
 #include <dukexcore/nodes/TransportNode.h>
-#include <dukexcore/nodes/PlaylistNode.h>
+#include <dukexcore/nodes/SceneNode.h>
 #include <dukexcore/nodes/InfoNode.h>
 #include <QHBoxLayout>
 #include <QScrollBar>
@@ -103,7 +103,7 @@ void UITimeline::update(::google::protobuf::serialize::SharedHolder sharedholder
     using namespace ::duke::protocol;
     // do not update position when mouse button is down (==scrub)
     if (::google::protobuf::serialize::isType<Transport>(*sharedholder) && QApplication::mouseButtons() == Qt::NoButton) {
-        const Transport t = ::google::protobuf::serialize::unpackTo<Transport>(*sharedholder);
+        const Transport & t = ::google::protobuf::serialize::unpackTo<Transport>(*sharedholder);
         switch (t.type()) {
             case Transport_TransportType_PLAY:
             case Transport_TransportType_STOP:
@@ -182,10 +182,10 @@ void UITimeline::frameChanged(qint64 pos) {
 }
 
 void UITimeline::framerateChanged(double framerate) {
-    PlaylistNode::ptr p = m_manager->nodeByName<PlaylistNode>("fr.mikrosimage.dukex.playlist");
-    if (p.get() == NULL)
+    SceneNode::ptr s = m_manager->nodeByName<SceneNode>("fr.mikrosimage.dukex.scene");
+    if (s.get() == NULL)
         return;
-    p->setFramerate(framerate);
+    s->setFramerate(framerate);
 }
 
 void UITimeline::fit() {
