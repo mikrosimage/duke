@@ -158,6 +158,7 @@ bool Configuration::parse(int argc, char** argv) {
         if (m_Vm.count(FRAMERATE))
             playlist.set_framerate(m_Vm[FRAMERATE].as<unsigned int>());
 
+        mSession->descriptor().setPlaylist(playlist);
         normalize(playlist);
 
         if (hasInputs) {

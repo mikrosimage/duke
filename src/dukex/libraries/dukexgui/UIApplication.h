@@ -42,10 +42,11 @@ private:
 
 private slots:
     // file
-    void openFiles(const QStringList &, const bool &, const bool &);
+    void openFiles(const QStringList &, const bool & browseMode, const bool & parseSequence);
     void openFiles();
     void openRecent();
     void browseDirectory();
+    void savePlaylist();
     // control
     void playStop();
     void previousFrame();

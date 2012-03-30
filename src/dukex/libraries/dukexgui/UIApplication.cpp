@@ -27,6 +27,7 @@ UIApplication::UIApplication(Session::ptr s) :
     // File Actions
     connect(ui.openFileAction, SIGNAL(triggered()), this, SLOT(openFiles()));
     connect(ui.browseDirectoryAction, SIGNAL(triggered()), this, SLOT(browseDirectory()));
+    connect(ui.savePlaylistAction, SIGNAL(triggered()), this, SLOT(savePlaylist()));
     connect(ui.quitAction, SIGNAL(triggered()), this, SLOT(close()));
     // Control Actions
     connect(ui.playStopAction, SIGNAL(triggered()), this, SLOT(playStop()));
@@ -374,11 +375,24 @@ void UIApplication::openRecent() {
 
 // private slot
 void UIApplication::browseDirectory() {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), QString(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (!dir.isEmpty()) {
-        QStringList list;
-        list.append(dir);
-        openFiles(list, true, false);
+    QStringList list;
+    if (m_FileDialog->exec()) {
+        list = m_FileDialog->selectedFiles();
+        if (list.size() != 0)
+            openFiles(list, true, m_FileDialog->asSequence());
+    }
+}
+
+// private slot
+void UIApplication::savePlaylist() {
+    QString file = QFileDialog::getSaveFileName(this, tr("Save Current Playlist"), QString(), tr("Duke Playlist (*.dk);;All(*)"));
+    if (!file.isEmpty()) {
+        if(!file.endsWith(".dk"))
+            file.append(".dk");
+        SceneNode::ptr scene = m_Manager.nodeByName<SceneNode> ("fr.mikrosimage.dukex.scene");
+        if (scene.get() == NULL)
+            return;
+        scene->save(file.toStdString());
     }
 }
 
