@@ -43,6 +43,7 @@ project : requirements
             <os>NT:<define>VC_EXTRALEAN
             <os>NT:<define>_WIN32_WINNT=0x0501
             <variant>debug:<define>DEBUG
+            <variant>release:<strip>on
             <define>GIT_COMMIT=\"\\\"$(GIT_COMMIT)\\\"\"
             <define>GIT_BRANCH=\"\\\"$(GIT_BRANCH)\\\"\"
             <define>BUILD_NUMBER=\"\\\"$(BUILD_NUMBER)\\\"\"
