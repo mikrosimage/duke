@@ -207,7 +207,7 @@ static inline playback::PlaybackType get(PlaybackState_PlaybackMode mode) {
     }
 }
 
-void Application::consumePlaybackState(const PlaybackState &playbackState){
+void Application::consumePlaybackState(const PlaybackState &playbackState) {
     // update playback
     bool changed = false;
     if (playbackState.has_frameratenumerator()) {
@@ -224,13 +224,16 @@ void Application::consumePlaybackState(const PlaybackState &playbackState){
         m_PlaybackState.set_playbackmode(playbackState.playbackmode());
         changed = true;
     }
-    if (changed) {
-        using namespace boost::chrono;
-        const high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(m_PlaybackState.frameratenumerator(), m_PlaybackState.frameratedenominator());
-        cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
-        m_Playback.init(m_Playlist.range, m_PlaybackState.loop(), nsPerFrame);
-        m_Playback.setType(get(m_PlaybackState.playbackmode()));
-    }
+    if (changed)
+        updatePlaybackState();
+}
+
+void Application::updatePlaybackState() {
+    using namespace boost::chrono;
+    const high_resolution_clock::duration nsPerFrame = playback::nsPerFrame(m_PlaybackState.frameratenumerator(), m_PlaybackState.frameratedenominator());
+    cout << HEADER << "frame time " << duration_cast<milliseconds>(nsPerFrame) << endl;
+    m_Playback.init(m_Playlist.range, m_PlaybackState.loop(), nsPerFrame);
+    m_Playback.setType(get(m_PlaybackState.playbackmode()));
 }
 
 void Application::applyTransport(const Transport& transport) {
@@ -329,6 +332,7 @@ void Application::consumeTransport(const Transport &transport, const MessageHold
 void Application::consumeScene(const Scene& scene) {
     m_Playlist = PlaylistHelper(scene);
     m_AudioEngine.load(scene);
+    updatePlaybackState();
     m_Cache.init(m_Playlist, m_CacheConfiguration);
     m_bForceRefresh = true;
 }
@@ -361,7 +365,7 @@ struct CacheStateGatherer {
     }
 };
 
-void Application::updateCacheState(Info_CacheState &infos) const {
+void Application::updateInfoCacheState(Info_CacheState &infos) const {
     if (!m_Cache.enabled())
         return;
     image::WorkUnitIds ids;
@@ -371,12 +375,12 @@ void Application::updateCacheState(Info_CacheState &infos) const {
     gatherer.update();
 }
 
-void Application::updatePlaybackState(Info_PlaybackState &infos) const {
+void Application::updateInfoPlaybackState(Info_PlaybackState &infos) const {
     infos.set_frame(m_Playback.frame());
     infos.set_fps(m_FrameTimings.frequency());
 }
 
-void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) const {
+void Application::updateInfoImages(RepeatedPtrField<Info_ImageInfo> &infos) const {
     if (m_FileBufferHolder.getImages().empty())
         return;
     MediaFrames frames;
@@ -397,7 +401,7 @@ void Application::updateImagesInfo(RepeatedPtrField<Info_ImageInfo> &infos) cons
     }
 }
 
-void Application::updateExtensions(RepeatedPtrField<string> &extensions) const {
+void Application::updateInfoExtensions(RepeatedPtrField<string> &extensions) const {
     const char ** pExtensions = m_ImageDecoderFactory.getAvailableExtensions();
     for (; pExtensions != NULL && *pExtensions != NULL; ++pExtensions)
         *extensions.Add() = *pExtensions;
@@ -406,16 +410,16 @@ void Application::updateExtensions(RepeatedPtrField<string> &extensions) const {
 void Application::consumeInfo(Info info, const MessageHolder_Action action) {
     switch (info.content()) {
         case Info_Content_PLAYBACKSTATE:
-            updatePlaybackState(*info.mutable_playbackstate());
+            updateInfoPlaybackState(*info.mutable_playbackstate());
             break;
         case Info_Content_CACHESTATE:
-            updateCacheState(*info.mutable_cachestate());
+            updateInfoCacheState(*info.mutable_cachestate());
             break;
         case Info_Content_IMAGEINFO:
-            updateImagesInfo(*info.mutable_image());
+            updateInfoImages(*info.mutable_image());
             break;
         case Info_Content_EXTENSIONS:
-            updateExtensions(*info.mutable_extension());
+            updateInfoExtensions(*info.mutable_extension());
             break;
         default:
             return;
@@ -465,8 +469,8 @@ void Application::consumeMessages() {
             consumePlaybackState(unpackTo<PlaybackState>(holder));
         else if (isType<Info>(pDescriptor))
             consumeInfo(unpackTo<Info>(holder), holder.action());
-        else if (isType<Cache>(pDescriptor))
-            consumeCache(unpackTo<Cache>(holder), holder.action());
+//        else if (isType<Cache>(pDescriptor))
+//            consumeCache(unpackTo<Cache>(holder), holder.action());
         else
             m_RendererMessages.push(pHolder);
     }
