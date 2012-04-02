@@ -42,4 +42,8 @@ static const char* const HELP_OPT = "help,h";
 static const char* const PORT = "port";
 static const char* const PORT_OPT = PORT;
 
+#include <string>
+
+unsigned long long parseCache(const std::string&);
+
 #endif /* CMDLINEOPTIONS_H_ */

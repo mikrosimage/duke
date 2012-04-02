@@ -7,10 +7,12 @@ lib dukeengine_test_subset
 				[ glob ../dukeengine/memory/pool/*.cpp ]
 				[ glob ../dukeengine/memory/alloc/*.cpp ]
 				[ glob ../dukeengine/file/*.cpp ]
+				../dukeengine/CmdLineOptions.cpp
+				../dukeengine/memory/MemoryUtils.cpp
 			:
 				<library>/dukeapi//dukeapi/<link>static
 			;
- 
+
 for local l in [ glob *.cpp ] {
 	unit-test $(l)_tests
 		:

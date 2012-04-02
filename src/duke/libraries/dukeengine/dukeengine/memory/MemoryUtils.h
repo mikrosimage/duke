@@ -25,4 +25,6 @@ T roundUp( T value )
 	return roundUp( value, STEP );
 }
 
+unsigned long long getTotalSystemMemory();
+
 #endif /* MEMORYUTILS_H_ */

@@ -70,7 +70,7 @@ bool Configuration::parse(int argc, char** argv) {
     // available in the configuration file and command line
     m_Config.add_options() //
     (RENDERER_OPT, po::value<string>(), "Sets the renderer to be used") //
-    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
+    (CACHESIZE_OPT, po::value<string>()->default_value("50%"), "Cache size for look ahead. Valid units are K,M,G or %") //
     (THREADS_OPT, po::value<size_t>()->default_value(1), "Number of load/decode threads. Cache size must be >0.");
 
     // Adding display settings
@@ -129,7 +129,7 @@ bool Configuration::parse(int argc, char** argv) {
 
         // caching
         if (m_Vm.count(CACHESIZE))
-            m_Descriptor.setCacheSize((((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024);
+            m_Descriptor.setCacheSize(parseCache(m_Vm[CACHESIZE].as<string>()));
 
         // blanking / refreshrate
         renderer.set_presentinterval(m_Vm[BLANKING].as<unsigned>());

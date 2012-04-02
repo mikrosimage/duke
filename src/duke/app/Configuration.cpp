@@ -79,7 +79,7 @@ Configuration::Configuration(int argc, char** argv) :
     (PLAYBACK_OPT, po::value<string>(), "Play a recorded session back from file") //
     (RECORD_OPT, po::value<string>(), "Record a session to file") //
     (PORT_OPT, po::value<short>(), "Sets the port number to be used") //
-    (CACHESIZE_OPT, po::value<size_t>()->default_value(0), "Cache size for preemptive read in MB. 0 means no caching.") //
+    (CACHESIZE_OPT, po::value<string>()->default_value("50%"), "Cache size for look ahead. Valid units are K,M,G or %") //
     (THREADS_OPT, po::value<size_t>()->default_value(0), "Number of load/decode threads. Cache size must be >0.");
     // adding display settings
     ::duke::protocol::Renderer renderer;
@@ -271,7 +271,7 @@ void Configuration::decorateAndRun(IMessageIO& io, ImageDecoderFactoryImpl &imag
 
 void Configuration::run(IMessageIO& io, ImageDecoderFactoryImpl &imageDecoderFactory) {
     const string rendererFilename = m_Vm[RENDERER].as<string>();
-    const uint64_t cacheSize = (((uint64_t) m_Vm[CACHESIZE].as<size_t>()) * 1024) * 1024;
+    const uint64_t cacheSize = parseCache(m_Vm[CACHESIZE].as<string>());
     const size_t threads = m_Vm[THREADS].as<size_t>();
     duke::protocol::Cache cache;
     cache.set_size(cacheSize);
