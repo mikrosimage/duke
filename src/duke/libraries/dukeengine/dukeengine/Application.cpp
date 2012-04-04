@@ -2,7 +2,7 @@
 
 #include <player.pb.h>
 
-#include <sequence/parser/ParserUtils.h>
+#include <sequence/parser/details/Utils.h>
 
 #include <dukeapi/sequence/PlaylistHelper.h>
 
@@ -337,11 +337,10 @@ void Application::consumeScene(const Scene& scene) {
     m_bForceRefresh = true;
 }
 
-typedef sequence::parser::details::LocationValueSet LocationValueSet;
-
 struct CacheStateGatherer {
+    typedef boost::container::flat_set<unsigned int> IndexSet;
     const PlaylistHelper &playlist;
-    vector<LocationValueSet> frames;
+    vector<IndexSet> frames;
     Info_CacheState &cache;
     CacheStateGatherer(const PlaylistHelper &playlist, Info_CacheState &cache) :
                     playlist(playlist), frames(playlist.tracks.size()), cache(cache) {
@@ -355,7 +354,7 @@ struct CacheStateGatherer {
             Info_CacheState_TrackCache &trackCache = *cache.add_track();
             trackCache.set_name(playlist.scene.track(i).name());
             unsigned step = 0;
-            const Ranges ranges = frames[i].getConsecutiveRanges(step);
+            const Ranges ranges = sequence::parser::details::getRangesAndStep(frames[i].begin(), frames[i].end(), step);
             for (Ranges::const_iterator itr = ranges.begin(); itr != ranges.end(); ++itr) {
                 FrameRange &range = *trackCache.add_range();
                 range.set_first(itr->first);
