@@ -353,7 +353,7 @@ struct CacheStateGatherer {
         for (size_t i = 0; i < frames.size(); ++i) {
             Info_CacheState_TrackCache &trackCache = *cache.add_track();
             trackCache.set_name(playlist.scene.track(i).name());
-            unsigned step = 0;
+            size_t step = 0;
             const Ranges ranges = sequence::parser::details::getRangesAndStep(frames[i].begin(), frames[i].end(), step);
             for (Ranges::const_iterator itr = ranges.begin(); itr != ranges.end(); ++itr) {
                 FrameRange &range = *trackCache.add_range();
