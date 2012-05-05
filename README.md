@@ -19,9 +19,7 @@ Compilation
 
 * Getting the source
 
-> git clone git://github.com/mikrosimage/duke.git  
-cd duke  
-git submodule update -i
+> git clone --recursive https://github.com/mikrosimage/duke.git  
 
 * Compilation
 

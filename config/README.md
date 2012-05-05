@@ -1,3 +1,4 @@
+
 "I wanna build, what's this user-config thing ?"
 -----------------------------------------------
 
@@ -31,7 +32,7 @@ do so. Check  the 'Configuration' section of the
 
 To sum up, you can :
 
-* move you're user-config.jam file in your $HOME or $BOOST_BUILD_PATH (1)
+* move you're user-config.jam file in your `$HOME` or `$BOOST_BUILD_PATH` (1)
 * specify the file on the command line, eg :
 
         ./build-linux-gcc.sh --user-config=/path/to/user-config.jam

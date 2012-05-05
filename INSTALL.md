@@ -14,7 +14,7 @@ choice when building large pieces of code with a lot of dependencies.
 An excellent introduction to Boost.Build can be found [here](http://www.highscore.de/cpp/boostbuild/)
 
 And the official documentation is available [online](http://www.boost.org/boost-build2/doc/html/) 
-or in your boost copy at $(BOOST_ROOT)/tools/build/index.html 
+or in your boost copy at `$(BOOST_ROOT)/tools/build/index.html` 
 
 
 Setting up the build process
@@ -40,7 +40,7 @@ Setting up the build process
 
 ### Setting up environment variables  
 
-In order to use Boost.Build you have to set the BOOST_ROOT environment variable.
+In order to use Boost.Build you have to set the `BOOST_ROOT` environment variable.
 
 - Linux / MacOSX
 
@@ -56,9 +56,29 @@ or to your Windows environment to make it persistent.*
 
 
 
-### Getting all external libraries  
+### External libraries  
 
-Have a look at the ***config/README*** file.
+Duke currently relies on the following libraries
+
+#### mandatory  
+
+* [`boost 1.49.0`](http://www.boost.org/users/history/version_1_49_0.html)
+* [`Cg-3.1_February2012_x86`](http://http.developer.nvidia.com/Cg/cg_3_1_0010.html)
+* [`protobuf-2.4.1`](http://code.google.com/p/protobuf/downloads/list)
+* [`Qt 4.8`](http://qt-project.org/downloads)
+* `SFML` from Github [commit 92f14fa8538fd8c1db93e4dcfb130a60dbafd651](https://github.com/LaurentGomila/SFML/commit/92f14fa8538fd8c1db93e4dcfb130a60dbafd651) 
+ * `OpenAl`
+ * `libsndfile`
+
+**Please note that we are currently trying to prune this list so to keep the dependencies at a minimum.**  
+**We do agree this list is way too long and we plan to get rid of SFML and al. in a near future.**
+
+#### optional
+
+* `OIIO RB-1.0` from Github [commit 513d0dd5af6568111e88e65c15e77470e2ae6d82](https://github.com/OpenImageIO/oiio/commit/513d0dd5af6568111e88e65c15e77470e2ae6d82)
+* [`libjpeg-turbo-1.2.0`](http://sourceforge.net/projects/libjpeg-turbo/files/1.2.0/)
+
+Have a look at the `config/README` file to learn how to tell the build system where to find them.
      
 
 
@@ -90,7 +110,10 @@ Building
         
     --clean  
         __Remove targets instead of building__  
-        
+
+    --no-XXX  
+       __With XXX being one of plugin-jpg, plugin-dpx, plugin-oiio__
+ 
     dist  
         __Full build & installation__  
         
