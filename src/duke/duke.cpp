@@ -52,7 +52,7 @@ std::ostream& operator<<(std::ostream& stream, const duke::Viewport &value) {
 	return stream << '(' << value.offset << ',' << value.dimension << ')';
 }
 
-#if true
+#if false
 int main(int argc, char** argv) {
 	using namespace std;
 	using namespace duke;
