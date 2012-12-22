@@ -81,7 +81,8 @@ GLbyte *gltLoadTGA(const char *szFileName, GLint *iWidth, GLint *iHeight, GLint 
 		return NULL;
 
 	// Read in header (binary)
-	fread(&tgaHeader, 18/* sizeof(TGAHEADER)*/, 1, pFile);
+	if(fread(&tgaHeader, 18/* sizeof(TGAHEADER)*/, 1, pFile)!=1)
+		return NULL;
 
 	// Do byte swap for big vs little endian
 #ifdef __APPLE__

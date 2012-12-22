@@ -39,7 +39,10 @@ public:
 			m_Error = "Unable to open";
 			return;
 		}
-		fread(&m_Header, sizeof(TGAHEADER), 1, m_pFile);
+		if(fread(&m_Header, sizeof(TGAHEADER), 1, m_pFile)!=1){
+			m_Error = "Unable to read header";
+			return;
+		}
 		// Do byte swap for big vs little endian
 #ifdef __APPLE__
 		LITTLE_ENDIAN_WORD(&m_Header.colorMapStart);
@@ -109,4 +112,6 @@ class TGADescriptor: public IIODescriptor {
 	}
 };
 
-static bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
+namespace  {
+	bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
+}  // namespace

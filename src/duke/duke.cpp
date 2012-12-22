@@ -1,15 +1,11 @@
 #include "TGA.h"
 
-#include <duke/memory/alloc/Allocator.h>
-#include <duke/io/MemoryMappedFile.h>
-#include <duke/imageio/DukeIO.h>
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/clock/Clock.h>
 #include <duke/gl/GlFwApp.h>
-#include <duke/gl/Buffer.hpp>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Shader.hpp>
-#include <duke/gl/Texture.h>
+#include <duke/VolatileTexture.h>
 #include <duke/DukeWindow.h>
 
 #include <glm/glm.hpp>
@@ -63,86 +59,6 @@ std::ostream& operator<<(std::ostream& stream, const duke::Viewport &value) {
 	return stream << '(' << value.offset << ',' << value.dimension << ')';
 }
 
-GLint getInternalFormat(GLint format) {
-	switch (format) {
-	case GL_BGR:
-		return GL_RGB;
-	case GL_BGRA:
-		return GL_RGBA;
-	default:
-		return format;
-	}
-}
-
-void loadGlTexture(const ImageDescription& desc, const void* pData, GLenum minFilter, GLenum magFilter, GLenum wrapMode) {
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, wrapMode);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, wrapMode);
-
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, magFilter);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, getInternalFormat(desc.glFormat), desc.width, desc.height, 0, desc.glFormat, desc.glType, pData);
-	printf("loaded %ldx%ld", desc.width, desc.height);
-	checkError();
-}
-
-AlignedMalloc alignedMalloc;
-
-std::string loadImage(std::unique_ptr<IImageReader> &&pReader, GLenum minFilter, GLenum magFilter, GLenum wrapMode) {
-	if (!pReader) {
-		return std::string("bad state : IImageReader==nullptr");
-	}
-	if (pReader->hasError()) {
-		return pReader->getError();
-	}
-	const auto desc = pReader->getDescription();
-	const void* pMapped = pReader->getMappedImageData();
-	if (pMapped==nullptr) {
-		const auto pData = make_shared_memory<char>(desc.dataSize, alignedMalloc);
-		pReader->readImageDataTo(pData.get());
-		if (pReader->hasError()) {
-			return pReader->getError();
-		}
-		loadGlTexture(desc, pData.get(), minFilter, magFilter, wrapMode);
-	} else {
-		loadGlTexture(desc, pMapped, minFilter, magFilter, wrapMode);
-	}
-	return std::string();
-}
-
-bool loadImage(const char* filename, GLenum minFilter, GLenum magFilter, GLenum wrapMode) {
-	const char* pDot = strrchr(filename, '.');
-	if (!pDot)
-		return false;
-	std::string error;
-	for (const IIODescriptor *pDescriptor : IODescriptors::instance().findDescriptor(++pDot)) {
-		std::unique_ptr<MemoryMappedFile> pMapped;
-		std::unique_ptr<IImageReader> pReader;
-		if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
-			pMapped.reset(new MemoryMappedFile(filename)); // bad locality
-			if (!(*pMapped)) {
-				error = "unable to map file to memory";
-				continue;
-			}
-			pReader.reset(pDescriptor->getReaderFromMemory(pMapped->pFileData, pMapped->fileSize));
-		} else
-			pReader.reset(pDescriptor->getReaderFromFile(filename));
-		error = loadImage(std::move(pReader), minFilter, magFilter, wrapMode);
-		if (error.empty())
-			return true;
-	}
-	printf("error while reading %s : %s\n", filename, error.c_str());
-	return false;
-}
-
-struct Texture {
-	ImageDescription description;
-	Texture(const char* pFilename) {
-
-	}
-};
-
 #if true
 int main(int argc, char** argv) {
 	using namespace std;
@@ -161,18 +77,14 @@ int main(int argc, char** argv) {
 				loadFragmentShader("shader/basic.fglsl"));
 		const auto gWorldLocation = program.getUniformLocation("gWorld");
 		const auto locRectTexture = program.getUniformLocation("rectangleImage");
+		const auto gTex0 = program.getUniformLocation("gTex0");
 		const auto pMesh = getSquare();
 
 		// texture
-		const auto pTextureBuffer = std::make_shared<TextureBuffer>(GL_TEXTURE_RECTANGLE);
+		VolatileTexture texture(GL_TEXTURE_RECTANGLE);
 
-		///////////////////////////////////////////
-		// Load the main texture
-		{
-			ScopeBinder<TextureBuffer> scopeBind(pTextureBuffer);
-			loadImage("test.tga", GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE);
-//			loadImage("sample1920X1080dpx10bit.dpx", GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE);
-		}
+		texture.load("test.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+//		texture.load("sample1920X1080dpx10bit.dpx", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
 		Metronom metronom(100);
 		auto milestone = std::chrono::steady_clock::now();
@@ -181,20 +93,18 @@ int main(int argc, char** argv) {
 			glfwPollEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//			const auto render = rendering(program, pMesh, pTexture);
-
 			program.use();
 
 //			const float seconds = (uint64_t(clock_utils::getRealtimeMicroSec().us) & 0xFFFFFFFF) / 1000000.;
 //			const float roundPerSeonds = seconds * 360;
 
-			const vec2 image(1920, 1200);
+			const vec2 image(texture.description.width, texture.description.height);
 			const auto viewport = window.useViewport(false, false, false, false);
 			const mat4 worldViewProj = getWorldViewProjActualPixel(viewport, image, window.getRelativeMousePos(), glfwGetMouseWheel());
 			glUniformMatrix4fv(gWorldLocation, 1, GL_FALSE, value_ptr(worldViewProj));
 
 			glUniform1i(locRectTexture, 0);
-			ScopeBinder<TextureBuffer> scopeBind(pTextureBuffer);
+			const auto scopeBind = texture.use(gTex0);
 
 			pMesh->draw();
 

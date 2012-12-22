@@ -51,7 +51,7 @@ public:
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;
 	}
-	inline const Attributes& attributes() const {
+	inline const Attributes& getAttributes() const {
 		return m_Attributes;
 	}
 	virtual const void* getMappedImageData() const {

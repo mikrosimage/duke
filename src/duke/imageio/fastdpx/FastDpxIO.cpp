@@ -124,4 +124,6 @@ class FastDpxDescriptor: public IIODescriptor {
 	}
 };
 
-static bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescriptor());
+namespace {
+	bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescriptor());
+}  // namespace

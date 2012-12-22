@@ -57,6 +57,6 @@ typedef Buffer<BufferTexturePolicy> TextureBuffer;
 
 #include <memory>
 
-typedef std::shared_ptr<TextureBuffer> SharedTexture;
+typedef std::shared_ptr<TextureBuffer> SharedTextureBuffer;
 
 #endif /* TEXTURE_H_ */
