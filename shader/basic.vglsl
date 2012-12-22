@@ -1,0 +1,16 @@
+#version 330
+
+layout (location = 0) in vec3 Position;
+layout (location = 1) in vec2 UV;
+
+uniform mat4 gWorld;
+uniform sampler2D colorMap;
+
+out vec2 vVaryingTexCoord; 
+
+void main() 
+{
+	gl_Position = gWorld * vec4(Position, 1.0);
+	vec2 inversedY=vec2(UV.x,1-UV.y); 
+	vVaryingTexCoord = inversedY * vec2(1920,1080);
+}

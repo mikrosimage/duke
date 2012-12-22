@@ -1,0 +1,6 @@
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = git://git.code.sf.net/p/glfw/code
+[submodule "dependencies/glm"]
+	path = dependencies/glm
+	url = git://github.com/g-truc/glm.git
