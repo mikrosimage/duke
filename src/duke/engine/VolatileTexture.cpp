@@ -102,6 +102,7 @@ bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 }
 
 ScopeBinder<TextureBuffer> VolatileTexture::use(GLuint dimensionUniformParameter) const {
+	// TODO fix all cases of Orientation
 	if (attributes.find<int>("Orientation"))
 		glUniform2f(dimensionUniformParameter, description.width, -float(description.height));
 	else

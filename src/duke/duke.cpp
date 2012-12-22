@@ -5,8 +5,8 @@
 #include <duke/gl/GlFwApp.h>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Shader.hpp>
-#include <duke/VolatileTexture.h>
-#include <duke/DukeWindow.h>
+#include <duke/engine/VolatileTexture.h>
+#include <duke/engine/DukeWindow.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -14,14 +14,7 @@
 
 #include <GL/glfw.h>
 
-#include <set>
-#include <vector>
-#include <stdexcept>
 #include <iostream>
-
-#include <cstdlib>
-#include <cstdio>
-#include <cmath>
 
 SharedMesh getSquare() {
 	using namespace std;
@@ -83,7 +76,8 @@ int main(int argc, char** argv) {
 		// texture
 		VolatileTexture texture(GL_TEXTURE_RECTANGLE);
 
-		texture.load("test.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+		texture.load("ScanLines/StillLife.exr", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+//		texture.load("test.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 //		texture.load("sample1920X1080dpx10bit.dpx", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
 		Metronom metronom(100);

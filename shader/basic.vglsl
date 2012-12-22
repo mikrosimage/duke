@@ -11,8 +11,11 @@ out vec2 vVaryingTexCoord;
 void main() 
 {
 	gl_Position = gWorld * vec4(Position, 1.0);
-	vec2 uv = UV * gTex0;
+	vec2 dim = gTex0;
+	vec2 uv = UV * dim;
 	if(gTex0.y < 0)
-		uv.y = (UV.y-1) * gTex0.y;
+		uv.y = (UV.y-1) * dim.y;
+	if(gTex0.x < 0)
+		uv.x = (UV.x-1) * dim.x;
 	vVaryingTexCoord = uv;
 }

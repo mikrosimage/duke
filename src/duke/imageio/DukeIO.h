@@ -79,9 +79,15 @@ public:
 	virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
 	virtual const char* getName() const = 0;
 	virtual bool supports(Capability capability) const = 0;
-	virtual IImageReader* getReaderFromFile(const char *filename) const = 0;
-	virtual IImageReader* getReaderFromMemory(const void *pData, const size_t dataSize) const = 0;
-	virtual IImageWriter* getWriterToFile(const char *filename) const = 0;
+	virtual IImageReader* getReaderFromFile(const char *filename) const {
+		return nullptr;
+	}
+	virtual IImageReader* getReaderFromMemory(const void *pData, const size_t dataSize) const {
+		return nullptr;
+	}
+	virtual IImageWriter* getWriterToFile(const char *filename) const {
+		return nullptr;
+	}
 };
 
 #include <memory>

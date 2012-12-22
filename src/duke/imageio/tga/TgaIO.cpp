@@ -104,12 +104,6 @@ class TGADescriptor: public IIODescriptor {
 	virtual IImageReader* getReaderFromFile(const char *filename) const {
 		return new TGAImageReader(this, filename);
 	}
-	virtual IImageReader* getReaderFromMemory(const void *pData, const size_t dataSize) const {
-		return nullptr;
-	}
-	virtual IImageWriter* getWriterToFile(const char *filename) const {
-		return nullptr;
-	}
 };
 
 namespace  {

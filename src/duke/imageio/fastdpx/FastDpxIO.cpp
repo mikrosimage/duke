@@ -113,14 +113,8 @@ class FastDpxDescriptor: public IIODescriptor {
 	virtual const char* getName() const {
 		return "FastDpx";
 	}
-	virtual IImageReader* getReaderFromFile(const char *filename) const {
-		return nullptr;
-	}
 	virtual IImageReader* getReaderFromMemory(const void *pData, const size_t dataSize) const {
 		return new FastDpxImageReader(this, pData, dataSize);
-	}
-	virtual IImageWriter* getWriterToFile(const char *filename) const {
-		return nullptr;
 	}
 };
 
