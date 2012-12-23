@@ -77,8 +77,8 @@ int main(int argc, char** argv) {
 		VolatileTexture texture(GL_TEXTURE_RECTANGLE);
 
 //		texture.load("ScanLines/StillLife.exr", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
-//		texture.load("test.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
-		texture.load("sample1920X1080dpx10bit.dpx", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+		texture.load("test.tga", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+//		texture.load("sample1920X1080dpx10bit.dpx", GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
 		Metronom metronom(100);
 		auto milestone = std::chrono::steady_clock::now();

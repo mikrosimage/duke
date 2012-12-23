@@ -39,7 +39,7 @@ public:
 			m_Error = "Unable to open";
 			return;
 		}
-		if(fread(&m_Header, sizeof(TGAHEADER), 1, m_pFile)!=1){
+		if (fread(&m_Header, sizeof(TGAHEADER), 1, m_pFile) != 1) {
 			m_Error = "Unable to read header";
 			return;
 		}
@@ -72,6 +72,7 @@ public:
 		m_Description.height = m_Header.height;
 		m_Description.depth = 1;
 		m_Description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
+		m_Attributes.push_back(Attribute("Orientation", (int) 4));
 	}
 	~TGAImageReader() {
 		if (m_pFile)
@@ -106,6 +107,6 @@ class TGADescriptor: public IIODescriptor {
 	}
 };
 
-namespace  {
-	bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
+namespace {
+bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
 }  // namespace

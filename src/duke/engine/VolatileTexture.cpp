@@ -129,10 +129,27 @@ bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 }
 
 ScopeBinder<TextureBuffer> VolatileTexture::use(GLuint dimensionUniformParameter) const {
-	// TODO fix all cases of Orientation
-	if (attributes.find<int>("Orientation"))
-		glUniform2f(dimensionUniformParameter, description.width, -float(description.height));
-	else
-		glUniform2f(dimensionUniformParameter, description.width, description.height);
+	int orientation = 1;
+	const auto pOrientation = attributes.find<int>("Orientation");
+	if (pOrientation)
+		orientation = pOrientation->getScalar<int>();
+	float width = description.width;
+	float height = description.height;
+	switch (orientation) {
+	case 0: //normal (top to bottom, left to right)
+	case 1: //normal (top to bottom, left to right)
+	case 2: //flipped horizontally (top to botom, right to left)
+		height = -height;
+		break;
+	case 3: //rotate 180◦ (bottom to top, right to left)
+	case 4: //flipped vertically (bottom to top, left to right)
+		break;
+	case 5: //transposed (left to right, top to bottom)
+	case 6: //rotated 90◦ clockwise (right to left, top to bottom)
+	case 7: //transverse (right to left, bottom to top)
+	case 8: //rotated 90◦ counter-clockwise (left to right, bottom to top)
+		throw std::runtime_error("unsupported orientation");
+	}
+	glUniform2f(dimensionUniformParameter, width, height);
 	return ScopeBinder<TextureBuffer>(m_pTextureBuffer);
 }
