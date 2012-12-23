@@ -72,7 +72,7 @@ public:
 class IIODescriptor: public NonCopyable {
 public:
 	enum class Capability {
-		READER_READ_FROM_MEMORY, READER_ALLOCATES_MEMORY
+		READER_READ_FROM_MEMORY, READER_ALLOCATES_MEMORY, READER_GENERAL_PURPOSE
 	};
 	virtual ~IIODescriptor() {
 	}
@@ -92,12 +92,13 @@ public:
 
 #include <memory>
 #include <map>
+#include <deque>
 class IODescriptors: public NonCopyable {
 	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
-	std::map<std::string, std::vector<IIODescriptor*> > m_ExtensionToDescriptors;
+	std::map<std::string, std::deque<IIODescriptor*> > m_ExtensionToDescriptors;
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
-	const std::vector<IIODescriptor*>& findDescriptor(const char* extension) const;
+	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
 
 	static IODescriptors& instance();
 };

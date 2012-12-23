@@ -12,29 +12,64 @@
 #include <iostream>
 
 VolatileTexture::VolatileTexture(GLuint type) :
-		minFilter(GL_NEAREST), magFilter(GL_NEAREST), wrapMode(GL_CLAMP_TO_EDGE), m_pTextureBuffer(std::make_shared<TextureBuffer>(GL_TEXTURE_RECTANGLE)) {
+		minFilter(GL_NEAREST), magFilter(GL_NEAREST), wrapMode(GL_CLAMP_TO_EDGE), textureType(type), m_pTextureBuffer(std::make_shared<TextureBuffer>(type)) {
 }
 
-GLint getInternalFormat(GLint format) {
-	switch (format) {
-	case GL_BGR:
-		return GL_RGB;
-	case GL_BGRA:
-		return GL_RGBA;
-	default:
-		return format;
+GLint getInternalFormat(GLint format, GLint type) {
+	switch (type) {
+	case GL_UNSIGNED_BYTE:
+		switch (format) {
+		case GL_RGB:
+		case GL_BGR:
+			return GL_RGB8;
+		case GL_RGBA:
+		case GL_BGRA:
+			return GL_RGBA8;
+		}
+		break;
+	case GL_UNSIGNED_SHORT:
+		switch (format) {
+		case GL_RGB:
+			return GL_RGB16;
+		case GL_RGBA:
+			return GL_RGBA16;
+		}
+		break;
+	case GL_HALF_FLOAT:
+		switch (format) {
+		case GL_RGB:
+			return GL_RGB16F;
+		case GL_RGBA:
+			return GL_RGBA16F;
+		}
+		break;
+	case GL_FLOAT:
+		switch (format) {
+		case GL_RGB:
+			return GL_RGB32F;
+		case GL_RGBA:
+			return GL_RGBA32F;
+		}
+		break;
+	case GL_UNSIGNED_INT_10_10_10_2:
+	case GL_UNSIGNED_INT_2_10_10_10_REV:
+		return GL_RGB10;
 	}
+	throw std::runtime_error("Don't know how to map texture to OpenGL internal format");
 }
 
 void VolatileTexture::loadGlTexture(const void* pData) {
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, wrapMode);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, wrapMode);
+	glTexParameteri(textureType, GL_TEXTURE_WRAP_S, wrapMode);
+	glTexParameteri(textureType, GL_TEXTURE_WRAP_T, wrapMode);
 
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, magFilter);
+	glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, magFilter);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, getInternalFormat(description.glFormat), description.width, description.height, 0, description.glFormat, description.glType, pData);
+	glTexImage2D(textureType, 0, //
+			getInternalFormat(description.glFormat, description.glType), //
+			description.width, description.height, 0, //
+			description.glFormat, description.glType, pData);
 	printf("loaded %ldx%ld", description.width, description.height);
 	checkError();
 }
@@ -61,16 +96,8 @@ std::string VolatileTexture::loadImage(std::unique_ptr<IImageReader> &&pReader) 
 	} else {
 		loadGlTexture( pMapped);
 	}
-//	const Attribute * pAttr = attributes.find<int>("Orientation");
-//	if(pAttr) {
-//		switch(pAttr->getScalar<int>()) {
-//			case 0:
-//			description.height = -description.height;
-//			break;
-//		}
-//	}
-		return std::string();
-	}
+	return std::string();
+}
 
 bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magFilter, GLenum _wrapMode) {
 	minFilter = _minFilter;

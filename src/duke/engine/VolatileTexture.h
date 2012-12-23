@@ -23,6 +23,7 @@ struct VolatileTexture {
 	GLuint minFilter;
 	GLuint magFilter;
 	GLuint wrapMode;
+	GLuint textureType;
 private:
 	std::string loadImage(std::unique_ptr<IImageReader> &&pReader);
 	void loadGlTexture(const void* pData);

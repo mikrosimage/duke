@@ -133,7 +133,7 @@ public:
 		m_Extensions.push_back(current);
 	}
 	virtual bool supports(Capability capability) const {
-		return false;
+		return capability == Capability::READER_GENERAL_PURPOSE;
 	}
 	virtual const vector<string>& getSupportedExtensions() const {
 		return m_Extensions;
