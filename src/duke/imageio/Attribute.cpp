@@ -7,73 +7,122 @@
 
 #include "Attribute.h"
 
-#define ISTYPE(TYPE) typeIdName<TYPE>()==typeidname
-
-#define TYPENAME(TYPE) if(ISTYPE(TYPE)) return #TYPE;\
-		if(ISTYPE(const TYPE*)) return "const "#TYPE"[]"
-
-#define SIGNED_UNSIGNED_TYPENAME(TYPE) TYPENAME(TYPE);\
-		TYPENAME(unsigned TYPE)
-
-static const char* getTypeName(const char*typeidname) {
-	SIGNED_UNSIGNED_TYPENAME(char);
-	SIGNED_UNSIGNED_TYPENAME(short);
-	SIGNED_UNSIGNED_TYPENAME(int);
-	SIGNED_UNSIGNED_TYPENAME(long);
-	SIGNED_UNSIGNED_TYPENAME(long long);
-	TYPENAME(float);
-	TYPENAME(double);
-	throw std::runtime_error("not yet implemented");
+const char * const getTypeName(PrimitiveType type) {
+	switch (type) {
+	case PrimitiveType::UNKNOWN:
+		return "unknown";
+	case PrimitiveType::CHAR:
+		return "char";
+	case PrimitiveType::UCHAR:
+		return "unsigned char";
+	case PrimitiveType::SHORT:
+		return "short";
+	case PrimitiveType::USHORT:
+		return "unsigned short";
+	case PrimitiveType::INT:
+		return "int";
+	case PrimitiveType::UINT:
+		return "unsigned int";
+	case PrimitiveType::LONG:
+		return "long";
+	case PrimitiveType::ULONG:
+		return "unsigned long";
+	case PrimitiveType::LONGLONG:
+		return "long long";
+	case PrimitiveType::ULONGLONG:
+		return "unsigned long long";
+	case PrimitiveType::FLOAT:
+		return "float";
+	case PrimitiveType::DOUBLE:
+		return "double";
+	default:
+		throw std::runtime_error("Not yet implemented");
+	}
 }
 
-#define TYPESIZE(TYPE) if(ISTYPE(const TYPE*)) return sizeof(TYPE);
-#define SIGNED_UNSIGNED_TYPESIZE(TYPE) if(ISTYPE(const TYPE*)||ISTYPE(const unsigned TYPE*)) return sizeof(TYPE);
-
-static size_t getTypeSize(const char*typeidname) {
-	SIGNED_UNSIGNED_TYPESIZE(char);
-	SIGNED_UNSIGNED_TYPESIZE(short);
-	SIGNED_UNSIGNED_TYPESIZE(int);
-	SIGNED_UNSIGNED_TYPESIZE(long);
-	SIGNED_UNSIGNED_TYPESIZE(long long);
-	TYPESIZE(float);
-	TYPESIZE(double);
-	throw std::runtime_error("not yet implemented");
+size_t typeSize(PrimitiveType type) {
+	switch (type) {
+	case PrimitiveType::CHAR:
+	case PrimitiveType::UCHAR:
+		return sizeof(char);
+	case PrimitiveType::SHORT:
+	case PrimitiveType::USHORT:
+		return sizeof(short);
+	case PrimitiveType::INT:
+	case PrimitiveType::UINT:
+		return sizeof(int);
+	case PrimitiveType::LONG:
+	case PrimitiveType::ULONG:
+		return sizeof(long);
+	case PrimitiveType::LONGLONG:
+	case PrimitiveType::ULONGLONG:
+		return sizeof(long long);
+	case PrimitiveType::FLOAT:
+		return sizeof(float);
+	case PrimitiveType::DOUBLE:
+		return sizeof(double);
+	case PrimitiveType::UNKNOWN:
+	default:
+		throw std::runtime_error("bad state");
+	}
+}
+std::ostream& displayValue(std::ostream &stream, const char *pData,
+		PrimitiveType type) {
+	switch (type) {
+	case PrimitiveType::CHAR:
+		return stream << *reinterpret_cast<const char*>(pData);
+	case PrimitiveType::UCHAR:
+		return stream << *reinterpret_cast<const unsigned char*>(pData);
+	case PrimitiveType::SHORT:
+		return stream << *reinterpret_cast<const short*>(pData);
+	case PrimitiveType::USHORT:
+		return stream << *reinterpret_cast<const unsigned short*>(pData);
+	case PrimitiveType::INT:
+		return stream << *reinterpret_cast<const int*>(pData);
+	case PrimitiveType::UINT:
+		return stream << *reinterpret_cast<const unsigned int*>(pData);
+	case PrimitiveType::LONG:
+		return stream << *reinterpret_cast<const long*>(pData);
+	case PrimitiveType::ULONG:
+		return stream << *reinterpret_cast<const unsigned long*>(pData);
+	case PrimitiveType::LONGLONG:
+		return stream << *reinterpret_cast<const long long*>(pData);
+	case PrimitiveType::ULONGLONG:
+		return stream << *reinterpret_cast<const unsigned long long*>(pData);
+	case PrimitiveType::FLOAT:
+		return stream << *reinterpret_cast<const float*>(pData);
+	case PrimitiveType::DOUBLE:
+		return stream << *reinterpret_cast<const double*>(pData);
+	default:
+	case PrimitiveType::UNKNOWN:
+		return stream;
+	}
 }
 
-#define STREAMTYPE(TYPE) if(ISTYPE(TYPE)||ISTYPE(const TYPE*)) { stream << *reinterpret_cast<const TYPE*>(pData); return; }
-#define SIGNED_UNSIGNED_STREAMTYPE(TYPE) STREAMTYPE(TYPE)\
-STREAMTYPE(unsigned TYPE)
-
-static void displayValue(std::ostream &stream, const void* pData, const char*typeidname) {
-	SIGNED_UNSIGNED_STREAMTYPE(int);
-	STREAMTYPE(float);
-	STREAMTYPE(double);
-	SIGNED_UNSIGNED_STREAMTYPE(long);
-	SIGNED_UNSIGNED_STREAMTYPE(char);
-	SIGNED_UNSIGNED_STREAMTYPE(short);
-	SIGNED_UNSIGNED_STREAMTYPE(long long);
-	throw std::runtime_error("not yet implemented");
+std::ostream& operator<<(std::ostream&stream, PrimitiveType type) {
+	return stream << getTypeName(type);
 }
 
 std::ostream& operator<<(std::ostream&stream, const Attribute &attribute) {
-	const char* pType = attribute.type();
-	if (pType == nullptr)
+	const PrimitiveType type = attribute.type();
+	if (type == PrimitiveType::UNKNOWN)
 		return stream << "undefined";
-
-	stream << getTypeName(pType) << " " << attribute.name() << "=";
 	const char *pData = reinterpret_cast<const char*>(attribute.data());
 	if (attribute.isScalar()) {
-		displayValue(stream, pData, pType);
+		stream << type << " " << attribute.name() << "=";
+		displayValue(stream, pData, type);
 	} else {
 		if (attribute.isString()) {
+			stream << "string " << attribute.name() << "=";
 			stream << "'" << attribute.getString() << "'";
 		} else {
-			const size_t typeSize = getTypeSize(pType);
+			stream << "vector<"<< type << "> " << attribute.name() << "=";
+			const size_t size = typeSize(type);
 			stream << '[';
-			for (size_t i = 0; i < attribute.size(); ++i, pData += typeSize) {
+			for (size_t i = 0; i < attribute.size(); ++i, pData += size) {
 				if (i > 0)
 					stream << ',';
-				displayValue(stream, pData, pType);
+				displayValue(stream, pData, type);
 			}
 			stream << ']';
 		}

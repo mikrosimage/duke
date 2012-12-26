@@ -72,10 +72,10 @@ TEST(Attribute,assignement) {
 TEST(Attributes,find) {
 	Attributes attributes;
 	attributes.emplace_back("name", 100);
-	EXPECT_TRUE(attributes.find("name", typeid(int).name()));
+	EXPECT_TRUE(attributes.find("name", PrimitiveType::INT));
 	EXPECT_TRUE(attributes.find<int>("name"));
-	EXPECT_FALSE(attributes.find("name", typeid(float).name()));
-	EXPECT_FALSE(attributes.find("name_", typeid(int).name()));
+	EXPECT_FALSE(attributes.find("name", PrimitiveType::FLOAT));
+	EXPECT_FALSE(attributes.find("name_", PrimitiveType::INT));
 }
 TEST(Attributes,findVector) {
 	Attributes attributes;

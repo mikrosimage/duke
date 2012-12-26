@@ -1,9 +1,4 @@
-/*
- * OpenImageIO.cpp
- *
- *  Created on: Dec 22, 2012
- *      Author: Guillaume Chatelet
- */
+#ifdef DUKE_OIIO
 
 #include <duke/imageio/DukeIO.h>
 
@@ -149,3 +144,5 @@ public:
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new OpenImageIODescriptor());
 }  // namespace
+
+#endif // DUKE_OIIO

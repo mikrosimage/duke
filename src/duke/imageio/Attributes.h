@@ -9,23 +9,24 @@
 #define ATTRIBUTES_H_
 
 #include "Attribute.h"
+#include <stdexcept>
 
 struct Attributes: public std::vector<Attribute> {
 	template<typename T>
 	const Attribute* find(const char* name) const {
-		return find(name, typeIdName<T>());
+		return find(name, ptraits<T>::value);
 	}
 	template<typename T>
 	Attribute::TypedVectorAttribute<T> findVector(const char* name) const {
-		const Attribute* pAttr = find(name, typeIdName<const T*>());
+		const Attribute* pAttr = find(name, ptraits<T>::value);
 		if (pAttr == nullptr)
 			throw std::runtime_error("vector not found");
 		return Attribute::TypedVectorAttribute<T>(pAttr);
 	}
 
-	const Attribute* find(const char* name, const char* pType) const {
+	const Attribute* find(const char* name, PrimitiveType type) const {
 		for (const Attribute &attr : *this)
-			if (attr.type() == pType && attr.name() == name)
+			if (attr.type() == type && attr.name() == name)
 				return &attr;
 		return nullptr;
 	}

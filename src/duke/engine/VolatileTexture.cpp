@@ -70,7 +70,6 @@ void VolatileTexture::loadGlTexture(const void* pData) {
 			getInternalFormat(description.glFormat, description.glType), //
 			description.width, description.height, 0, //
 			description.glFormat, description.glType, pData);
-	printf("loaded %ldx%ld", description.width, description.height);
 	checkError();
 }
 
