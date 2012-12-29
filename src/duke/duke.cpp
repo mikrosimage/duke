@@ -3,7 +3,7 @@
 #include "TGA.h"
 
 #include <duke/cmdline/CmdLineParameters.h>
-#include <duke/clock/Clock.h>
+#include <duke/time/Clock.h>
 #include <duke/gl/GlFwApp.h>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Shader.hpp>

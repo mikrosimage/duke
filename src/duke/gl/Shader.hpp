@@ -8,7 +8,7 @@
 #ifndef SHADER_HPP_
 #define SHADER_HPP_
 
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 #include <duke/gl/GLUtils.h>
 
 #include <GL/gl.h>

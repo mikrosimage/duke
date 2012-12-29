@@ -8,7 +8,7 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 #include <duke/gl/GlFwApp.h>
 
 #include <glm/glm.hpp>

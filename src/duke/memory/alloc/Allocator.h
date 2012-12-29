@@ -9,7 +9,7 @@
 #define ALLOCATOR_H_
 
 #include <duke/memory/alloc/PageSize.h>
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 
 #include <cstddef> // size_t
 #include <cstdlib>

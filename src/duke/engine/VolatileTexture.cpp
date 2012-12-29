@@ -106,7 +106,7 @@ bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 	if (!pDot)
 		return false;
 	ScopeBinder<TextureBuffer> scopeBind(m_pTextureBuffer);
-	std::string error;
+	std::string error = "no reader";
 	for (const IIODescriptor *pDescriptor : IODescriptors::instance().findDescriptor(++pDot)) {
 		std::unique_ptr<MemoryMappedFile> pMapped;
 		std::unique_ptr<IImageReader> pReader;

@@ -76,6 +76,7 @@ TEST(Attributes,find) {
 	EXPECT_TRUE(attributes.find<int>("name"));
 	EXPECT_FALSE(attributes.find("name", PrimitiveType::FLOAT));
 	EXPECT_FALSE(attributes.find("name_", PrimitiveType::INT));
+	EXPECT_THROW(attributes.findVector<int>("name"),std::runtime_error);
 }
 TEST(Attributes,findVector) {
 	Attributes attributes;

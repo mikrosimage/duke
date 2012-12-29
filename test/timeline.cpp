@@ -3,29 +3,29 @@
 #include <duke/timeline/Timeline.h>
 
 #include <stdexcept>
+#include <set>
 
 using namespace std;
 
 TEST(Track,findClip) {
 	Track track;
-	auto &clips = track.clips;
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(0));
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(0));
 	track.add(0, Clip { 1 });
-	const auto pFirst = &(clips.begin())->second;
-	EXPECT_EQ(MediaFrameReference(pFirst,0), track.clipAt(0));
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(1));
+	const auto pFirst = &(track.begin())->second;
+	EXPECT_EQ(MediaFrameReference(pFirst,0), track.getClipFrame(0));
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(1));
 	track.add(10, Clip { 1 });
-	const auto pLast = &(clips.rbegin())->second;
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(9));
-	EXPECT_EQ(MediaFrameReference(pLast,0), track.clipAt(10));
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(11));
+	const auto pLast = &(track.rbegin())->second;
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(9));
+	EXPECT_EQ(MediaFrameReference(pLast,0), track.getClipFrame(10));
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(11));
 	track.add(5, Clip { 3 });
-	const auto pMiddle = &(++clips.begin())->second;
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(4));
-	EXPECT_EQ(MediaFrameReference(pMiddle,0), track.clipAt(5));
-	EXPECT_EQ(MediaFrameReference(pMiddle,1), track.clipAt(6));
-	EXPECT_EQ(MediaFrameReference(pMiddle,2), track.clipAt(7));
-	EXPECT_EQ(MediaFrameReference(), track.clipAt(8));
+	const auto pMiddle = &(++track.begin())->second;
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(4));
+	EXPECT_EQ(MediaFrameReference(pMiddle,0), track.getClipFrame(5));
+	EXPECT_EQ(MediaFrameReference(pMiddle,1), track.getClipFrame(6));
+	EXPECT_EQ(MediaFrameReference(pMiddle,2), track.getClipFrame(7));
+	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(8));
 }
 
 TEST(Track,range) {
@@ -35,6 +35,28 @@ TEST(Track,range) {
 	EXPECT_EQ(Range(1,1), track.getRange());
 	track.add(10, Clip { 10 });
 	EXPECT_EQ(Range(1,19), track.getRange());
+}
+
+TEST(Track,findclips) {
+	Track track;
+	EXPECT_EQ(track.end(), track.clipContaining(1));
+	EXPECT_EQ(track.end(), track.nextClip(1));
+	EXPECT_EQ(track.end(), track.previousClip(1));
+
+	track.add(1, Clip { 1 });
+	EXPECT_EQ(track.begin(), track.clipContaining(1));
+	EXPECT_EQ(track.end(), track.nextClip(1));
+	EXPECT_EQ(track.begin(), track.nextClip(0));
+	EXPECT_EQ(track.end(), track.previousClip(1));
+	EXPECT_EQ(track.begin(), track.previousClip(2));
+
+	track.add(5, Clip { 5 });
+	const auto pLast = track.find(5);
+	EXPECT_EQ(pLast, track.previousClip(10));
+	EXPECT_EQ(track.begin(), track.previousClip(9));
+	EXPECT_EQ(pLast, track.clipContaining(9));
+	EXPECT_EQ(pLast, track.clipContaining(5));
+	EXPECT_EQ(pLast, track.nextClip(2));
 }
 
 /**
@@ -51,16 +73,16 @@ TEST(Track,range) {
 TEST(Timeline,findClips) {
 //setup
 	Track track1;
-	track1.clips.insert(make_pair(1, Clip { 1 }));
-	track1.clips.insert(make_pair(3, Clip { 1 }));
+	track1.insert(make_pair(1, Clip { 1 }));
+	track1.insert(make_pair(3, Clip { 1 }));
 	Track track2;
-	track2.clips.insert(make_pair(0, Clip { 5 }));
+	track2.insert(make_pair(0, Clip { 5 }));
 	Track track3;
 	Timeline timeline;
 	timeline.startFrame = 4;
-	timeline.tracks.push_back(track1);
-	timeline.tracks.push_back(track2);
-	timeline.tracks.push_back(track3);
+	timeline.push_back(track1);
+	timeline.push_back(track2);
+	timeline.push_back(track3);
 // test
 	vector<MediaFrameReference> refs;
 	auto check = [&](int frameA, int frameB, int frameC) {
@@ -90,19 +112,41 @@ TEST(Timeline,findClips) {
 	check(-1, -1, -1);
 }
 
+TEST(Timeline,empty) {
+	EXPECT_TRUE(Timeline().empty());
+	Timeline t;
+	t.emplace_back();
+	t.emplace_back();
+	EXPECT_TRUE(t.empty());
+	t.front().add(0, Clip { 1 });
+}
+
 TEST(Timeline,range) {
 	Timeline timeline;
-	auto &tracks = timeline.tracks;
 	EXPECT_EQ(Range::EMPTY, timeline.getRange());
 	//no tracks
-	tracks.emplace_back();
+	timeline.emplace_back();
 	EXPECT_EQ(Range::EMPTY, timeline.getRange());
 	// empty tracks
-	tracks[0].add(10, Clip { 1 });
+	timeline[0].add(10, Clip { 1 });
 	EXPECT_EQ(Range(10,10), timeline.getRange());
 	timeline.startFrame = 10;
 	EXPECT_EQ(Range(20,20), timeline.getRange());
-	tracks.emplace_back();
-	tracks[1].add(15, Clip { 6 });
+	timeline.emplace_back();
+	timeline[1].add(15, Clip { 6 });
 	EXPECT_EQ(Range(20,30), timeline.getRange());
+}
+
+TEST(Timeline, iterators) {
+	set<std::size_t> s;
+	EXPECT_EQ(s.end(), findLess(s,1));
+	EXPECT_EQ(s.end(), findLessOrEquals(s,1));
+
+	s.insert(5);
+	EXPECT_EQ(s.end(), findLess(s,1));
+	EXPECT_EQ(s.end(), findLess(s,5));
+	EXPECT_EQ(s.begin(), findLess(s,6));
+	EXPECT_EQ(s.end(), findLessOrEquals(s,1));
+	EXPECT_EQ(s.begin(), findLessOrEquals(s,5));
+	EXPECT_EQ(s.begin(), findLessOrEquals(s,6));
 }

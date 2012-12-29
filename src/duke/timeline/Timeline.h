@@ -37,7 +37,7 @@ struct Range {
 	static const Range EMPTY;
 };
 
-class MediaStream; // forward decl
+class MediaStream;
 
 struct Clip {
 	size_t frames;
@@ -46,24 +46,43 @@ struct Clip {
 
 typedef std::pair<const Clip*, size_t> MediaFrameReference;
 
-struct Track {
+struct Track: public std::map<size_t, Clip> {
 	std::string name;
-	std::map<size_t, Clip> clips;
 	void add(size_t frame, Clip&& clip) {
-		clips.insert(std::make_pair(frame,std::move(clip)));
+		insert(std::make_pair(frame,std::move(clip)));
 	}
-	MediaFrameReference clipAt(size_t frame) const;
+	const_iterator clipContaining(size_t frame) const;
+	const_iterator nextClip(size_t frame) const;
+	const_iterator previousClip(size_t frame) const;
+	MediaFrameReference getClipFrame(size_t frame) const;
 	Range getRange() const;
+	bool contains(const_iterator itr, size_t frame) const;
 };
 
-struct Timeline {
+template<typename C> typename C::const_iterator findLessOrEquals(const C& container, const typename C::key_type& key) {
+	const auto end = container.end();
+	if (container.empty())
+		return end;
+	auto bound = container.upper_bound(key);
+	return bound == container.begin() ? end : --bound;
+}
+
+template<typename C> typename C::const_iterator findLess(const C& container, const typename C::key_type& key) {
+	const auto end = container.end();
+	if (container.empty())
+		return end;
+	auto bound = container.lower_bound(key);
+	return bound == container.begin() ? end : --bound;
+}
+
+struct Timeline: public std::vector<Track> {
 	Timeline() :
 			startFrame(0) {
 	}
-	std::vector<Track> tracks;
 	size_t startFrame;
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
 	Range getRange() const;
+	bool empty() const;
 };
 
 #endif /* TIMELINE_H_ */

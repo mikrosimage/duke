@@ -1,7 +1,7 @@
 #ifndef BUFFER_HPP_
 #define BUFFER_HPP_
 
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 
 #include <GL/gl.h>
 

@@ -8,7 +8,7 @@
 #ifndef MEMORYMAPPEDFILE_H_
 #define MEMORYMAPPEDFILE_H_
 
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 #include <cstddef>
 
 struct MemoryMappedFile: public NonCopyable {

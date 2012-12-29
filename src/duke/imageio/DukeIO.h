@@ -9,7 +9,7 @@
 #define DUKEIO_H_
 
 #include "Attributes.h"
-#include <duke/utils/NonCopyable.h>
+#include <duke/NonCopyable.h>
 
 #include <cstddef>
 #include <string>
