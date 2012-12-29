@@ -1,3 +1,4 @@
+#define TEST
 #ifndef TEST
 
 #include "TGA.h"
