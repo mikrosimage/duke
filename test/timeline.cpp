@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/timeline/Timeline.h>
+#include <duke/time/Timeline.h>
 
 #include <stdexcept>
 #include <set>
@@ -73,13 +73,12 @@ TEST(Track,findclips) {
 TEST(Timeline,findClips) {
 //setup
 	Track track1;
-	track1.insert(make_pair(1, Clip { 1 }));
-	track1.insert(make_pair(3, Clip { 1 }));
+	track1.insert(make_pair(5, Clip { 1 }));
+	track1.insert(make_pair(7, Clip { 1 }));
 	Track track2;
-	track2.insert(make_pair(0, Clip { 5 }));
+	track2.insert(make_pair(4, Clip { 5 }));
 	Track track3;
 	Timeline timeline;
-	timeline.startFrame = 4;
 	timeline.push_back(track1);
 	timeline.push_back(track2);
 	timeline.push_back(track3);
@@ -130,11 +129,9 @@ TEST(Timeline,range) {
 	// empty tracks
 	timeline[0].add(10, Clip { 1 });
 	EXPECT_EQ(Range(10,10), timeline.getRange());
-	timeline.startFrame = 10;
-	EXPECT_EQ(Range(20,20), timeline.getRange());
 	timeline.emplace_back();
 	timeline[1].add(15, Clip { 6 });
-	EXPECT_EQ(Range(20,30), timeline.getRange());
+	EXPECT_EQ(Range(10,20), timeline.getRange());
 }
 
 TEST(Timeline, iterators) {

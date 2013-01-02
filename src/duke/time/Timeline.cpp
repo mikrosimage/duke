@@ -54,9 +54,8 @@ Range Track::getRange() const {
 
 void Timeline::populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const {
 	frames.clear();
-	const size_t frameInTimeline = frame - startFrame;
 	for (const Track& track : *this)
-		frames.push_back(track.getClipFrame(frameInTimeline));
+		frames.push_back(track.getClipFrame(frame));
 }
 
 Range Timeline::getRange() const {
@@ -66,7 +65,7 @@ Range Timeline::getRange() const {
 	for (const Track& track : *this) {
 		if (track.empty())
 			continue;
-		const Range trackRange = track.getRange() + startFrame;
+		const Range trackRange = track.getRange();
 		result = result || trackRange;
 	}
 	return result;
@@ -75,7 +74,7 @@ Range Timeline::getRange() const {
 bool Timeline::empty() const {
 	if (std::vector<Track>::empty())
 		return true;
-	for (const auto& track : *this)
+	for (const Track& track : *this)
 		if (!track.empty())
 			return false;
 	return true;

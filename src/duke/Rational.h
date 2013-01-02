@@ -123,6 +123,11 @@ struct rational {
 		const value_type gcd2 = math::gcd(r_num, den);
 		num = (num / gcd1) * (r_num / gcd2);
 		den = (den / gcd2) * (r_den / gcd1);
+
+		if (den < value_type(0)) {
+			num = -num;
+			den = -den;
+		}
 		return *this;
 	}
 	rational& operator/=(const rational& r) {
@@ -166,6 +171,19 @@ struct rational {
 		return operator /=(rational(i));
 	}
 
+	rational operator+(const rational &r) const {
+		return rational(*this) += r;
+	}
+	rational operator-(const rational &r) const {
+		return rational(*this) -= r;
+	}
+	rational operator*(const rational &r) const {
+		return rational(*this) *= r;
+	}
+	rational operator/(const rational &r) const {
+		return rational(*this) /= r;
+	}
+
 	// Increment and decrement
 	const rational& operator++() {
 		// This can never denormalise the fraction
@@ -191,14 +209,14 @@ struct rational {
 		// checks is that for 2's complement systems, INT_MIN has no corresponding
 		// positive, so negating it during normalization keeps it INT_MIN, which
 		// is bad for later calculations that assume a positive denominator.
-		assert(this->den > zero);
+		assert(den > zero);
 		assert(r.den > zero);
 
 		// Determine relative order by expanding each value to its simple continued
 		// fraction representation using the Euclidian GCD algorithm.
 		struct {
 			value_type n, d, q, r;
-		} ts = { this->num, this->den, this->num / this->den, this->num % this->den }, rs = { r.num, r.den, r.num / r.den, r.num % r.den };
+		} ts = { num, den, num / den, num % den }, rs = { r.num, r.den, r.num / r.den, r.num % r.den };
 		unsigned reverse = 0u;
 
 		// Normalize negative moduli by repeatedly adding the (positive) denominator
@@ -297,10 +315,10 @@ struct rational {
 		value_type const zero(0);
 
 		// Break value into mixed-fraction form, w/ always-nonnegative remainder
-		assert(this->den > zero);
-		value_type q = this->num / this->den, r = this->num % this->den;
+		assert(den > zero);
+		value_type q = num / den, r = num % den;
 		while (r < zero) {
-			r += this->den;
+			r += den;
 			--q;
 		}
 
@@ -312,13 +330,13 @@ struct rational {
 	}
 	bool operator>(value_type i) const {
 		// Trap equality first
-		if (num == i && den == value_type(1))
+		if (*this == i)
 			return false;
 
 		// Otherwise, we can use operator<
 		return !operator<(i);
 	}
-	bool operator==(value_type i) const {
+	inline bool operator==(value_type i) const {
 		return ((den == value_type(1)) && (num == i));
 	}
 	inline bool operator!=(value_type i) const {

@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 		texture.load("checker.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 
 		Metronom metronom(100);
-		auto milestone = std::chrono::steady_clock::now();
+		auto milestone = duke_clock::now();
 		bool running = true;
 		while (running) {
 			glfwPollEvents();
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 			running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 
 			// dump info every seconds
-			const auto now = std::chrono::steady_clock::now();
+			const auto now = duke_clock::now();
 			if ((now - milestone) > std::chrono::seconds(1)) {
 				metronom.dump();
 				milestone = now;

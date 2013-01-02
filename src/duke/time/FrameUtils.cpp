@@ -13,14 +13,14 @@
 
 using namespace std;
 
-const PlaybackPeriod PlaybackPeriod::FILM(1, 24);
-const PlaybackPeriod PlaybackPeriod::PAL(1, 25);
-const PlaybackPeriod PlaybackPeriod::NTSC(1001, 30000);
+const FrameDuration FrameDuration::FILM(1, 24);
+const FrameDuration FrameDuration::PAL(1, 25);
+const FrameDuration FrameDuration::NTSC(1001, 30000);
 
-Time frameToTime(const uint32_t frame, const PlaybackPeriod &period) {
-	return PlaybackPeriod(period) *= frame;
+Time frameToTime(const uint32_t frame, const FrameDuration &period) {
+	return FrameDuration(period) *= frame;
 }
 
-Frame timeToFrame(Time time, const PlaybackPeriod &period) {
+Frame timeToFrame(Time time, const FrameDuration &period) {
 	return time /= period;
 }

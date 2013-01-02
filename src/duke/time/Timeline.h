@@ -76,10 +76,6 @@ template<typename C> typename C::const_iterator findLess(const C& container, con
 }
 
 struct Timeline: public std::vector<Track> {
-	Timeline() :
-			startFrame(0) {
-	}
-	size_t startFrame;
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
 	Range getRange() const;
 	bool empty() const;

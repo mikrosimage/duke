@@ -5,36 +5,51 @@
 
 #include <chrono>
 
-typedef rational<uint64_t> BaseRational;
+typedef rational<int64_t> BaseRational;
 
-typedef BaseRational Frame;
-
-struct Time: BaseRational {
-	Time(const BaseRational rational) :
+struct Frame: public BaseRational {
+	Frame() :
+			BaseRational() {
+	}
+	Frame(const BaseRational rational) :
 			BaseRational(rational) {
 	}
-	Time(const uint64_t num, const uint64_t den) :
+	value_type round() const {
+		return value_type((double(numerator()) / denominator()) + .5);
+	}
+	friend std::ostream& operator<<(std::ostream& stream, const Frame &r){
+		return stream << static_cast<const BaseRational>(r);
+	}
+};
+
+struct Time: public BaseRational {
+	Time(const value_type num = 0, const value_type den = 1) :
 			BaseRational(num, den) {
+	}
+	Time(const BaseRational rational) :
+			BaseRational(rational) {
 	}
 	Time(const std::chrono::microseconds value) :
 			BaseRational(value.count(), std::micro::den) {
 	}
 	std::chrono::microseconds asMicroseconds() const {
-		const uint64_t approx = uint64_t((double(numerator()) / denominator() * std::micro::den) + .5);
+		const value_type approx = value_type((double(numerator()) / denominator() * std::micro::den) + .5);
 		return std::chrono::microseconds(approx);
 	}
 };
 
-struct PlaybackPeriod: BaseRational {
-	PlaybackPeriod(uint64_t num, uint64_t den) :
+struct FrameDuration: public BaseRational {
+	FrameDuration(value_type num, value_type den = 1) :
 			BaseRational(num, den) {
+		if (num == 0)
+			throw std::domain_error("can't have a frame lasting zero seconds");
 	}
-	const static PlaybackPeriod FILM;
-	const static PlaybackPeriod PAL;
-	const static PlaybackPeriod NTSC;
+	const static FrameDuration FILM;
+	const static FrameDuration PAL;
+	const static FrameDuration NTSC;
 };
 
-Time frameToTime(const uint32_t frame, const PlaybackPeriod &period);
-Frame timeToFrame(Time time, const PlaybackPeriod &period);
+Time frameToTime(const uint32_t frame, const FrameDuration &period);
+Frame timeToFrame(Time time, const FrameDuration &period);
 
 #endif /* FRAMEUTILS_H_ */

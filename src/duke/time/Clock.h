@@ -12,21 +12,23 @@
 #include <deque>
 #include <cstdint>
 
+typedef std::chrono::steady_clock duke_clock;
+
 /**
  * Measures elapsed time
  */
 struct StopWatch {
 	StopWatch() :
-			m_LastTime(std::chrono::steady_clock::now()) {
+			m_LastTime(duke_clock::now()) {
 	}
 	inline const std::chrono::microseconds elapsedMicroSeconds() {
-		const auto now = std::chrono::steady_clock::now();
+		const auto now = duke_clock::now();
 		const auto elapsed = now - m_LastTime;
 		m_LastTime = now;
 		return std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
 	}
 private:
-	std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
+	std::chrono::time_point<duke_clock> m_LastTime;
 };
 
 /**
