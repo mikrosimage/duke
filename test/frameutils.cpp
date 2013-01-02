@@ -8,22 +8,34 @@ using namespace std;
 using namespace std::chrono;
 
 TEST(FrameUtils,frameToTime) {
-	EXPECT_EQ( microseconds(0), frameToTime(0,FrameRate::PAL));
-	EXPECT_EQ( microseconds(1000), frameToTime(25,FrameRate::PAL));
-	EXPECT_EQ( microseconds(1000), frameToTime(24,FrameRate::FILM));
-	EXPECT_EQ( microseconds(1001), frameToTime(30,FrameRate::NTSC));
+	EXPECT_EQ( Time(0), frameToTime(0,PlaybackPeriod::PAL));
+	EXPECT_EQ( Time(1), frameToTime(25,PlaybackPeriod::PAL));
+	EXPECT_EQ( Time(1), frameToTime(24,PlaybackPeriod::FILM));
+	EXPECT_EQ( Time(1001,1000), frameToTime(30,PlaybackPeriod::NTSC));
 }
 
 TEST(FrameUtils,timeToFrame) {
-	EXPECT_EQ( 0, timeToFrame(microseconds(0),FrameRate::PAL));
-	EXPECT_EQ( 25, timeToFrame(microseconds(1000),FrameRate::PAL));
-	EXPECT_EQ( 24, timeToFrame(microseconds(1000),FrameRate::FILM));
-	EXPECT_EQ( 30, timeToFrame(microseconds(1001),FrameRate::NTSC));
+	EXPECT_EQ( Frame(0), timeToFrame(Time(0),PlaybackPeriod::PAL));
+	EXPECT_EQ( Frame(25), timeToFrame(Time(1),PlaybackPeriod::PAL));
+	EXPECT_EQ( Frame(24), timeToFrame(Time(1),PlaybackPeriod::FILM));
+	EXPECT_EQ( Frame(30), timeToFrame(Time(1001,1000),PlaybackPeriod::NTSC));
 }
 
-TEST(FrameUtils,overflow) {
-	const auto maxuint16 = std::numeric_limits<uint16_t>::max();
-	const FrameRate maxFrameRate(maxuint16, maxuint16);
-	const auto maxMicroSec = std::chrono::microseconds::max();
-	EXPECT_THROW(timeToFrame(maxMicroSec, maxFrameRate), std::overflow_error);
+TEST(FrameUtils,timeToMicroseconds) {
+	EXPECT_EQ( microseconds(666667), Time(2,3).asMicroseconds());
+	EXPECT_EQ( microseconds(1), Time(1,1000000).asMicroseconds());
+	EXPECT_EQ( seconds(3600), Time(3600).asMicroseconds());
+}
+
+void testBackAndForthCalculations(const PlaybackPeriod framerate) {
+	for (auto i = 0; i < 100000; ++i) {
+		const auto frame = rand();
+		ASSERT_EQ( Frame(frame), timeToFrame(frameToTime(frame,framerate),framerate));
+	}
+}
+
+TEST(FrameUtils,domain) {
+	testBackAndForthCalculations(PlaybackPeriod::PAL);
+	testBackAndForthCalculations(PlaybackPeriod::NTSC);
+	testBackAndForthCalculations(PlaybackPeriod::FILM);
 }

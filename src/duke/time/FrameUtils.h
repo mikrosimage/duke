@@ -1,19 +1,40 @@
 #ifndef FRAMEUTILS_H_
 #define FRAMEUTILS_H_
 
+#include <duke/Rational.h>
+
 #include <chrono>
 
-struct FrameRate {
-	uint16_t numerator;
-	uint16_t denominator;
-	FrameRate(uint16_t num, uint16_t den) :
-			numerator(num), denominator(den) {
-	}
+typedef rational<uint64_t> BaseRational;
 
-	static FrameRate PAL, FILM, NTSC;
+typedef BaseRational Frame;
+
+struct Time: BaseRational {
+	Time(const BaseRational rational) :
+			BaseRational(rational) {
+	}
+	Time(const uint64_t num, const uint64_t den) :
+			BaseRational(num, den) {
+	}
+	Time(const std::chrono::microseconds value) :
+			BaseRational(value.count(), std::micro::den) {
+	}
+	std::chrono::microseconds asMicroseconds() const {
+		const uint64_t approx = uint64_t((double(numerator()) / denominator() * std::micro::den) + .5);
+		return std::chrono::microseconds(approx);
+	}
 };
 
-std::chrono::microseconds frameToTime(uint32_t frame, const FrameRate framerate);
-uint32_t timeToFrame(std::chrono::microseconds time, const FrameRate framerate);
+struct PlaybackPeriod: BaseRational {
+	PlaybackPeriod(uint64_t num, uint64_t den) :
+			BaseRational(num, den) {
+	}
+	const static PlaybackPeriod FILM;
+	const static PlaybackPeriod PAL;
+	const static PlaybackPeriod NTSC;
+};
+
+Time frameToTime(const uint32_t frame, const PlaybackPeriod &period);
+Frame timeToFrame(Time time, const PlaybackPeriod &period);
 
 #endif /* FRAMEUTILS_H_ */
