@@ -66,6 +66,7 @@ TEST(Player,stopping) {
 	player.cue(range.last);
 	player.setPlaybackSpeed(1);
 	player.offsetPlaybackTime(player.getFrameDuration()); // should stop at last frame
+	EXPECT_EQ(0, player.getPlaybackSpeed());
 	EXPECT_EQ(range.last, player.getCurrentFrame().round());
 }
 
@@ -89,5 +90,19 @@ TEST(Player,looping) {
 	EXPECT_EQ(range.last-1, player.getCurrentFrame().round());
 	player.setPlaybackSpeed(2);
 	player.offsetPlaybackTime(player.getFrameDuration()); // forward should go first frame
+	EXPECT_EQ(range.first, player.getCurrentFrame().round());
+}
+
+TEST(Player,loopingWithHugeStep) {
+	// if in looping mode with offset greater than timeline period, just doing nothing
+	Player player;
+	const auto timeline = getTimeline();
+	const auto range = timeline.getRange();
+	player.load(timeline, FrameDuration::PAL);
+	EXPECT_EQ(range.first, player.getCurrentFrame().round());
+	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
+	player.setPlaybackSpeed(1);
+	const auto lotsOfFrames = (range.last - range.first) * 5 / 2;
+	player.offsetPlaybackTime(player.getFrameDuration() * lotsOfFrames);
 	EXPECT_EQ(range.first, player.getCurrentFrame().round());
 }

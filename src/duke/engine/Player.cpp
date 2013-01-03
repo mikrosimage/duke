@@ -49,6 +49,8 @@ void Player::offsetPlaybackTime(const Time time) {
 		break;
 	case LOOP:
 		overshoot -= getFrameDuration();
+		if (overshoot > (m_LastFrameTime - m_FirstFrameTime))
+			return;
 		m_PlaybackTime = forward ? m_FirstFrameTime + overshoot : m_LastFrameTime - overshoot;
 		break;
 	default:
