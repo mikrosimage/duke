@@ -32,7 +32,7 @@ SharedMesh getSquare() {
 
 glm::mat4 getWorldViewProjActualPixel(const duke::Viewport viewport, const glm::vec2 image, const glm::vec2 pan, const int zoom) {
 	using namespace glm;
-	vec2 translating;
+	mediump_ivec2 translating; // translation must be integer to prevent aliasing
 	translating += viewport.dimension; // moving to center
 	translating /= 2; // moving to center
 	translating += pan; // moving to center
@@ -78,13 +78,15 @@ int main(int argc, char** argv) {
 		// texture
 		VolatileTexture texture(GL_TEXTURE_RECTANGLE);
 
-		const GLenum textureMode = GL_LINEAR;
+		const GLenum textureMode = GL_NEAREST;
+//		const GLenum textureMode = GL_LINEAR;
 //		texture.load("ScanLines/MtTamWest.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 //		texture.load("ScanLines/Tree.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 //		texture.load("ScanLines/StillLife.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 //		texture.load("test.tga", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 //		texture.load("sample1920X1080dpx10bit.dpx", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-		texture.load("checker.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
+//		texture.load("checker.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
+		texture.load("Bisasam_24x24.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
 
 		Metronom metronom(100);
 		auto milestone = duke_clock::now();

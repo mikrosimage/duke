@@ -7,10 +7,6 @@
 
 #include "Player.h"
 
-Player::Player() :
-		m_TimelineRange(Range::EMPTY), m_FrameDuration(FrameDuration::PAL), m_PlaybackSpeed(0), m_PlaybackMode(LOOP) {
-}
-
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
 	m_Timeline = timeline;
 	m_TimelineRange = timeline.getRange();

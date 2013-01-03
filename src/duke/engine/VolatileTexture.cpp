@@ -75,27 +75,36 @@ void VolatileTexture::loadGlTexture(const void* pData) {
 
 static AlignedMalloc alignedMalloc;
 
-std::string VolatileTexture::loadImage(std::unique_ptr<IImageReader> &&pReader) {
-	if (!pReader) {
-		return std::string("bad state : IImageReader==nullptr");
-	}
-	if (pReader->hasError()) {
+std::string VolatileTexture::loadImage(IImageReader *pRawReader) {
+	std::unique_ptr<IImageReader> pReader(pRawReader);
+	if (!pReader)
+		return "bad state : IImageReader==nullptr";
+	if (pReader->hasError())
 		return pReader->getError();
-	}
 	description = pReader->getDescription();
 	attributes = pReader->getAttributes();
 	const void* pMapped = pReader->getMappedImageData();
-	if (pMapped==nullptr) {
+	if (pMapped == nullptr) {
 		const auto pData = make_shared_memory<char>(description.dataSize, alignedMalloc);
 		pReader->readImageDataTo(pData.get());
-		if (pReader->hasError()) {
+		if (pReader->hasError())
 			return pReader->getError();
-		}
-		loadGlTexture( pData.get());
+		loadGlTexture(pData.get());
 	} else {
-		loadGlTexture( pMapped);
+		loadGlTexture(pMapped);
 	}
 	return std::string();
+}
+
+std::string VolatileTexture::tryReader(const char* filename, const IIODescriptor *pDescriptor) {
+	if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
+		MemoryMappedFile file(filename);
+		if (!file)
+			return "unable to map file to memory";
+		return loadImage(pDescriptor->getReaderFromMemory(file.pFileData, file.fileSize));
+	} else {
+		return loadImage(pDescriptor->getReaderFromFile(filename));
+	}
 }
 
 bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magFilter, GLenum _wrapMode) {
@@ -106,23 +115,10 @@ bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 	if (!pDot)
 		return false;
 	ScopeBinder<TextureBuffer> scopeBind(m_pTextureBuffer);
-	std::string error = "no reader";
-	for (const IIODescriptor *pDescriptor : IODescriptors::instance().findDescriptor(++pDot)) {
-		std::unique_ptr<MemoryMappedFile> pMapped;
-		std::unique_ptr<IImageReader> pReader;
-		if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
-			pMapped.reset(new MemoryMappedFile(filename)); // bad locality
-			if (!(*pMapped)) {
-				error = "unable to map file to memory";
-				continue;
-			}
-			pReader.reset(pDescriptor->getReaderFromMemory(pMapped->pFileData, pMapped->fileSize));
-		} else
-			pReader.reset(pDescriptor->getReaderFromFile(filename));
-		error = loadImage(std::move(pReader));
-		if (error.empty())
+	std::string error = "no reader available";
+	for (const IIODescriptor *pDescriptor : IODescriptors::instance().findDescriptor(++pDot))
+		if ((error = tryReader(filename, pDescriptor)).empty())
 			return true;
-	}
 	printf("error while reading %s : %s\n", filename, error.c_str());
 	return false;
 }

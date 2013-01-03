@@ -10,8 +10,6 @@ struct Player: public NonCopyable {
 		CONTINUE, LOOP, STOP
 	};
 
-	Player();
-
 	void load(const Timeline& timeline, const FrameDuration &duration);
 
 	// frame based
@@ -33,12 +31,12 @@ struct Player: public NonCopyable {
 
 private:
 	Timeline m_Timeline;
-	Range m_TimelineRange;
-	Time m_FirstFrameTime, m_LastFrameTime;
+	Range m_TimelineRange = Range::EMPTY;
+	Time m_FirstFrameTime;
+	Time m_LastFrameTime;
 	Time m_PlaybackTime;
-	FrameDuration m_FrameDuration;
-	int m_PlaybackSpeed;
-	Mode m_PlaybackMode;
+	FrameDuration m_FrameDuration = FrameDuration::PAL;
+	int m_PlaybackSpeed = 0;
+	Mode m_PlaybackMode = LOOP;
 };
-
 #endif /* PLAYER_H_ */

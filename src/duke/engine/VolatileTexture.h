@@ -12,7 +12,8 @@
 #include <duke/imageio/Attributes.h>
 #include <duke/gl/Texture.h>
 
-class IImageReader; // forward decl
+class IImageReader;
+// forward decl
 
 struct VolatileTexture {
 	VolatileTexture(GLuint type);
@@ -25,7 +26,8 @@ struct VolatileTexture {
 	GLuint wrapMode;
 	GLuint textureType;
 private:
-	std::string loadImage(std::unique_ptr<IImageReader> &&pReader);
+	std::string loadImage(IImageReader *);
+	std::string tryReader(const char* filename, const IIODescriptor *pDescriptor);
 	void loadGlTexture(const void* pData);
 	SharedTextureBuffer m_pTextureBuffer;
 };
