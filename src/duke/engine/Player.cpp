@@ -90,3 +90,7 @@ int Player::getPlaybackSpeed() const {
 Player::Mode Player::getPlaybackMode() const {
 	return m_PlaybackMode;
 }
+
+const Timeline& Player::getTimeline() const {
+	return m_Timeline;
+}

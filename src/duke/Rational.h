@@ -95,6 +95,7 @@ struct rational {
 		num /= g;
 		den *= r_den / g;
 
+		positiveDenominator();
 		return *this;
 	}
 	rational& operator-=(const rational& r) {
@@ -111,6 +112,7 @@ struct rational {
 		num /= g;
 		den *= r_den / g;
 
+		positiveDenominator();
 		return *this;
 	}
 	rational& operator*=(const rational& r) {
@@ -124,10 +126,7 @@ struct rational {
 		num = (num / gcd1) * (r_num / gcd2);
 		den = (den / gcd2) * (r_den / gcd1);
 
-		if (den < value_type(0)) {
-			num = -num;
-			den = -den;
-		}
+		positiveDenominator();
 		return *this;
 	}
 	rational& operator/=(const rational& r) {
@@ -151,10 +150,7 @@ struct rational {
 		num = (num / gcd1) * (r_den / gcd2);
 		den = (den / gcd2) * (r_num / gcd1);
 
-		if (den < zero) {
-			num = -num;
-			den = -den;
-		}
+		positiveDenominator();
 		return *this;
 	}
 
@@ -364,13 +360,16 @@ private:
 		num /= g;
 		den /= g;
 
+		positiveDenominator();
+
+		assert(test_invariant());
+	}
+	inline void positiveDenominator() {
 		// Ensure that the denominator is positive
-		if (den < zero) {
+		if (den < value_type(0)) {
 			num = -num;
 			den = -den;
 		}
-
-		assert(test_invariant());
 	}
 	inline bool test_invariant() const {
 		return (den > value_type(0)) && (math::gcd(num, den) == value_type(1));

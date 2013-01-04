@@ -14,10 +14,12 @@ Metronom::Metronom(size_t values) :
 		m_Size(values), m_Min(0), m_Max(0), m_Mean(0), m_StdDev(0) {
 }
 
-void Metronom::tick() {
+std::chrono::microseconds Metronom::tick() {
 	if (m_Durations.size() >= m_Size)
 		m_Durations.pop_front();
-	m_Durations.push_back(m_StopWatch.elapsedMicroSeconds().count() / 1000.);
+	const auto elapsedMicroSeconds = m_StopWatch.elapsedMicroSeconds();
+	m_Durations.push_back(elapsedMicroSeconds.count() / 1000.);
+	return elapsedMicroSeconds;
 }
 
 void Metronom::compute() {

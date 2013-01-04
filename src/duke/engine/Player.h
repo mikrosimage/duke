@@ -28,6 +28,7 @@ struct Player: public NonCopyable {
 	FrameDuration getFrameDuration() const;
 	int getPlaybackSpeed() const;
 	Mode getPlaybackMode() const;
+	const Timeline& getTimeline() const;
 
 private:
 	Timeline m_Timeline;

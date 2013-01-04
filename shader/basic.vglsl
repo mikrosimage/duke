@@ -4,7 +4,7 @@ layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 UV;
 
 uniform mat4 gWorld;
-uniform vec2 gTex0;
+uniform ivec2 gTex0;
 
 out vec2 vVaryingTexCoord; 
 

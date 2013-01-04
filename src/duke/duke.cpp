@@ -1,4 +1,4 @@
-#define TEST
+//#define TEST
 #ifndef TEST
 
 #include "TGA.h"
@@ -8,8 +8,12 @@
 #include <duke/gl/GlFwApp.h>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Shader.hpp>
+#include <duke/engine/Context.h>
 #include <duke/engine/VolatileTexture.h>
 #include <duke/engine/DukeWindow.h>
+#include <duke/engine/Player.h>
+#include <duke/engine/renderers/TextRenderer.h>
+#include <duke/engine/TextOverlay.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,19 +22,9 @@
 #include <GL/glfw.h>
 
 #include <iostream>
+#include <sstream>
 
-SharedMesh getSquare() {
-	using namespace std;
-	const float z = 1;
-	const vector<VertexPosUv0> vertices = { //
-			{ glm::vec3(-1, -1, z), glm::vec2(0, 0) }, //
-					{ glm::vec3(-1, 1, z), glm::vec2(0, 1) }, //
-					{ glm::vec3(1, 1, z), glm::vec2(1, 1) }, //
-					{ glm::vec3(1, -1, z), glm::vec2(1, 0) } };
-	return make_shared<Mesh>(GL_TRIANGLE_FAN, vertices.data(), vertices.size());
-}
-
-glm::mat4 getWorldViewProjActualPixel(const duke::Viewport viewport, const glm::vec2 image, const glm::vec2 pan, const int zoom) {
+glm::mat4 getWorldViewProjActualPixel(const duke::Viewport viewport, const glm::ivec2 image, const glm::ivec2 pan, const int zoom) {
 	using namespace glm;
 	mediump_ivec2 translating; // translation must be integer to prevent aliasing
 	translating += viewport.dimension; // moving to center
@@ -46,14 +40,14 @@ glm::mat4 getWorldViewProjActualPixel(const duke::Viewport viewport, const glm::
 	const mat4 proj = glm::ortho<float>(0, viewport.dimension.x, 0, viewport.dimension.y);
 	return proj * world;
 }
-
-std::ostream& operator<<(std::ostream& stream, const glm::vec2 &value) {
-	return stream << '[' << value.x << ',' << value.y << ']';
-}
-
-std::ostream& operator<<(std::ostream& stream, const duke::Viewport &value) {
-	return stream << '(' << value.offset << ',' << value.dimension << ')';
-}
+//
+//std::ostream& operator<<(std::ostream& stream, const glm::ivec2 &value) {
+//	return stream << '[' << value.x << ',' << value.y << ']';
+//}
+//
+//std::ostream& operator<<(std::ostream& stream, const duke::Viewport &value) {
+//	return stream << '(' << value.offset << ',' << value.dimension << ')';
+//}
 
 int main(int argc, char** argv) {
 	using namespace std;
@@ -65,14 +59,37 @@ int main(int argc, char** argv) {
 		window.openWindow(512, 512, 0, 0, 0, 0, 0, 0, GLFW_WINDOW);
 
 		glfwSwapInterval(parameters.swapBufferInterval);
-		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glEnable(GL_DEPTH_TEST);
+
+		// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
+//		TextRenderer textRenderer("Phoebus_16x16.png");
+		TextRenderer textRenderer("Bisasam_24x24.png");
+//		TextRenderer textRenderer("Phssthpok_16x16.png");
+
+		TextOverlay textOverlay1(textRenderer, "INSERT");
+		TextOverlay textOverlay2(textRenderer, "COINS\x2");
+
+		Timeline timeline;
+		timeline.resize(2);
+		Track &firstTrack = timeline[0];
+		firstTrack.add(0, Clip { 25, &textOverlay1 });
+		firstTrack.add(25, Clip { 25, &textOverlay2 });
+//		Track &secondTrack = timeline[1];
+//		secondTrack.add(0, Clip { 200, &imageSequence });
+
+		Player player;
+		player.load(timeline, FrameDuration::PAL);
+		player.setPlaybackSpeed(1);
 
 		Program program( //
 				loadVertexShader("shader/basic.vglsl"), //
 				loadFragmentShader("shader/basic.fglsl"));
 		const auto gWorldLocation = program.getUniformLocation("gWorld");
-		const auto locRectTexture = program.getUniformLocation("rectangleImage");
 		const auto gTex0 = program.getUniformLocation("gTex0");
+		const auto textureSampler = program.getUniformLocation("rectangleImageSampler");
 		const auto pMesh = getSquare();
 
 		// texture
@@ -80,14 +97,15 @@ int main(int argc, char** argv) {
 
 		const GLenum textureMode = GL_NEAREST;
 //		const GLenum textureMode = GL_LINEAR;
-//		texture.load("ScanLines/MtTamWest.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-//		texture.load("ScanLines/Tree.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-//		texture.load("ScanLines/StillLife.exr", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-//		texture.load("test.tga", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-//		texture.load("sample1920X1080dpx10bit.dpx", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-//		texture.load("checker.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
-		texture.load("Bisasam_24x24.png", textureMode, textureMode, GL_CLAMP_TO_EDGE);
+		const char* filename = "ScanLines/StillLife.exr";
+//		const char* filename = "ScanLines/MtTamWest.exr";
+//		const char* filename = "ScanLines/Tree.exr";
+//		const char* filename = "test.tga";
+//		const char* filename = "sample1920X1080dpx10bit.dpx";
+//		const char* filename = "checker.png";
+		texture.load(filename, textureMode, textureMode, GL_CLAMP_TO_EDGE);
 
+		Context context;
 		Metronom metronom(100);
 		auto milestone = duke_clock::now();
 		bool running = true;
@@ -95,23 +113,36 @@ int main(int argc, char** argv) {
 			glfwPollEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			program.use();
+			context.viewport = window.useViewport(false, false, false, false);
+			context.currentFrame = player.getCurrentFrame();
+			context.playbackTime = player.getPlaybackTime();
 
-//			const float seconds = (uint64_t(clock_utils::getRealtimeMicroSec().us) & 0xFFFFFFFF) / 1000000.;
-//			const float roundPerSeonds = seconds * 360;
+			// pass 1
+			{
+				program.use();
+				const ivec2 image(texture.description.width, texture.description.height);
+				const mat4 worldViewProj = getWorldViewProjActualPixel(context.viewport, image, window.getRelativeMousePos(), glfwGetMouseWheel());
+				glUniformMatrix4fv(gWorldLocation, 1, GL_FALSE, value_ptr(worldViewProj));
+				glUniform1i(textureSampler, 0);
+				const auto scopeBind = texture.use(gTex0);
+				pMesh->draw();
+			}
 
-			const vec2 image(texture.description.width, texture.description.height);
-			const auto viewport = window.useViewport(false, false, false, false);
-			const mat4 worldViewProj = getWorldViewProjActualPixel(viewport, image, window.getRelativeMousePos(), glfwGetMouseWheel());
-			glUniformMatrix4fv(gWorldLocation, 1, GL_FALSE, value_ptr(worldViewProj));
-
-			glUniform1i(locRectTexture, 0);
-			const auto scopeBind = texture.use(gTex0);
-
-			pMesh->draw();
+			for (const Track &track : player.getTimeline()) {
+				const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
+				const Clip* pClip = mfr.first;
+				if (!pClip)
+					continue;
+				const MediaStream *pStream = pClip->pStream;
+				if (!pStream)
+					continue;
+				pStream->doRender(context);
+			}
 
 			glfwSwapBuffers();
-			metronom.tick();
+			const auto elapsedMicroSeconds = metronom.tick();
+
+			player.offsetPlaybackTime(elapsedMicroSeconds);
 
 			auto &keyStrokes = window.getPendingKeys();
 			for (const int key : keyStrokes) {
@@ -133,7 +164,7 @@ int main(int argc, char** argv) {
 			// dump info every seconds
 			const auto now = duke_clock::now();
 			if ((now - milestone) > std::chrono::seconds(1)) {
-				metronom.dump();
+//				metronom.dump();
 				milestone = now;
 			}
 		}

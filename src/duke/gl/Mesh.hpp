@@ -47,7 +47,6 @@ typedef std::shared_ptr<Mesh> SharedMesh;
 class IndexedMesh: public Mesh {
 public:
 	IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount);
-	virtual ~IndexedMesh();
 protected:
 	virtual void callDraw() const;
 private:
@@ -56,5 +55,7 @@ private:
 };
 
 typedef std::shared_ptr<IndexedMesh> SharedIndexedMesh;
+
+SharedMesh getSquare();
 
 #endif /* MESH_HPP_ */

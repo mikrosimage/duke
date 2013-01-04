@@ -61,10 +61,18 @@ IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, cons
 	checkError();
 }
 
-IndexedMesh::~IndexedMesh() {
-}
-
 void IndexedMesh::callDraw() const {
 	const ScopeBinder<GenericBuffer> scopeBinded(ibo);
 	glDrawElements(primitiveType, indexCount, GL_UNSIGNED_INT, 0);
+}
+
+SharedMesh getSquare() {
+	using namespace std;
+	const float z = 1;
+	const vector<VertexPosUv0> vertices = { //
+			{ glm::vec3(-1, -1, z), glm::vec2(0, 0) }, //
+					{ glm::vec3(-1, 1, z), glm::vec2(0, 1) }, //
+					{ glm::vec3(1, 1, z), glm::vec2(1, 1) }, //
+					{ glm::vec3(1, -1, z), glm::vec2(1, 0) } };
+	return make_shared<Mesh>(GL_TRIANGLE_FAN, vertices.data(), vertices.size());
 }

@@ -145,6 +145,6 @@ ScopeBinder<TextureBuffer> VolatileTexture::use(GLuint dimensionUniformParameter
 	case 8: //rotated 90◦ counter-clockwise (left to right, bottom to top)
 		throw std::runtime_error("unsupported orientation");
 	}
-	glUniform2f(dimensionUniformParameter, width, height);
+	glUniform2i(dimensionUniformParameter, width, height);
 	return ScopeBinder<TextureBuffer>(m_pTextureBuffer);
 }

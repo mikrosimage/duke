@@ -46,7 +46,7 @@ void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 			break;
 		case GLFW_RELEASE:
 			m_LeftButton = false;
-			m_LeftDragOrigin = glm::vec2(0);
+			m_LeftDragOrigin = glm::ivec2(0);
 			break;
 		}
 }
@@ -60,9 +60,9 @@ const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool w
 	using namespace glm;
 	assert(!(north && south));
 	assert(!(east && west));
-	const vec2 halfDim(m_Dimension.x / 2, m_Dimension.y / 2);
-	const vec2 offset(east ? halfDim.x : 0, south ? halfDim.y : 0);
-	const vec2 dimension(east || west ? halfDim.x : m_Dimension.x, north || south ? halfDim.y : m_Dimension.y);
+	const ivec2 halfDim(m_Dimension.x / 2, m_Dimension.y / 2);
+	const ivec2 offset(east ? halfDim.x : 0, south ? halfDim.y : 0);
+	const ivec2 dimension(east || west ? halfDim.x : m_Dimension.x, north || south ? halfDim.y : m_Dimension.y);
 	const Viewport viewport(offset, dimension);
 	glViewport(viewport);
 	return viewport;
@@ -72,17 +72,17 @@ set<int>& DukeWindow::getPendingKeys() {
 	return m_AllKeyStrokes;
 }
 
-glm::vec2 DukeWindow::getRelativeMousePos() {
+glm::ivec2 DukeWindow::getRelativeMousePos() {
 	if (m_LeftButton)
 		return m_MousePos - m_LeftDragOrigin;
-	return glm::vec2(0);
+	return glm::ivec2(0);
 }
 
-glm::vec2 DukeWindow::getWindowMousePos() const {
+glm::ivec2 DukeWindow::getWindowMousePos() const {
 	return m_MousePos;
 }
 
-glm::vec2 DukeWindow::getViewportMousePos(const Viewport& viewport) const {
+glm::ivec2 DukeWindow::getViewportMousePos(const Viewport& viewport) const {
 	return m_MousePos - viewport.offset;
 }
 

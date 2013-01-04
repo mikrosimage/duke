@@ -18,9 +18,10 @@
 namespace duke {
 
 struct Viewport {
-	glm::vec2 offset;
-	glm::vec2 dimension;
-	Viewport(glm::vec2 offset, glm::vec2 dimension) :
+	glm::ivec2 offset;
+	glm::ivec2 dimension;
+	Viewport() = default;
+	Viewport(glm::ivec2 offset, glm::ivec2 dimension) :
 			offset(offset), dimension(dimension) {
 	}
 };
@@ -28,9 +29,9 @@ struct Viewport {
 struct DukeWindow: public NonCopyable, public GlFwApp {
 	DukeWindow();
 	const Viewport useViewport(bool north, bool south, bool east, bool west) const;
-	glm::vec2 getRelativeMousePos();
-	glm::vec2 getWindowMousePos() const;
-	glm::vec2 getViewportMousePos(const Viewport& viewport) const;
+	glm::ivec2 getRelativeMousePos();
+	glm::ivec2 getWindowMousePos() const;
+	glm::ivec2 getViewportMousePos(const Viewport& viewport) const;
 	std::set<int>& getPendingKeys();
 private:
 	void onKeyPressed(int unicodeCodePoint, int keyState);
@@ -38,9 +39,9 @@ private:
 	void onMouseMove(int x, int y);
 	void onMouseClick(int buttonId, int buttonState);
 	bool m_LeftButton;
-	glm::vec2 m_LeftDragOrigin;
-	glm::vec2 m_MousePos;
-	glm::vec2 m_Dimension;
+	glm::ivec2 m_LeftDragOrigin;
+	glm::ivec2 m_MousePos;
+	glm::ivec2 m_Dimension;
 	std::set<int> m_AllKeyStrokes;
 };
 

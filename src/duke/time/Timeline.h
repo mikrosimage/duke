@@ -37,11 +37,13 @@ struct Range {
 	static const Range EMPTY;
 };
 
+namespace duke {
 class MediaStream;
+}  // namespace duke
 
 struct Clip {
 	size_t frames;
-	MediaStream *pStream;
+	duke::MediaStream *pStream;
 };
 
 typedef std::pair<const Clip*, size_t> MediaFrameReference;
