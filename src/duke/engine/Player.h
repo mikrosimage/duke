@@ -1,8 +1,8 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include <duke/engine/Timeline.h>
 #include <duke/time/FrameUtils.h>
-#include <duke/time/Timeline.h>
 #include <duke/NonCopyable.h>
 
 struct Player: public NonCopyable {

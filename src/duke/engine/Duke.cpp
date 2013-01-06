@@ -1,0 +1,203 @@
+/*
+ * Duke.cpp
+ *
+ *  Created on: Jan 6, 2013
+ *      Author: Guillaume Chatelet
+ */
+
+#include "Duke.h"
+#include <duke/cmdline/CmdLineParameters.h>
+#include <duke/filesystem/FsUtils.h>
+#include <duke/time/Clock.h>
+#include <duke/engine/Context.h>
+#include <duke/engine/renderers/TextRenderer.h>
+#include <duke/engine/streams/TextOverlay.h>
+#include <duke/engine/renderers/ImageRenderer.h>
+#include <duke/engine/streams/FileSequenceStream.h>
+#include <GL/glfw.h>
+#include <glm/glm.hpp>
+#include <sequence/Parser.hpp>
+
+namespace duke {
+
+static sequence::Configuration getParserConf() {
+	using namespace sequence;
+	Configuration conf;
+	conf.sort = true;
+	conf.bakeSingleton = true;
+	conf.mergePadding = true;
+	conf.pack = true;
+	return conf;
+}
+
+static glm::ivec2 getDesktopDimensions() {
+	GLFWvidmode desktopResolution;
+	glfwGetDesktopMode(&desktopResolution);
+	return glm::ivec2(desktopResolution.Width, desktopResolution.Height);
+}
+
+Timeline buildTimeline(const CmdLineParameters &parameters) {
+	const auto& paths = parameters.additionnalOptions;
+	if (paths.empty())
+		throw commandline_error("nothing to do, specify at least one file or directory");
+	auto sharedImageRenderer = std::make_shared<ImageRenderer>();
+	Track track;
+	size_t offset = 0;
+	for (const std::string &path : paths) {
+		const auto fileStatus = getFileStatus(path.c_str());
+		switch (fileStatus) {
+		case FileStatus::NOT_A_FILE:
+			throw commandline_error("'" + path + "' is not a file nor a directory");
+		case FileStatus::FILE:
+			track.add(offset, Clip { 1, std::make_shared<FileSequenceStream>(sharedImageRenderer, path.c_str()) });
+			++offset;
+			break;
+		case FileStatus::DIRECTORY: {
+			using namespace sequence;
+			for (const Item &item : parseDir(getParserConf(), path.c_str()).files)
+				switch (item.getType()) {
+				case Item::SINGLE:
+					track.add(offset, Clip { 1, std::make_shared<FileSequenceStream>(sharedImageRenderer, (path + '/' + item.filename).c_str()) });
+					++offset;
+					break;
+				case Item::INVALID:
+					throw commandline_error("invalid item");
+				case Item::INDICED:
+				case Item::PACKED:
+					break;
+				}
+			break;
+		}
+		}
+	}
+	if (track.empty())
+		throw commandline_error("nothing to play");
+	Track overlay;
+	const auto range = track.getRange();
+	const size_t frames = range.last - range.first + 1;
+	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
+	overlay.add(range.first, Clip { frames, std::make_shared<TextOverlay>(std::make_shared<TextRenderer>("Bisasam_24x24.png"), "") });
+	return {track, overlay};
+}
+
+Duke::Duke(const CmdLineParameters &parameters) {
+// setup window
+	const auto windowMode = parameters.fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW;
+	auto desktopDimensions = getDesktopDimensions();
+	if (!parameters.fullscreen)
+		desktopDimensions /= 2;
+	m_Window.openWindow(desktopDimensions.x, desktopDimensions.y, 0, 0, 0, 0, 0, 0, windowMode);
+
+// GL setup
+	glfwSwapInterval(parameters.swapBufferInterval);
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//glEnable(GL_DEPTH_TEST);
+
+// initializing timeline
+	m_Player.load(buildTimeline(parameters), FrameDuration::PAL);
+}
+
+namespace { // defining channel mask constants
+
+using glm::bvec4;
+static const auto r = bvec4(true, false, false, false);
+static const auto g = bvec4(false, true, false, false);
+static const auto b = bvec4(false, false, true, false);
+static const auto a = bvec4(false, false, false, true);
+static const auto all = bvec4(false);
+
+}  // namespace
+
+void Duke::run() {
+	Context context;
+	Metronom metronom(100);
+	auto milestone = duke_clock::now();
+	bool running = true;
+	while (running) {
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// setting up context
+		context.viewport = m_Window.useViewport(false, false, false, false);
+		context.currentFrame = m_Player.getCurrentFrame();
+		context.playbackTime = m_Player.getPlaybackTime();
+		context.pan = m_Window.getRelativeMousePos();
+		context.zoom = glfwGetMouseWheel();
+
+		// rendering
+		for (const Track &track : m_Player.getTimeline()) {
+			const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
+			const Clip* pClip = mfr.first;
+			if (!pClip)
+				continue;
+			const auto& pStream = pClip->pStream;
+			if (!pStream)
+				continue;
+			context.clipFrame = mfr.second;
+			pStream->doRender(context);
+		}
+
+		// displaying
+		glfwSwapBuffers();
+
+		// updating time
+		const auto elapsedMicroSeconds = metronom.tick();
+		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
+
+		// handling input
+		auto &keyStrokes = m_Window.getPendingKeys();
+		for (const int key : keyStrokes) {
+			switch (key) {
+			case ' ':
+				m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
+				break;
+			case '4':
+				m_Player.setPlaybackSpeed(-1);
+				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
+				m_Player.setPlaybackSpeed(0);
+				break;
+			case '6':
+				m_Player.setPlaybackSpeed(1);
+				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
+				m_Player.setPlaybackSpeed(0);
+				break;
+			case 'r':
+				context.channels = context.channels == r ? all : r;
+				break;
+			case 'g':
+				context.channels = context.channels == g ? all : g;
+				break;
+			case 'b':
+				context.channels = context.channels == b ? all : b;
+				break;
+			case 'a':
+				context.channels = context.channels == a ? all : a;
+				break;
+			case '+':
+				context.exposure *= 1.2;
+				break;
+			case '-':
+				context.exposure /= 1.2;
+				break;
+//				case 'g':
+//					gltWriteTGA("grab.tga");
+//					cout << "grabbed image" << endl;
+//					break;
+			}
+		}
+		keyStrokes.clear();
+
+		// check stop
+		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+
+		// dump info every seconds
+		const auto now = duke_clock::now();
+		if ((now - milestone) > std::chrono::seconds(1)) {
+//				metronom.dump();
+			milestone = now;
+		}
+	}
+}
+} /* namespace duke */

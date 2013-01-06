@@ -5,11 +5,12 @@
 static const size_t startFrame = 90000;
 
 Timeline getTimeline() {
-	Timeline timeline;
-	timeline.emplace_back();
-	Track &track = timeline.back();
-	track.add(startFrame, Clip { 101 });
-	return timeline;
+	Track track;
+	track.add(startFrame, Clip { 1 });
+	track.add(startFrame + 1, Clip { 1 });
+	track.add(startFrame + 2, Clip { 1 });
+	track.add(startFrame + 3, Clip { 1 });
+	return {track};
 }
 
 TEST(Player,time) {
@@ -93,6 +94,36 @@ TEST(Player,looping) {
 	EXPECT_EQ(range.first, player.getCurrentFrame().round());
 }
 
+TEST(Player,looping2) {
+	Player player;
+	Track track;
+	track.add(0, Clip { 1 });
+	track.add(1, Clip { 1 });
+	track.add(2, Clip { 1 });
+	track.add(3, Clip { 1 });
+	const auto timeline = Timeline { track };
+	const auto range = timeline.getRange();
+	auto advance = [&]() {player.offsetPlaybackTime(player.getFrameDuration());};
+	EXPECT_EQ(range, Range (0,3));
+	player.load(timeline, FrameDuration::PAL);
+	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
+	// moving one frame
+	player.setPlaybackSpeed(-1);
+	advance(); // reverse should go last frame
+	EXPECT_EQ(Frame(3), player.getCurrentFrame());
+	player.setPlaybackSpeed(1);
+	advance(); // forward should go first frame
+	EXPECT_EQ(Frame(0), player.getCurrentFrame());
+	advance();
+	EXPECT_EQ(Frame(1), player.getCurrentFrame());
+	advance();
+	EXPECT_EQ(Frame(2), player.getCurrentFrame());
+	advance();
+	EXPECT_EQ(Frame(3), player.getCurrentFrame());
+	advance();
+	EXPECT_EQ(Frame(0), player.getCurrentFrame());
+}
+
 TEST(Player,loopingWithHugeStep) {
 	// if in looping mode with offset greater than timeline period, just doing nothing
 	Player player;
@@ -102,7 +133,7 @@ TEST(Player,loopingWithHugeStep) {
 	EXPECT_EQ(range.first, player.getCurrentFrame().round());
 	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
 	player.setPlaybackSpeed(1);
-	const auto lotsOfFrames = (range.last - range.first) * 5 / 2;
+	const auto lotsOfFrames = (range.last - range.first + 1) * 5 / 2;
 	player.offsetPlaybackTime(player.getFrameDuration() * lotsOfFrames);
 	EXPECT_EQ(range.first, player.getCurrentFrame().round());
 }

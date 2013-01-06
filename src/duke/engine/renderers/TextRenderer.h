@@ -8,25 +8,20 @@
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
-#include <duke/NonCopyable.h>
-#include <duke/engine/DukeWindow.h>
-#include <duke/engine/VolatileTexture.h>
-#include <duke/gl/Shader.hpp>
-#include <duke/gl/Mesh.hpp>
+#include "ImageRenderer.h"
+#include <duke/engine/LoadableTexture.h>
 
-class TextRenderer: public NonCopyable {
+namespace duke {
+
+class TextRenderer: public AbstractRenderer {
 public:
 	TextRenderer(const char *glyphsFilename);
 	void draw(const duke::Viewport &viewport, const char* pText);
 private:
-	VolatileTexture m_GlyphsTexture = (GL_TEXTURE_RECTANGLE);
-	const Program m_TextProgram;
-	const GLuint gViewport;
-	const GLuint gImage;
-	const GLuint gPan;
+	LoadableTexture m_GlyphsTexture = (GL_TEXTURE_RECTANGLE);
 	const GLuint gChar;
-	const GLuint gTextureSampler;
-	const SharedMesh m_pMesh;
 };
+
+} /* namespace duke */
 
 #endif /* TEXTRENDERER_H_ */

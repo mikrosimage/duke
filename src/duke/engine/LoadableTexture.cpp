@@ -5,13 +5,13 @@
  *      Author: Guillaume Chatelet
  */
 
-#include "VolatileTexture.h"
+#include "LoadableTexture.h"
 #include <duke/memory/alloc/Allocator.h>
-#include <duke/io/MemoryMappedFile.h>
+#include <duke/filesystem/MemoryMappedFile.h>
 
 #include <iostream>
 
-VolatileTexture::VolatileTexture(GLuint type) :
+LoadableTexture::LoadableTexture(GLuint type) :
 		minFilter(GL_NEAREST), magFilter(GL_NEAREST), wrapMode(GL_CLAMP_TO_EDGE), textureType(type), m_pTextureBuffer(std::make_shared<TextureBuffer>(type)) {
 }
 
@@ -58,7 +58,7 @@ GLint getInternalFormat(GLint format, GLint type) {
 	throw std::runtime_error("Don't know how to map texture to OpenGL internal format");
 }
 
-void VolatileTexture::loadGlTexture(const void* pData) {
+void LoadableTexture::loadGlTexture(const void* pData) {
 	glTexParameteri(textureType, GL_TEXTURE_WRAP_S, wrapMode);
 	glTexParameteri(textureType, GL_TEXTURE_WRAP_T, wrapMode);
 
@@ -75,7 +75,7 @@ void VolatileTexture::loadGlTexture(const void* pData) {
 
 static AlignedMalloc alignedMalloc;
 
-std::string VolatileTexture::loadImage(IImageReader *pRawReader) {
+std::string LoadableTexture::loadImage(IImageReader *pRawReader) {
 	std::unique_ptr<IImageReader> pReader(pRawReader);
 	if (!pReader)
 		return "bad state : IImageReader==nullptr";
@@ -96,7 +96,7 @@ std::string VolatileTexture::loadImage(IImageReader *pRawReader) {
 	return std::string();
 }
 
-std::string VolatileTexture::tryReader(const char* filename, const IIODescriptor *pDescriptor) {
+std::string LoadableTexture::tryReader(const char* filename, const IIODescriptor *pDescriptor) {
 	if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
 		MemoryMappedFile file(filename);
 		if (!file)
@@ -107,7 +107,7 @@ std::string VolatileTexture::tryReader(const char* filename, const IIODescriptor
 	}
 }
 
-bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magFilter, GLenum _wrapMode) {
+bool LoadableTexture::load(const char* filename, GLenum _minFilter, GLenum _magFilter, GLenum _wrapMode) {
 	minFilter = _minFilter;
 	magFilter = _magFilter;
 	wrapMode = _wrapMode;
@@ -123,7 +123,7 @@ bool VolatileTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 	return false;
 }
 
-ScopeBinder<TextureBuffer> VolatileTexture::use(GLuint dimensionUniformParameter) const {
+ScopeBinder<TextureBuffer> LoadableTexture::use(GLuint dimensionUniformParameter) const {
 	int orientation = 1;
 	const auto pOrientation = attributes.find<int>("Orientation");
 	if (pOrientation)

@@ -10,6 +10,7 @@
 
 #include "DukeWindow.h"
 #include <duke/time/FrameUtils.h>
+#include <glm/glm.hpp>
 
 namespace duke {
 
@@ -18,6 +19,11 @@ struct Context {
 	Time liveTime;
 	Time playbackTime;
 	Frame currentFrame;
+	size_t clipFrame = 0;
+	int zoom = 1;
+	glm::ivec2 pan;
+	glm::bvec4 channels = glm::bvec4(false);
+	float exposure = 1;
 };
 
 } /* namespace duke */

@@ -4,3 +4,9 @@
 [submodule "dependencies/glm"]
 	path = dependencies/glm
 	url = git://github.com/g-truc/glm.git
+[submodule "dependencies/concurrent_utils"]
+	path = dependencies/concurrent_utils
+	url = git://github.com/mikrosimage/concurrent_utils.git
+[submodule "dependencies/light_sequence_parser"]
+	path = dependencies/light_sequence_parser
+	url = git://github.com/gchatelet/light_sequence_parser.git

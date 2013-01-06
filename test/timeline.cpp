@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/time/Timeline.h>
+#include <duke/engine/Timeline.h>
 
 #include <stdexcept>
 #include <set>

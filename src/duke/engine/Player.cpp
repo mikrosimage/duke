@@ -34,7 +34,7 @@ void Player::offsetPlaybackTime(const Time time) {
 		return;
 	const bool forward = offset > 0;
 	auto overshoot = forward ? (m_PlaybackTime + offset) - m_LastFrameTime : m_FirstFrameTime - (m_PlaybackTime + offset);
-	if (overshoot < 0) {
+	if (overshoot <= 0) {
 		m_PlaybackTime += offset;
 		return;
 	}

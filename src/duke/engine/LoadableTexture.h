@@ -1,12 +1,12 @@
 /*
- * VolatileTexture.h
+ * LoadableTexture.h
  *
  *  Created on: Dec 22, 2012
  *      Author: Guillaume Chatelet
  */
 
-#ifndef VOLATILETEXTURE_H_
-#define VOLATILETEXTURE_H_
+#ifndef LOADABLETEXTURE_H_
+#define LOADABLETEXTURE_H_
 
 #include <duke/imageio/DukeIO.h>
 #include <duke/imageio/Attributes.h>
@@ -15,8 +15,8 @@
 class IImageReader;
 // forward decl
 
-struct VolatileTexture {
-	VolatileTexture(GLuint type);
+struct LoadableTexture {
+	LoadableTexture(GLuint type);
 	bool load(const char* filename, GLuint minFilter, GLuint magFilter, GLuint wrapMode);
 	ScopeBinder<TextureBuffer> use(GLuint dimensionUniformParameter) const;
 	Attributes attributes;
@@ -32,4 +32,4 @@ private:
 	SharedTextureBuffer m_pTextureBuffer;
 };
 
-#endif /* VOLATILETEXTURE_H_ */
+#endif /* LOADABLETEXTURE_H_ */

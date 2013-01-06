@@ -8,9 +8,12 @@
 #ifndef TIMELINE_H_
 #define TIMELINE_H_
 
+#include <duke/engine/renderers/IRenderer.h>
+
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 struct Range {
 	Range() :
@@ -43,7 +46,7 @@ class MediaStream;
 
 struct Clip {
 	size_t frames;
-	duke::MediaStream *pStream;
+	std::shared_ptr<duke::MediaStream> pStream;
 };
 
 typedef std::pair<const Clip*, size_t> MediaFrameReference;
@@ -78,6 +81,8 @@ template<typename C> typename C::const_iterator findLess(const C& container, con
 }
 
 struct Timeline: public std::vector<Track> {
+	Timeline() = default;
+	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers){}
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
 	Range getRange() const;
 	bool empty() const;

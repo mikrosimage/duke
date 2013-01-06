@@ -12,7 +12,7 @@
 #include <duke/gl/GlFwApp.h>
 
 #include <glm/glm.hpp>
-#include <set>
+#include <vector>
 #include <cassert>
 
 namespace duke {
@@ -32,7 +32,7 @@ struct DukeWindow: public NonCopyable, public GlFwApp {
 	glm::ivec2 getRelativeMousePos();
 	glm::ivec2 getWindowMousePos() const;
 	glm::ivec2 getViewportMousePos(const Viewport& viewport) const;
-	std::set<int>& getPendingKeys();
+	std::vector<int>& getPendingKeys();
 private:
 	void onKeyPressed(int unicodeCodePoint, int keyState);
 	void onWindowResize(int width, int height);
@@ -42,7 +42,7 @@ private:
 	glm::ivec2 m_LeftDragOrigin;
 	glm::ivec2 m_MousePos;
 	glm::ivec2 m_Dimension;
-	std::set<int> m_AllKeyStrokes;
+	std::vector<int> m_AllKeyStrokes;
 };
 
 }  // namespace duke

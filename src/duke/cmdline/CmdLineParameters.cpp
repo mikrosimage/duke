@@ -15,27 +15,33 @@
 using namespace std;
 
 template<typename T>
-void getArgs(const int argc, char**argv, int &i, T& value) {
+static void getArgs(const int argc, char**argv, int i, T& value) {
 	if (i >= argc)
 		throw logic_error("missing command line value");
 	istringstream iss(argv[i]);
 	iss >> value;
 	if (iss.fail())
 		throw logic_error("bad command line argument type");
-	++i;
 }
 
-bool matches(const string option, const string shortOption, const string longOption) {
+static bool matches(const string option, const string shortOption, const string longOption) {
 	return option == shortOption || option == longOption;
 }
 
-CmdLineParameters::CmdLineParameters(int argc, char**argv) :
-		swapBufferInterval(0) {
+namespace duke {
+
+CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 	for (int i = 1; i < argc; ++i) {
 		const char* pOption = argv[i];
 		if (matches(pOption, "", "--swapinterval"))
 			getArgs(argc, argv, ++i, swapBufferInterval);
+		else if (matches(pOption, "", "--fullscreen"))
+			fullscreen = true;
+		else if (*pOption != '-')
+			additionnalOptions.push_back(pOption);
 		else
 			throw logic_error(string("unknown command line argument '") + pOption + "'");
 	}
 }
+
+}  // namespace duke

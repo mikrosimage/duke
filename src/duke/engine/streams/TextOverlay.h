@@ -9,17 +9,19 @@
 #define TEXTOVERLAY_H_
 
 #include "MediaStream.h"
-#include <duke/engine/renderers/TextRenderer.h>
 #include <string>
+#include <memory>
 
 namespace duke {
 
+class TextRenderer;
+
 class TextOverlay: public MediaStream {
 public:
-	TextOverlay(TextRenderer& textRenderer, const std::string &string);
+	TextOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, const std::string &string);
 	virtual void doRender(const Context&) const;
 private:
-	TextRenderer &m_TextRenderer;
+	const std::shared_ptr<TextRenderer> m_pTextRenderer;
 	std::string m_String;
 };
 

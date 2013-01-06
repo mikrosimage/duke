@@ -17,7 +17,7 @@
 #include <cstring>
 #include <type_traits>
 
-enum class PrimitiveType { UNKNOWN, CHAR, UCHAR, SHORT, USHORT, INT, UINT, LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE };
+enum class PrimitiveType  : unsigned char { UNKNOWN, CHAR, UCHAR, SHORT, USHORT, INT, UINT, LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE };
 template<typename T> struct ptraits {};
 template<> struct ptraits<char> {constexpr static PrimitiveType value = PrimitiveType::CHAR;};
 template<> struct ptraits<unsigned char> {constexpr static PrimitiveType value = PrimitiveType::UCHAR;};

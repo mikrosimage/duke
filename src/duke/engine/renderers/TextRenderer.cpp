@@ -11,20 +11,17 @@
 
 #include <stdexcept>
 
+namespace duke {
+
 TextRenderer::TextRenderer(const char *glyphsFilename) :
-		m_TextProgram(loadVertexShader("shader/vertex_text.glsl"), loadFragmentShader("shader/basic.fglsl")), //
-		gViewport(m_TextProgram.getUniformLocation("gViewport")), //
-		gImage(m_TextProgram.getUniformLocation("gImage")), //
-		gPan(m_TextProgram.getUniformLocation("gPan")), //
-		gChar(m_TextProgram.getUniformLocation("gChar")), //
-		gTextureSampler(m_TextProgram.getUniformLocation("rectangleImageSampler")), //
-		m_pMesh(getSquare()) {
+		AbstractRenderer(loadVertexShader("shader/vertex_text.glsl"), loadFragmentShader("shader/basic.fglsl")), //
+		gChar(m_Program.getUniformLocation("gChar")) {
 	if (!m_GlyphsTexture.load(glyphsFilename, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE))
 		throw std::runtime_error("unable to load glyphs texture");
 }
 
 void TextRenderer::draw(const duke::Viewport &viewport, const char* pText) {
-	m_TextProgram.use();
+	m_Program.use();
 	glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
 	glUniform1i(gTextureSampler, 0);
 	const auto scopeBind = m_GlyphsTexture.use(gImage);
@@ -37,3 +34,5 @@ void TextRenderer::draw(const duke::Viewport &viewport, const char* pText) {
 		m_pMesh->draw();
 	}
 }
+
+} /* namespace duke */

@@ -39,15 +39,19 @@ Mesh::~Mesh() {
 }
 
 void Mesh::draw() const {
+	checkError();
 	const ScopeBinder<GenericBuffer> scopeBinded(vbo);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	checkError();
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
+	checkError();
 	callDraw();
 	checkError();
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
+	checkError();
 }
 
 void Mesh::callDraw() const {

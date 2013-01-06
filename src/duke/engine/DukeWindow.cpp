@@ -53,7 +53,7 @@ void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 
 void DukeWindow::onKeyPressed(int unicodeCodePoint, int keyState) {
 	if (keyState == GLFW_PRESS)
-		m_AllKeyStrokes.insert(unicodeCodePoint);
+		m_AllKeyStrokes.push_back(unicodeCodePoint);
 }
 
 const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool west) const {
@@ -68,7 +68,7 @@ const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool w
 	return viewport;
 }
 
-set<int>& DukeWindow::getPendingKeys() {
+vector<int>& DukeWindow::getPendingKeys() {
 	return m_AllKeyStrokes;
 }
 
