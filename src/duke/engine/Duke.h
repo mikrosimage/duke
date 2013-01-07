@@ -17,7 +17,7 @@ namespace duke {
 
 struct CmdLineParameters;
 
-class Duke: public NonCopyable {
+class Duke: public noncopyable {
 public:
 	Duke(const CmdLineParameters &parameters);
 	void run();

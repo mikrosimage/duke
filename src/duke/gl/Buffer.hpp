@@ -6,7 +6,7 @@
 #include <GL/gl.h>
 
 template<class POLICY>
-struct Buffer: public NonCopyable {
+struct Buffer: public noncopyable {
 public:
 	typedef POLICY Policy;
 	Buffer(GLuint targetType) :

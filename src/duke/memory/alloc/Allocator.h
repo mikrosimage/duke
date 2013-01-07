@@ -21,7 +21,7 @@
 /**
  * Allocator interface to alloc and free memory
  */
-struct Allocator: public NonCopyable {
+struct Allocator: public noncopyable {
 	virtual ~Allocator() {
 	}
 	virtual void* malloc(const size_t size) const = 0;

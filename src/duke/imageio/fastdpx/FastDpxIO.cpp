@@ -99,12 +99,7 @@ public:
 
 class FastDpxDescriptor: public IIODescriptor {
 	virtual bool supports(Capability capability) const {
-		switch (capability) {
-		case Capability::READER_READ_FROM_MEMORY:
-			return true;
-		default:
-			return false;
-		}
+		return capability == Capability::READER_READ_FROM_MEMORY;
 	}
 	virtual const std::vector<std::string>& getSupportedExtensions() const {
 		static std::vector<std::string> extensions = { "dpx" };
@@ -119,5 +114,5 @@ class FastDpxDescriptor: public IIODescriptor {
 };
 
 namespace {
-	bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescriptor());
+bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescriptor());
 }  // namespace

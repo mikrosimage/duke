@@ -27,7 +27,7 @@ struct VertexPosUv0 {
 
 #include <vector>
 
-class Mesh: public NonCopyable {
+class Mesh: public noncopyable {
 public:
 	Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount);
 	virtual ~Mesh();

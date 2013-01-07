@@ -26,7 +26,7 @@ struct Viewport {
 	}
 };
 
-struct DukeWindow: public NonCopyable, public GlFwApp {
+struct DukeWindow: public noncopyable, public GlFwApp {
 	DukeWindow();
 	const Viewport useViewport(bool north, bool south, bool east, bool west) const;
 	glm::ivec2 getRelativeMousePos();

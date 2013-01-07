@@ -27,7 +27,7 @@ struct ImageDescription {
 
 class IIODescriptor;
 
-class IImageReader: public NonCopyable {
+class IImageReader: public noncopyable {
 protected:
 	const IIODescriptor * const m_pDescriptor;
 	ImageDescription m_Description;
@@ -62,14 +62,14 @@ public:
 	}
 };
 
-class IImageWriter: public NonCopyable {
+class IImageWriter: public noncopyable {
 public:
 	virtual ~IImageWriter() {
 	}
 };
 
 #include <vector>
-class IIODescriptor: public NonCopyable {
+class IIODescriptor: public noncopyable {
 public:
 	enum class Capability {
 		READER_READ_FROM_MEMORY, READER_ALLOCATES_MEMORY, READER_GENERAL_PURPOSE
@@ -93,7 +93,7 @@ public:
 #include <memory>
 #include <map>
 #include <deque>
-class IODescriptors: public NonCopyable {
+class IODescriptors: public noncopyable {
 	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
 	std::map<std::string, std::deque<IIODescriptor*> > m_ExtensionToDescriptors;
 public:

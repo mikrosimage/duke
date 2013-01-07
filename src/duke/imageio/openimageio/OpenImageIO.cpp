@@ -12,6 +12,29 @@
 using namespace std;
 OIIO_NAMESPACE_USING;
 
+static PrimitiveType getAttributeType(const TypeDesc &typedesc) {
+	switch (typedesc.basetype) {
+	case TypeDesc::UCHAR:
+		return PrimitiveType::UCHAR;
+	case TypeDesc::CHAR:
+	case TypeDesc::STRING:
+		return PrimitiveType::CHAR;
+	case TypeDesc::USHORT:
+		return PrimitiveType::USHORT;
+	case TypeDesc::SHORT:
+		return PrimitiveType::SHORT;
+	case TypeDesc::UINT:
+		return PrimitiveType::UINT;
+	case TypeDesc::INT:
+		return PrimitiveType::INT;
+	case TypeDesc::FLOAT:
+		return PrimitiveType::FLOAT;
+	case TypeDesc::DOUBLE:
+		return PrimitiveType::DOUBLE;
+	default:
+		return PrimitiveType::UNKNOWN;
+	}
+}
 static GLuint getGLType(const TypeDesc &typedesc) {
 	switch (typedesc.basetype) {
 	case TypeDesc::UCHAR:
@@ -88,7 +111,24 @@ public:
 		m_Description.glFormat = m_Spec.nchannels == 4 ? GL_RGBA : GL_RGB;
 		m_Description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
 
-		m_Attributes.emplace_back("Orientation", 0);
+//		m_Attributes.emplace_back("Orientation", 0);
+		for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
+			const TypeDesc& oiio_type = paramvalue.type();
+			const PrimitiveType type = getAttributeType(static_cast<TypeDesc::BASETYPE>(oiio_type.basetype));
+			if (type == PrimitiveType::UNKNOWN)
+				continue;
+			const char* name = paramvalue.name().c_str();
+			if (oiio_type.basetype == TypeDesc::STRING) {
+				const char* pData = *reinterpret_cast<const char* const *>(paramvalue.data());
+				m_Attributes.emplace_back(name, pData);
+			} else {
+				const size_t nvalues = paramvalue.nvalues() * oiio_type.aggregate;
+				const char* pData = reinterpret_cast<const char*>(paramvalue.data());
+				const size_t datasize = paramvalue.datasize();
+				const size_t attr_nvalues = nvalues == 1 ? 0 : nvalues;
+				m_Attributes.emplace_back(name, pData, datasize, type, attr_nvalues);
+			}
+		}
 	}
 
 	~OpenImageIOReader() {

@@ -94,10 +94,7 @@ class TGADescriptor: public IIODescriptor {
 		return extensions;
 	}
 	virtual bool supports(Capability capability) const {
-		switch (capability) {
-		default:
-			return false;
-		}
+		return false;
 	}
 	virtual const char* getName() const {
 		return "Targa";

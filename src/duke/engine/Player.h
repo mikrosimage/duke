@@ -5,7 +5,7 @@
 #include <duke/time/FrameUtils.h>
 #include <duke/NonCopyable.h>
 
-struct Player: public NonCopyable {
+struct Player: public noncopyable {
 	enum Mode {
 		CONTINUE, LOOP, STOP
 	};

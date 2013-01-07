@@ -12,7 +12,7 @@
 
 namespace duke {
 
-class IRenderer: public NonCopyable {
+class IRenderer: public noncopyable {
 public:
 	virtual ~IRenderer() = 0;
 };

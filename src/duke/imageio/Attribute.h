@@ -35,14 +35,6 @@ private:
 	Attribute(const char* name, const char* pString, const size_t len) :
 			Attribute(name, pString, len + 1, PrimitiveType::CHAR,len) {
 	}
-	Attribute(const char* name, const char* pData, const size_t dataSize, PrimitiveType type, size_t len) :
-			m_Name(name), m_SmallData(0), m_Type(type), m_Size(len) {
-		const bool isSmall = dataSize <= sizeof(m_SmallData);
-		if (!isSmall)
-			m_ExternalData.resize(dataSize);
-		char* pDst = isSmall ? reinterpret_cast<char*>(&m_SmallData) : m_ExternalData.data();
-		memcpy(pDst, pData, dataSize);
-	}
 private:
 	std::string m_Name;
 	std::vector<char> m_ExternalData;
@@ -68,6 +60,14 @@ public:
 
 	Attribute(const char* name, const std::string &str) :
 			Attribute(name, str.c_str(), str.size()) {
+	}
+	explicit Attribute(const char* name, const char* pData, const size_t dataSize, PrimitiveType type, size_t len) :
+			m_Name(name), m_SmallData(0), m_Type(type), m_Size(len) {
+		const bool isSmall = dataSize <= sizeof(m_SmallData);
+		if (!isSmall)
+			m_ExternalData.resize(dataSize);
+		char* pDst = isSmall ? reinterpret_cast<char*>(&m_SmallData) : m_ExternalData.data();
+		memcpy(pDst, pData, dataSize);
 	}
 
 	const std::string& name() const {

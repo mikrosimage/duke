@@ -18,7 +18,7 @@
 #include <cassert>
 
 template<GLuint SHADER_TYPE>
-class Shader: public NonCopyable {
+class Shader: public noncopyable {
 public:
 	Shader(const char* pSource) :
 			shaderId(glCreateShader(SHADER_TYPE)) {
@@ -56,7 +56,7 @@ SharedVertexShader loadVertexShader(const char* pFilename);
 
 #include "Texture.h"
 
-struct Program: public NonCopyable {
+struct Program: public noncopyable {
 	Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader);
 	~Program();
 	void use() const;

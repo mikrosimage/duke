@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-struct RaiiFile: public NonCopyable {
+struct RaiiFile: public noncopyable {
 	RaiiFile(const char* filename) :
 			fd(open(filename, O_RDONLY)) {
 	}

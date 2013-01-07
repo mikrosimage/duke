@@ -11,7 +11,7 @@
 #include <duke/NonCopyable.h>
 #include <cstddef>
 
-struct MemoryMappedFile: public NonCopyable {
+struct MemoryMappedFile: public noncopyable {
 	MemoryMappedFile(const char* filename);
 	~MemoryMappedFile();
 	operator bool() const {
