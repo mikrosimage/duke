@@ -14,9 +14,12 @@
 #include <duke/engine/streams/TextOverlay.h>
 #include <duke/engine/renderers/ImageRenderer.h>
 #include <duke/engine/streams/FileSequenceStream.h>
+#include <duke/engine/streams/FileInfoOverlay.h>
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
 #include <sequence/Parser.hpp>
+
+#include <sstream>
 
 namespace duke {
 
@@ -72,11 +75,14 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	}
 	if (track.empty())
 		throw commandline_error("nothing to play");
-	Track overlay;
-	const auto range = track.getRange();
-	const size_t frames = range.last - range.first + 1;
 	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
-	overlay.add(range.first, Clip { frames, std::make_shared<TextOverlay>(std::make_shared<TextRenderer>("Bisasam_24x24.png"), "") });
+	const auto pTextRenderer = std::make_shared<TextRenderer>("Bisasam_24x24.png");
+	Track overlay;
+	overlay.disabled = true;
+	for (const auto& pair : track) {
+		const auto& pStream = pair.second.pStream;
+		overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pTextRenderer, std::static_pointer_cast<FileSequenceStream>(pStream)) });
+	}
 	return {track, overlay};
 }
 
@@ -128,6 +134,8 @@ void Duke::run() {
 
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
+			if (track.disabled)
+				continue;
 			const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
 			const Clip* pClip = mfr.first;
 			if (!pClip)
@@ -180,6 +188,10 @@ void Duke::run() {
 				break;
 			case '-':
 				context.exposure /= 1.2;
+				break;
+			case 'o':
+				bool &disabled = m_Player.m_Timeline[1].disabled;
+				disabled = !disabled;
 				break;
 //				case 'g':
 //					gltWriteTGA("grab.tga");

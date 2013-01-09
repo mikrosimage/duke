@@ -20,10 +20,8 @@ TextOverlay::TextOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, con
 }
 
 void TextOverlay::doRender(const Context& context) const {
-	ostringstream oss;
-	oss << m_String << " " << context.clipFrame << " " << context.exposure;
 	checkError();
-	m_pTextRenderer->draw(context.viewport, oss.str().c_str());
+	m_pTextRenderer->draw(context.viewport, m_String.c_str());
 	checkError();
 }
 

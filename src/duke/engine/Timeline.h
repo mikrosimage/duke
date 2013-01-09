@@ -52,6 +52,7 @@ struct Clip {
 typedef std::pair<const Clip*, size_t> MediaFrameReference;
 
 struct Track: public std::map<size_t, Clip> {
+	bool disabled = false;
 	std::string name;
 	void add(size_t frame, Clip&& clip) {
 		insert(std::make_pair(frame,std::move(clip)));
@@ -82,7 +83,7 @@ template<typename C> typename C::const_iterator findLess(const C& container, con
 
 struct Timeline: public std::vector<Track> {
 	Timeline() = default;
-	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers){}
+	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers) {}
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
 	Range getRange() const;
 	bool empty() const;

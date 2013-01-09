@@ -5,6 +5,8 @@
 #include <duke/time/FrameUtils.h>
 #include <duke/NonCopyable.h>
 
+namespace duke {
+
 struct Player: public noncopyable {
 	enum Mode {
 		CONTINUE, LOOP, STOP
@@ -31,6 +33,7 @@ struct Player: public noncopyable {
 	const Timeline& getTimeline() const;
 
 private:
+	friend class Duke;
 	Timeline m_Timeline;
 	Range m_TimelineRange = Range::EMPTY;
 	Time m_FirstFrameTime;
@@ -40,4 +43,7 @@ private:
 	int m_PlaybackSpeed = 0;
 	Mode m_PlaybackMode = LOOP;
 };
+
+}  // namespace duke
+
 #endif /* PLAYER_H_ */

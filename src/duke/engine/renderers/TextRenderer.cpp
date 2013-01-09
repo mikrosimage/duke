@@ -27,11 +27,19 @@ void TextRenderer::draw(const duke::Viewport &viewport, const char* pText) {
 	const auto scopeBind = m_GlyphsTexture.use(gImage);
 	const auto tileWidth = m_GlyphsTexture.description.width / 16;
 	const auto tileHeight = m_GlyphsTexture.description.height / 16;
-	size_t x = tileWidth * 2;
-	for (; *pText != 0; ++pText, x += tileWidth) {
+	const size_t x_orig = tileWidth * 2;
+	size_t x = x_orig;
+	size_t y = viewport.dimension.y - tileHeight * 2;
+	for (; *pText != 0; ++pText) {
+		if (*pText == '\n') {
+			x = x_orig;
+			y -= tileHeight + 2;
+			continue;
+		}
 		glUniform1i(gChar, *reinterpret_cast<const unsigned char*>(pText));
-		glUniform2i(gPan, x, tileHeight * 2);
+		glUniform2i(gPan, x, y);
 		m_pMesh->draw();
+		x += tileWidth - 2;
 	}
 }
 

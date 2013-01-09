@@ -20,7 +20,7 @@ struct commandline_error : std::runtime_error {
 
 struct CmdLineParameters {
 	CmdLineParameters(int argc, char**argv);
-	unsigned swapBufferInterval = 0;
+	unsigned swapBufferInterval = 1;
 	bool fullscreen = false;
 	std::vector<std::string> additionnalOptions;
 };

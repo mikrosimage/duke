@@ -20,6 +20,7 @@ class FileSequenceStream: public duke::MediaStream {
 public:
 	FileSequenceStream(const std::shared_ptr<ImageRenderer> &pRenderer, const char* filename);
 	virtual void doRender(const Context&) const;
+	const Attributes& getAttributes() const;
 private:
 	const std::shared_ptr<ImageRenderer> m_pRenderer;
 	const size_t m_Frame = 0;

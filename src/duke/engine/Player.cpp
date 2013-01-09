@@ -7,6 +7,8 @@
 
 #include "Player.h"
 
+namespace duke {
+
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
 	m_Timeline = timeline;
 	m_TimelineRange = timeline.getRange();
@@ -94,3 +96,5 @@ Player::Mode Player::getPlaybackMode() const {
 const Timeline& Player::getTimeline() const {
 	return m_Timeline;
 }
+
+}  // namespace duke

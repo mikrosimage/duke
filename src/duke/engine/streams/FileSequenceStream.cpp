@@ -30,5 +30,9 @@ void FileSequenceStream::doRender(const Context& context) const {
 	checkError();
 }
 
+const Attributes& FileSequenceStream::getAttributes() const {
+	return m_Texture.attributes;
+}
+
 }
 /* namespace duke */

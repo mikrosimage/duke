@@ -4,6 +4,8 @@
 
 static const size_t startFrame = 90000;
 
+using duke::Player;
+
 Timeline getTimeline() {
 	Track track;
 	track.add(startFrame, Clip { 1 });
