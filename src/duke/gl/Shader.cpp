@@ -46,12 +46,12 @@ SharedVertexShader makeVertexShader(const char* pSource) {
 	return std::make_shared<VertexShader>(pSource);
 }
 
-SharedFragmentShader loadFragmentShader(const char* pFilename) {
+SharedFragmentShader loadFragmentShaderFile(const char* pFilename) {
 	std::string shader(slurpFile(pFilename));
 	return makeFragmentShader(shader.c_str());
 }
 
-SharedVertexShader loadVertexShader(const char* pFilename) {
+SharedVertexShader loadVertexShaderFile(const char* pFilename) {
 	std::string shader(slurpFile(pFilename));
 	return makeVertexShader(shader.c_str());
 }

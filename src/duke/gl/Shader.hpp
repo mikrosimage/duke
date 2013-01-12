@@ -51,8 +51,8 @@ typedef std::shared_ptr<VertexShader> SharedVertexShader;
 SharedFragmentShader makeFragmentShader(const char* pSource);
 SharedVertexShader makeVertexShader(const char* pSource);
 
-SharedFragmentShader loadFragmentShader(const char* pFilename);
-SharedVertexShader loadVertexShader(const char* pFilename);
+SharedFragmentShader loadFragmentShaderFile(const char* pFilename);
+SharedVertexShader loadVertexShaderFile(const char* pFilename);
 
 #include "Texture.h"
 
