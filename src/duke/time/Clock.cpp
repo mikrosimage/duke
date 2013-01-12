@@ -36,5 +36,5 @@ void Metronom::compute() {
 
 void Metronom::dump() {
 	compute();
-	printf("tick : min %2.2lfms, max %2.2lfms, mean %2.2lfms, stddev %2.3lfms, fps=%lf\n", m_Min, m_Max, m_Mean, m_StdDev, getFPS());
+	printf("tick : min %2.2fms, max %2.2fms, mean %2.2fms, stddev %2.3fms, fps=%f\n", m_Min, m_Max, m_Mean, m_StdDev, getFPS());
 }

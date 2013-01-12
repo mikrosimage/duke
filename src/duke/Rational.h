@@ -52,7 +52,7 @@ struct rational {
 	// Assign in place
 	rational& assign(value_type n, value_type d) {
 		num = n;
-		den = 1;
+		den = d;
 		normalize();
 		return *this;
 	}

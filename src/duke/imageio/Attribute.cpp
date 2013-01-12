@@ -7,7 +7,7 @@
 
 #include "Attribute.h"
 
-const char * const getTypeName(PrimitiveType type) {
+const char * getTypeName(PrimitiveType type) {
 	switch (type) {
 	case PrimitiveType::UNKNOWN:
 		return "unknown";
