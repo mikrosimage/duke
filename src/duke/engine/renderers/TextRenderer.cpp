@@ -77,7 +77,7 @@ static const char * const pTextFragmentShader =
                 R"(#version 330
 
 out vec4 vFragColor;
-uniform samplerRect rectangleImageSampler;
+uniform sampler2DRect rectangleImageSampler;
 smooth in vec2 vVaryingTexCoord;
 
 void main(void)

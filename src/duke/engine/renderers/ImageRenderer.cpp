@@ -86,7 +86,7 @@ static const char * const pGradingFragmentShader=R"(
 #version 330
 
 out vec4 vFragColor;
-uniform samplerRect rectangleImageSampler;
+uniform sampler2DRect rectangleImageSampler;
 uniform bvec4 gShowChannel;
 uniform float gExposure;
 smooth in vec2 vVaryingTexCoord;
