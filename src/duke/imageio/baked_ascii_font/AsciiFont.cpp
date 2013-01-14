@@ -6,7 +6,7 @@
  */
 
 #include <duke/imageio/DukeIO.h>
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 #include <bitset>
 
 static const uint64_t raster_data[] = { 0x81c08367e7e00, 0x18fcfc3cf0ff00ff, 0x83e1c7fff8100, 0xdb848442c0c33cff, 0x181c1c3e7fdba500, 0x3cfcfc42a09966e7, 0x3c3e7f7f7fff8100,

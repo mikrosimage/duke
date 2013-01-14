@@ -7,8 +7,7 @@
 
 #include "DukeWindow.h"
 
-#include <GL/gl.h>
-#include <GL/glfw.h>
+#include <duke/gl/GL.h>
 
 using namespace std;
 

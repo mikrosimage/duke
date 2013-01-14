@@ -7,7 +7,7 @@
 
 #include "GlFwApp.h"
 
-#include <GL/glfw.h>
+#include <duke/gl/GL.h>
 
 #include <stdexcept>
 #include <cassert>

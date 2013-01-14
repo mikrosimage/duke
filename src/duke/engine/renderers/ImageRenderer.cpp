@@ -9,7 +9,7 @@
 #include <duke/engine/Context.h>
 #include <duke/engine/LoadableTexture.h>
 
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 
 namespace duke {
 

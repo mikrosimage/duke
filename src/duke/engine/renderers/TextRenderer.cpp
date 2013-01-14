@@ -7,7 +7,7 @@
 
 #include "TextRenderer.h"
 
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 
 #include <stdexcept>
 

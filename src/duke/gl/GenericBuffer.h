@@ -10,8 +10,8 @@
 
 #include <duke/gl/Buffer.hpp>
 #include <duke/gl/GLUtils.h>
+#include <duke/gl/GL.h>
 
-#include <GL/gl.h>
 #include <stdexcept>
 
 struct BufferGenericPolicy {

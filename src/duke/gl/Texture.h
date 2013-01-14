@@ -10,8 +10,7 @@
 
 #include <duke/gl/GLUtils.h>
 #include <duke/gl/Buffer.hpp>
-
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 
 #include <stdexcept>
 

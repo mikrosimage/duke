@@ -4,7 +4,7 @@
 
 #include <OpenImageIO/imageio.h>
 
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 
 #include <algorithm>
 #include <iterator>

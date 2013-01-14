@@ -15,7 +15,7 @@
 #include <duke/engine/renderers/ImageRenderer.h>
 #include <duke/engine/streams/FileSequenceStream.h>
 #include <duke/engine/streams/FileInfoOverlay.h>
-#include <GL/glfw.h>
+#include <duke/gl/GL.h>
 #include <glm/glm.hpp>
 #include <sequence/Parser.hpp>
 
