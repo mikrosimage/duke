@@ -196,10 +196,6 @@ void Duke::run() {
 				bool &disabled = m_Player.m_Timeline[1].disabled;
 				disabled = !disabled;
 				break;
-//				case 'g':
-//					gltWriteTGA("grab.tga");
-//					cout << "grabbed image" << endl;
-//					break;
 			}
 		}
 		keyStrokes.clear();
