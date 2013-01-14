@@ -84,19 +84,19 @@ public:
 		return m_ExternalData.empty() ? reinterpret_cast<const void*>(&m_SmallData) : m_ExternalData.data();
 	}
 
-	const size_t size() const {
+	size_t size() const {
 		return m_Size;
 	}
 
-	const bool isScalar() const {
+	bool isScalar() const {
 		return m_Size == 0;
 	}
 
-	const bool isVector() const {
+	bool isVector() const {
 		return !isScalar();
 	}
 
-	const bool isString() const {
+	bool isString() const {
 		return isVector() && m_Type == PrimitiveType::CHAR;
 	}
 

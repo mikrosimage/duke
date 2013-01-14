@@ -76,7 +76,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	if (track.empty())
 		throw commandline_error("nothing to play");
 	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
-	const auto pTextRenderer = std::make_shared<TextRenderer>("Bisasam_24x24.png");
+	const auto pTextRenderer = std::make_shared<TextRenderer>(".duke_ascii_font");
 	Track overlay;
 	overlay.disabled = true;
 	for (const auto& pair : track) {

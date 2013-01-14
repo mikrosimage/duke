@@ -10,7 +10,7 @@
 #include <iterator>
 
 using namespace std;
-OIIO_NAMESPACE_USING;
+OIIO_NAMESPACE_USING
 
 static PrimitiveType getAttributeType(const TypeDesc &typedesc) {
 	switch (typedesc.basetype) {
