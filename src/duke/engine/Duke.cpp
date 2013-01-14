@@ -87,6 +87,11 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 }
 
 Duke::Duke(const CmdLineParameters &parameters) {
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 // setup window
 	const auto windowMode = parameters.fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW;
 	auto desktopDimensions = getDesktopDimensions();
