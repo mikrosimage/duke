@@ -29,12 +29,15 @@ static inline GLuint checkType(GLuint primitiveType) {
 }
 
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
-		primitiveType(checkType(primitiveType)), vertexCount(vertexCount), vbo(GL_ARRAY_BUFFER) {
-	const ScopeBinder<GenericBuffer> scopeBinded(vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(VertexPosUv0), pVBegin, GL_STATIC_DRAW);
-    checkError();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
+		primitiveType(checkType(primitiveType)), vertexCount(vertexCount) {
+	const ScopeBinder<VertexArrayBuffer> vaoBinder(vao);
+	const ScopeBinder<GenericBuffer> vboBinded(vbo);
+	glBufferData(vbo.targetType, vertexCount * sizeof(VertexPosUv0), pVBegin, GL_STATIC_DRAW);
+	checkError();
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
+	glEnableVertexAttribArray(1);
 	checkError();
 }
 
@@ -42,15 +45,9 @@ Mesh::~Mesh() {
 }
 
 void Mesh::draw() const {
-	checkError();
-	const ScopeBinder<GenericBuffer> scopeBinded(vbo);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	const ScopeBinder<VertexArrayBuffer> vaoBinder(vao);
 	checkError();
 	callDraw();
-	checkError();
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
 	checkError();
 }
 
@@ -61,7 +58,7 @@ void Mesh::callDraw() const {
 IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount) :
 		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount), ibo(GL_ELEMENT_ARRAY_BUFFER) {
 	const ScopeBinder<GenericBuffer> scopeBinded(ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(GLuint), pIBegin, GL_STATIC_DRAW);
+	glBufferData(ibo.targetType, indexCount * sizeof(GLuint), pIBegin, GL_STATIC_DRAW);
 	checkError();
 }
 

@@ -9,10 +9,10 @@
 #define MESH_HPP_
 
 #include <duke/gl/GenericBuffer.h>
+#include <duke/gl/VertexArrayBuffer.h>
 #include <duke/gl/GLUtils.h>
 
 #include <glm/glm.hpp>
-
 
 struct VertexPosUv0 {
 	glm::vec3 position;
@@ -38,7 +38,8 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t vertexCount;
-	const GenericBuffer vbo;
+	const VertexArrayBuffer vao;
+	const GenericBuffer vbo = { GL_ARRAY_BUFFER };
 };
 
 #include <memory>
@@ -51,7 +52,7 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t indexCount;
-	const GenericBuffer ibo;
+	const GenericBuffer ibo = { GL_ELEMENT_ARRAY_BUFFER };
 };
 
 typedef std::shared_ptr<IndexedMesh> SharedIndexedMesh;

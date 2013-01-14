@@ -54,8 +54,4 @@ struct BufferGenericPolicy {
 
 typedef Buffer<BufferGenericPolicy> GenericBuffer;
 
-#include <memory>
-
-typedef std::shared_ptr<GenericBuffer> SharedGenericBuffer;
-
 #endif /* GENERICBUFFER_H_ */
