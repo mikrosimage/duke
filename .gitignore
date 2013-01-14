@@ -1,6 +1,6 @@
 *~
 /dist
-bin
+/build
 .directory
 /.settings
 /.cproject
