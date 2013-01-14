@@ -1,9 +1,9 @@
 FILE (GLOB_RECURSE CPP_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 FILE (GLOB_RECURSE HEADERS_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 include_directories(./dependencies/light_sequence_parser/include)
-add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
+add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES ) # -DGLFW_INCLUDE_GL3
 add_executable(duke ${CPP_FILES} ${HEADERS_FILES} ../../dependencies/light_sequence_parser/src/FolderParser.cpp)
-target_link_libraries(duke GL rt glfw)
+target_link_libraries(duke ${OPENGL_LIBRARIES} glfw)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 find_package (OpenImageIO)

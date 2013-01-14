@@ -7,8 +7,7 @@
 
 #include <duke/imageio/DukeIO.h>
 #include <duke/gl/GL.h>
-
-#include <byteswap.h>
+#include <duke/ByteSwap.h>
 
 #define DPX_MAGIC           0x53445058
 #define DPX_MAGIC_SWAP      0x58504453

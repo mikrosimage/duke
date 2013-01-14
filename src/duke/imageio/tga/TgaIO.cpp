@@ -8,6 +8,7 @@
 #include <duke/imageio/DukeIO.h>
 
 #include <duke/gl/GL.h>
+#include <duke/ByteSwap.h>
 
 #include <cstdio>
 
@@ -45,12 +46,12 @@ public:
 		}
 		// Do byte swap for big vs little endian
 #ifdef __APPLE__
-		LITTLE_ENDIAN_WORD(&m_Header.colorMapStart);
-		LITTLE_ENDIAN_WORD(&m_Header.colorMapLength);
-		LITTLE_ENDIAN_WORD(&m_Header.xstart);
-		LITTLE_ENDIAN_WORD(&m_Header.ystart);
-		LITTLE_ENDIAN_WORD(&m_Header.width);
-		LITTLE_ENDIAN_WORD(&m_Header.height);
+		bswap_16(&m_Header.colorMapStart);
+		bswap_16(&m_Header.colorMapLength);
+		bswap_16(&m_Header.xstart);
+		bswap_16(&m_Header.ystart);
+		bswap_16(&m_Header.width);
+		bswap_16(&m_Header.height);
 #endif
 
 		switch (m_Header.bits) {
