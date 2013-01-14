@@ -1,22 +1,25 @@
 cmake_minimum_required(VERSION 2.8)
 project(duke)
 
-find_package(OpenGL REQUIRED)
+# add specific modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 
+#
+find_package(Threads)
+
+#
+include_directories(dependencies/concurrent_utils)
+include_directories(dependencies/glm)
+include_directories(dependencies/light_sequence_parser/include)
+include_directories(src)
+
+# c++11 / no-rtti
 if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fno-rtti")
 endif()
 
-include_directories(${OPENGL_INCLUDE_DIRS})
-include_directories(./dependencies/concurrent_utils)
-include_directories(./dependencies/glfw/include)
-include_directories(./dependencies/glm)
-include_directories(./dependencies/light_sequence_parser/include)
+# duke
+add_subdirectory(src/duke)
 
-add_subdirectory(src)
-
-# # set(TEST_ENABLED false)
-# # if(TEST_ENABLED)
-# # enable_testing()
-# # add_subdirectory(test)
-# endif(TEST_ENABLED)
+# tests
+add_subdirectory(test)

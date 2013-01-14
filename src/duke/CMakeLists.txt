@@ -1,12 +1,33 @@
-FILE (GLOB_RECURSE CPP_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-FILE (GLOB_RECURSE HEADERS_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-include_directories(./dependencies/light_sequence_parser/include)
-add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES ) # -DGLFW_INCLUDE_GL3
-add_executable(duke ${CPP_FILES} ${HEADERS_FILES} ../../dependencies/light_sequence_parser/src/FolderParser.cpp)
-target_link_libraries(duke ${OPENGL_LIBRARIES} glfw)
+#
+# OpenGL
+#
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIRS})
+add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
-find_package (OpenImageIO)
+
+#
+# GLFW
+#
+find_package(GLFW REQUIRED)
+include_directories(${GLFW_INCLUDE_DIR})
+add_definitions(-DGLFW_NO_GLU) # -DGLFW_INCLUDE_GL3
+
+
+#
+# duke sources
+#
+file(GLOB_RECURSE DUKE_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
+list(REMOVE_ITEM DUKE_SRC_FILES main.cpp)
+add_library(duke_core ${DUKE_SRC_FILES} ${PROJECT_SOURCE_DIR}/dependencies/light_sequence_parser/src/FolderParser.cpp)
+add_executable(duke main.cpp)
+target_link_libraries(duke duke_core ${CMAKE_THREAD_LIBS_INIT} ${OPENGL_LIBRARIES} ${GLFW_LIBRARY})
+
+
+#
+# OpenImageIO
+#
+find_package(OpenImageIO)
 if(OPENIMAGEIO_FOUND)
   add_definitions(-DDUKE_OIIO)
   include_directories(${OPENIMAGEIO_INCLUDE_DIRS})

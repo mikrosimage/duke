@@ -14,7 +14,7 @@
 namespace duke {
 
 static const char * const pTextVertexShader =
-		R"(
+                R"(
 #version 330
 
 layout (location = 0) in vec3 Position;
@@ -74,7 +74,7 @@ void main() {
 })";
 
 static const char * const pTextFragmentShader =
-		R"(#version 330
+                R"(#version 330
 
 out vec4 vFragColor;
 uniform samplerRect rectangleImageSampler;
@@ -86,33 +86,33 @@ void main(void)
 })";
 
 TextRenderer::TextRenderer(const char *glyphsFilename) :
-		AbstractRenderer(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
-		gChar(m_Program.getUniformLocation("gChar")) {
-	if (!m_GlyphsTexture.load(glyphsFilename, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE))
-		throw std::runtime_error("unable to load glyphs texture");
+                AbstractRenderer(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
+                gChar(m_Program.getUniformLocation("gChar")) {
+    if (!m_GlyphsTexture.load(glyphsFilename, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE))
+        throw std::runtime_error("unable to load glyphs texture");
 }
 
 void TextRenderer::draw(const duke::Viewport &viewport, const char* pText) {
-	m_Program.use();
-	glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
-	glUniform1i(gTextureSampler, 0);
-	const auto scopeBind = m_GlyphsTexture.use(gImage);
-	const auto tileWidth = m_GlyphsTexture.description.width / 16;
-	const auto tileHeight = m_GlyphsTexture.description.height / 16;
-	const size_t x_orig = tileWidth * 2;
-	size_t x = x_orig;
-	size_t y = viewport.dimension.y - tileHeight * 2;
-	for (; *pText != 0; ++pText) {
-		if (*pText == '\n') {
-			x = x_orig;
-			y -= tileHeight + 2;
-			continue;
-		}
-		glUniform1i(gChar, *reinterpret_cast<const unsigned char*>(pText));
-		glUniform2i(gPan, x, y);
-		m_pMesh->draw();
-		x += tileWidth - 1;
-	}
+    m_Program.use();
+    glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
+    glUniform1i(gTextureSampler, 0);
+    const auto scopeBind = m_GlyphsTexture.use(gImage);
+    const auto tileWidth = m_GlyphsTexture.description.width / 16;
+    const auto tileHeight = m_GlyphsTexture.description.height / 16;
+    const size_t x_orig = tileWidth * 2;
+    size_t x = x_orig;
+    size_t y = viewport.dimension.y - tileHeight * 2;
+    for (; *pText != 0; ++pText) {
+        if (*pText == '\n') {
+            x = x_orig;
+            y -= tileHeight + 2;
+            continue;
+        }
+        glUniform1i(gChar, *reinterpret_cast<const unsigned char*>(pText));
+        glUniform2i(gPan, x, y);
+        m_pMesh->draw();
+        x += tileWidth;
+    }
 }
 
 } /* namespace duke */

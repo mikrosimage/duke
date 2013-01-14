@@ -1,0 +1,47 @@
+# If GTEST_ROOT_DIR was defined in the environment, use it.
+IF(NOT GTEST_ROOT_DIR AND NOT $ENV{GTEST_ROOT_DIR} STREQUAL "")
+  SET(GTEST_ROOT_DIR $ENV{GTEST_ROOT_DIR})
+ENDIF()
+
+SET(_gtest_SEARCH_DIRS
+  ${GTEST_ROOT_DIR}
+  /usr/local
+  /sw # Fink
+  /opt/local # DarwinPorts
+  /opt/csw # Blastwave
+)
+
+FIND_PATH(GTEST_INCLUDE_DIR
+  NAMES         gtest/gtest.h
+  HINTS         ${_gtest_SEARCH_DIRS}
+  PATH_SUFFIXES include
+)
+
+FIND_LIBRARY(GTEST_LIBRARY
+  NAMES         gtest
+  HINTS         ${_gtest_SEARCH_DIRS}
+  PATH_SUFFIXES lib64 lib lib/.libs/
+)
+
+FIND_LIBRARY(GTEST_MAIN_LIBRARY
+  NAMES         gtest_main
+  HINTS         ${_gtest_SEARCH_DIRS}
+  PATH_SUFFIXES lib64 lib lib/.libs/
+)
+
+# handle the QUIETLY and REQUIRED arguments and set GTEST_FOUND to TRUE if 
+# all listed variables are TRUE
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(GTEST DEFAULT_MSG GTEST_LIBRARY GTEST_MAIN_LIBRARY GTEST_INCLUDE_DIR)
+
+IF(GTEST_FOUND)
+  SET(GTEST_LIBRARY ${GTEST_LIBRARY})
+  SET(GTEST_INCLUDE_DIR ${GTEST_INCLUDE_DIR})
+  SET(GTEST_MAIN_LIBRARY ${GTEST_MAIN_LIBRARY})
+ENDIF(GTEST_FOUND)
+
+MARK_AS_ADVANCED(
+  GTEST_LIBRARY
+  GTEST_MAIN_LIBRARY
+  GTEST_INCLUDE_DIR
+)

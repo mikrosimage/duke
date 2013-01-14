@@ -32,6 +32,9 @@ Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t verte
 		primitiveType(checkType(primitiveType)), vertexCount(vertexCount), vbo(GL_ARRAY_BUFFER) {
 	const ScopeBinder<GenericBuffer> scopeBinded(vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(VertexPosUv0), pVBegin, GL_STATIC_DRAW);
+    checkError();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
 	checkError();
 }
 
@@ -43,9 +46,6 @@ void Mesh::draw() const {
 	const ScopeBinder<GenericBuffer> scopeBinded(vbo);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	checkError();
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
 	checkError();
 	callDraw();
 	checkError();

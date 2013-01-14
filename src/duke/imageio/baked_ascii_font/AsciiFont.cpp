@@ -8,6 +8,7 @@
 #include <duke/imageio/DukeIO.h>
 #include <duke/gl/GL.h>
 #include <bitset>
+#include <cstring>
 
 static const uint64_t raster_data[] = { 0x81c08367e7e00, 0x18fcfc3cf0ff00ff, 0x83e1c7fff8100, 0xdb848442c0c33cff, 0x181c1c3e7fdba500, 0x3cfcfc42a09966e7, 0x3c3e7f7f7fff8100,
 		0xe7840442bebd42c3, 0x3c7f7f3e3ec3bd00, 0xe7c4043c21bd42c3, 0x183e6b1c1ce79900, 0x3ce60618219966e7, 0x8080808ff8100, 0xdb67077e21c33cff, 0x1c1c00007e7e00,
@@ -52,12 +53,14 @@ public:
 	}
 
 	virtual void readImageDataTo(void* pData) {
+	    const static unsigned char pOn []={0xFF,0xFF,0xFF,0xFF};
+	    const static unsigned char pOff[]={0x00,0x00,0x00,0xA0};
 		using namespace std;
 		auto pCharData = reinterpret_cast<unsigned char*>(pData);
 		for (size_t index = 0; index < 256; ++index) {
 			const std::bitset<64> bitset(raster_data[index]);
 			for (size_t i = 0; i < bitset.size(); ++i) {
-				memset(pCharData, bitset[i] ? 0xFF : 0x00, 4);
+				memcpy(pCharData, bitset[i] ? pOn : pOff, 4);
 				pCharData += sizeof(int);
 			}
 		}

@@ -37,22 +37,16 @@ SET(_openimageio_SEARCH_DIRS
 )
 
 FIND_PATH(OPENIMAGEIO_INCLUDE_DIR
-  NAMES
-    OpenImageIO/imageio.h
-  HINTS
-    ${_openimageio_SEARCH_DIRS}
-  PATH_SUFFIXES
-    include
+  NAMES         OpenImageIO/imageio.h
+  HINTS         ${_openimageio_SEARCH_DIRS}
+  PATH_SUFFIXES include
 )
 
 FIND_LIBRARY(OPENIMAGEIO_LIBRARY
-  NAMES
-    OpenImageIO
-  HINTS
-    ${_openimageio_SEARCH_DIRS}
-  PATH_SUFFIXES
-    lib64 lib
-  )
+  NAMES         OpenImageIO
+  HINTS         ${_openimageio_SEARCH_DIRS}
+  PATH_SUFFIXES lib64 lib
+)
 
 # handle the QUIETLY and REQUIRED arguments and set OPENIMAGEIO_FOUND to TRUE if 
 # all listed variables are TRUE
