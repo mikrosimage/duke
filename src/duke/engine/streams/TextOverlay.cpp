@@ -20,9 +20,9 @@ TextOverlay::TextOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, con
 }
 
 void TextOverlay::doRender(const Context& context) const {
-	checkError();
+	glCheckError();
 	m_pTextRenderer->draw(context.viewport, m_String.c_str());
-	checkError();
+	glCheckError();
 }
 
 } /* namespace duke */

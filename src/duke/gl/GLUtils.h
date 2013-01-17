@@ -10,7 +10,7 @@
 
 #include <string>
 
-void checkError();
+void glCheckError();
 void checkShaderError(unsigned int shaderId, const char* source);
 void checkProgramError(unsigned int programId);
 std::string slurpFile(const char* pFilename);

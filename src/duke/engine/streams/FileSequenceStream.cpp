@@ -25,9 +25,9 @@ FileSequenceStream::FileSequenceStream(const std::shared_ptr<ImageRenderer> &pRe
 }
 
 void FileSequenceStream::doRender(const Context& context) const {
-	checkError();
+	glCheckError();
 	m_pRenderer->draw(context, m_Texture);
-	checkError();
+	glCheckError();
 }
 
 const Attributes& FileSequenceStream::getAttributes() const {

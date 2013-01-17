@@ -118,7 +118,7 @@ void ImageRenderer::draw(const duke::Context &context, const LoadableTexture& te
 	glUniform1f(gExposure, context.exposure);
 	glUniform4i(gShowChannel, context.channels.x, context.channels.y, context.channels.z, context.channels.w);
 	m_pMesh->draw();
-	checkError();
+	glCheckError();
 }
 
 } /* namespace duke */

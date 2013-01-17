@@ -10,7 +10,7 @@
 #include <duke/gl/GL.h>
 #include <stdexcept>
 
-void checkError() {
+void glCheckError() {
 	switch (glGetError()) {
 	case GL_INVALID_ENUM:
 		throw std::runtime_error("OpenGL : Invalid enum");

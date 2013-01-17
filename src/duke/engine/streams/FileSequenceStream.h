@@ -24,7 +24,7 @@ public:
 private:
 	const std::shared_ptr<ImageRenderer> m_pRenderer;
 	const size_t m_Frame = 0;
-	LoadableTexture m_Texture = GL_TEXTURE_RECTANGLE;
+	LoadableTexture m_Texture;
 };
 
 } /* namespace duke */

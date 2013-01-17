@@ -11,8 +11,8 @@
 
 #include <iostream>
 
-LoadableTexture::LoadableTexture(GLuint type) :
-		minFilter(GL_NEAREST), magFilter(GL_NEAREST), wrapMode(GL_CLAMP_TO_EDGE), textureType(type), m_pTextureBuffer(std::make_shared<TextureBuffer>(type)) {
+LoadableTexture::LoadableTexture() :
+		minFilter(GL_NEAREST), magFilter(GL_NEAREST), wrapMode(GL_CLAMP_TO_EDGE), m_pTextureBuffer(std::make_shared<TextureRectangle>()) {
 }
 
 GLint getInternalFormat(GLint format, GLint type) {
@@ -59,6 +59,7 @@ GLint getInternalFormat(GLint format, GLint type) {
 }
 
 void LoadableTexture::loadGlTexture(const void* pData) {
+	const auto textureType = m_pTextureBuffer->TargetType;
 	glTexParameteri(textureType, GL_TEXTURE_WRAP_S, wrapMode);
 	glTexParameteri(textureType, GL_TEXTURE_WRAP_T, wrapMode);
 
@@ -66,11 +67,11 @@ void LoadableTexture::loadGlTexture(const void* pData) {
 	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, magFilter);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(textureType, 0, //
+	m_pTextureBuffer->texImage2D(0, //
 			getInternalFormat(description.glFormat, description.glType), //
 			description.width, description.height, 0, //
 			description.glFormat, description.glType, pData);
-	checkError();
+	glCheckError();
 }
 
 static AlignedMalloc alignedMalloc;
@@ -114,7 +115,7 @@ bool LoadableTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 	const char* pDot = strrchr(filename, '.');
 	if (!pDot)
 		return false;
-	ScopeBinder<TextureBuffer> scopeBind(m_pTextureBuffer);
+	const auto bound = scope_bind(*m_pTextureBuffer);
 	std::string error = "no reader available";
 	for (const IIODescriptor *pDescriptor : IODescriptors::instance().findDescriptor(++pDot))
 		if ((error = tryReader(filename, pDescriptor)).empty())
@@ -123,7 +124,7 @@ bool LoadableTexture::load(const char* filename, GLenum _minFilter, GLenum _magF
 	return false;
 }
 
-ScopeBinder<TextureBuffer> LoadableTexture::use(GLuint dimensionUniformParameter) const {
+Binder<TextureRectangle> LoadableTexture::use(GLuint dimensionUniformParameter) const {
 	int orientation = 1;
 	const auto pOrientation = attributes.find<int>("Orientation");
 	if (pOrientation)
@@ -146,5 +147,5 @@ ScopeBinder<TextureBuffer> LoadableTexture::use(GLuint dimensionUniformParameter
 		throw std::runtime_error("unsupported orientation");
 	}
 	glUniform2i(dimensionUniformParameter, width, height);
-	return ScopeBinder<TextureBuffer>(m_pTextureBuffer);
+	return scope_bind(*m_pTextureBuffer);
 }

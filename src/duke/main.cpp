@@ -4,7 +4,13 @@
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Duke.h>
 
+#include <duke/gl/Buffers.h>
+
 int main(int argc, char** argv) {
+	StreamUploadPbo vbo;
+	auto bound = scope_bind(vbo);
+	TextureRectangle tex;
+	auto bound2 = scope_bind(tex);
 	try {
 		const duke::CmdLineParameters parameters(argc, argv);
 		duke::Duke duke(parameters);

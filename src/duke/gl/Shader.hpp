@@ -54,14 +54,11 @@ SharedVertexShader makeVertexShader(const char* pSource);
 SharedFragmentShader loadFragmentShaderFile(const char* pFilename);
 SharedVertexShader loadVertexShaderFile(const char* pFilename);
 
-#include "Texture.h"
-
 struct Program: public noncopyable {
 	Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader);
 	~Program();
 	void use() const;
 	GLuint getUniformLocation(const char* pUniformName) const;
-//	std::vector<std::string> getUniformNames() const ;
 private:
 	const GLuint programId;
 	const SharedVertexShader pVertexShader;

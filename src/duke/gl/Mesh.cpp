@@ -30,25 +30,25 @@ static inline GLuint checkType(GLuint primitiveType) {
 
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
 		primitiveType(checkType(primitiveType)), vertexCount(vertexCount) {
-	const ScopeBinder<VertexArrayBuffer> vaoBinder(vao);
-	const ScopeBinder<GenericBuffer> vboBinded(vbo);
-	glBufferData(vbo.targetType, vertexCount * sizeof(VertexPosUv0), pVBegin, GL_STATIC_DRAW);
-	checkError();
+	const auto vaoBinder = scope_bind(vao);
+	const auto vboBinder = scope_bind(vbo);
+	vbo.bufferData(vertexCount * sizeof(VertexPosUv0), pVBegin);
+	glCheckError();
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), (const GLvoid*) (sizeof(glm::vec3)));
 	glEnableVertexAttribArray(1);
-	checkError();
+	glCheckError();
 }
 
 Mesh::~Mesh() {
 }
 
 void Mesh::draw() const {
-	const ScopeBinder<VertexArrayBuffer> vaoBinder(vao);
-	checkError();
+	const auto vaoBinder = scope_bind(vao);
+	glCheckError();
 	callDraw();
-	checkError();
+	glCheckError();
 }
 
 void Mesh::callDraw() const {
@@ -56,14 +56,14 @@ void Mesh::callDraw() const {
 }
 
 IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount) :
-		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount), ibo(GL_ELEMENT_ARRAY_BUFFER) {
-	const ScopeBinder<GenericBuffer> scopeBinded(ibo);
-	glBufferData(ibo.targetType, indexCount * sizeof(GLuint), pIBegin, GL_STATIC_DRAW);
-	checkError();
+		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount) {
+	const auto ivboBinder = scope_bind(ivbo);
+	ivbo.bufferData(indexCount * sizeof(GLuint), pIBegin);
+	glCheckError();
 }
 
 void IndexedMesh::callDraw() const {
-	const ScopeBinder<GenericBuffer> scopeBinded(ibo);
+	const auto iboBinder = scope_bind(ivbo);
 	glDrawElements(primitiveType, indexCount, GL_UNSIGNED_INT, 0);
 }
 

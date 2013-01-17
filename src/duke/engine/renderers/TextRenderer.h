@@ -18,7 +18,7 @@ public:
 	TextRenderer(const char *glyphsFilename);
 	void draw(const duke::Viewport &viewport, const char* pText);
 private:
-	LoadableTexture m_GlyphsTexture = (GL_TEXTURE_RECTANGLE);
+	LoadableTexture m_GlyphsTexture;
 	const GLuint gChar;
 };
 

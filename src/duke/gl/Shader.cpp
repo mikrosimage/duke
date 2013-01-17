@@ -24,9 +24,9 @@ Program::~Program() {
 
 void Program::use() const {
 	glValidateProgram(programId);
-	checkError();
+	glCheckError();
 	glUseProgram(programId);
-	checkError();
+	glCheckError();
 }
 
 GLuint Program::getUniformLocation(const char* pUniformName) const {

@@ -8,8 +8,7 @@
 #ifndef MESH_HPP_
 #define MESH_HPP_
 
-#include <duke/gl/GenericBuffer.h>
-#include <duke/gl/VertexArrayBuffer.h>
+#include <duke/gl/Buffers.h>
 #include <duke/gl/GLUtils.h>
 
 #include <glm/glm.hpp>
@@ -38,8 +37,8 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t vertexCount;
-	const VertexArrayBuffer vao;
-	const GenericBuffer vbo = { GL_ARRAY_BUFFER };
+	const Vao vao;
+	const StaticVbo vbo;
 };
 
 #include <memory>
@@ -52,7 +51,7 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t indexCount;
-	const GenericBuffer ibo = { GL_ELEMENT_ARRAY_BUFFER };
+	const StaticIndexedVbo ivbo;
 };
 
 typedef std::shared_ptr<IndexedMesh> SharedIndexedMesh;
