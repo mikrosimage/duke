@@ -67,6 +67,7 @@ void LoadableTexture::loadGlTexture(const void* pData) {
 	glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, magFilter);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	const auto bound = scope_bind(*m_pTextureBuffer);
 	m_pTextureBuffer->texImage2D(0, //
 			getInternalFormat(description.glFormat, description.glType), //
 			description.width, description.height, 0, //
