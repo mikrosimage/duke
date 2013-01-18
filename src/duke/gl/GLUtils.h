@@ -11,6 +11,7 @@
 #include <string>
 
 void glCheckError();
+void glCheckBound(unsigned int targetType, unsigned int id);
 void checkShaderError(unsigned int shaderId, const char* source);
 void checkProgramError(unsigned int programId);
 std::string slurpFile(const char* pFilename);

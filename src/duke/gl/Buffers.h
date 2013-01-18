@@ -11,6 +11,7 @@
 #include <duke/NonCopyable.h>
 #include <duke/gl/GL.h>
 #include <duke/gl/GLUtils.h>
+#include <stdexcept>
 
 template<class T>
 struct Binder: public noncopyable {
@@ -53,6 +54,7 @@ struct GlObject: public noncopyable, public ALLOC {
 		ALLOC::deallocate(id);
 		glCheckError();
 	}
+
 	const GLuint id;
 };
 
@@ -63,6 +65,7 @@ struct GlBufferObject: public GlObject<GlBufferAllocactor, TARGETTYPE> {
 			USAGE==GL_STATIC_DRAW||USAGE==GL_STATIC_READ||USAGE==GL_STATIC_COPY||//
 			USAGE==GL_DYNAMIC_DRAW||USAGE==GL_DYNAMIC_READ||USAGE==GL_DYNAMIC_COPY, "Unsupported usage");
 	inline void bufferData(GLsizeiptr size, const GLvoid * data) const {
+		glCheckBound(TARGETTYPE,this->id);
 		glBufferData(TARGETTYPE, size, data, USAGE);
 		glCheckError();
 	}
@@ -113,10 +116,12 @@ template<GLuint TARGETTYPE>
 struct Texture: public GlObject<GlTextureAllocator, TARGETTYPE> {
 	static_assert(TARGETTYPE==GL_TEXTURE_2D||TARGETTYPE==GL_TEXTURE_RECTANGLE, "Unsupported target type");
 	void texSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * data) {
+		glCheckBound(TARGETTYPE,this->id);
 		glTexSubImage2D(TARGETTYPE, level, xoffset, yoffset, width, height, format, type, data);
 		glCheckError();
 	}
 	void texImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * data) {
+		glCheckBound(TARGETTYPE,this->id);
 		glTexImage2D(TARGETTYPE, level, internalFormat, width, height, border, format, type, data);
 		glCheckError();
 	}

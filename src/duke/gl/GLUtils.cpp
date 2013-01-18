@@ -29,6 +29,31 @@ void glCheckError() {
 	}
 }
 
+static GLuint getBindParameter(GLuint targetType) {
+	switch (targetType) {
+	case GL_TEXTURE_2D:
+		return GL_TEXTURE_BINDING_2D;
+	case GL_TEXTURE_RECTANGLE:
+		return GL_TEXTURE_BINDING_RECTANGLE;
+	case GL_ARRAY_BUFFER:
+		return GL_ARRAY_BUFFER_BINDING;
+	case GL_ELEMENT_ARRAY_BUFFER:
+		return GL_ELEMENT_ARRAY_BUFFER_BINDING;
+	case GL_PIXEL_UNPACK_BUFFER:
+		return GL_PIXEL_UNPACK_BUFFER_BINDING;
+	case GL_PIXEL_PACK_BUFFER:
+		return GL_PIXEL_PACK_BUFFER_BINDING;
+	};
+	throw std::runtime_error("unsupported targetType");
+}
+
+void glCheckBound(GLuint targetType, GLuint id) {
+	GLint current;
+	glGetIntegerv(getBindParameter(targetType), &current);
+	if (GLuint(current) != id)
+		throw std::runtime_error("Trying to operate on unbound GlObject");
+}
+
 void checkShaderError(GLuint shaderId, const char* pSource) {
 	GLint success;
 	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
