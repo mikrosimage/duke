@@ -13,9 +13,9 @@
 namespace duke {
 
 struct Context;
-class MediaStream: public noncopyable {
+class IMediaStream: public noncopyable {
 public:
-	virtual ~MediaStream() = 0;
+	virtual ~IMediaStream() = 0;
 	virtual void doRender(const Context&) const =0;
 };
 

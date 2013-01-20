@@ -1,45 +1,22 @@
 /*
- * ImageRenderer.h
+ * ImageRendere.h
  *
- *  Created on: Jan 4, 2013
+ *  Created on: Jan 20, 2013
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IMAGERENDERER_H_
-#define IMAGERENDERER_H_
+#ifndef IMAGERENDERE_H_
+#define IMAGERENDERE_H_
 
-#include <duke/engine/renderers/IRenderer.h>
-#include <duke/engine/DukeWindow.h>
-#include <duke/gl/Shader.hpp>
-#include <duke/gl/Mesh.hpp>
-
-struct LoadableTexture;
+struct Attributes;
 
 namespace duke {
 
+class ITexture;
+class Mesh;
 struct Context;
 
-class AbstractRenderer: public IRenderer {
-protected:
-	AbstractRenderer(SharedVertexShader, SharedFragmentShader);
-	virtual ~AbstractRenderer() = 0;
-	const Program m_Program;
-	const GLuint gViewport;
-	const GLuint gImage;
-	const GLuint gPan;
-	const GLuint gTextureSampler;
-	const SharedMesh m_pMesh;
-};
-
-class ImageRenderer: public AbstractRenderer {
-public:
-	ImageRenderer();
-	void draw(const Context &context, const LoadableTexture& texture) const;
-private:
-	const GLuint gZoom;
-	const GLuint gShowChannel;
-	const GLuint gExposure;
-};
+void render(const Mesh *pMesh,const ITexture& texture, const Attributes &attributes, const Context &context);
 
 } /* namespace duke */
-#endif /* IMAGERENDERER_H_ */
+#endif /* IMAGERENDERE_H_ */

@@ -7,17 +7,17 @@
 
 typedef rational<int64_t> BaseRational;
 
-struct Frame: public BaseRational {
-	Frame() :
+struct FrameIndex: public BaseRational {
+	FrameIndex() :
 			BaseRational() {
 	}
-	Frame(const BaseRational rational) :
+	FrameIndex(const BaseRational rational) :
 			BaseRational(rational) {
 	}
 	value_type round() const {
 		return value_type((double(numerator()) / denominator()) + .5);
 	}
-	friend std::ostream& operator<<(std::ostream& stream, const Frame &r){
+	friend std::ostream& operator<<(std::ostream& stream, const FrameIndex &r){
 		return stream << static_cast<const BaseRational>(r);
 	}
 };
@@ -50,6 +50,6 @@ struct FrameDuration: public BaseRational {
 };
 
 Time frameToTime(const uint32_t frame, const FrameDuration &period);
-Frame timeToFrame(Time time, const FrameDuration &period);
+FrameIndex timeToFrame(Time time, const FrameDuration &period);
 
 #endif /* FRAMEUTILS_H_ */

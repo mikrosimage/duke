@@ -25,7 +25,7 @@ struct Player: public noncopyable {
 	void setPlaybackMode(const Mode mode);
 
 	// accessors
-	Frame getCurrentFrame() const;
+	FrameIndex getCurrentFrame() const;
 	Time getPlaybackTime() const;
 	FrameDuration getFrameDuration() const;
 	int getPlaybackSpeed() const;

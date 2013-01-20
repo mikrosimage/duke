@@ -16,7 +16,7 @@ namespace duke {
 
 class TextRenderer;
 
-class TextOverlay: public MediaStream {
+class TextOverlay: public IMediaStream {
 public:
 	TextOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, const std::string &string);
 	virtual void doRender(const Context&) const;

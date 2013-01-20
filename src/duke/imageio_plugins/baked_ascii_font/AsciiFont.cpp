@@ -46,15 +46,14 @@ public:
 			IImageReader(pDesc) {
 		m_Description.height = 128;
 		m_Description.width = 128;
-		m_Description.glFormat = GL_BGRA;
-		m_Description.glType = GL_UNSIGNED_BYTE;
+		m_Description.glPackFormat = GL_RGBA8;
 		m_Description.dataSize = m_Description.height * m_Description.width * sizeof(uint32_t);
 
 	}
 
 	virtual void readImageDataTo(void* pData) {
-	    const static unsigned char pOn []={0xFF,0xFF,0xFF,0xFF};
-	    const static unsigned char pOff[]={0x00,0x00,0x00,0xA0};
+		const static unsigned char pOn[] = { 0xFF, 0xFF, 0xFF, 0xFF };
+		const static unsigned char pOff[] = { 0x00, 0x00, 0x00, 0xA0 };
 		using namespace std;
 		auto pCharData = reinterpret_cast<unsigned char*>(pData);
 		for (size_t index = 0; index < 256; ++index) {

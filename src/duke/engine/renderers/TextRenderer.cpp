@@ -7,14 +7,28 @@
 
 #include "TextRenderer.h"
 
+#include <duke/engine/ImageLoadUtils.h>
+#include <duke/gl/Textures.h>
 #include <duke/gl/GL.h>
+#include <duke/engine/DukeWindow.h>
 
 #include <stdexcept>
 
 namespace duke {
 
+AbstractRenderer::AbstractRenderer(SharedVertexShader vs, SharedFragmentShader fs) :
+		m_Program(vs, fs), gViewport(m_Program.getUniformLocation("gViewport")), //
+		gImage(m_Program.getUniformLocation("gImage")), //
+		gPan(m_Program.getUniformLocation("gPan")), //
+		gTextureSampler(m_Program.getUniformLocation("rectangleImageSampler")), //
+		m_pMesh(getSquare()) {
+}
+
+AbstractRenderer::~AbstractRenderer() {
+}
+
 static const char * const pTextVertexShader =
-                R"(
+		R"(
 #version 330
 
 layout (location = 0) in vec3 Position;
@@ -74,7 +88,7 @@ void main() {
 })";
 
 static const char * const pTextFragmentShader =
-                R"(#version 330
+		R"(#version 330
 
 out vec4 vFragColor;
 uniform sampler2DRect rectangleImageSampler;
@@ -86,33 +100,35 @@ void main(void)
 })";
 
 TextRenderer::TextRenderer(const char *glyphsFilename) :
-                AbstractRenderer(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
-                gChar(m_Program.getUniformLocation("gChar")) {
-    if (!m_GlyphsTexture.load(glyphsFilename, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE))
-        throw std::runtime_error("unable to load glyphs texture");
+		AbstractRenderer(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
+		gChar(m_Program.getUniformLocation("gChar")) {
+	std::string error;
+	if (!load(glyphsFilename, m_GlyphsTexture, m_Attributes, error))
+		throw std::runtime_error("unable to load glyphs texture");
 }
 
 void TextRenderer::draw(const duke::Viewport &viewport, const char* pText) {
-    m_Program.use();
-    glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
-    glUniform1i(gTextureSampler, 0);
-    const auto scopeBind = m_GlyphsTexture.use(gImage);
-    const auto tileWidth = m_GlyphsTexture.description.width / 16;
-    const auto tileHeight = m_GlyphsTexture.description.height / 16;
-    const size_t x_orig = tileWidth * 2;
-    size_t x = x_orig;
-    size_t y = viewport.dimension.y - tileHeight * 2;
-    for (; *pText != 0; ++pText) {
-        if (*pText == '\n') {
-            x = x_orig;
-            y -= tileHeight + 2;
-            continue;
-        }
-        glUniform1i(gChar, *reinterpret_cast<const unsigned char*>(pText));
-        glUniform2i(gPan, x, y);
-        m_pMesh->draw();
-        x += tileWidth;
-    }
+	m_Program.use();
+	glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
+	glUniform1i(gTextureSampler, 0);
+	setTextureDimensions(gImage, m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
+	const auto scopeBind = scope_bind(m_GlyphsTexture);
+	const auto tileWidth = m_GlyphsTexture.description.width / 16;
+	const auto tileHeight = m_GlyphsTexture.description.height / 16;
+	const size_t x_orig = tileWidth * 2;
+	size_t x = x_orig;
+	size_t y = viewport.dimension.y - tileHeight * 2;
+	for (; *pText != 0; ++pText) {
+		if (*pText == '\n') {
+			x = x_orig;
+			y -= tileHeight + 2;
+			continue;
+		}
+		glUniform1i(gChar, *reinterpret_cast<const unsigned char*>(pText));
+		glUniform2i(gPan, x, y);
+		m_pMesh->draw();
+		x += tileWidth;
+	}
 }
 
 } /* namespace duke */

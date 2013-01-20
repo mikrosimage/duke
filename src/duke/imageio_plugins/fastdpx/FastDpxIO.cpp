@@ -77,15 +77,13 @@ public:
 			m_Description.height = bswap_32(pImageInformation->lines_per_image_ele);
 			m_Description.width = bswap_32(pImageInformation->pixels_per_line);
 			m_pData = pArithmeticPointer + bswap_32(pInformation->offset);
-			m_Description.glFormat = GL_RGBA;
-			m_Description.glType = GL_UNSIGNED_INT_2_10_10_10_REV;
+			m_Description.swapEndianness = true;
 		} else {
 			m_Description.height = pImageInformation->lines_per_image_ele;
 			m_Description.width = pImageInformation->pixels_per_line;
 			m_pData = pArithmeticPointer + pInformation->offset;
-			m_Description.glFormat = GL_RGBA;
-			m_Description.glType = GL_UNSIGNED_INT_10_10_10_2;
 		}
+		m_Description.glPackFormat = GL_RGB10_A2UI;
 		m_Description.dataSize = m_Description.height * m_Description.width * sizeof(int32_t);
 
 		// metadata

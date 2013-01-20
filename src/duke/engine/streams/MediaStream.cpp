@@ -9,7 +9,7 @@
 
 namespace duke {
 
-MediaStream::~MediaStream() {
+IMediaStream::~IMediaStream() {
 }
 
 } /* namespace duke */

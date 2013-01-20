@@ -35,26 +35,22 @@ static PrimitiveType getAttributeType(const TypeDesc &typedesc) {
 		return PrimitiveType::UNKNOWN;
 	}
 }
-static GLuint getGLType(const TypeDesc &typedesc) {
+static GLuint getGLType(const TypeDesc &typedesc, bool alpha) {
 	switch (typedesc.basetype) {
 	case TypeDesc::UCHAR:
-		return GL_UNSIGNED_BYTE;
 	case TypeDesc::CHAR:
-		return GL_BYTE;
+		return alpha ? GL_RGBA8 : GL_RGB8;
 	case TypeDesc::USHORT:
-		return GL_UNSIGNED_SHORT;
 	case TypeDesc::SHORT:
-		return GL_SHORT;
+		return alpha ? GL_RGBA16 : GL_RGB16;
 	case TypeDesc::UINT:
-		return GL_UNSIGNED_INT;
+		return alpha ? GL_RGBA32UI : GL_RGB32UI;
 	case TypeDesc::INT:
-		return GL_INT;
+		return alpha ? GL_RGBA32I : GL_RGB32I;
 	case TypeDesc::HALF:
-		return GL_HALF_FLOAT;
+		return alpha ? GL_RGBA16F : GL_RGB16F;
 	case TypeDesc::FLOAT:
-		return GL_FLOAT;
-	case TypeDesc::DOUBLE:
-		return GL_DOUBLE;
+		return alpha ? GL_RGBA32F : GL_RGB32F;
 	default:
 		return 0;
 	}
@@ -107,8 +103,7 @@ public:
 			return;
 		}
 
-		m_Description.glType = getGLType(m_Spec.format);
-		m_Description.glFormat = m_Spec.nchannels == 4 ? GL_RGBA : GL_RGB;
+		m_Description.glPackFormat = getGLType(m_Spec.format, m_Spec.nchannels == 4);
 		m_Description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
 
 //		m_Attributes.emplace_back("Orientation", 0);

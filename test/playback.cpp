@@ -17,15 +17,15 @@ Timeline getTimeline() {
 
 TEST(Player,time) {
 	Player player;
-	EXPECT_EQ(Frame(), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(), player.getCurrentFrame());
 	player.setPlaybackTime(10); // go to ten seconds
-	EXPECT_EQ(Frame(25*10), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(25*10), player.getCurrentFrame());
 	player.load(getTimeline(), FrameDuration::PAL);
 	// should be at the beginning of the timeline
 	EXPECT_EQ(Time(3600), player.getPlaybackTime());
-	EXPECT_EQ(Frame(startFrame ), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(startFrame ), player.getCurrentFrame());
 	player.setPlaybackTime(3610); // go to ten seconds
-	EXPECT_EQ(Frame(startFrame + 10*25), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(startFrame + 10*25), player.getCurrentFrame());
 }
 
 TEST(Player,playback) {
@@ -36,7 +36,7 @@ TEST(Player,playback) {
 	player.setPlaybackSpeed(1);
 	player.offsetPlaybackTime(player.getFrameDuration());
 	const auto currentFrame = player.getCurrentFrame();
-	EXPECT_EQ(Frame(startFrame + 1), currentFrame);
+	EXPECT_EQ(FrameIndex(startFrame + 1), currentFrame);
 
 	// pausing
 	player.setPlaybackSpeed(0);
@@ -112,18 +112,18 @@ TEST(Player,looping2) {
 	// moving one frame
 	player.setPlaybackSpeed(-1);
 	advance(); // reverse should go last frame
-	EXPECT_EQ(Frame(3), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
 	player.setPlaybackSpeed(1);
 	advance(); // forward should go first frame
-	EXPECT_EQ(Frame(0), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
 	advance();
-	EXPECT_EQ(Frame(1), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame());
 	advance();
-	EXPECT_EQ(Frame(2), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(2), player.getCurrentFrame());
 	advance();
-	EXPECT_EQ(Frame(3), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
 	advance();
-	EXPECT_EQ(Frame(0), player.getCurrentFrame());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
 }
 
 TEST(Player,loopingWithHugeStep) {

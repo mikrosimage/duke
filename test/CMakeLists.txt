@@ -9,6 +9,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
 endif()
 
+add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 file(GLOB TEST_SRC_FILES *.cpp)
 include_directories(${GTEST_INCLUDE_DIR})
 add_executable(runAllTests ${TEST_SRC_FILES})

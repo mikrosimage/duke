@@ -12,18 +12,23 @@
 #include <duke/time/FrameUtils.h>
 #include <glm/glm.hpp>
 
+class Attributes;
+
 namespace duke {
+
+class ITexture;
 
 struct Context {
 	Viewport viewport;
 	Time liveTime;
 	Time playbackTime;
-	Frame currentFrame;
+	FrameIndex currentFrame;
 	size_t clipFrame = 0;
 	int zoom = 1;
 	glm::ivec2 pan;
 	glm::bvec4 channels = glm::bvec4(false);
 	float exposure = 1;
+	std::function<void(const ITexture&, const Attributes&)> renderTexture;
 };
 
 } /* namespace duke */

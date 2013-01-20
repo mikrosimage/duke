@@ -13,6 +13,11 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+#include <memory>
+
+namespace duke {
+
 struct VertexPosUv0 {
 	glm::vec3 position;
 	glm::vec2 uv0;
@@ -23,8 +28,6 @@ struct VertexPosUv0 {
 			position(pos), uv0(uv0) {
 	}
 };
-
-#include <vector>
 
 class Mesh: public noncopyable {
 public:
@@ -37,12 +40,9 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t vertexCount;
-	const Vao vao;
-	const StaticVbo vbo;
+	const duke::Vao vao;
+	const duke::StaticVbo vbo;
 };
-
-#include <memory>
-typedef std::shared_ptr<Mesh> SharedMesh;
 
 class IndexedMesh: public Mesh {
 public:
@@ -51,11 +51,14 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t indexCount;
-	const StaticIndexedVbo ivbo;
+	const duke::StaticIndexedVbo ivbo;
 };
 
+typedef std::shared_ptr<Mesh> SharedMesh;
 typedef std::shared_ptr<IndexedMesh> SharedIndexedMesh;
 
 SharedMesh getSquare();
+
+}  // namespace duke
 
 #endif /* MESH_HPP_ */

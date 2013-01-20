@@ -28,6 +28,8 @@ static inline GLuint checkType(GLuint primitiveType) {
 	}
 }
 
+namespace duke {
+
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
 		primitiveType(checkType(primitiveType)), vertexCount(vertexCount) {
 	const auto vaoBinder = scope_bind(vao);
@@ -77,3 +79,4 @@ SharedMesh getSquare() {
 					{ glm::vec3(1, -1, z), glm::vec2(1, 0) } };
 	return make_shared<Mesh>(GL_TRIANGLE_FAN, vertices.data(), vertices.size());
 }
+}  // namespace duke

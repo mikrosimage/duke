@@ -13,6 +13,8 @@
 #include <duke/gl/GLUtils.h>
 #include <stdexcept>
 
+namespace duke {
+
 template<class T>
 struct Binder: public noncopyable {
 	Binder(Binder&&) {}
@@ -65,7 +67,7 @@ struct GlBufferObject: public GlObject<GlBufferAllocactor, TARGETTYPE> {
 			USAGE==GL_STATIC_DRAW||USAGE==GL_STATIC_READ||USAGE==GL_STATIC_COPY||//
 			USAGE==GL_DYNAMIC_DRAW||USAGE==GL_DYNAMIC_READ||USAGE==GL_DYNAMIC_COPY, "Unsupported usage");
 	inline void bufferData(GLsizeiptr size, const GLvoid * data) const {
-		glCheckBound(TARGETTYPE,this->id);
+		glCheckBound(TARGETTYPE, this->id);
 		glBufferData(TARGETTYPE, size, data, USAGE);
 		glCheckError();
 	}
@@ -98,35 +100,6 @@ struct GlVertexArrayAllocator {
 struct VAO: public GlObject<GlVertexArrayAllocator> {
 };
 
-struct GlTextureAllocator {
-	inline static GLuint allocate() {
-		GLuint id;
-		glGenTextures(1, &id);
-		return id;
-	}
-	inline static void deallocate(const GLuint id) {
-		glDeleteTextures(1, &id);
-	}
-	inline static void bind(const GLuint target, const GLuint id) {
-		glBindTexture(target, id);
-	}
-};
-
-template<GLuint TARGETTYPE>
-struct Texture: public GlObject<GlTextureAllocator, TARGETTYPE> {
-	static_assert(TARGETTYPE==GL_TEXTURE_2D||TARGETTYPE==GL_TEXTURE_RECTANGLE, "Unsupported target type");
-	void texSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid * data) {
-		glCheckBound(TARGETTYPE,this->id);
-		glTexSubImage2D(TARGETTYPE, level, xoffset, yoffset, width, height, format, type, data);
-		glCheckError();
-	}
-	void texImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid * data) {
-		glCheckBound(TARGETTYPE,this->id);
-		glTexImage2D(TARGETTYPE, level, internalFormat, width, height, border, format, type, data);
-		glCheckError();
-	}
-};
-
 }  // namespace details
 
 typedef details::VBO<GL_ARRAY_BUFFER, GL_STATIC_DRAW> StaticVbo;
@@ -134,7 +107,7 @@ typedef details::VBO<GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW> StaticIndexedVbo;
 typedef details::VAO Vao;
 typedef details::PBO<GL_PIXEL_UNPACK_BUFFER, GL_STREAM_DRAW> StreamUploadPbo;
 typedef details::PBO<GL_PIXEL_UNPACK_BUFFER, GL_STATIC_DRAW> StaticUploadPbo;
-typedef details::Texture<GL_TEXTURE_2D> Texture2D;
-typedef details::Texture<GL_TEXTURE_RECTANGLE> TextureRectangle;
+
+}  // namespace duke
 
 #endif /* BUFFERS_H_ */

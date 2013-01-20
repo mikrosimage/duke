@@ -21,6 +21,6 @@ Time frameToTime(const uint32_t frame, const FrameDuration &period) {
 	return FrameDuration(period) *= frame;
 }
 
-Frame timeToFrame(Time time, const FrameDuration &period) {
+FrameIndex timeToFrame(Time time, const FrameDuration &period) {
 	return time /= period;
 }

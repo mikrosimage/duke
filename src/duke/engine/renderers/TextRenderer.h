@@ -8,17 +8,37 @@
 #ifndef TEXTRENDERER_H_
 #define TEXTRENDERER_H_
 
-#include "ImageRenderer.h"
-#include <duke/engine/LoadableTexture.h>
+#include <duke/gl/Textures.h>
+#include <duke/gl/Shader.hpp>
+#include <duke/gl/Mesh.hpp>
+#include <duke/imageio/Attributes.h>
 
 namespace duke {
+
+struct ITexture;
+struct TextureDescription;
+struct Context;
+struct Viewport;
+
+class AbstractRenderer: public noncopyable {
+protected:
+	AbstractRenderer(SharedVertexShader, SharedFragmentShader);
+	virtual ~AbstractRenderer() = 0;
+	const Program m_Program;
+	const GLuint gViewport;
+	const GLuint gImage;
+	const GLuint gPan;
+	const GLuint gTextureSampler;
+	const SharedMesh m_pMesh;
+};
 
 class TextRenderer: public AbstractRenderer {
 public:
 	TextRenderer(const char *glyphsFilename);
-	void draw(const duke::Viewport &viewport, const char* pText);
+	void draw(const Viewport &viewport, const char* pText);
 private:
-	LoadableTexture m_GlyphsTexture;
+	Attributes m_Attributes;
+	TextureRectangle m_GlyphsTexture;
 	const GLuint gChar;
 };
 

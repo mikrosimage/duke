@@ -8,8 +8,6 @@
 #ifndef TIMELINE_H_
 #define TIMELINE_H_
 
-#include <duke/engine/renderers/IRenderer.h>
-
 #include <string>
 #include <vector>
 #include <map>
@@ -41,12 +39,12 @@ struct Range {
 };
 
 namespace duke {
-class MediaStream;
+class IMediaStream;
 }  // namespace duke
 
 struct Clip {
 	size_t frames;
-	std::shared_ptr<duke::MediaStream> pStream;
+	std::shared_ptr<duke::IMediaStream> pStream;
 };
 
 typedef std::pair<const Clip*, size_t> MediaFrameReference;

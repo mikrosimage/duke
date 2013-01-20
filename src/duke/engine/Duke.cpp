@@ -13,7 +13,7 @@
 #include <duke/engine/renderers/TextRenderer.h>
 #include <duke/engine/streams/TextOverlay.h>
 #include <duke/engine/renderers/ImageRenderer.h>
-#include <duke/engine/streams/FileSequenceStream.h>
+#include <duke/engine/streams/SingleFrameStream.h>
 #include <duke/engine/streams/FileInfoOverlay.h>
 #include <duke/gl/GL.h>
 #include <glm/glm.hpp>
@@ -43,7 +43,6 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	const auto& paths = parameters.additionnalOptions;
 	if (paths.empty())
 		throw commandline_error("nothing to do, specify at least one file or directory");
-	auto sharedImageRenderer = std::make_shared<ImageRenderer>();
 	Track track;
 	size_t offset = 0;
 	for (const std::string &path : paths) {
@@ -52,7 +51,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 		case FileStatus::NOT_A_FILE:
 			throw commandline_error("'" + path + "' is not a file nor a directory");
 		case FileStatus::FILE:
-			track.add(offset, Clip { 1, std::make_shared<FileSequenceStream>(sharedImageRenderer, path.c_str()) });
+			track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>(path.c_str()) });
 			++offset;
 			break;
 		case FileStatus::DIRECTORY: {
@@ -60,7 +59,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 			for (const Item &item : parseDir(getParserConf(), path.c_str()).files)
 				switch (item.getType()) {
 				case Item::SINGLE:
-					track.add(offset, Clip { 1, std::make_shared<FileSequenceStream>(sharedImageRenderer, (path + '/' + item.filename).c_str()) });
+					track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>((path + '/' + item.filename).c_str()) });
 					++offset;
 					break;
 				case Item::INVALID:
@@ -81,7 +80,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	overlay.disabled = true;
 	for (const auto& pair : track) {
 		const auto& pStream = pair.second.pStream;
-		overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pTextRenderer, std::static_pointer_cast<FileSequenceStream>(pStream)) });
+		overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pTextRenderer, std::static_pointer_cast<SingleFrameStream>(pStream)) });
 	}
 	return {track, overlay};
 }
@@ -121,6 +120,10 @@ static const auto all = bvec4(false);
 
 void Duke::run() {
 	Context context;
+	SharedMesh pSquare = getSquare();
+	context.renderTexture = [&](const ITexture &texture, const Attributes& attributes) {
+		render(pSquare.get(), texture, attributes, context);
+	};
 	Metronom metronom(100);
 	auto milestone = duke_clock::now();
 	bool running = true;

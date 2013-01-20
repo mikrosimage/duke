@@ -73,7 +73,7 @@ void Player::cue(uint32_t frame) {
 	stop();
 }
 
-Frame Player::getCurrentFrame() const {
+FrameIndex Player::getCurrentFrame() const {
 	return m_PlaybackTime / m_FrameDuration;
 }
 

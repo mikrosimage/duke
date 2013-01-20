@@ -56,22 +56,21 @@ public:
 
 		switch (m_Header.bits) {
 		case 24:     // Most likely case
-			m_Description.glFormat = GL_BGR;
+			m_Description.glPackFormat = GL_RGB8;
 			break;
 		case 32:
-			m_Description.glFormat = GL_BGRA;
+			m_Description.glPackFormat = GL_RGBA8;
 			break;
 		case 8:
-			m_Description.glFormat = GL_RED;
+			m_Description.glPackFormat = GL_R8;
 			break;
 		default:
 			m_Error = "Unsupported bit depth";
 			return;
 		};
-		m_Description.glType = GL_UNSIGNED_BYTE;
+		m_Description.swapRedAndBlue = true;
 		m_Description.width = m_Header.width;
 		m_Description.height = m_Header.height;
-		m_Description.depth = 1;
 		m_Description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
 		m_Attributes.push_back(Attribute("Orientation", (int) 4));
 	}

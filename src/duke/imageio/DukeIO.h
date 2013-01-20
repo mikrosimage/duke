@@ -9,28 +9,19 @@
 #define DUKEIO_H_
 
 #include "Attributes.h"
+#include <duke/imageio/ImageDescription.h>
 #include <duke/NonCopyable.h>
 
 #include <cstddef>
 #include <string>
 #include <map>
 
-struct ImageDescription {
-	size_t width, height, depth;
-	size_t glFormat; // GL_RED, GL_RG, GL_RGB, GL_BGR, GL_RGBA, and GL_BGRA.
-	size_t glType; // GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, GL_FLOAT, GL_UNSIGNED_INT_10_10_10_2, and GL_UNSIGNED_INT_2_10_10_10_REV
-	size_t dataSize;
-	ImageDescription() :
-			width(0), height(0), depth(0), glFormat(0), glType(0), dataSize(0) {
-	}
-};
-
 class IIODescriptor;
 
 class IImageReader: public noncopyable {
 protected:
 	const IIODescriptor * const m_pDescriptor;
-	ImageDescription m_Description;
+	PackedFrameDescription m_Description;
 	std::string m_Error;
 	Attributes m_Attributes;
 public:
@@ -45,7 +36,7 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline ImageDescription getDescription() const {
+	inline const PackedFrameDescription& getDescription() const {
 		return m_Description;
 	}
 	inline const IIODescriptor * getDescriptor() const {

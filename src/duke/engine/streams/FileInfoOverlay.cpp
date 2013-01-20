@@ -8,7 +8,7 @@
 #include "FileInfoOverlay.h"
 
 #include <duke/engine/renderers/TextRenderer.h>
-#include <duke/engine/streams/FileSequenceStream.h>
+#include <duke/engine/streams/SingleFrameStream.h>
 #include <duke/engine/Context.h>
 
 #include <sstream>
@@ -16,7 +16,7 @@
 using namespace std;
 
 namespace duke {
-FileInfoOverlay::FileInfoOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, const std::shared_ptr<FileSequenceStream>& pFileStream) :
+FileInfoOverlay::FileInfoOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, const std::shared_ptr<SingleFrameStream>& pFileStream) :
 		m_pTextRenderer(pTextRenderer), m_pFileStream(pFileStream) {
 }
 
