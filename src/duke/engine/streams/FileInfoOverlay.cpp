@@ -7,7 +7,7 @@
 
 #include "FileInfoOverlay.h"
 
-#include <duke/engine/renderers/TextRenderer.h>
+#include <duke/engine/rendering/TextRenderer.h>
 #include <duke/engine/streams/SingleFrameStream.h>
 #include <duke/engine/Context.h>
 

@@ -18,7 +18,7 @@ namespace duke {
 
 typedef std::function<void(const PackedFrameDescription& description, const Attributes &attributes, const void* pData)> LoadCallback;
 
-bool load(const char* pFilename, const LoadCallback& callback, std::string &error);
+bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
 
 class ITexture;
 bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error);

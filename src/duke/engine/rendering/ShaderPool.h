@@ -8,7 +8,7 @@
 #ifndef SHADERPOOL_H_
 #define SHADERPOOL_H_
 
-#include <duke/engine/ShaderFactory.h>
+#include <duke/engine/rendering/ShaderFactory.h>
 #include <map>
 
 namespace duke {

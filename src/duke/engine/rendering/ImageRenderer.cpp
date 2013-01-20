@@ -9,7 +9,7 @@
 #include <duke/imageio/DukeIO.h>
 #include <duke/imageio/Attributes.h>
 #include <duke/engine/Context.h>
-#include <duke/engine/ShaderPool.h>
+#include <duke/engine/rendering/ShaderPool.h>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.h>
 

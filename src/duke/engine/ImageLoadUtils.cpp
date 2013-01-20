@@ -51,11 +51,8 @@ static std::string tryReader(const char* filename, const IIODescriptor *pDescrip
 	}
 }
 
-static std::string load(const char* pFilename, const LoadCallback& callback) {
-	const char* pDot = strrchr(pFilename, '.');
-	if (!pDot)
-		return "no extension for file";
-	const auto &descriptors = IODescriptors::instance().findDescriptor(++pDot);
+static std::string load(const char* pFilename, const char *pExtension, const LoadCallback& callback) {
+	const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
 	if (descriptors.empty())
 		return "no reader available";
 	for (const IIODescriptor *pDescriptor : descriptors) {
@@ -66,8 +63,8 @@ static std::string load(const char* pFilename, const LoadCallback& callback) {
 	return "no reader succeeded in reading the file";
 }
 
-bool load(const char* pFilename, const LoadCallback& callback, std::string &error) {
-	error = load(pFilename, callback);
+bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error) {
+	error = load(pFilename, pExtension, callback);
 	if (error.empty())
 		return true;
 	printf("error while reading %s : %s\n", pFilename, error.c_str());
@@ -75,8 +72,13 @@ bool load(const char* pFilename, const LoadCallback& callback, std::string &erro
 }
 
 bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error) {
-	return load(pFilename, [&](const PackedFrameDescription &description, const Attributes &_attributes, const void* pData) {
+	const char* pDot = strrchr(pFilename, '.');
+	if (!pDot)
+		return "no extension for file";
+	const char* pExtension = ++pDot;
+	return load(pFilename, pExtension, [&](const PackedFrameDescription &description, const Attributes &_attributes, const void* pData) {
 		attributes= _attributes;
+		attributes.emplace_back("duke.extension",pExtension);
 		const auto bound = scope_bind(texture);
 		texture.initialize(description,pData);
 	}, error);

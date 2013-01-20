@@ -10,9 +10,9 @@
 #include <duke/filesystem/FsUtils.h>
 #include <duke/time/Clock.h>
 #include <duke/engine/Context.h>
-#include <duke/engine/renderers/TextRenderer.h>
+#include <duke/engine/rendering/TextRenderer.h>
+#include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/engine/streams/TextOverlay.h>
-#include <duke/engine/renderers/ImageRenderer.h>
 #include <duke/engine/streams/SingleFrameStream.h>
 #include <duke/engine/streams/FileInfoOverlay.h>
 #include <duke/gl/GL.h>

@@ -62,7 +62,8 @@ struct Texture: public GlObject<GlTextureAllocator, TARGETTYPE>, public ITexture
 	static_assert(TARGETTYPE==GL_TEXTURE_2D||TARGETTYPE==GL_TEXTURE_RECTANGLE, "Unsupported target type");
 	virtual void initialize(const PackedFrameDescription &description, GLint internalFormat, GLenum format, GLenum type, const GLvoid * data) {
 		glCheckBound(TARGETTYPE, this->id);
-		printf("about to glTexImage2D, internal %s, pixel format %s, pixel type %s\n", //
+		printf("about to glTexImage2D, original internal %s, internal %s, pixel format %s, pixel type %s\n", //
+				getInternalFormatString(description.glPackFormat), //
 				getInternalFormatString(internalFormat), //
 				getPixelFormatString(format), //
 				getPixelTypeString(type));

@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-#include <duke/engine/TexturePool.h>
+#include <duke/engine/rendering/TexturePool.h>
 
 struct TestTexture: public duke::ITexture {
 	void initialize(const PackedFrameDescription &description, const GLvoid * data = nullptr){
