@@ -9,6 +9,7 @@
 #include <duke/imageio/DukeIO.h>
 #include <duke/imageio/Attributes.h>
 #include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/AttributeKeys.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
 #include <duke/memory/alloc/Allocator.h>
@@ -78,7 +79,7 @@ bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std:
 	const char* pExtension = ++pDot;
 	return load(pFilename, pExtension, [&](const PackedFrameDescription &description, const Attributes &_attributes, const void* pData) {
 		attributes= _attributes;
-		attributes.emplace_back("duke.extension",pExtension);
+		attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
 		const auto bound = scope_bind(texture);
 		texture.initialize(description,pData);
 	}, error);

@@ -9,6 +9,7 @@
 #define CONTEXT_H_
 
 #include "DukeWindow.h"
+#include <duke/engine/ColorSpace.h>
 #include <duke/time/FrameUtils.h>
 #include <glm/glm.hpp>
 
@@ -19,15 +20,20 @@ namespace duke {
 class ITexture;
 
 struct Context {
-	Viewport viewport;
+	// timing
 	Time liveTime;
 	Time playbackTime;
 	FrameIndex currentFrame;
 	size_t clipFrame = 0;
+	// geometry
 	int zoom = 1;
+	Viewport viewport;
 	glm::ivec2 pan;
+	// grading
 	glm::bvec4 channels = glm::bvec4(false);
 	float exposure = 1;
+	float gamma = 1;
+	ColorSpace colorSpace = ColorSpace::Source;
 	std::function<void(const ITexture&, const Attributes&)> renderTexture;
 };
 

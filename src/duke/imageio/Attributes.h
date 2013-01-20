@@ -23,6 +23,12 @@ struct Attributes: public std::vector<Attribute> {
 			throw std::runtime_error("vector not found");
 		return Attribute::TypedVectorAttribute<T>(pAttr);
 	}
+	const char* findString(const char* name) const {
+		const auto pFound = find(name, ptraits<char>::value, true);
+		if (pFound)
+			return pFound->getString();
+		return nullptr;
+	}
 	int getOrientation() const {
 		const auto pOrientation = find<int>("Orientation");
 		if (pOrientation)

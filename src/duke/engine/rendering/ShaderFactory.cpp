@@ -8,56 +8,97 @@
 #include "ShaderFactory.h"
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
 namespace duke {
 
-const char * const pSwizzle = R"(
-	uvec4 swizzle(uvec4 sample){ return sample.bgra; }
-)";
-
-const char * const pSampleTenbitsUnpack =
+static const char * const pColorSpaceConversions =
 		R"(
-	vec4 unpack(uvec4 sample) {
-		uint red   = (sample.a << 2u) | (sample.b >> 6u);
-		uint green = ((sample.b & 0x3Fu) << 4u) | (sample.g >> 4u);
-		uint blue  = ((sample.g & 0x0Fu) << 6u) | (sample.r >> 2u);
-		uint alpha = 1023u;//;((sample.r & 0x03u) << 8u);
-		return vec4(red, green, blue, alpha)/1023.;
-	}
-	smooth in vec2 vVaryingTexCoord;
-	uniform usampler2DRect gTextureSampler;
-	vec4 sample() {
-		return unpack(swizzle(texture(gTextureSampler, vVaryingTexCoord)));
-	}
+vec3 lintolin(vec3 sample) {
+	return sample;
+}
+vec3 cineontolin(vec3 sample) {
+	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
+}
+vec3 srgbtolin(vec3 sample) {
+	return mix(sample/12.92, pow((sample+0.055)/1.055,vec3(2.4)), lessThan(sample, vec3(0.04045)));
+}
+vec3 lintosrgb(vec3 sample) {
+	sample = mix(12.92*sample, (1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), lessThan(sample, vec3(0.0031308)));
+	return clamp(sample, vec3(0), vec3(1));
+}
 )";
 
-const char * const pSampleRegular =
+static const char * const pSampleTenbitsUnpack =
 		R"(
-	smooth in vec2 vVaryingTexCoord;
-	uniform sampler2DRect gTextureSampler;
-	vec4 sample() {
-		return swizzle(texture(gTextureSampler, vVaryingTexCoord));
-	}
+vec4 unpack(uvec4 sample) {
+	uint red   = (sample.a << 2u) | (sample.b >> 6u);
+	uint green = ((sample.b & 0x3Fu) << 4u) | (sample.g >> 4u);
+	uint blue  = ((sample.g & 0x0Fu) << 6u) | (sample.r >> 2u);
+	uint alpha = 1023u;//;((sample.r & 0x03u) << 8u);
+	return vec4(red, green, blue, alpha)/1023.;
+}
+smooth in vec2 vVaryingTexCoord;
+uniform usampler2DRect gTextureSampler;
+vec4 sample() {
+	return unpack(swizzle(texture(gTextureSampler, vVaryingTexCoord)));
+}
 )";
 
-const char* pMain =
+static const char * const pSampleRegular =
 		R"(
-	out vec4 vFragColor;
-	uniform bvec4 gShowChannel;
-	uniform float gExposure;
-	void main(void)
-	{
-		vec4 sampled = sample();
-		if(any(gShowChannel.xyz))
-			sampled *= vec4(gShowChannel.xyz,1);
-		if(gShowChannel.w)
-			sampled = vec4(sampled.aaa,1);
-		vFragColor =  sampled * gExposure;
-	}
+smooth in vec2 vVaryingTexCoord;
+uniform sampler2DRect gTextureSampler;
+vec4 sample() {
+	return swizzle(texture(gTextureSampler, vVaryingTexCoord));
+}
 )";
 
+static const char* const pMain =
+		R"(
+out vec4 vFragColor;
+uniform bvec4 gShowChannel;
+uniform float gExposure;
+uniform float gGamma;
+void main(void)
+{
+	vec4 sampled = sample();
+	sampled.rgb = toLinear(sampled.rgb);
+	if(any(gShowChannel.xyz))
+		sampled *= vec4(gShowChannel.xyz,1);
+	if(gShowChannel.w)
+		sampled = vec4(sampled.aaa,1);
+	sampled.rgb = sampled.rgb * gExposure;
+	sampled.rgb = pow(sampled.rgb,vec3(gGamma));
+	sampled.rgb = lintosrgb(sampled.rgb);
+	vFragColor = sampled;
+}
+)";
+
+static const char* chooseColorspace(const ColorSpace colospace) {
+	switch (colospace) {
+	case ColorSpace::KodakLog:
+		return "cineontolin";
+	case ColorSpace::Linear:
+		return "lintolin";
+	case ColorSpace::sRGB:
+	case ColorSpace::GammaCorrected:
+		return "srgbtolin";
+	case ColorSpace::Source:
+	default:
+		throw std::runtime_error("ColorSpace must be resolved at this point");
+	}
+}
+static void appendColorspace(ostream&stream, const ColorSpace colorspace) {
+	stream << pColorSpaceConversions << endl;
+	stream << R"(
+vec3 toLinear(vec3 sample){
+	return )" << chooseColorspace(colorspace) << R"((sample);
+}
+)";
+}
 static void appendSampler(ostream&stream, const ShaderDescription &description) {
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
 }
@@ -68,12 +109,16 @@ static void appendSwizzle(ostream&stream, const ShaderDescription &description) 
 		std::swap(swizzling[0], swizzling[2]);
 	if (description.swapEndianness)
 		std::reverse(swizzling.begin(), swizzling.end());
-	stream << '\t' << type << " swizzle(" << type << " sample){return sample." << swizzling << ";}" << endl;
+	stream << type << " swizzle(" << type << R"( sample){
+	return sample.)" << swizzling << R"(;
+}
+)";
 }
 
 std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	ostringstream oss;
 	oss << "#version 330" << endl;
+	appendColorspace(oss, description.colorspace);
 	appendSwizzle(oss, description);
 	appendSampler(oss, description);
 	oss << pMain;
