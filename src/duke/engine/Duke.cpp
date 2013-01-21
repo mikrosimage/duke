@@ -23,6 +23,8 @@
 
 namespace duke {
 
+const char * const pMetadataTrack = "metadata";
+
 static sequence::Configuration getParserConf() {
 	using namespace sequence;
 	Configuration conf;
@@ -78,6 +80,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	const auto pTextRenderer = std::make_shared<TextRenderer>(".duke_ascii_font");
 	Track overlay;
 	overlay.disabled = true;
+    overlay.name = pMetadataTrack;
 	for (const auto& pair : track) {
 		const auto& pStream = pair.second.pStream;
 		overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pTextRenderer, std::static_pointer_cast<SingleFrameStream>(pStream)) });
@@ -195,10 +198,14 @@ void Duke::run() {
 			case '-':
 				context.exposure /= 1.2;
 				break;
-			case 'o':
-				bool &disabled = m_Player.m_Timeline[1].disabled;
-				disabled = !disabled;
-				break;
+			case 'o':{
+                auto pTrack = m_Player.m_Timeline.findTrack(pMetadataTrack);
+                if (pTrack) {
+                    bool &disabled = pTrack->disabled;
+                    disabled = !disabled;
+                }
+                break;
+			}
 			}
 		}
 		keyStrokes.clear();

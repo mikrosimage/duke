@@ -83,6 +83,7 @@ struct Timeline: public std::vector<Track> {
 	Timeline() = default;
 	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers) {}
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
+	Track* findTrack(const char* pName);
 	Range getRange() const;
 	bool empty() const;
 };

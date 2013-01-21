@@ -79,3 +79,12 @@ bool Timeline::empty() const {
 			return false;
 	return true;
 }
+
+Track* Timeline::findTrack(const char* pName) {
+    auto pFound = find_if(this->begin(), this->end(), [=](const Track &track) {
+        return track.name==pName;
+    });
+    if (pFound == end())
+        return nullptr;
+    return &*pFound;
+}
