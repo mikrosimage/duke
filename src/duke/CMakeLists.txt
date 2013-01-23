@@ -11,7 +11,7 @@ add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 #
 find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIR})
-add_definitions(-DGLFW_NO_GLU) # -DGLFW_INCLUDE_GL3
+add_definitions(-DGLFW_NO_GLU -DGLFW_INCLUDE_GL3)
 
 
 #

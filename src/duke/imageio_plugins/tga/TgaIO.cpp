@@ -44,16 +44,7 @@ public:
 			m_Error = "Unable to read header";
 			return;
 		}
-		// Do byte swap for big vs little endian
-#ifdef __APPLE__
-		bswap_16(&m_Header.colorMapStart);
-		bswap_16(&m_Header.colorMapLength);
-		bswap_16(&m_Header.xstart);
-		bswap_16(&m_Header.ystart);
-		bswap_16(&m_Header.width);
-		bswap_16(&m_Header.height);
-#endif
-
+		
 		switch (m_Header.bits) {
 		case 24:     // Most likely case
 			m_Description.glPackFormat = GL_RGB8;

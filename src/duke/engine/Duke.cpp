@@ -105,6 +105,7 @@ Duke::Duke(const CmdLineParameters &parameters) {
 	glfwSwapInterval(parameters.swapBufferInterval);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
 
 // initializing timeline
 	m_Player.load(buildTimeline(parameters), FrameDuration::PAL);

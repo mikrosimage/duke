@@ -269,10 +269,10 @@ void glCheckError() {
 		throw std::runtime_error("OpenGL : Invalid framebuffer operation");
 	case GL_OUT_OF_MEMORY:
 		throw std::runtime_error("OpenGL : Out of memory");
-	case GL_STACK_UNDERFLOW:
-		throw std::runtime_error("OpenGL : Stack underflow");
-	case GL_STACK_OVERFLOW:
-		throw std::runtime_error("OpenGL : Stack overflow");
+	//case GL_STACK_UNDERFLOW:
+	//	throw std::runtime_error("OpenGL : Stack underflow");
+	//case GL_STACK_OVERFLOW:
+	//	throw std::runtime_error("OpenGL : Stack overflow");
 	}
 }
 

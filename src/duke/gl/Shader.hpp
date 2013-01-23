@@ -10,8 +10,7 @@
 
 #include <duke/NonCopyable.h>
 #include <duke/gl/GLUtils.h>
-
-#include <GL/gl.h>
+#include <duke/gl/GL.h>
 
 #include <memory>
 #include <cstring>

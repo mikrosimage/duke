@@ -21,7 +21,7 @@ static inline GLuint checkType(GLuint primitiveType) {
 	case GL_TRIANGLE_FAN:
 	case GL_TRIANGLE_STRIP_ADJACENCY:
 	case GL_TRIANGLES_ADJACENCY:
-	case GL_PATCHES:
+	//case GL_PATCHES:
 		return primitiveType;
 	default:
 		throw std::runtime_error("invalid primitive mesh type");

@@ -141,7 +141,7 @@ std::string buildVertexShaderSource(const ShaderDescription &description) {
 	out vec2 vVaryingTexCoord; 
 
 	mat4 ortho(int left, int right, int bottom, int top) {
-		mat4 Result;
+		mat4 Result = mat4(1);
 		Result[0][0] = float(2) / (right - left);
 		Result[1][1] = float(2) / (top - bottom);
 		Result[2][2] = - float(1);
