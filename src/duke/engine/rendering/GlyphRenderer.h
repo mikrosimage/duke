@@ -19,12 +19,12 @@ namespace duke {
 struct Viewport;
 
 struct GlyphRenderer : public noncopyable {
-    GlyphRenderer(const char *glyphsFilename);
-    Binder<TextureRectangle> begin(const Viewport &viewport);
-    void setAlpha(float alpha);
-    void setZoom(float zoom);
-    void setPosition(int x, int y);
-    void draw(const char glyph);
+    GlyphRenderer(const char *glyphsFilename = ".duke_ascii_font");
+    Binder<TextureRectangle> begin(const Viewport &viewport) const;
+    void setAlpha(float alpha) const;
+    void setZoom(float zoom) const;
+    void setPosition(int x, int y) const;
+    void draw(const char glyph) const;
 private:
     const SharedMesh m_pMesh;
     const Program m_Program;
@@ -40,7 +40,7 @@ private:
     std::unique_ptr<Binder<TextureRectangle>> m_pTextureBind;
 };
 
-void drawText(GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1);
+void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1);
 
 } /* namespace duke */
 #endif /* GLYPHRENDERER_H_ */

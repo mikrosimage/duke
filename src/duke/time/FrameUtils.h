@@ -36,6 +36,9 @@ struct Time: public BaseRational {
 		const value_type approx = value_type((double(numerator()) / denominator() * std::micro::den) + .5);
 		return std::chrono::microseconds(approx);
 	}
+	double asDouble() const {
+		return double(numerator()) / denominator();
+	}
 };
 
 struct FrameDuration: public BaseRational {

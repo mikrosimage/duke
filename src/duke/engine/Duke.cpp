@@ -12,6 +12,7 @@
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
+#include <duke/engine/streams/DukeSplashStream.h>
 #include <duke/engine/streams/SingleFrameStream.h>
 #include <duke/engine/streams/FileInfoOverlay.h>
 #include <duke/gl/GL.h>
@@ -42,8 +43,6 @@ static glm::ivec2 getDesktopDimensions() {
 
 Timeline buildTimeline(const CmdLineParameters &parameters) {
     const auto& paths = parameters.additionnalOptions;
-    if (paths.empty())
-        throw commandline_error("nothing to do, specify at least one file or directory");
     Track track;
     size_t offset = 0;
     for (const std::string &path : paths) {
@@ -74,9 +73,9 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
         }
     }
     if (track.empty())
-        throw commandline_error("nothing to play");
+        track.add(offset, Clip { 1, std::make_shared<DukeSplashStream>() });
     // find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
-    const auto pGlyphRenderer = std::make_shared<GlyphRenderer>(".duke_ascii_font");
+    const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
     Track overlay;
     overlay.disabled = true;
     overlay.name = pMetadataTrack;
@@ -162,6 +161,7 @@ void Duke::run() {
         // updating time
         const auto elapsedMicroSeconds = metronom.tick();
         m_Player.offsetPlaybackTime(elapsedMicroSeconds);
+        context.liveTime += Time(elapsedMicroSeconds.count(),1000000);
 
         // handling input
         auto &keyStrokes = m_Window.getPendingKeys();

@@ -104,7 +104,7 @@ GlyphRenderer::GlyphRenderer(const char *glyphsFilename) :
         throw std::runtime_error("unable to load glyphs texture");
 }
 
-Binder<TextureRectangle> GlyphRenderer::begin(const Viewport &viewport) {
+Binder<TextureRectangle> GlyphRenderer::begin(const Viewport &viewport) const {
     m_Program.use();
     glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
     glUniform1i(gTextureSampler, 0);
@@ -115,24 +115,24 @@ Binder<TextureRectangle> GlyphRenderer::begin(const Viewport &viewport) {
     return std::move(scopeBinded);
 }
 
-void GlyphRenderer::setAlpha(float alpha) {
+void GlyphRenderer::setAlpha(float alpha) const {
     glUniform1f(gAlpha, alpha);
 }
 
-void GlyphRenderer::setZoom(float zoom) {
+void GlyphRenderer::setZoom(float zoom) const {
     glUniform1f(gZoom, zoom);
 }
 
-void GlyphRenderer::setPosition(int x, int y) {
+void GlyphRenderer::setPosition(int x, int y) const {
     glUniform2i(gPan, x, y);
 }
 
-void GlyphRenderer::draw(const char glyph) {
+void GlyphRenderer::draw(const char glyph) const {
     glUniform1i(gChar, glyph);
     m_pMesh->draw();
 }
 
-void drawText(GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
+void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
     if (pText == nullptr || *pText == '\0')
         return;
     const int xOrigin = x;
