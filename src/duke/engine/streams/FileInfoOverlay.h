@@ -14,15 +14,15 @@
 
 namespace duke {
 
-class TextRenderer;
+struct GlyphRenderer;
 class SingleFrameStream;
 
 class FileInfoOverlay: public duke::IMediaStream {
 public:
-	FileInfoOverlay(const std::shared_ptr<TextRenderer>& pTextRenderer, const std::shared_ptr<SingleFrameStream>& pFileStream);
+	FileInfoOverlay(const std::shared_ptr<GlyphRenderer>& pTextRenderer, const std::shared_ptr<SingleFrameStream>& pFileStream);
 	virtual void doRender(const Context&) const;
 private:
-	const std::shared_ptr<TextRenderer> m_pTextRenderer;
+	const std::shared_ptr<GlyphRenderer> m_pRenderer;
 	const std::shared_ptr<SingleFrameStream> m_pFileStream;
 };
 

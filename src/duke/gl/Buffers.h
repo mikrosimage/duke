@@ -17,9 +17,10 @@ namespace duke {
 
 template<class T>
 struct Binder: public noncopyable {
-	Binder(Binder&&) {}
-	Binder(GLuint id) {T::bind(T::TargetType, id); glCheckError();}
-	~Binder() {glCheckError(); T::bind(T::TargetType, 0);}
+	Binder(Binder&& other) : unbind(true) { other.unbind = false; }
+	Binder(GLuint id) : unbind(true) {T::bind(T::TargetType, id); glCheckError();}
+	~Binder() {glCheckError(); if(unbind) T::bind(T::TargetType, 0);}
+	bool unbind;
 };
 
 template<class T>
