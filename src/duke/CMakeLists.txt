@@ -2,7 +2,7 @@
 # OpenGL
 #
 find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIR})
 add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 
 
@@ -11,7 +11,11 @@ add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 #
 find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIR})
-add_definitions(-DGLFW_NO_GLU -DGLFW_INCLUDE_GL3)
+add_definitions(-DGLFW_NO_GLU)
+
+if(EXISTS ${OPENGL_INCLUDE_DIR}/GL3/gl3.h )
+	add_definitions(-DGLFW_INCLUDE_GL3)
+endif()
 
 
 #
