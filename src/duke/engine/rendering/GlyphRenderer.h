@@ -12,7 +12,7 @@
 #include <duke/gl/Textures.h>
 #include <duke/gl/Shader.hpp>
 #include <duke/gl/Mesh.hpp>
-#include <duke/imageio/Attributes.h>
+#include <duke/attributes/Attributes.h>
 
 namespace duke {
 

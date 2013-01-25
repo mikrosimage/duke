@@ -8,8 +8,8 @@
 #include "ImageRenderer.h"
 #include <duke/StringUtils.h>
 #include <duke/imageio/DukeIO.h>
-#include <duke/imageio/Attributes.h>
-#include <duke/imageio/AttributeKeys.h>
+#include <duke/attributes/Attributes.h>
+#include <duke/attributes/AttributeKeys.h>
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/ShaderPool.h>
 #include <duke/gl/Mesh.hpp>

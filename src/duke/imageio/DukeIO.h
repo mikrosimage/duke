@@ -8,7 +8,7 @@
 #ifndef DUKEIO_H_
 #define DUKEIO_H_
 
-#include "Attributes.h"
+#include <duke/attributes/Attributes.h>
 #include <duke/imageio/ImageDescription.h>
 #include <duke/NonCopyable.h>
 

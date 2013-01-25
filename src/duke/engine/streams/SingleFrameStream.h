@@ -9,7 +9,7 @@
 #define SINGLEFRAMESTREAM_H_
 
 #include "MediaStream.h"
-#include <duke/imageio/Attributes.h>
+#include <duke/attributes/Attributes.h>
 #include <duke/gl/Textures.h>
 
 namespace duke {

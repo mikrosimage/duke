@@ -7,9 +7,9 @@
 
 #include "ImageLoadUtils.h"
 #include <duke/imageio/DukeIO.h>
-#include <duke/imageio/Attributes.h>
+#include <duke/attributes/Attributes.h>
+#include <duke/attributes/AttributeKeys.h>
 #include <duke/imageio/ImageDescription.h>
-#include <duke/imageio/AttributeKeys.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
 #include <duke/memory/alloc/Allocator.h>
