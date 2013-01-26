@@ -57,6 +57,11 @@ struct Animation: TimeCycleEvaluator {
 		return startValue * (1 - interpolatedTime) + endValue * interpolatedTime;
 	}
 
+	Animation& startIn(int64_t startTime) {
+		this->startTime = startTime;
+		return *this;
+	}
+
 	T startValue;
 	T endValue;
 };
