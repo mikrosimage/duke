@@ -13,10 +13,10 @@ find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIR})
 add_definitions(-DGLFW_NO_GLU)
 
-if(EXISTS ${OPENGL_INCLUDE_DIR}/GL3/gl3.h )
-	add_definitions(-DGLFW_INCLUDE_GL3)
+FIND_FILE(GL3HEADER gl3.h)
+if(NOT ${GL3HEADER} MATCHES NOTFOUND)
+add_definitions(-DGLFW_INCLUDE_GL3)
 endif()
-
 
 #
 # duke sources
