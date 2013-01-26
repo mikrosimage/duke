@@ -7,33 +7,38 @@
 
 #include "DukeSplashStream.h"
 #include <duke/engine/Context.h>
+#include <duke/animation/Animation.h>
 #include <glm/glm.hpp>
+
+using namespace glm;
 
 namespace duke {
 
 DukeSplashStream::~DukeSplashStream() {
 }
 
-static void drawLetter(const GlyphRenderer& renderer, char c, double time, double xCenter, double yCenter, double offset) {
-    const double x = xCenter + offset * cos(time);
-    const double y = yCenter + offset * sin(time * 3.14159265359 / 2);
-    const double zoom = 1 + (cos(time) + 1) * 2;
-    renderer.setPosition(x, y);
-    renderer.setAlpha(1 - (1 / zoom));
-    renderer.setZoom(zoom);
-    renderer.draw(c);
+static void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float alpha, ivec2 position) {
+	renderer.setPosition(position.x, position.y);
+	renderer.setAlpha(alpha);
+	renderer.setZoom(zoom);
+	renderer.draw(c);
 }
 
 void DukeSplashStream::doRender(const Context& context) const {
-    using namespace glm;
-    const double time = context.liveTime.asDouble();
-    const ivec2 center = context.viewport.dimension / 2;
-    const int offset = center.x / 3;
-    const auto bound = renderer.begin(context.viewport);
-    drawLetter(renderer, 'D', time, center.x, center.y, offset);
-    drawLetter(renderer, 'u', time - .5, center.x, center.y, offset);
-    drawLetter(renderer, 'k', time - 1, center.x, center.y, offset);
-    drawLetter(renderer, 'e', time - 1.5, center.x, center.y, offset);
+	const auto time = context.liveTime.asMilliseconds();
+	const auto bound = renderer.begin(context.viewport);
+	const char string[] = "Duke R0XX!!!";
+	for (size_t i = 0; i < sizeof(string); ++i) {
+		Animation<dvec2> pos(500, dvec2(-500, 100), dvec2(100, 100));
+		Animation<double> alpha(500, 0, 1);
+		ivec2 offset(4 * 8 * i, 0);
+		int64_t letterTime = time - 50 * i;
+		drawLetter(renderer, //
+				string[i], //
+				4, //
+				alpha.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::InQuad)), //
+				offset + ivec2(pos.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::OutBack, 0, 0, 1.5))));
+	}
 }
 
 } /* namespace duke */

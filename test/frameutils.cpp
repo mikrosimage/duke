@@ -22,9 +22,9 @@ TEST(FrameUtils,timeToFrame) {
 }
 
 TEST(FrameUtils,timeToMicroseconds) {
-	EXPECT_EQ( microseconds(666667), Time(2,3).asMicroseconds());
-	EXPECT_EQ( microseconds(1), Time(1,1000000).asMicroseconds());
-	EXPECT_EQ( seconds(3600), Time(3600).asMicroseconds());
+	EXPECT_EQ( 666667, Time(2,3).asMicroseconds());
+	EXPECT_EQ( 1, Time(1,1000000).asMicroseconds());
+	EXPECT_EQ( 3600*1000000UL, Time(3600).asMicroseconds());
 }
 
 void testBackAndForthCalculations(const FrameDuration framerate) {

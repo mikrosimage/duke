@@ -13,12 +13,12 @@
 
 namespace duke {
 
-class DukeSplashStream : public duke::IMediaStream {
+class DukeSplashStream: public duke::IMediaStream {
 public:
-    virtual ~DukeSplashStream();
-    virtual void doRender(const Context&) const;
+	virtual ~DukeSplashStream();
+	virtual void doRender(const Context&) const;
 private:
-    GlyphRenderer renderer;
+	GlyphRenderer renderer;
 };
 
 } /* namespace duke */

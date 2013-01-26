@@ -32,9 +32,11 @@ struct Time: public BaseRational {
 	Time(const std::chrono::microseconds value) :
 			BaseRational(value.count(), std::micro::den) {
 	}
-	std::chrono::microseconds asMicroseconds() const {
-		const value_type approx = value_type((double(numerator()) / denominator() * std::micro::den) + .5);
-		return std::chrono::microseconds(approx);
+	value_type asMilliseconds() const {
+		return value_type((double(numerator()) / denominator() * std::milli::den) + .5);
+	}
+	value_type asMicroseconds() const {
+		return value_type((double(numerator()) / denominator() * std::micro::den) + .5);
 	}
 	double asDouble() const {
 		return double(numerator()) / denominator();

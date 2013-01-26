@@ -53,7 +53,7 @@ public:
 
 	virtual void readImageDataTo(void* pData) {
 		const static unsigned char pOn[] = { 0xFF, 0xFF, 0xFF, 0xFF };
-		const static unsigned char pOff[] = { 0x00, 0x00, 0x00, 0xA0 };
+		const static unsigned char pOff[] = { 0x00, 0x00, 0x00, 0x00 };
 		using namespace std;
 		auto pCharData = reinterpret_cast<unsigned char*>(pData);
 		for (size_t index = 0; index < 256; ++index) {
