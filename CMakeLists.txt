@@ -22,4 +22,7 @@ endif()
 add_subdirectory(src/duke)
 
 # tests
+find_package(Gtest)
+if(GTEST_FOUND)
 add_subdirectory(test)
+endif()
