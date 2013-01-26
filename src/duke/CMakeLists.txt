@@ -1,4 +1,11 @@
 #
+# Removing rtti for duke
+#
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+endif()
+
+#
 # OpenGL
 #
 find_package(OpenGL REQUIRED)

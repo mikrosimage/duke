@@ -12,6 +12,7 @@
 #include <duke/gl/GL.h>
 #include <duke/gl/GLUtils.h>
 #include <stdexcept>
+#include <climits>
 
 namespace duke {
 
@@ -44,7 +45,7 @@ struct GlBufferAllocactor {
 	}
 };
 
-template<typename ALLOC, GLuint TARGETTYPE = -1>
+template<typename ALLOC, GLuint TARGETTYPE = UINT_MAX>
 struct GlObject: public noncopyable, public ALLOC {
 	enum {
 		TargetType = TARGETTYPE

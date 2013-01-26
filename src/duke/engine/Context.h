@@ -13,7 +13,7 @@
 #include <duke/time/FrameUtils.h>
 #include <glm/glm.hpp>
 
-class Attributes;
+struct Attributes;
 
 namespace duke {
 

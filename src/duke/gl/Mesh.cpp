@@ -21,7 +21,7 @@ static inline GLuint checkType(GLuint primitiveType) {
 	case GL_TRIANGLE_FAN:
 	case GL_TRIANGLE_STRIP_ADJACENCY:
 	case GL_TRIANGLES_ADJACENCY:
-	//case GL_PATCHES:
+		//case GL_PATCHES:
 		return primitiveType;
 	default:
 		throw std::runtime_error("invalid primitive mesh type");
@@ -31,7 +31,7 @@ static inline GLuint checkType(GLuint primitiveType) {
 namespace duke {
 
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
-		primitiveType(checkType(primitiveType)), vertexCount(vertexCount) {
+		primitiveType(checkType(primitiveType)), vertexCount(vertexCount), vao(), vbo() {
 	const auto vaoBinder = scope_bind(vao);
 	const auto vboBinder = scope_bind(vbo);
 	vbo.bufferData(vertexCount * sizeof(VertexPosUv0), pVBegin);
@@ -58,7 +58,7 @@ void Mesh::callDraw() const {
 }
 
 IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount) :
-		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount) {
+		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount), ivbo() {
 	const auto ivboBinder = scope_bind(ivbo);
 	ivbo.bufferData(indexCount * sizeof(GLuint), pIBegin);
 	glCheckError();

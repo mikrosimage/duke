@@ -53,6 +53,8 @@ Tested compilers
 ----------------
 
 * G++ 4.7.1 on OpenSUSE 12.2
+* Clang++ 3.2 on Gentoo
+* G++ 4.7.2 on Gentoo
 * G++ 4.8 version macports (MacOs)
 
 More informations 
