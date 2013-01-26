@@ -43,7 +43,7 @@ void DukeSplashStream::doRender(const Context& context) const {
 	}
 	const char insertCoinString[] = "INSERT COIN";
 	for (size_t i = 0; i < sizeof(greetingsString); ++i) {
-		Animation<double> alpha = Animation<double>(1000, 0, 1).startIn(3000);
+		Animation<double> alpha = Animation<double>(700, 0, 1).startIn(2000);
 		alpha.repeatCount = RepeatCount::INFINITE;
 		alpha.repeatMode = RepeatMode::REVERSE;
 		drawLetter(renderer, //

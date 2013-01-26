@@ -8,37 +8,47 @@
 #ifndef GLAPP_H_
 #define GLAPP_H_
 
+#include <duke/NonCopyable.h>
+
 #include <functional>
+
+struct GLFWwindow;
+struct GLFWmonitor;
 
 namespace duke {
 
-struct GlFwApp {
-	GlFwApp();
-	~GlFwApp();
+class DukeGLFWWindow: public noncopyable {
+public:
+	DukeGLFWWindow(GLFWwindow *pWindow);
+	virtual ~DukeGLFWWindow();
 
-	void openWindow(int width, int height, int redbits, int greenbits, int bluebits, int alphabits, int depthbits, int stencilbits, int mode);
-	void closeWindow();
+	void registerCallbacks();
+	GLFWwindow *getHandle();
 
 	std::function<int()> windowCloseCallback;
+	std::function<void(int)> windowFocusCallback;
 	std::function<void(int width, int height)> windowResizeCallback;
 	std::function<void()> windowRefreshFunCallback;
 	std::function<void(int buttonId, int buttonState)> mouseButtonCallback;
 	std::function<void(int x, int y)> mousePosCallback;
-	std::function<void(int value)> mouseWheelCallback;
-	std::function<void(int keyId, int keyState)> keyCallback;
-	std::function<void(int unicodeCodePoint, int keyState)> charCallback;
-private:
-	friend int onWindowCloseFun();
-	friend void onWindowResizeFun(int, int);
-	friend void onWindowRefreshFun();
-	friend void onMouseButtonFun(int, int);
-	friend void onMousePosFun(int, int);
-	friend void onMouseWheelFun(int);
-	friend void onKeyFun(int, int);
-	friend void onCharFun(int, int);
+	std::function<void(double x, double y)> scrollCallback;
+	std::function<void(int key, int action)> keyCallback;
+	std::function<void(int unicodeCodePoint)> charCallback;
 
-	GlFwApp(const GlFwApp&);
-	void operator=(const GlFwApp&);
+protected:
+	GLFWwindow *m_pWindow;
+};
+
+struct DukeGLFWApplication: public noncopyable {
+	DukeGLFWApplication();
+	~DukeGLFWApplication();
+
+	GLFWwindow *createRawWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
+
+	template<typename WINDOW>
+	WINDOW* createWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) {
+		return new WINDOW(createRawWindow(width, height, title, monitor, share));
+	}
 };
 
 } /* namespace duke */

@@ -7,10 +7,16 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 #
 find_package(Threads)
 
+# adding glfw
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Do not build the GLFW example programs" FORCE)
+set(GLFW_BUILD_TESTS    OFF CACHE BOOL "Do not build the GLFW tests programs"   FORCE)
+add_subdirectory(dependencies/glfw)
+
 #
 include_directories(dependencies/concurrent_utils)
-include_directories(SYSTEM 	dependencies/glm)
 include_directories(dependencies/light_sequence_parser/include)
+include_directories(SYSTEM dependencies/glfw/include)
+include_directories(SYSTEM dependencies/glm)
 include_directories(src)
 
 # c++11 / no-rtti

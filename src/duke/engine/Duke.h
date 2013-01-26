@@ -12,7 +12,6 @@
 #include <duke/engine/DukeWindow.h>
 #include <duke/engine/Player.h>
 
-
 namespace duke {
 
 struct CmdLineParameters;
@@ -22,7 +21,8 @@ public:
 	Duke(const CmdLineParameters &parameters);
 	void run();
 private:
-	DukeWindow m_Window;
+	DukeGLFWApplication m_Application;
+	std::unique_ptr<DukeWindow> m_pWindow;
 	Player m_Player;
 };
 

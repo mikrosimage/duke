@@ -17,12 +17,12 @@ static void glViewport(const Viewport &viewport) {
 	::glViewport(viewport.offset.x, viewport.offset.y, viewport.dimension.x, viewport.dimension.y);
 }
 
-DukeWindow::DukeWindow() :
-		m_LeftButton(false) {
+DukeWindow::DukeWindow(GLFWwindow *pWindow) :
+		DukeGLFWWindow(pWindow), m_LeftButton(false) {
 	mouseButtonCallback = bind(&DukeWindow::onMouseClick, this, placeholders::_1, placeholders::_2);
 	mousePosCallback = bind(&DukeWindow::onMouseMove, this, placeholders::_1, placeholders::_2);
 	windowResizeCallback = bind(&DukeWindow::onWindowResize, this, placeholders::_1, placeholders::_2);
-	charCallback = bind(&DukeWindow::onKeyPressed, this, placeholders::_1, placeholders::_2);
+	charCallback = bind(&DukeWindow::onKeyPressed, this, placeholders::_1);
 }
 
 void DukeWindow::onWindowResize(int width, int height) {
@@ -50,9 +50,8 @@ void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 		}
 }
 
-void DukeWindow::onKeyPressed(int unicodeCodePoint, int keyState) {
-	if (keyState == GLFW_PRESS)
-		m_AllKeyStrokes.push_back(unicodeCodePoint);
+void DukeWindow::onKeyPressed(int unicodeCodePoint) {
+	m_AllKeyStrokes.push_back(unicodeCodePoint);
 }
 
 const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool west) const {
@@ -85,4 +84,20 @@ glm::ivec2 DukeWindow::getViewportMousePos(const Viewport& viewport) const {
 	return m_MousePos - viewport.offset;
 }
 
+int DukeWindow::glfwGetKey(int key) {
+	return ::glfwGetKey(m_pWindow, key);
+}
+
+int DukeWindow::glfwGetWindowParam(int param) {
+	return ::glfwGetWindowParam(m_pWindow, param);
+}
+
+void DukeWindow::glfwSwapBuffers() {
+	::glfwSwapBuffers(m_pWindow);
+}
+
+void DukeWindow::makeContextCurrent() {
+	::glfwMakeContextCurrent(m_pWindow);
+	registerCallbacks();
+}
 }  // namespace duke

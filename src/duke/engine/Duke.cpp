@@ -26,87 +26,85 @@ namespace duke {
 const char * const pMetadataTrack = "metadata";
 
 static sequence::Configuration getParserConf() {
-    using namespace sequence;
-    Configuration conf;
-    conf.sort = true;
-    conf.bakeSingleton = true;
-    conf.mergePadding = true;
-    conf.pack = true;
-    return conf;
-}
-
-static glm::ivec2 getDesktopDimensions() {
-    GLFWvidmode desktopResolution;
-    glfwGetDesktopMode(&desktopResolution);
-    return glm::ivec2(desktopResolution.Width, desktopResolution.Height);
+	using namespace sequence;
+	Configuration conf;
+	conf.sort = true;
+	conf.bakeSingleton = true;
+	conf.mergePadding = true;
+	conf.pack = true;
+	return conf;
 }
 
 Timeline buildTimeline(const CmdLineParameters &parameters) {
-    const auto& paths = parameters.additionnalOptions;
-    Track track;
-    size_t offset = 0;
-    for (const std::string &path : paths) {
-        const auto fileStatus = getFileStatus(path.c_str());
-        switch (fileStatus) {
-            case FileStatus::NOT_A_FILE:
-                throw commandline_error("'" + path + "' is not a file nor a directory");
-            case FileStatus::FILE:
-                track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>(path.c_str()) });
-                ++offset;
-                break;
-            case FileStatus::DIRECTORY: {
-                using namespace sequence;
-                for (const Item &item : parseDir(getParserConf(), path.c_str()).files)
-                    switch (item.getType()) {
-                        case Item::SINGLE:
-                            track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>((path + '/' + item.filename).c_str()) });
-                            ++offset;
-                            break;
-                        case Item::INVALID:
-                            throw commandline_error("invalid item");
-                        case Item::INDICED:
-                        case Item::PACKED:
-                            break;
-                    }
-                break;
-            }
-        }
-    }
-    if (track.empty())
-        track.add(offset, Clip { 1, std::make_shared<DukeSplashStream>() });
-    // find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
-    const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
-    Track overlay;
-    overlay.disabled = true;
-    overlay.name = pMetadataTrack;
-    for (const auto& pair : track) {
-        const auto& pStream = pair.second.pStream;
-        overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pGlyphRenderer, std::static_pointer_cast<SingleFrameStream>(pStream)) });
-    }
-    return {track, overlay};
+	const auto& paths = parameters.additionnalOptions;
+	Track track;
+	size_t offset = 0;
+	for (const std::string &path : paths) {
+		const auto fileStatus = getFileStatus(path.c_str());
+		switch (fileStatus) {
+		case FileStatus::NOT_A_FILE:
+			throw commandline_error("'" + path + "' is not a file nor a directory");
+		case FileStatus::FILE:
+			track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>(path.c_str()) });
+			++offset;
+			break;
+		case FileStatus::DIRECTORY: {
+			using namespace sequence;
+			for (const Item &item : parseDir(getParserConf(), path.c_str()).files)
+				switch (item.getType()) {
+				case Item::SINGLE:
+					track.add(offset, Clip { 1, std::make_shared<SingleFrameStream>((path + '/' + item.filename).c_str()) });
+					++offset;
+					break;
+				case Item::INVALID:
+					throw commandline_error("invalid item");
+				case Item::INDICED:
+				case Item::PACKED:
+					break;
+				}
+			break;
+		}
+		}
+	}
+	if (track.empty())
+		track.add(offset, Clip { 1, std::make_shared<DukeSplashStream>() });
+	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
+	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
+	Track overlay;
+	overlay.disabled = true;
+	overlay.name = pMetadataTrack;
+	for (const auto& pair : track) {
+		const auto& pStream = pair.second.pStream;
+		overlay.add(pair.first, Clip { pair.second.frames, std::make_shared<FileInfoOverlay>(pGlyphRenderer, std::static_pointer_cast<SingleFrameStream>(pStream)) });
+	}
+	return {track, overlay};
 }
 
 Duke::Duke(const CmdLineParameters &parameters) {
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	const bool fullscreen = parameters.fullscreen;
+	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
+	if (pPrimaryMonitor == nullptr) {
+		int monitors = 0;
+		GLFWmonitor **pMonitors = nullptr;
+		pMonitors = glfwGetMonitors(&monitors);
+		if (monitors == 0 || pMonitors == nullptr)
+			throw std::runtime_error("No monitor detected");
+		pPrimaryMonitor = pMonitors[0];
+	}
+	GLFWvidmode desktopDefinition = glfwGetVideoMode(pPrimaryMonitor);
+	auto windowDefinition = glm::ivec2(desktopDefinition.width, desktopDefinition.height);
+	if (!fullscreen)
+		windowDefinition /= 2;
+	m_pWindow.reset(m_Application.createWindow<DukeWindow>(windowDefinition.x, windowDefinition.y, "", fullscreen ? pPrimaryMonitor : nullptr, nullptr));
+	m_pWindow->makeContextCurrent();
+	m_pWindow->onWindowResize(windowDefinition.x, windowDefinition.y);
 
-// setup window
-    const auto windowMode = parameters.fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW;
-    auto desktopDimensions = getDesktopDimensions();
-    if (!parameters.fullscreen)
-        desktopDimensions /= 2;
-    m_Window.openWindow(desktopDimensions.x, desktopDimensions.y, 0, 0, 0, 0, 0, 0, windowMode);
+	glfwSwapInterval(parameters.swapBufferInterval);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
 
-// GL setup
-    glfwSwapInterval(parameters.swapBufferInterval);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_DEPTH_TEST);
-
-// initializing timeline
-    m_Player.load(buildTimeline(parameters), FrameDuration::PAL);
+	m_Player.load(buildTimeline(parameters), FrameDuration::PAL);
 }
 
 namespace { // defining channel mask constants
@@ -121,104 +119,104 @@ static const auto all = bvec4(false);
 }  // namespace
 
 void Duke::run() {
-    Context context;
-    SharedMesh pSquare = getSquare();
-    context.renderTexture = [&](const ITexture &texture, const Attributes& attributes) {
-        render(pSquare.get(), texture, attributes, context);
-    };
-    Metronom metronom(100);
-    auto milestone = duke_clock::now();
-    bool running = true;
-    while (running) {
-        glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Context context;
+	SharedMesh pSquare = getSquare();
+	context.renderTexture = [&](const ITexture &texture, const Attributes& attributes) {
+		render(pSquare.get(), texture, attributes, context);
+	};
+	Metronom metronom(100);
+	auto milestone = duke_clock::now();
+	bool running = true;
+	while (running) {
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // setting up context
-        context.viewport = m_Window.useViewport(false, false, false, false);
-        context.currentFrame = m_Player.getCurrentFrame();
-        context.playbackTime = m_Player.getPlaybackTime();
-        context.pan = m_Window.getRelativeMousePos();
-        context.zoom = glfwGetMouseWheel();
+		// setting up context
+		context.viewport = m_pWindow->useViewport(false, false, false, false);
+		context.currentFrame = m_Player.getCurrentFrame();
+		context.playbackTime = m_Player.getPlaybackTime();
+		context.pan = m_pWindow->getRelativeMousePos();
+		context.zoom = 1;  //glfwGetScrollOffset();
 
-        // rendering
-        for (const Track &track : m_Player.getTimeline()) {
-            if (track.disabled)
-                continue;
-            const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
-            const Clip* pClip = mfr.first;
-            if (!pClip)
-                continue;
-            const auto& pStream = pClip->pStream;
-            if (!pStream)
-                continue;
-            context.clipFrame = mfr.second;
-            pStream->doRender(context);
-        }
+		// rendering
+		for (const Track &track : m_Player.getTimeline()) {
+			if (track.disabled)
+				continue;
+			const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
+			const Clip* pClip = mfr.first;
+			if (!pClip)
+				continue;
+			const auto& pStream = pClip->pStream;
+			if (!pStream)
+				continue;
+			context.clipFrame = mfr.second;
+			pStream->doRender(context);
+		}
 
-        // displaying
-        glfwSwapBuffers();
+		// displaying
+		m_pWindow->glfwSwapBuffers();
 
-        // updating time
-        const auto elapsedMicroSeconds = metronom.tick();
-        m_Player.offsetPlaybackTime(elapsedMicroSeconds);
-        context.liveTime += Time(elapsedMicroSeconds.count(),1000000);
+		// updating time
+		const auto elapsedMicroSeconds = metronom.tick();
+		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
+		context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
-        // handling input
-        auto &keyStrokes = m_Window.getPendingKeys();
-        for (const int key : keyStrokes) {
-            switch (key) {
-                case ' ':
-                    m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
-                    break;
-                case '4':
-                    m_Player.setPlaybackSpeed(-1);
-                    m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
-                    m_Player.setPlaybackSpeed(0);
-                    break;
-                case '6':
-                    m_Player.setPlaybackSpeed(1);
-                    m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
-                    m_Player.setPlaybackSpeed(0);
-                    break;
-                case 'r':
-                    context.channels = context.channels == r ? all : r;
-                    break;
-                case 'g':
-                    context.channels = context.channels == g ? all : g;
-                    break;
-                case 'b':
-                    context.channels = context.channels == b ? all : b;
-                    break;
-                case 'a':
-                    context.channels = context.channels == a ? all : a;
-                    break;
-                case '+':
-                    context.exposure *= 1.2;
-                    break;
-                case '-':
-                    context.exposure /= 1.2;
-                    break;
-                case 'o': {
-                    auto pTrack = m_Player.m_Timeline.findTrack(pMetadataTrack);
-                    if (pTrack) {
-                        bool &disabled = pTrack->disabled;
-                        disabled = !disabled;
-                    }
-                    break;
-                }
-            }
-        }
-        keyStrokes.clear();
+		// handling input
+		auto &keyStrokes = m_pWindow->getPendingKeys();
+		for (const int key : keyStrokes) {
+			switch (key) {
+			case ' ':
+				m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
+				break;
+			case '4':
+				m_Player.setPlaybackSpeed(-1);
+				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
+				m_Player.setPlaybackSpeed(0);
+				break;
+			case '6':
+				m_Player.setPlaybackSpeed(1);
+				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
+				m_Player.setPlaybackSpeed(0);
+				break;
+			case 'r':
+				context.channels = context.channels == r ? all : r;
+				break;
+			case 'g':
+				context.channels = context.channels == g ? all : g;
+				break;
+			case 'b':
+				context.channels = context.channels == b ? all : b;
+				break;
+			case 'a':
+				context.channels = context.channels == a ? all : a;
+				break;
+			case '+':
+				context.exposure *= 1.2;
+				break;
+			case '-':
+				context.exposure /= 1.2;
+				break;
+			case 'o': {
+				auto pTrack = m_Player.m_Timeline.findTrack(pMetadataTrack);
+				if (pTrack) {
+					bool &disabled = pTrack->disabled;
+					disabled = !disabled;
+				}
+				break;
+			}
+			}
+		}
+		keyStrokes.clear();
 
-        // check stop
-        running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+		// check stop
+		running = !(m_pWindow->glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS && m_pWindow->glfwGetWindowParam(GLFW_FOCUSED));
 
-        // dump info every seconds
-        const auto now = duke_clock::now();
-        if ((now - milestone) > std::chrono::seconds(1)) {
+		// dump info every seconds
+		const auto now = duke_clock::now();
+		if ((now - milestone) > std::chrono::seconds(1)) {
 //				metronom.dump();
-            milestone = now;
-        }
-    }
+			milestone = now;
+		}
+	}
 }
 } /* namespace duke */

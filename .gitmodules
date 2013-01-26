@@ -7,3 +7,6 @@
 [submodule "dependencies/light_sequence_parser"]
 	path = dependencies/light_sequence_parser
 	url = git://github.com/gchatelet/light_sequence_parser.git
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = git://github.com/elmindreda/glfw.git

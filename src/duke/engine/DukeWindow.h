@@ -19,25 +19,33 @@ namespace duke {
 
 struct Viewport {
 	glm::ivec2 offset;
-	glm::ivec2 dimension;
-	Viewport() = default;
+	glm::ivec2 dimension; Viewport() = default;
 	Viewport(glm::ivec2 offset, glm::ivec2 dimension) :
-			offset(offset), dimension(dimension) {
+	offset(offset), dimension(dimension) {
 	}
 };
 
-struct DukeWindow: public noncopyable, public GlFwApp {
-	DukeWindow();
+struct DukeWindow: public DukeGLFWWindow {
+	DukeWindow(GLFWwindow *pWindow);
+	//setter
+	void onKeyPressed(int unicodeCodePoint);
+	void onWindowResize(int width, int height);
+	void onMouseMove(int x, int y);
+	void onMouseClick(int buttonId, int buttonState);
+
+	// getter
 	const Viewport useViewport(bool north, bool south, bool east, bool west) const;
 	glm::ivec2 getRelativeMousePos();
 	glm::ivec2 getWindowMousePos() const;
 	glm::ivec2 getViewportMousePos(const Viewport& viewport) const;
 	std::vector<int>& getPendingKeys();
+
+	// GLFW functions
+	void makeContextCurrent();
+	int glfwGetKey(int key);
+	int glfwGetWindowParam(int param);
+	void glfwSwapBuffers();
 private:
-	void onKeyPressed(int unicodeCodePoint, int keyState);
-	void onWindowResize(int width, int height);
-	void onMouseMove(int x, int y);
-	void onMouseClick(int buttonId, int buttonState);
 	bool m_LeftButton;
 	glm::ivec2 m_LeftDragOrigin;
 	glm::ivec2 m_MousePos;
