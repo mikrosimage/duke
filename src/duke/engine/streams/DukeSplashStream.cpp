@@ -25,7 +25,7 @@ static void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float 
 }
 
 void DukeSplashStream::doRender(const Context& context) const {
-	const size_t zoom = 3;
+	const size_t zoom = 2;
 	const size_t glyphWidth = zoom * 8;
 	const auto time = context.liveTime.asMilliseconds();
 	const auto bound = renderer.begin(context.viewport);
@@ -41,9 +41,9 @@ void DukeSplashStream::doRender(const Context& context) const {
 				alpha.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::InQuad)), //
 				offset + ivec2(pos.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::OutBack, 0, 0, 1.5))));
 	}
-	const char insertCoinString[] = "INSERT COIN";
+	const char insertCoinString[] = "INSERT FRAMES";
 	for (size_t i = 0; i < sizeof(greetingsString); ++i) {
-		Animation<double> alpha = Animation<double>(700, 0, 1).startIn(2000);
+		Animation<double> alpha = Animation<double>(1000, 0, 1).startIn(2000);
 		alpha.repeatCount = RepeatCount::INFINITE;
 		alpha.repeatMode = RepeatMode::REVERSE;
 		drawLetter(renderer, //
