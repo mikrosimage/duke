@@ -26,7 +26,7 @@ struct Context {
 	FrameIndex currentFrame;
 	size_t clipFrame = 0;
 	// geometry
-	int zoom = 1;
+	int zoom = 0;
 	Viewport viewport;
 	glm::ivec2 pan;
 	// grading

@@ -136,7 +136,7 @@ void Duke::run() {
 		context.currentFrame = m_Player.getCurrentFrame();
 		context.playbackTime = m_Player.getPlaybackTime();
 		context.pan = m_pWindow->getRelativeMousePos();
-		context.zoom = 1;  //glfwGetScrollOffset();
+		context.zoom = 0;  //glfwGetScrollOffset();
 
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
