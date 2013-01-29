@@ -8,16 +8,9 @@
 #ifndef BENCHMARK_H_
 #define BENCHMARK_H_
 
-#include <duke/NonCopyable.h>
-#include <duke/gl/GlFwApp.h>
-
 namespace duke {
 
-struct Benchmark : public noncopyable {
-    Benchmark();
-private:
-    DukeGLFWApplication m_Application;
-};
+void benchmark();
 
 } /* namespace duke */
 #endif /* BENCHMARK_H_ */

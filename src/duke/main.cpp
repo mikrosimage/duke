@@ -1,5 +1,6 @@
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Duke.h>
+#include <duke/benchmark/Benchmark.h>
 
 int main(int argc, char** argv) {
     using namespace duke;
@@ -10,7 +11,7 @@ int main(int argc, char** argv) {
                 printf("%s\n", parameters.getHelpMessage());
                 break;
             case ApplicationMode::BENCHMARK:
-                printf("Not yet implemented\n");
+                benchmark();
                 break;
             case ApplicationMode::DUKE:
                 Duke duke(parameters);
