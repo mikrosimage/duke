@@ -8,7 +8,7 @@
 #ifndef ALLOCATOR_H_
 #define ALLOCATOR_H_
 
-#include <duke/memory/alloc/PageSize.h>
+#include <duke/memory/PageSize.h>
 #include <duke/NonCopyable.h>
 
 #include <cstddef> // size_t

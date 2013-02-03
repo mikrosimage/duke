@@ -22,7 +22,7 @@ SingleFrameStream::SingleFrameStream(const char *pFilename) {
 	std::sort(m_Attributes.begin(), m_Attributes.end(), &attributeLess);
 }
 
-void SingleFrameStream::doRender(const Context &context) const {
+void SingleFrameStream::render(const Context &context) const {
 	if (m_Error.empty())
 		context.renderTexture(m_RectangleTexture, m_Attributes);
 }

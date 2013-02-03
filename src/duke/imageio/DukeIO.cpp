@@ -11,6 +11,8 @@
 
 using namespace std;
 
+namespace duke {
+
 bool IODescriptors::registerDescriptor(IIODescriptor* pDescriptor) {
 	assert(pDescriptor);
 	m_Descriptors.push_back(unique_ptr<IIODescriptor>(pDescriptor));
@@ -35,3 +37,5 @@ IODescriptors& IODescriptors::instance() {
 	static IODescriptors descriptors;
 	return descriptors;
 }
+
+}  // namespace duke

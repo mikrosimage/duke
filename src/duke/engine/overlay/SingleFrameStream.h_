@@ -8,16 +8,16 @@
 #ifndef SINGLEFRAMESTREAM_H_
 #define SINGLEFRAMESTREAM_H_
 
-#include "MediaStream.h"
+#include "IOverlay.h"
 #include <duke/attributes/Attributes.h>
 #include <duke/gl/Textures.h>
 
 namespace duke {
 
-class SingleFrameStream: public IMediaStream {
+class SingleFrameStream: public IOverlay {
 public:
 	SingleFrameStream(const char *pFilename);
-	virtual void doRender(const Context&) const;
+	virtual void render(const Context&) const;
 	const Attributes& getAttributes() const;
 private:
 	std::string m_Error;

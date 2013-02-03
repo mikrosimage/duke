@@ -24,7 +24,7 @@ static void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float 
 	renderer.draw(c);
 }
 
-void DukeSplashStream::doRender(const Context& context) const {
+void DukeSplashStream::render(const Context& context) const {
 	const size_t zoom = 2;
 	const size_t glyphWidth = zoom * 8;
 	const auto time = context.liveTime.asMilliseconds();

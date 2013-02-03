@@ -12,7 +12,7 @@
 #include <duke/imageio/ImageDescription.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
-#include <duke/memory/alloc/Allocator.h>
+#include <duke/memory/Allocator.h>
 #include <cstring>
 #include <sstream>
 
@@ -26,17 +26,16 @@ static std::string loadImage(IImageReader *pRawReader, const LoadCallback& callb
 		return "bad state : IImageReader==nullptr";
 	if (pReader->hasError())
 		return pReader->getError();
-	const auto &description = pReader->getDescription();
-	const auto &attributes = pReader->getAttributes();
+	PackedFrame packedFrame = pReader->getPackedFrame();
 	const void* pMapped = pReader->getMappedImageData();
 	if (pMapped == nullptr) {
-		const auto pData = make_shared_memory<char>(description.dataSize, alignedMalloc);
-		pReader->readImageDataTo(pData.get());
+		packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
+		pReader->readImageDataTo(packedFrame.pData.get());
 		if (pReader->hasError())
 			return pReader->getError();
-		callback(description, attributes, pData.get());
+		callback(std::move(packedFrame), packedFrame.pData.get());
 	} else {
-		callback(description, attributes, pMapped);
+		callback(std::move(packedFrame), pMapped);
 	}
 	return std::string();
 }
@@ -73,16 +72,22 @@ bool load(const char* pFilename, const char* pExtension, const LoadCallback& cal
 }
 
 bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error) {
-	const char* pDot = strrchr(pFilename, '.');
-	if (!pDot)
+	const char* pExtension = fileExtension(pFilename);
+	if (!pExtension)
 		return "no extension for file";
-	const char* pExtension = ++pDot;
-	return load(pFilename, pExtension, [&](const PackedFrameDescription &description, const Attributes &_attributes, const void* pData) {
-		attributes= _attributes;
+	const LoadCallback fCallback = [&](PackedFrame&& packedFrame, const void* pVolatileData) {
+		attributes= std::move(packedFrame.attributes);
 		attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
 		const auto bound = scope_bind(texture);
-		texture.initialize(description,pData);
-	}, error);
+		texture.initialize(packedFrame.description,pVolatileData);
+	};
+	return load(pFilename, pExtension, fCallback, error);
 }
 
+const char* fileExtension(const char* pFilename) {
+	const char* pDot = strrchr(pFilename, '.');
+	if (!pDot)
+		return nullptr;
+	return ++pDot;
+}
 } /* namespace duke */

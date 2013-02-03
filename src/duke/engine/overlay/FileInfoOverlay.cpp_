@@ -8,7 +8,7 @@
 #include "FileInfoOverlay.h"
 
 #include <duke/engine/rendering/GlyphRenderer.h>
-#include <duke/engine/streams/SingleFrameStream.h>
+#include <duke/engine/overlay/SingleFrameStream.h>
 #include <duke/engine/Context.h>
 
 #include <sstream>
@@ -20,7 +20,7 @@ FileInfoOverlay::FileInfoOverlay(const std::shared_ptr<GlyphRenderer>& pRenderer
                 m_pRenderer(pRenderer), m_pFileStream(pFileStream) {
 }
 
-void FileInfoOverlay::doRender(const Context& context) const {
+void FileInfoOverlay::doSpecificRender(const Context& context) const {
     if (!m_pFileStream)
         return;
     std::ostringstream oss;

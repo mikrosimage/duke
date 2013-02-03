@@ -8,25 +8,28 @@
 #ifndef DUKEIO_H_
 #define DUKEIO_H_
 
-#include <duke/attributes/Attributes.h>
-#include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/PackedFrame.h>
 #include <duke/NonCopyable.h>
 
 #include <cstddef>
 #include <string>
 #include <map>
 
+namespace duke {
+
 class IIODescriptor;
 
 class IImageReader: public noncopyable {
+private:
+	PackedFrame m_PackedFrame;
 protected:
 	const IIODescriptor * const m_pDescriptor;
-	PackedFrameDescription m_Description;
+	PackedFrameDescription &m_Description;
+	Attributes &m_Attributes;
 	std::string m_Error;
-	Attributes m_Attributes;
 public:
 	IImageReader(const IIODescriptor * pDescriptor) :
-			m_pDescriptor(pDescriptor) {
+			m_pDescriptor(pDescriptor), m_Description(m_PackedFrame.description), m_Attributes(m_PackedFrame.attributes) {
 	}
 	virtual ~IImageReader() {
 	}
@@ -36,14 +39,11 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline const PackedFrameDescription& getDescription() const {
-		return m_Description;
+	inline const PackedFrame& getPackedFrame() const {
+		return m_PackedFrame;
 	}
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;
-	}
-	inline const Attributes& getAttributes() const {
-		return m_Attributes;
 	}
 	virtual const void* getMappedImageData() const {
 		return nullptr;
@@ -59,7 +59,12 @@ public:
 	}
 };
 
+}  // namespace duke
+
 #include <vector>
+
+namespace duke {
+
 class IIODescriptor: public noncopyable {
 public:
 	enum class Capability {
@@ -81,9 +86,14 @@ public:
 	}
 };
 
+}  // namespace duke
+
 #include <memory>
 #include <map>
 #include <deque>
+
+namespace duke {
+
 class IODescriptors: public noncopyable {
 	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
 	std::map<std::string, std::deque<IIODescriptor*> > m_ExtensionToDescriptors;
@@ -93,5 +103,7 @@ public:
 
 	static IODescriptors& instance();
 };
+
+}  // namespace duke
 
 #endif /* DUKEIO_H_ */

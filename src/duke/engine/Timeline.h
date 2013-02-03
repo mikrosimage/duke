@@ -40,11 +40,13 @@ struct Range {
 
 namespace duke {
 class IMediaStream;
+class IOverlay;
 }  // namespace duke
 
 struct Clip {
 	size_t frames;
 	std::shared_ptr<duke::IMediaStream> pStream;
+	std::shared_ptr<duke::IOverlay> pOverlay;
 };
 
 typedef std::pair<const Clip*, size_t> MediaFrameReference;

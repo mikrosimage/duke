@@ -40,6 +40,8 @@ static const uint64_t raster_data[] = { 0x81c08367e7e00, 0x18fcfc3cf0ff00ff, 0x8
 		0x1000000000200, 0x1000000003e, 0x18083010080800, 0xc1ef000000c, 0x4c1808480810087e, 0x122210000012, 0x3200084804203e00, 0x3c082210000012, 0x7e08080810087e,
 		0x3c04221000180c, 0x4c00080810080800, 0x3c1e2210181800, 0x321809080000007e, 0x3c000013000000, 0x1809087e7e3e00, 0x14000000, 0x60800000000, 0x18000000 };
 
+namespace duke {
+
 class AsciiFontImageReader: public IImageReader {
 public:
 	AsciiFontImageReader(const IIODescriptor *pDesc) :
@@ -85,3 +87,5 @@ class AsciiFontDescriptor: public IIODescriptor {
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new AsciiFontDescriptor());
 }  // namespace
+
+}  // namespace duke

@@ -30,6 +30,8 @@ typedef struct {
 } TGAHEADER;
 #pragma pack(8)
 
+namespace duke {
+
 class TGAImageReader: public IImageReader {
 	FILE *m_pFile;
 	TGAHEADER m_Header;
@@ -98,3 +100,5 @@ class TGADescriptor: public IIODescriptor {
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
 }  // namespace
+
+}  // namespace duke

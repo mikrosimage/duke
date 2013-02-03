@@ -13,7 +13,7 @@
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.h>
 #include <duke/engine/rendering/ShaderFactory.h>
-#include <duke/memory/alloc/Allocator.h>
+#include <duke/memory/Allocator.h>
 
 #include <glm/glm.hpp>
 

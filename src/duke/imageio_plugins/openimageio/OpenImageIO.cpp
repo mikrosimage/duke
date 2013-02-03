@@ -75,6 +75,8 @@ static size_t getTypeSize(const TypeDesc &typedesc) {
 	}
 }
 
+namespace duke {
+
 class OpenImageIOReader: public IImageReader {
 	unique_ptr<ImageInput> m_pImageInput;
 	ImageSpec m_Spec;
@@ -179,5 +181,7 @@ public:
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new OpenImageIODescriptor());
 }  // namespace
+
+}  // namespace duke
 
 #endif // DUKE_OIIO

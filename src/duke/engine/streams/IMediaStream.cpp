@@ -5,7 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#include "MediaStream.h"
+#include "IMediaStream.h"
 
 namespace duke {
 

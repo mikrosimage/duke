@@ -8,15 +8,15 @@
 #ifndef DUKESPLASHSTREAM_H_
 #define DUKESPLASHSTREAM_H_
 
-#include "MediaStream.h"
+#include "IOverlay.h"
 #include <duke/engine/rendering/GlyphRenderer.h>
 
 namespace duke {
 
-class DukeSplashStream: public duke::IMediaStream {
+class DukeSplashStream: public duke::IOverlay {
 public:
 	virtual ~DukeSplashStream();
-	virtual void doRender(const Context&) const;
+	virtual void render(const Context&) const;
 private:
 	GlyphRenderer renderer;
 };

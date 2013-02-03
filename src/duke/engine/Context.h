@@ -35,6 +35,8 @@ struct Context {
 	float gamma = 1;
 	ColorSpace colorSpace = ColorSpace::Source;
 	std::function<void(const ITexture&, const Attributes&)> renderTexture;
+	// file
+	std::string filename;
 };
 
 } /* namespace duke */

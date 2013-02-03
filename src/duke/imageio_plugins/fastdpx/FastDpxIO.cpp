@@ -57,6 +57,8 @@ typedef struct _image_information {
 	unsigned char reserved[52]; /* reserved for future use (padding) */
 } Image_Information;
 
+namespace duke {
+
 class FastDpxImageReader: public IImageReader {
 	const void *m_pData;
 public:
@@ -113,3 +115,5 @@ class FastDpxDescriptor: public IIODescriptor {
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescriptor());
 }  // namespace
+
+}  // namespace duke
