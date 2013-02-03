@@ -269,10 +269,10 @@ void glCheckError() {
 		throw std::runtime_error("OpenGL : Invalid framebuffer operation");
 	case GL_OUT_OF_MEMORY:
 		throw std::runtime_error("OpenGL : Out of memory");
-	//case GL_STACK_UNDERFLOW:
-	//	throw std::runtime_error("OpenGL : Stack underflow");
-	//case GL_STACK_OVERFLOW:
-	//	throw std::runtime_error("OpenGL : Stack overflow");
+		//case GL_STACK_UNDERFLOW:
+		//	throw std::runtime_error("OpenGL : Stack underflow");
+		//case GL_STACK_OVERFLOW:
+		//	throw std::runtime_error("OpenGL : Stack overflow");
 	}
 }
 
@@ -374,6 +374,40 @@ GLenum getPixelType(GLint internalFormat) {
 		oss << getInternalFormatString(internalFormat) << " to pixel type";
 		throw std::runtime_error(oss.str());
 	}
+}
+
+size_t getChannelCount(GLenum pixel_format) {
+	switch (pixel_format) {
+	case GL_RGBA:
+	case GL_BGRA:
+		return 4;
+	case GL_RGB:
+	case GL_BGR:
+		return 3;
+	default:
+		throw std::runtime_error("channel count not implemented");
+	}
+}
+
+size_t getBytePerChannel(GLenum pixel_type) {
+	switch (pixel_type) {
+	case GL_UNSIGNED_INT_8_8_8_8:
+	case GL_UNSIGNED_INT_8_8_8_8_REV:
+	case GL_UNSIGNED_BYTE:
+		return 1;
+	case GL_UNSIGNED_SHORT:
+	case GL_HALF_FLOAT:
+		return 2;
+	case GL_FLOAT:
+	case GL_INT:
+		return 4;
+	default:
+		throw std::runtime_error("byte per channel not implemented");
+	}
+}
+
+size_t getBytePerPixels(GLenum pixel_format, GLenum pixel_type) {
+	return getChannelCount(pixel_format) * getBytePerChannel(pixel_type);
 }
 
 std::string slurpFile(const char* pFilename) {

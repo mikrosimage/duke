@@ -21,6 +21,10 @@ const char* getInternalFormatString(int internalFormat);
 const char* getPixelFormatString(unsigned int pixelFormat);
 const char* getPixelTypeString(unsigned int pixelType);
 
+size_t getChannelCount(unsigned int pixel_format);
+size_t getBytePerChannel(unsigned int pixel_type);
+size_t getBytePerPixels(unsigned int pixel_format, unsigned int pixel_type);
+
 void glCheckError();
 void glCheckBound(unsigned int targetType, unsigned int id);
 void checkShaderError(unsigned int shaderId, const char* source);
