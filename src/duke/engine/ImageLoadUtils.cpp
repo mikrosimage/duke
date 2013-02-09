@@ -12,8 +12,8 @@
 #include <duke/imageio/ImageDescription.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
+#include <duke/filesystem/FsUtils.h>
 #include <duke/memory/Allocator.h>
-#include <cstring>
 #include <sstream>
 
 namespace duke {
@@ -60,14 +60,13 @@ static std::string load(const char* pFilename, const char *pExtension, const Loa
 		if (error.empty())
 			return std::string();
 	}
-	return "no reader succeeded in reading the file";
+	return "no reader succeeded";
 }
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error) {
 	error = load(pFilename, pExtension, callback);
 	if (error.empty())
 		return true;
-	printf("error while reading %s : %s\n", pFilename, error.c_str());
 	return false;
 }
 
@@ -84,10 +83,4 @@ bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std:
 	return load(pFilename, pExtension, fCallback, error);
 }
 
-const char* fileExtension(const char* pFilename) {
-	const char* pDot = strrchr(pFilename, '.');
-	if (!pDot)
-		return nullptr;
-	return ++pDot;
-}
 } /* namespace duke */

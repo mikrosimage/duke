@@ -9,6 +9,7 @@
 #define IMAGECACHE_H_
 
 #include <duke/NonCopyable.h>
+#include <duke/engine/imagecache/TimelineIterator.h>
 #include <duke/engine/Timeline.h>
 #include <duke/imageio/PackedFrame.h>
 #include <concurrent/cache/lookahead_cache.hpp>
@@ -16,19 +17,6 @@
 #include <vector>
 
 namespace duke {
-
-struct TimelineIterator {
-	TimelineIterator();
-	TimelineIterator(const Timeline * timeline, size_t currentFrame, bool forward);
-	void clear();
-	MediaFrameReference next();
-	bool empty();
-private:
-	const Timeline * m_pTimeline;
-	Range m_Range;
-	size_t m_CurrentFrame;
-	bool m_Forward;
-};
 
 class ImageCache: public noncopyable {
 public:
@@ -54,6 +42,7 @@ private:
 	concurrent::cache::lookahead_cache<ID_TYPE, METRIC_TYPE, DATA_TYPE, WORK_UNIT_RANGE> m_Cache;
 	std::vector<std::thread> m_WorkerThreads;
 	Timeline m_Timeline;
+	Ranges m_MediaRanges;
 	size_t m_WorkerCount;
 };
 

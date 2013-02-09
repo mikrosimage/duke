@@ -22,8 +22,7 @@
  * Allocator interface to alloc and free memory
  */
 struct Allocator: public noncopyable {
-	virtual ~Allocator() {
-	}
+	virtual ~Allocator() {}
 	virtual void* malloc(const size_t size) const = 0;
 	virtual void free(void* ptr) const = 0;
 	virtual const char* name() const = 0;

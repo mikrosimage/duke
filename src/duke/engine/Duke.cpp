@@ -41,29 +41,32 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	Track track;
 	size_t offset = 0;
 	for (const std::string &path : paths) {
-		const auto fileStatus = getFileStatus(path.c_str());
-		switch (fileStatus) {
+		const std::string absolutePath = getAbsoluteFilename(path.c_str());
+		switch (getFileStatus(absolutePath.c_str())) {
 		case FileStatus::NOT_A_FILE:
-			throw commandline_error("'" + path + "' is not a file nor a directory");
+			throw commandline_error("'" + absolutePath + "' is not a file nor a directory");
 		case FileStatus::FILE:
-			track.add(offset, Clip { 1, std::make_shared<DiskMediaStream>(Item(path)), nullptr });
+			track.add(offset, Clip { 1, std::make_shared<DiskMediaStream>(Item(absolutePath)), nullptr });
 			++offset;
 			break;
-		case FileStatus::DIRECTORY: {
-			for (const Item &item : sequence::parseDir(getParserConf(), path.c_str()).files)
-				switch (item.getType()) {
+		case FileStatus::DIRECTORY:
+			for (Item item : sequence::parseDir(getParserConf(), absolutePath.c_str()).files) {
+				const auto type = item.getType();
+				if (type == Item::INVALID)
+					throw commandline_error("invalid item");
+				item.filename = absolutePath + '/' + item.filename;
+				switch (type) {
 				case Item::SINGLE:
 					track.add(offset, Clip { 1, std::make_shared<DiskMediaStream>(item), nullptr });
 					++offset;
 					break;
-				case Item::INVALID:
-					throw commandline_error("invalid item");
 				case Item::INDICED:
 				case Item::PACKED:
+				default:
 					break;
 				}
+			}
 			break;
-		}
 		}
 	}
 	if (track.empty())
@@ -143,16 +146,15 @@ void Duke::run() {
 		for (const Track &track : m_Player.getTimeline()) {
 			if (track.disabled)
 				continue;
-			const MediaFrameReference mfr = track.getClipFrame(context.currentFrame.round());
+			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
 			context.clipFrame = mfr.second;
 			const Clip* pClip = mfr.first;
 			if (!pClip)
 				continue;
 			const auto& pStream = pClip->pStream;
 			if (pStream) {
-				const bool loaded = m_Player.getImageCache().get(mfr, packedFrame);
-				pStream->generateFilePath(context.filename, context.clipFrame);
-				printf("filename %s : %d\n", context.filename.c_str(), loaded);
+				//const bool loaded =
+				m_Player.getImageCache().get(mfr, packedFrame);
 			}
 			const auto& pOverlay = pClip->pOverlay;
 			if (pOverlay)

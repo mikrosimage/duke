@@ -28,7 +28,7 @@ TEST(FrameUtils,timeToMicroseconds) {
 }
 
 void testBackAndForthCalculations(const FrameDuration framerate) {
-	for (auto i = 0; i < 100000; ++i) {
+	for (auto i = 0; i < 10000; ++i) {
 		const auto frame = rand();
 		ASSERT_EQ( FrameIndex(frame), timeToFrame(frameToTime(frame,framerate),framerate));
 	}

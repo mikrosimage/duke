@@ -13,35 +13,34 @@
 #include <map>
 #include <memory>
 
+namespace duke {
+
+class IMediaStream;
+class IOverlay;
+
 struct Range {
-	Range() :
-			first(0), last(0) {
-	}
-	Range(size_t first, size_t last) :
-			first(first), last(last) {
-	}
-	bool operator==(const Range&other) const {
-		return first == other.first && last == other.last;
-	}
-	Range operator+(size_t frame) const {
-		return Range(first + frame, last + frame);
-	}
-	Range& operator+=(size_t frame) {
-		first += frame;
-		last += frame;
-		return *this;
-	}
-	Range operator||(const Range&other) const {
-		return Range(first < other.first ? first : other.first, last > other.last ? last : other.last);
-	}
+	Range();
+	Range(size_t first, size_t last);
+
+	Range& operator+=(size_t frame);
+
+	Range operator+(size_t frame) const;
+	bool operator==(const Range&other) const;
+
 	size_t first, last;
 	static const Range EMPTY;
 };
 
-namespace duke {
-class IMediaStream;
-class IOverlay;
-}  // namespace duke
+typedef std::vector<Range> Ranges;
+
+namespace rangeutils {
+
+Range range_union(const Range&a, const Range&b);
+bool consecutive(const Range&a, const Range&b);
+Range mergeConsecutive(const Range&a, const Range&b);
+void mergeConsecutive(Ranges &ranges);
+
+}  // namespace rangeutils
 
 struct Clip {
 	size_t frames;
@@ -52,17 +51,36 @@ struct Clip {
 typedef std::pair<const Clip*, size_t> MediaFrameReference;
 
 struct Track: public std::map<size_t, Clip> {
-	bool disabled = false;
-	std::string name;
-	void add(size_t frame, Clip&& clip) {
-		insert(std::make_pair(frame,std::move(clip)));
-	}
+	typedef value_type TrackClip;
+
+	void add(size_t frame, Clip&& clip);
+
+	bool contains(const_iterator itr, size_t frame) const;
+	bool isClipAt(size_t frame) const;
 	const_iterator clipContaining(size_t frame) const;
 	const_iterator nextClip(size_t frame) const;
 	const_iterator previousClip(size_t frame) const;
-	MediaFrameReference getClipFrame(size_t frame) const;
+	MediaFrameReference getMediaFrameReferenceAt(size_t frame) const;
+	Ranges getClipsRange() const;
 	Range getRange() const;
-	bool contains(const_iterator itr, size_t frame) const;
+
+	bool disabled = false;
+	std::string name;
+};
+
+namespace rangeutils {
+	Range getRange(const Track::TrackClip& trackClip);
+}
+
+struct Timeline: public std::vector<Track> {
+	Timeline() = default;
+	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers) {}
+
+	Track* findTrack(const char* pName);
+
+	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
+	Range getRange() const;
+	bool empty() const;
 };
 
 template<typename C> typename C::const_iterator findLessOrEquals(const C& container, const typename C::key_type& key) {
@@ -81,13 +99,6 @@ template<typename C> typename C::const_iterator findLess(const C& container, con
 	return bound == container.begin() ? end : --bound;
 }
 
-struct Timeline: public std::vector<Track> {
-	Timeline() = default;
-	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers) {}
-	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
-	Track* findTrack(const char* pName);
-	Range getRange() const;
-	bool empty() const;
-};
+}  // namespace duke
 
 #endif /* TIMELINE_H_ */

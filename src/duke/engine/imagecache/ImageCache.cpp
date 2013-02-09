@@ -9,36 +9,9 @@
 #include <duke/engine/streams/IMediaStream.h>
 #include <duke/engine/ImageLoadUtils.h>
 #include <duke/memory/Allocator.h>
+#include <duke/filesystem/FsUtils.h>
 
 namespace duke {
-
-TimelineIterator::TimelineIterator() :
-		TimelineIterator(nullptr, 0, true) {
-}
-TimelineIterator::TimelineIterator(const Timeline * pTimeline, size_t currentFrame, bool forward) :
-		m_pTimeline(pTimeline), m_Range(m_pTimeline ? m_pTimeline->getRange() : Range::EMPTY), m_CurrentFrame(currentFrame), m_Forward(forward) {
-}
-void TimelineIterator::clear() {
-	m_pTimeline = nullptr;
-}
-MediaFrameReference TimelineIterator::next() {
-	const Track& track = (*m_pTimeline)[0];
-	const size_t frame = m_CurrentFrame;
-	if (m_CurrentFrame == m_Range.first && !m_Forward)
-		m_pTimeline = nullptr;
-	else if (m_CurrentFrame == m_Range.last && m_Forward)
-		m_pTimeline = nullptr;
-	else {
-		if (m_Forward)
-			++m_CurrentFrame;
-		else
-			--m_CurrentFrame;
-	}
-	return track.getClipFrame(frame);
-}
-bool TimelineIterator::empty() {
-	return m_pTimeline == nullptr;
-}
 
 ImageCache::ImageCache() :
 		m_Cache(500 * 1024 * 1024), m_WorkerCount(1) {
@@ -59,8 +32,11 @@ void ImageCache::setWorkerCount(size_t workerCount) {
 void ImageCache::load(const Timeline& timeline) {
 	stopWorkers();
 	m_Timeline = timeline;
+	m_MediaRanges = getMediaRanges(m_Timeline);
+	if (m_MediaRanges.empty())
+		return;
 	startWorkers();
-	m_Cache.process(TimelineIterator(&m_Timeline, m_Timeline.getRange().first, true));
+	m_Cache.process(TimelineIterator(&m_Timeline, &m_MediaRanges, m_MediaRanges.begin()->first));
 }
 
 void ImageCache::terminate() {
@@ -98,7 +74,7 @@ void ImageCache::workerFunction() {
 		for (;;) {
 			workerStep(mfr, path, error);
 			if (!error.empty()) {
-				printf("error occurred while reading %s : %s\n", path.c_str(), error.c_str());
+				printf("error while reading %s : %s\n", path.c_str(), error.c_str());
 				m_Cache.push(mfr, 1UL, PackedFrame());
 			} else {
 				printf("successfully loaded %s\n", path.c_str());
@@ -122,7 +98,7 @@ std::string& ImageCache::workerStep(MediaFrameReference &mfr, std::string& path,
 	pStream->generateFilePath(path, mfr.second);
 	if (path.empty())
 		return error = "stream has no path";
-	const char* pExtension = duke::fileExtension(path.c_str());
+	const char* pExtension = fileExtension(path.c_str());
 	if (!pExtension)
 		return error = "stream has no extension";
 	duke::load(path.c_str(), pExtension, [&](PackedFrame&& packedFrame, const void* pVolatileData) {

@@ -8,6 +8,8 @@
 #ifndef FSUTILS_H_
 #define FSUTILS_H_
 
+#include <string>
+
 namespace duke {
 
 enum class FileStatus {
@@ -15,6 +17,10 @@ enum class FileStatus {
 };
 
 FileStatus getFileStatus(const char* filename);
+
+const char* fileExtension(const char* pFilename);
+
+std::string getAbsoluteFilename(const char* pFilename);
 
 } /* namespace duke */
 #endif /* FSUTILS_H_ */

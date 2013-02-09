@@ -25,7 +25,6 @@ bool load(const char* pFilename, const char* pExtension, const LoadCallback& cal
 class ITexture;
 bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error);
 
-const char* fileExtension(const char* pFilename);
-
 } /* namespace duke */
+
 #endif /* IMAGELOADUTILS_H_ */
