@@ -21,6 +21,7 @@ struct TimelineIterator {
 	void clear();
 	MediaFrameReference next();
 	bool empty();
+	size_t getCurrentFrame() const;
 private:
 	void regularizeCurrentFrame();
 	void stepForward();
@@ -33,6 +34,18 @@ private:
 	size_t m_CurrentFrame;
 	size_t m_CurrentTrackIndex;
 	size_t m_EndFrame;
+};
+
+struct LimitedTimelineIterator {
+	LimitedTimelineIterator();
+	LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t iterations);
+	void clear();
+	MediaFrameReference next();
+	bool empty();
+	size_t getCurrentFrame() const;
+private:
+	TimelineIterator m_Iterator;
+	size_t m_IterationToEnd;
 };
 
 } /* namespace duke */

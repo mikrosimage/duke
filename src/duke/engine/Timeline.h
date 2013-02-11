@@ -44,11 +44,11 @@ void mergeConsecutive(Ranges &ranges);
 
 struct Clip {
 	size_t frames;
-	std::shared_ptr<duke::IMediaStream> pStream;
-	std::shared_ptr<duke::IOverlay> pOverlay;
+	std::shared_ptr<IMediaStream> pStream;
+	std::shared_ptr<IOverlay> pOverlay;
 };
 
-typedef std::pair<const Clip*, size_t> MediaFrameReference;
+typedef std::pair<const IMediaStream*, size_t> MediaFrameReference;
 
 struct Track: public std::map<size_t, Clip> {
 	typedef value_type TrackClip;

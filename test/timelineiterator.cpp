@@ -10,17 +10,17 @@
 using namespace std;
 using namespace duke;
 
-std::ostream& operator<<(std::ostream& stream, const Range &range) {
+ostream& operator<<(ostream& stream, const Range &range) {
 	return stream << '[' << range.first << ',' << range.last << ']';
 }
 
 class DummyMediaStream: public IMediaStream {
 public:
-	virtual void generateFilePath(std::string &path, size_t atFrame) const {
+	virtual void generateFilePath(string &path, size_t atFrame) const {
 	}
 };
 
-static std::shared_ptr<IMediaStream> pStream = std::make_shared<DummyMediaStream>();
+static shared_ptr<IMediaStream> pStream = make_shared<DummyMediaStream>();
 
 TEST(TimelineIterator, emptyness) {
 	EXPECT_TRUE(TimelineIterator().empty());
@@ -36,11 +36,10 @@ TEST(TimelineIterator, oneFrameStartingFromTheFrame) {
 	Timeline timeline = { Track() };
 	Track &track = timeline.back();
 	track.add(0, Clip { 1, pStream });
-	Clip &clip = track.begin()->second;
 	const Ranges mediaRanges = getMediaRanges(timeline);
 	TimelineIterator itr(&timeline, &mediaRanges, 0);
 	EXPECT_FALSE(itr.empty());
-	EXPECT_EQ(MediaFrameReference(&clip,0), itr.next());
+	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
 	EXPECT_TRUE(itr.empty());
 }
 
@@ -48,12 +47,11 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 	Timeline timeline = { Track() };
 	Track &track = timeline.back();
 	track.add(0, Clip { 1, pStream });
-	Clip &clip = track.begin()->second;
 	const Ranges mediaRanges = getMediaRanges(timeline);
 	EXPECT_FALSE(mediaRanges.empty());
 	TimelineIterator itr(&timeline, &mediaRanges, 100);
 	EXPECT_FALSE(itr.empty());
-	EXPECT_EQ(MediaFrameReference(&clip,0), itr.next());
+	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
 	EXPECT_TRUE(itr.empty());
 }
 
@@ -68,39 +66,63 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 	Track &track1 = timeline[0];
 	Track &track2 = timeline[1];
 	Track &track3 = timeline[2];
-	track1.add(0, Clip { 1, pStream });
-	track1.add(4, Clip { 1, pStream });
-	track2.add(2, Clip { 3, pStream });
-	track3.add(3, Clip { 2, pStream });
-	const Clip *pClip1 = &track1.begin()->second;
-	const Clip *pClip2 = &track2.begin()->second;
-	const Clip *pClip3 = &track3.begin()->second;
-	const Clip *pClip4 = &track1.rbegin()->second;
+	track1.add(0, Clip { 1, make_shared<DummyMediaStream>() });
+	track1.add(4, Clip { 1, make_shared<DummyMediaStream>() });
+	track2.add(2, Clip { 3, make_shared<DummyMediaStream>() });
+	track3.add(3, Clip { 2, make_shared<DummyMediaStream>() });
+	const IMediaStream *pStream1 = track1.begin()->second.pStream.get();
+	const IMediaStream *pStream2 = track2.begin()->second.pStream.get();
+	const IMediaStream *pStream3 = track3.begin()->second.pStream.get();
+	const IMediaStream *pStream4 = track1.rbegin()->second.pStream.get();
 	const Ranges mediaRange = getMediaRanges(timeline);
 	{
 		TimelineIterator itr(&timeline, &mediaRange, 0);
 		EXPECT_FALSE(itr.empty());
-		EXPECT_EQ(MediaFrameReference(pClip1,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip2,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip2,1UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip3,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip4,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip2,2UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip3,1UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream1,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,1UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream3,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream4,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,2UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream3,1UL), itr.next());
 		EXPECT_TRUE(itr.empty());
 	}
 	{
 		TimelineIterator itr(&timeline, &mediaRange, 1);
 		EXPECT_FALSE(itr.empty());
-		EXPECT_EQ(MediaFrameReference(pClip2,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip2,1UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip3,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip4,0UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip2,2UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip3,1UL), itr.next());
-		EXPECT_EQ(MediaFrameReference(pClip1,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,1UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream3,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream4,0UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream2,2UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream3,1UL), itr.next());
+		EXPECT_EQ(MediaFrameReference(pStream1,0UL), itr.next());
 		EXPECT_TRUE(itr.empty());
 	}
+}
+
+TEST(LimitedTimelineIterator, limitedToZero) {
+	Timeline timeline = { Track() };
+	Track &track = timeline.back();
+	track.add(0, Clip { 1, pStream });
+	const Ranges mediaRanges = getMediaRanges(timeline);
+	EXPECT_FALSE(mediaRanges.empty());
+	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 0);
+	EXPECT_TRUE(itr.empty());
+}
+
+TEST(LimitedTimelineIterator, limitedToOne) {
+	Timeline timeline = { Track() };
+	Track &track = timeline.back();
+	track.add(0, Clip { 10, pStream });
+	const Ranges mediaRanges = getMediaRanges(timeline);
+	EXPECT_FALSE(mediaRanges.empty());
+	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 2);
+	EXPECT_FALSE(itr.empty());
+	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
+	EXPECT_FALSE(itr.empty());
+	EXPECT_EQ(MediaFrameReference(pStream.get(),1), itr.next());
+	EXPECT_TRUE(itr.empty());
 }
 
 TEST(TimelineMediaRange, empty) {

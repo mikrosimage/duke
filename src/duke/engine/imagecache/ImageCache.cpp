@@ -91,8 +91,7 @@ static AlignedMalloc gAllocator; //FIXME this global allocator will suffer from 
 std::string& ImageCache::workerStep(MediaFrameReference &mfr, std::string& path, std::string& error) {
 	error.clear();
 	m_Cache.pop(mfr);
-	const auto &pClip = mfr.first;
-	const IMediaStream *pStream = pClip ? pClip->pStream.get() : nullptr;
+	const IMediaStream *pStream = mfr.first;
 	if (!pStream)
 		return error = "empty stream";
 	pStream->generateFilePath(path, mfr.second);

@@ -71,8 +71,8 @@ Range getRange(const Track::TrackClip& trackClip) {
 
 MediaFrameReference Track::getMediaFrameReferenceAt(size_t frame) const {
 	auto pFound = clipContaining(frame);
-	if (pFound != end())
-		return MediaFrameReference(&pFound->second, frame - pFound->first);
+	if (pFound != end() && pFound->second.pStream)
+		return MediaFrameReference(pFound->second.pStream.get(), frame - pFound->first);
 	return MediaFrameReference();
 }
 

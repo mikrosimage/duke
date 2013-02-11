@@ -85,6 +85,10 @@ MediaFrameReference TimelineIterator::next() {
 	return reference;
 }
 
+size_t TimelineIterator::getCurrentFrame() const{
+	return m_CurrentFrame;
+}
+
 void TimelineIterator::stepUntilValidOrExhausted() {
 	assert(!empty());
 	do {
@@ -128,4 +132,35 @@ const Track& TimelineIterator::getCurrentTrack() const {
 	return (*m_pTimeline)[m_CurrentTrackIndex];
 }
 
-} /* namespace duke */
+LimitedTimelineIterator::LimitedTimelineIterator() :
+		m_Iterator(), m_IterationToEnd(0) {
+}
+
+LimitedTimelineIterator::LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t iterations) :
+		m_Iterator(pTimeline, pMediaRanges, currentFrame), m_IterationToEnd(iterations) {
+	if (m_IterationToEnd == 0)
+		clear();
+}
+
+void LimitedTimelineIterator::clear() {
+	m_Iterator.clear();
+}
+
+MediaFrameReference LimitedTimelineIterator::next() {
+	assert(m_IterationToEnd!=0);
+	MediaFrameReference mfr = m_Iterator.next();
+	if (--m_IterationToEnd == 0)
+		clear();
+	return mfr;
+}
+
+bool LimitedTimelineIterator::empty() {
+	return m_Iterator.empty();
+}
+
+size_t LimitedTimelineIterator::getCurrentFrame() const{
+	return m_Iterator.getCurrentFrame();
+}
+
+}
+/* namespace duke */

@@ -123,6 +123,7 @@ static const auto all = bvec4(false);
 
 void Duke::run() {
 	PackedFrame packedFrame;
+//	LoadedTextureCache loadedTextureCache;
 	Context context;
 	SharedMesh pSquare = getSquare();
 	context.renderTexture = [&](const ITexture &texture, const Attributes& attributes) {
@@ -142,21 +143,24 @@ void Duke::run() {
 		context.pan = m_pWindow->getRelativeMousePos();
 		context.zoom = 0;  //glfwGetScrollOffset();
 
+		const size_t frame = context.currentFrame.round();
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
 			if (track.disabled)
 				continue;
-			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
-			context.clipFrame = mfr.second;
-			const Clip* pClip = mfr.first;
-			if (!pClip)
+			const auto pTrackItr = track.clipContaining(frame);
+			if (pTrackItr == track.end())
 				continue;
-			const auto& pStream = pClip->pStream;
-			if (pStream) {
-				//const bool loaded =
-				m_Player.getImageCache().get(mfr, packedFrame);
+			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
+			if (mfr.first) {
+//				context.clipFrame = mfr.second;
+//				std::shared_ptr<TextureRectangle> pTexture = loadedTextureCache.get(mfr);
+//				if (!pTexture) {
+//					const bool loaded = m_Player.getImageCache().get(mfr, packedFrame);
+//
+//				}
 			}
-			const auto& pOverlay = pClip->pOverlay;
+			const auto& pOverlay = pTrackItr->second.pOverlay;
 			if (pOverlay)
 				pOverlay->render(context);
 		}
