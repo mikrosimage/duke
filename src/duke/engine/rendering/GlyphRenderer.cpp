@@ -12,7 +12,7 @@
 namespace duke {
 
 static const char * const pTextVertexShader =
-                R"(
+		R"(
 #version 330
 
 layout (location = 0) in vec3 Position;
@@ -74,7 +74,7 @@ void main() {
 })";
 
 static const char * const pTextFragmentShader =
-                R"(#version 330
+		R"(#version 330
 
 out vec4 vFragColor;
 uniform sampler2DRect rectangleImageSampler;
@@ -89,67 +89,67 @@ void main(void)
 })";
 
 GlyphRenderer::GlyphRenderer(const char *glyphsFilename) :
-                m_pMesh(getSquare()), //
-                m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
-                gTextureSampler(m_Program.getUniformLocation("rectangleImageSampler")), //
-                gViewport(m_Program.getUniformLocation("gViewport")), //
-                gImage(m_Program.getUniformLocation("gImage")), //
-                gPan(m_Program.getUniformLocation("gPan")), //
-                gChar(m_Program.getUniformLocation("gChar")), //
-                gZoom(m_Program.getUniformLocation("gZoom")), //
-                gAlpha(m_Program.getUniformLocation("gAlpha")) //
+		m_pMesh(getSquare()), //
+		m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
+		gTextureSampler(m_Program.getUniformLocation("rectangleImageSampler")), //
+		gViewport(m_Program.getUniformLocation("gViewport")), //
+		gImage(m_Program.getUniformLocation("gImage")), //
+		gPan(m_Program.getUniformLocation("gPan")), //
+		gChar(m_Program.getUniformLocation("gChar")), //
+		gZoom(m_Program.getUniformLocation("gZoom")), //
+		gAlpha(m_Program.getUniformLocation("gAlpha")) //
 {
-    std::string error;
-    if (!load(glyphsFilename, m_GlyphsTexture, m_Attributes, error))
-        throw std::runtime_error("unable to load glyphs texture");
+	std::string error;
+	if (!load(glyphsFilename, m_GlyphsTexture, m_Attributes, error))
+		throw std::runtime_error("unable to load glyphs texture");
 }
 
-Binder<TextureRectangle> GlyphRenderer::begin(const Viewport &viewport) const {
-    m_Program.use();
-    glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
-    glUniform1i(gTextureSampler, 0);
-    auto scopeBinded = scope_bind(m_GlyphsTexture);
-    glTexParameteri(TextureRectangle::TargetType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(TextureRectangle::TargetType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    setTextureDimensions(gImage, m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
-    return std::move(scopeBinded);
+GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const {
+	m_Program.use();
+	glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
+	glUniform1i(gTextureSampler, 0);
+	auto scopeBinded = m_GlyphsTexture.scope_bind_texture();
+	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	setTextureDimensions(gImage, m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
+	return std::move(scopeBinded);
 }
 
 void GlyphRenderer::setAlpha(float alpha) const {
-    glUniform1f(gAlpha, alpha);
+	glUniform1f(gAlpha, alpha);
 }
 
 void GlyphRenderer::setZoom(float zoom) const {
-    glUniform1f(gZoom, zoom);
+	glUniform1f(gZoom, zoom);
 }
 
 void GlyphRenderer::setPosition(int x, int y) const {
-    glUniform2i(gPan, x, y);
+	glUniform2i(gPan, x, y);
 }
 
 void GlyphRenderer::draw(const char glyph) const {
-    glUniform1i(gChar, glyph);
-    m_pMesh->draw();
+	glUniform1i(gChar, glyph);
+	m_pMesh->draw();
 }
 
 void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
-    if (pText == nullptr || *pText == '\0')
-        return;
-    const int xOrigin = x;
-    const auto bound = renderer.begin(viewport);
-    renderer.setAlpha(alpha);
-    renderer.setZoom(zoom);
-    for (; *pText != '\0'; ++pText) {
-        const char c = *pText;
-        if (c == '\n') {
-            x = xOrigin;
-            y += 8 * zoom;
-            continue;
-        }
-        renderer.setPosition(x, y);
-        renderer.draw(c);
-        x += 8 * zoom;
-    }
+	if (pText == nullptr || *pText == '\0')
+		return;
+	const int xOrigin = x;
+	const auto bound = renderer.begin(viewport);
+	renderer.setAlpha(alpha);
+	renderer.setZoom(zoom);
+	for (; *pText != '\0'; ++pText) {
+		const char c = *pText;
+		if (c == '\n') {
+			x = xOrigin;
+			y += 8 * zoom;
+			continue;
+		}
+		renderer.setPosition(x, y);
+		renderer.draw(c);
+		x += 8 * zoom;
+	}
 }
 
 } /* namespace duke */

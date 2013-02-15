@@ -9,7 +9,7 @@
 #define IMAGECACHE_H_
 
 #include <duke/NonCopyable.h>
-#include <duke/engine/imagecache/TimelineIterator.h>
+#include <duke/engine/cache/TimelineIterator.h>
 #include <duke/engine/Timeline.h>
 #include <duke/imageio/PackedFrame.h>
 #include <concurrent/cache/lookahead_cache.hpp>
@@ -18,8 +18,7 @@
 
 namespace duke {
 
-class ImageCache: public noncopyable {
-public:
+struct ImageCache: public noncopyable {
 	ImageCache();
 	~ImageCache();
 

@@ -53,7 +53,7 @@ static ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
 }
 
-void render(const Mesh *pMesh, const ITexture& texture, const Attributes &attributes, const Context &context) {
+void render(const Mesh *pMesh, const Texture& texture, const Attributes &attributes, const Context &context) {
 	const auto &description = texture.description;
 	bool redBlueSwapped = description.swapRedAndBlue;
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
@@ -65,7 +65,7 @@ void render(const Mesh *pMesh, const ITexture& texture, const Attributes &attrib
 	const auto pProgram = gProgramPool.get(shaderDesc);
 	pProgram->use();
 	setTextureDimensions(pProgram->getUniformLocation("gImage"), description.width, description.height, attributes.getOrientation());
-	const auto scopeBind = scope_bind(texture);
+	const auto scopeBind = texture.scope_bind_texture();
 	glUniform2i(pProgram->getUniformLocation("gViewport"), context.viewport.dimension.x, context.viewport.dimension.y);
 	glUniform1i(pProgram->getUniformLocation("gTextureSampler"), 0);
 	glUniform2i(pProgram->getUniformLocation("gPan"), context.pan.x, context.pan.y);

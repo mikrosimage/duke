@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/engine/imagecache/TimelineIterator.h>
+#include <duke/engine/cache/TimelineIterator.h>
 #include <duke/engine/Timeline.h>
 #include <duke/engine/streams/IMediaStream.h>
 
@@ -101,29 +101,29 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 	}
 }
 
-TEST(LimitedTimelineIterator, limitedToZero) {
-	Timeline timeline = { Track() };
-	Track &track = timeline.back();
-	track.add(0, Clip { 1, pStream });
-	const Ranges mediaRanges = getMediaRanges(timeline);
-	EXPECT_FALSE(mediaRanges.empty());
-	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 0);
-	EXPECT_TRUE(itr.empty());
-}
-
-TEST(LimitedTimelineIterator, limitedToOne) {
-	Timeline timeline = { Track() };
-	Track &track = timeline.back();
-	track.add(0, Clip { 10, pStream });
-	const Ranges mediaRanges = getMediaRanges(timeline);
-	EXPECT_FALSE(mediaRanges.empty());
-	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 2);
-	EXPECT_FALSE(itr.empty());
-	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
-	EXPECT_FALSE(itr.empty());
-	EXPECT_EQ(MediaFrameReference(pStream.get(),1), itr.next());
-	EXPECT_TRUE(itr.empty());
-}
+//TEST(LimitedTimelineIterator, limitedToZero) {
+//	Timeline timeline = { Track() };
+//	Track &track = timeline.back();
+//	track.add(0, Clip { 1, pStream });
+//	const Ranges mediaRanges = getMediaRanges(timeline);
+//	EXPECT_FALSE(mediaRanges.empty());
+//	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 0);
+//	EXPECT_TRUE(itr.empty());
+//}
+//
+//TEST(LimitedTimelineIterator, limitedToOne) {
+//	Timeline timeline = { Track() };
+//	Track &track = timeline.back();
+//	track.add(0, Clip { 10, pStream });
+//	const Ranges mediaRanges = getMediaRanges(timeline);
+//	EXPECT_FALSE(mediaRanges.empty());
+//	LimitedTimelineIterator itr(&timeline, &mediaRanges, 0, 2);
+//	EXPECT_FALSE(itr.empty());
+//	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
+//	EXPECT_FALSE(itr.empty());
+//	EXPECT_EQ(MediaFrameReference(pStream.get(),1), itr.next());
+//	EXPECT_TRUE(itr.empty());
+//}
 
 TEST(TimelineMediaRange, empty) {
 	EXPECT_TRUE(getMediaRanges(Timeline()).empty());

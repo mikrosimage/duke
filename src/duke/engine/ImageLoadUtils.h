@@ -22,8 +22,8 @@ typedef std::function<void(PackedFrame&& packedFrame, const void* pVolatileData)
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
 
-class ITexture;
-bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error);
+class Texture;
+bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error);
 
 } /* namespace duke */
 

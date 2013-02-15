@@ -8,7 +8,7 @@
 #ifndef MESH_HPP_
 #define MESH_HPP_
 
-#include <duke/gl/Buffers.h>
+#include <duke/gl/GlObjects.h>
 #include <duke/gl/GLUtils.h>
 
 #include <glm/glm.hpp>
@@ -40,8 +40,8 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t vertexCount;
-	const duke::Vao vao;
-	const duke::StaticVbo vbo;
+	const duke::gl::GlVertexArrayObject vao;
+	const duke::gl::GlStaticVbo vbo;
 };
 
 class IndexedMesh: public Mesh {
@@ -51,7 +51,7 @@ protected:
 	virtual void callDraw() const;
 private:
 	const size_t indexCount;
-	const duke::StaticIndexedVbo ivbo;
+	const duke::gl::GlStaticIndexedVbo ivbo;
 };
 
 typedef std::shared_ptr<Mesh> SharedMesh;

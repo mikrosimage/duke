@@ -70,14 +70,14 @@ bool load(const char* pFilename, const char* pExtension, const LoadCallback& cal
 	return false;
 }
 
-bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error) {
+bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error) {
 	const char* pExtension = fileExtension(pFilename);
 	if (!pExtension)
 		return "no extension for file";
 	const LoadCallback fCallback = [&](PackedFrame&& packedFrame, const void* pVolatileData) {
 		attributes= std::move(packedFrame.attributes);
 		attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
-		const auto bound = scope_bind(texture);
+		const auto bound = texture.scope_bind_texture();
 		texture.initialize(packedFrame.description,pVolatileData);
 	};
 	return load(pFilename, pExtension, fCallback, error);

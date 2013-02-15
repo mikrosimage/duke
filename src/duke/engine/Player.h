@@ -1,7 +1,7 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
-#include <duke/engine/imagecache/ImageCache.h>
+#include <duke/engine/cache/LoadedTextureCache.h>
 #include <duke/engine/Timeline.h>
 #include <duke/time/FrameUtils.h>
 #include <duke/NonCopyable.h>
@@ -34,12 +34,10 @@ struct Player: public noncopyable {
 
 	// subobjects
 	const Timeline& getTimeline() const;
-	const ImageCache& getImageCache() const;
+	LoadedTextureCache& getTextureCache();
 
 private:
-	friend class Duke;
-	Timeline m_Timeline;
-	ImageCache m_ImageCache;
+	LoadedTextureCache m_TextureCache;
 	Range m_TimelineRange = Range::EMPTY;
 	Time m_FirstFrameTime;
 	Time m_LastFrameTime;

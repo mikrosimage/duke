@@ -123,10 +123,11 @@ static const auto all = bvec4(false);
 
 void Duke::run() {
 	PackedFrame packedFrame;
+	PboCache pboCache;
 //	LoadedTextureCache loadedTextureCache;
 	Context context;
 	SharedMesh pSquare = getSquare();
-	context.renderTexture = [&](const ITexture &texture, const Attributes& attributes) {
+	context.renderTexture = [&](const Texture &texture, const Attributes& attributes) {
 		render(pSquare.get(), texture, attributes, context);
 	};
 	Metronom metronom(100);
@@ -144,6 +145,10 @@ void Duke::run() {
 		context.zoom = 0;  //glfwGetScrollOffset();
 
 		const size_t frame = context.currentFrame.round();
+
+		m_Player.getTextureCache().prepare(frame);
+
+
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
 			if (track.disabled)
@@ -209,7 +214,7 @@ void Duke::run() {
 				context.exposure /= 1.2;
 				break;
 			case 'o': {
-				auto pTrack = m_Player.m_Timeline.findTrack(pMetadataTrack);
+				auto pTrack = m_Player.getTimeline().findTrack(pMetadataTrack);
 				if (pTrack) {
 					bool &disabled = pTrack->disabled;
 					disabled = !disabled;

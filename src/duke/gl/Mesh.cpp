@@ -32,9 +32,9 @@ namespace duke {
 
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
 		primitiveType(checkType(primitiveType)), vertexCount(vertexCount), vao(), vbo() {
-	const auto vaoBinder = scope_bind(vao);
-	const auto vboBinder = scope_bind(vbo);
-	vbo.bufferData(vertexCount * sizeof(VertexPosUv0), pVBegin);
+	auto vaoBound = vao.scope_bind();
+	auto vboBound = vbo.scope_bind_buffer();
+	glBufferData(vbo.target, vertexCount * sizeof(VertexPosUv0), pVBegin, vbo.usage);
 	glCheckError();
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPosUv0), 0);
 	glEnableVertexAttribArray(0);
@@ -47,7 +47,7 @@ Mesh::~Mesh() {
 }
 
 void Mesh::draw() const {
-	const auto vaoBinder = scope_bind(vao);
+	auto vaoBound = vao.scope_bind();
 	glCheckError();
 	callDraw();
 	glCheckError();
@@ -59,13 +59,13 @@ void Mesh::callDraw() const {
 
 IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount) :
 		Mesh(primitiveType, pVBegin, vertexCount), indexCount(indexCount), ivbo() {
-	const auto ivboBinder = scope_bind(ivbo);
-	ivbo.bufferData(indexCount * sizeof(GLuint), pIBegin);
+	auto ivboBound = ivbo.scope_bind_buffer();
+	glBufferData(ivbo.target, indexCount * sizeof(GLuint), pIBegin, ivbo.usage);
 	glCheckError();
 }
 
 void IndexedMesh::callDraw() const {
-	const auto iboBinder = scope_bind(ivbo);
+	auto ivboBound = ivbo.scope_bind_buffer();
 	glDrawElements(primitiveType, indexCount, GL_UNSIGNED_INT, 0);
 }
 

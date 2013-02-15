@@ -19,9 +19,9 @@ include_directories(SYSTEM dependencies/glfw/include)
 include_directories(SYSTEM dependencies/glm)
 include_directories(src)
 
-# c++11 / no-rtti
+# c++11
 if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -O3")
 endif()
 
 # duke

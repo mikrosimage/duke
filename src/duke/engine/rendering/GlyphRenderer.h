@@ -19,8 +19,9 @@ namespace duke {
 struct Viewport;
 
 struct GlyphRenderer : public noncopyable {
+	typedef gl::Binder<gl::GlTextureObject> GlyphBinder;
     GlyphRenderer(const char *glyphsFilename = ".duke_ascii_font");
-    Binder<TextureRectangle> begin(const Viewport &viewport) const;
+    GlyphBinder begin(const Viewport &viewport) const;
     void setAlpha(float alpha) const;
     void setZoom(float zoom) const;
     void setPosition(int x, int y) const;
@@ -36,8 +37,9 @@ private:
     const GLuint gZoom;
     const GLuint gAlpha;
     Attributes m_Attributes;
-    TextureRectangle m_GlyphsTexture;
-    std::unique_ptr<Binder<TextureRectangle>> m_pTextureBind;
+    Texture m_GlyphsTexture;
+
+    GlyphBinder m_pTextureBind;
 };
 
 void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1);

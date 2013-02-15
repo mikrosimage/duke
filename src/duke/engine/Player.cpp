@@ -10,17 +10,17 @@
 namespace duke {
 
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
-	m_ImageCache.load(timeline);
-	m_Timeline = timeline;
+	m_TextureCache.load(timeline);
 	m_TimelineRange = timeline.getRange();
-	if (m_TimelineRange == Range::EMPTY) {
+	const bool empty = m_TimelineRange == Range::EMPTY;
+	if (empty) {
 		m_FirstFrameTime = m_LastFrameTime = 0;
 	} else {
 		m_FirstFrameTime = frameToTime(m_TimelineRange.first, getFrameDuration());
 		m_LastFrameTime = frameToTime(m_TimelineRange.last, getFrameDuration());
 	}
 	m_FrameDuration = duration;
-	cue(m_Timeline.empty() ? 0 : m_Timeline.getRange().first);
+	cue(empty ? 0 : m_TimelineRange.first);
 }
 
 void Player::setPlaybackTime(const Time time) {
@@ -95,11 +95,11 @@ Player::Mode Player::getPlaybackMode() const {
 }
 
 const Timeline& Player::getTimeline() const {
-	return m_Timeline;
+	return m_TextureCache.getTimeline();
 }
 
-const ImageCache& Player::getImageCache() const {
-	return m_ImageCache;
+LoadedTextureCache& Player::getTextureCache() {
+	return m_TextureCache;
 }
 
 }  // namespace duke

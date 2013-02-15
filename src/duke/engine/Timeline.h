@@ -64,7 +64,7 @@ struct Track: public std::map<size_t, Clip> {
 	Ranges getClipsRange() const;
 	Range getRange() const;
 
-	bool disabled = false;
+	mutable bool disabled = false;
 	std::string name;
 };
 
@@ -76,7 +76,7 @@ struct Timeline: public std::vector<Track> {
 	Timeline() = default;
 	Timeline(std::initializer_list<value_type> initializers) : std::vector<Track>(initializers) {}
 
-	Track* findTrack(const char* pName);
+	const Track* findTrack(const char* pName) const;
 
 	void populateMediaAt(size_t frame, std::vector<MediaFrameReference> &frames) const;
 	Range getRange() const;

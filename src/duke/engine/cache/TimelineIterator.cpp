@@ -85,7 +85,7 @@ MediaFrameReference TimelineIterator::next() {
 	return reference;
 }
 
-size_t TimelineIterator::getCurrentFrame() const{
+size_t TimelineIterator::getCurrentFrame() const {
 	return m_CurrentFrame;
 }
 
@@ -93,11 +93,15 @@ void TimelineIterator::stepUntilValidOrExhausted() {
 	assert(!empty());
 	do {
 		stepForward();
-		if (m_CurrentFrame == m_EndFrame && m_CurrentTrackIndex == 0) {
+		if (finished()) {
 			clear();
 			return;
 		}
 	} while (!valid());
+}
+
+bool TimelineIterator::finished() const {
+	return m_CurrentFrame == m_EndFrame && m_CurrentTrackIndex == 0;
 }
 
 void TimelineIterator::regularizeCurrentFrame() {
@@ -132,35 +136,45 @@ const Track& TimelineIterator::getCurrentTrack() const {
 	return (*m_pTimeline)[m_CurrentTrackIndex];
 }
 
-LimitedTimelineIterator::LimitedTimelineIterator() :
-		m_Iterator(), m_IterationToEnd(0) {
-}
-
-LimitedTimelineIterator::LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t iterations) :
-		m_Iterator(pTimeline, pMediaRanges, currentFrame), m_IterationToEnd(iterations) {
-	if (m_IterationToEnd == 0)
-		clear();
-}
-
-void LimitedTimelineIterator::clear() {
-	m_Iterator.clear();
-}
-
-MediaFrameReference LimitedTimelineIterator::next() {
-	assert(m_IterationToEnd!=0);
-	MediaFrameReference mfr = m_Iterator.next();
-	if (--m_IterationToEnd == 0)
-		clear();
-	return mfr;
-}
-
-bool LimitedTimelineIterator::empty() {
-	return m_Iterator.empty();
-}
-
-size_t LimitedTimelineIterator::getCurrentFrame() const{
-	return m_Iterator.getCurrentFrame();
-}
+//LimitedTimelineIterator::LimitedTimelineIterator() :
+//		m_Iterator(), m_LastFrame(0), m_FrameToGo(0) {
+//}
+//
+//LimitedTimelineIterator::LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t framesToGo) :
+//		m_Iterator(pTimeline, pMediaRanges, currentFrame), m_LastFrame(currentFrame), m_FrameToGo(framesToGo) {
+//	if (stop())
+//		clear();
+//}
+//
+//bool LimitedTimelineIterator::stop() const {
+//	return m_FrameToGo == 0;
+//}
+//
+//void LimitedTimelineIterator::clear() {
+//	m_Iterator.clear();
+//}
+//
+//MediaFrameReference LimitedTimelineIterator::next() {
+//	assert(m_FrameToGo != 0);
+//	printf("calling next will serve frame %lu", getCurrentFrame());
+//	MediaFrameReference mfr = m_Iterator.next();
+//	printf(", stream %p, frame within %lu\n", mfr.first, mfr.second);
+//	if (getCurrentFrame() != m_LastFrame) {
+//		--m_FrameToGo;
+//		m_LastFrame = getCurrentFrame();
+//	}
+//	if (stop())
+//		clear();
+//	return mfr;
+//}
+//
+//bool LimitedTimelineIterator::empty() {
+//	return m_Iterator.empty();
+//}
+//
+//size_t LimitedTimelineIterator::getCurrentFrame() const {
+//	return m_Iterator.getCurrentFrame();
+//}
 
 }
 /* namespace duke */
