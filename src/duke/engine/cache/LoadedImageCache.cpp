@@ -113,6 +113,9 @@ std::string& LoadedImageCache::workerStep(MediaFrameReference &mfr, std::string&
 			memcpy(packedFrame.pData.get(), pVolatileData, dataSize);
 		}
 		packedFrame.attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
+		auto lastSlashIndex = path.rfind('/');
+		const char* pFilename = lastSlashIndex!=std::string::npos ? path.c_str()+lastSlashIndex+1 : path.c_str();
+		packedFrame.attributes.emplace_back(attribute::pDukeFileNameKey,pFilename);
 		m_Cache.push(mfr, dataSize, std::move(packedFrame));
 	}, error);
 	return error;

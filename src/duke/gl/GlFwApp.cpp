@@ -16,7 +16,9 @@
 namespace duke {
 
 static void onGlfwError(int, const char* pMessage) {
+#ifndef NDEBUG
 	printf("An error occurred within Glfw : %s\n", pMessage);
+#endif
 }
 
 static std::map<GLFWwindow*, DukeGLFWWindow*> g_GlfwToDukeWindowMap;

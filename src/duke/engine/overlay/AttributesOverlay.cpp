@@ -21,7 +21,7 @@ void AttributesOverlay::render(const Context &context) const {
 		return;
 	std::ostringstream oss;
 	oss << *context.pCurrentAttributes;
-	drawText(*m_pGlyphRenderer, context.viewport, oss.str().c_str(), 100, 100, 1, 2);
+	drawText(*m_pGlyphRenderer, context.viewport, oss.str().c_str(), 50, 50, 1, 2);
 }
 
 } /* namespace duke */

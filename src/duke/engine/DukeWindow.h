@@ -32,11 +32,16 @@ struct DukeWindow: public DukeGLFWWindow {
 	void onWindowResize(int width, int height);
 	void onMouseMove(int x, int y);
 	void onMouseClick(int buttonId, int buttonState);
+	void onScroll(double x, double y);
+
+	void setScroll(glm::vec2 scroll);
+	void setPan(glm::ivec2 pan);
 
 	// getter
 	const Viewport useViewport(bool north, bool south, bool east, bool west) const;
-	glm::ivec2 getRelativeMousePos();
-	glm::ivec2 getWindowMousePos() const;
+	glm::vec2 getScrollPos() const;
+	glm::ivec2 getPanPos() const;
+	glm::ivec2 getRelativeMousePos() const;
 	glm::ivec2 getViewportMousePos(const Viewport& viewport) const;
 	std::vector<int>& getPendingKeys();
 
@@ -47,9 +52,11 @@ struct DukeWindow: public DukeGLFWWindow {
 	void glfwSwapBuffers();
 private:
 	bool m_LeftButton;
-	glm::ivec2 m_LeftDragOrigin;
 	glm::ivec2 m_MousePos;
+	glm::ivec2 m_MouseDragStartPos;
+	glm::ivec2 m_Pan;
 	glm::ivec2 m_Dimension;
+	glm::vec2 m_Scroll;
 	std::vector<int> m_AllKeyStrokes;
 };
 

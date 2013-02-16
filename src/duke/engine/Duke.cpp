@@ -56,6 +56,8 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 				const auto type = item.getType();
 				if (type == Item::INVALID)
 					throw commandline_error("invalid item");
+				if (!item.filename.empty() && item.filename[0] == '.')
+					continue;
 				item.filename = absolutePath + '/' + item.filename;
 				switch (type) {
 				case Item::SINGLE:
@@ -138,8 +140,8 @@ void Duke::run() {
 		context.viewport = m_pWindow->useViewport(false, false, false, false);
 		context.currentFrame = m_Player.getCurrentFrame();
 		context.playbackTime = m_Player.getPlaybackTime();
-		context.pan = m_pWindow->getRelativeMousePos();
-		context.zoom = 0;  //glfwGetScrollOffset();
+		context.pan = m_pWindow->getPanPos();
+		context.zoom = m_pWindow->getScrollPos().y;
 
 		const size_t frame = context.currentFrame.round();
 
@@ -191,6 +193,12 @@ void Duke::run() {
 				m_Player.setPlaybackSpeed(1);
 				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
 				m_Player.setPlaybackSpeed(0);
+				break;
+			case 'p':
+				m_pWindow->setPan(glm::ivec2());
+				break;
+			case 'z':
+				m_pWindow->setScroll(glm::vec2());
 				break;
 			case 'r':
 				context.channels = context.channels == r ? all : r;

@@ -21,6 +21,7 @@ DukeWindow::DukeWindow(GLFWwindow *pWindow) :
 		DukeGLFWWindow(pWindow), m_LeftButton(false) {
 	mouseButtonCallback = bind(&DukeWindow::onMouseClick, this, placeholders::_1, placeholders::_2);
 	mousePosCallback = bind(&DukeWindow::onMouseMove, this, placeholders::_1, placeholders::_2);
+	scrollCallback = bind(&DukeWindow::onScroll, this, placeholders::_1, placeholders::_2);
 	windowResizeCallback = bind(&DukeWindow::onWindowResize, this, placeholders::_1, placeholders::_2);
 	charCallback = bind(&DukeWindow::onKeyPressed, this, placeholders::_1);
 }
@@ -32,8 +33,24 @@ void DukeWindow::onWindowResize(int width, int height) {
 }
 
 void DukeWindow::onMouseMove(int x, int y) {
+	auto previousPos = m_MousePos;
 	m_MousePos.x = x;
 	m_MousePos.y = m_Dimension.y - y;
+	if (m_LeftButton)
+		m_Pan += m_MousePos - previousPos;
+}
+
+void DukeWindow::onScroll(double x, double y) {
+	m_Scroll.x += x;
+	m_Scroll.y += y;
+}
+
+void DukeWindow::setScroll(glm::vec2 scroll) {
+	m_Scroll = scroll;
+}
+
+void DukeWindow::setPan(glm::ivec2 pan) {
+	m_Pan = pan;
 }
 
 void DukeWindow::onMouseClick(int buttonId, int buttonState) {
@@ -41,11 +58,12 @@ void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 		switch (buttonState) {
 		case GLFW_PRESS:
 			m_LeftButton = true;
-			m_LeftDragOrigin = m_MousePos;
+			m_MouseDragStartPos = m_MousePos;
 			break;
 		case GLFW_RELEASE:
 			m_LeftButton = false;
-			m_LeftDragOrigin = glm::ivec2(0);
+//			m_Pan += m_MouseDragStartPos - m_MousePos;
+			m_MouseDragStartPos.x = m_MouseDragStartPos.y = 0;
 			break;
 		}
 }
@@ -70,18 +88,20 @@ vector<int>& DukeWindow::getPendingKeys() {
 	return m_AllKeyStrokes;
 }
 
-glm::ivec2 DukeWindow::getRelativeMousePos() {
-	if (m_LeftButton)
-		return m_MousePos - m_LeftDragOrigin;
-	return glm::ivec2(0);
-}
-
-glm::ivec2 DukeWindow::getWindowMousePos() const {
+glm::ivec2 DukeWindow::getRelativeMousePos() const {
 	return m_MousePos;
 }
 
 glm::ivec2 DukeWindow::getViewportMousePos(const Viewport& viewport) const {
 	return m_MousePos - viewport.offset;
+}
+
+glm::ivec2 DukeWindow::getPanPos() const {
+	return m_Pan;
+}
+
+glm::vec2 DukeWindow::getScrollPos() const {
+	return m_Scroll;
 }
 
 int DukeWindow::glfwGetKey(int key) {
