@@ -15,10 +15,6 @@ namespace gl {
 GlObject::GlObject(GLuint id) :
 		id(id) {
 }
-void GlObject::boundDo(const std::function<void()> &func) const {
-	auto bound = scope_bind();
-	func();
-}
 
 inline static GLuint allocateVertexArrayObject() {
 	GLuint id;
@@ -57,10 +53,6 @@ void GlTextureObject::bind() const {
 void GlTextureObject::unbind() const {
 	glBindTexture(target, 0);
 }
-void GlTextureObject::boundDo(const std::function<void(const GLenum target)> &func) const {
-	auto bound = scope_bind_texture();
-	func(target);
-}
 
 GlTexture2D::GlTexture2D() :
 		GlTextureObject(GL_TEXTURE_2D) {
@@ -87,10 +79,6 @@ void GlBufferObject::bind() const {
 }
 void GlBufferObject::unbind() const {
 	glBindBuffer(target, 0);
-}
-void GlBufferObject::boundDo(const std::function<void(const GLenum target, const GLenum usage)> &func) const {
-	auto bound = scope_bind_buffer();
-	func(target, usage);
 }
 
 GlStaticVbo::GlStaticVbo() :

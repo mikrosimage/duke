@@ -9,7 +9,7 @@
 #define TEXTURES_H_
 
 #include <duke/gl/GlObjects.h>
-#include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/PackedFrameDescription.h>
 
 namespace duke {
 

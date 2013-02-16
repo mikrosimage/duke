@@ -9,7 +9,7 @@
 #include <duke/imageio/DukeIO.h>
 #include <duke/attributes/Attributes.h>
 #include <duke/attributes/AttributeKeys.h>
-#include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/PackedFrameDescription.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
 #include <duke/filesystem/FsUtils.h>
@@ -26,7 +26,7 @@ static std::string loadImage(IImageReader *pRawReader, const LoadCallback& callb
 		return "bad state : IImageReader==nullptr";
 	if (pReader->hasError())
 		return pReader->getError();
-	PackedFrame packedFrame = pReader->getPackedFrame();
+	RawPackedFrame packedFrame = pReader->getPackedFrame();
 	const void* pMapped = pReader->getMappedImageData();
 	if (pMapped == nullptr) {
 		packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
@@ -74,7 +74,7 @@ bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::
 	const char* pExtension = fileExtension(pFilename);
 	if (!pExtension)
 		return "no extension for file";
-	const LoadCallback fCallback = [&](PackedFrame&& packedFrame, const void* pVolatileData) {
+	const LoadCallback fCallback = [&](RawPackedFrame&& packedFrame, const void* pVolatileData) {
 		attributes= std::move(packedFrame.attributes);
 		attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
 		const auto bound = texture.scope_bind_texture();

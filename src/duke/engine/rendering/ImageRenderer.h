@@ -8,15 +8,13 @@
 #ifndef IMAGERENDERE_H_
 #define IMAGERENDERE_H_
 
-struct Attributes;
-
 namespace duke {
 
-class Texture;
+class PackedFrameDescriptionAndAttributes;
 class Mesh;
 struct Context;
 
-void render(const Mesh *pMesh,const Texture& texture, const Attributes &attributes, const Context &context);
+void renderWithBoundTexture(const Mesh *pMesh,const PackedFrameDescriptionAndAttributes& descriptionAndAttributes, const Context &context);
 
 } /* namespace duke */
 #endif /* IMAGERENDERE_H_ */

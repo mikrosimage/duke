@@ -8,7 +8,11 @@
 
 namespace duke {
 
+struct CmdLineParameters;
+
 struct Player: public noncopyable {
+	Player(const CmdLineParameters &parameters);
+
 	enum Mode {
 		CONTINUE, LOOP, STOP
 	};

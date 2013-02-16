@@ -12,6 +12,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 const char* getInternalFormatString(GLint internalFormat) {
 	switch (internalFormat) {
@@ -257,23 +258,40 @@ const char* getPixelTypeString(unsigned int pixelType) {
 	return "Unknown";
 }
 
-void glCheckError() {
-	switch (glGetError()) {
+static const char* getErrorString(unsigned error) {
+	switch (error) {
 	case GL_INVALID_ENUM:
-		throw std::runtime_error("OpenGL : Invalid enum");
+		return "Invalid enum";
 	case GL_INVALID_VALUE:
-		throw std::runtime_error("OpenGL : Invalid value");
+		return "Invalid value";
 	case GL_INVALID_OPERATION:
-		throw std::runtime_error("OpenGL : Invalid operation");
+		return "Invalid operation";
 	case GL_INVALID_FRAMEBUFFER_OPERATION:
-		throw std::runtime_error("OpenGL : Invalid framebuffer operation");
+		return "Invalid framebuffer operation";
 	case GL_OUT_OF_MEMORY:
-		throw std::runtime_error("OpenGL : Out of memory");
+		return "Out of memory";
 		//case GL_STACK_UNDERFLOW:
 		//	throw std::runtime_error("OpenGL : Stack underflow");
 		//case GL_STACK_OVERFLOW:
 		//	throw std::runtime_error("OpenGL : Stack overflow");
 	}
+	return "Unknown error";
+}
+
+void glCheckError() {
+#ifndef NDEBUG
+	std::vector<unsigned> errors;
+	unsigned error = GL_NO_ERROR;
+	for (; (error = glGetError()) != GL_NO_ERROR;)
+		errors.push_back(error);
+	if (errors.empty())
+		return;
+	std::ostringstream oss;
+	oss << "OpenGL errors :\n";
+	for (const unsigned error : errors)
+		oss << " - " << getErrorString(error) << '\n';
+	throw std::runtime_error(oss.str());
+#endif
 }
 
 static GLuint getBindParameter(GLuint targetType) {

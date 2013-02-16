@@ -5,7 +5,8 @@
  *      Author: Guillaume Chatelet
  */
 
-#include "ImageCache.h"
+#include "LoadedImageCache.h"
+#include <duke/attributes/AttributeKeys.h>
 #include <duke/engine/streams/IMediaStream.h>
 #include <duke/engine/ImageLoadUtils.h>
 #include <duke/memory/Allocator.h>
@@ -13,15 +14,15 @@
 
 namespace duke {
 
-ImageCache::ImageCache() :
-		m_Cache(500 * 1024 * 1024), m_WorkerCount(1) {
+LoadedImageCache::LoadedImageCache(unsigned workerThreadDefault, size_t maxSizeDefault) :
+		m_Cache(maxSizeDefault), m_WorkerCount(workerThreadDefault) {
 }
 
-ImageCache::~ImageCache() {
+LoadedImageCache::~LoadedImageCache() {
 	stopWorkers();
 }
 
-void ImageCache::setWorkerCount(size_t workerCount) {
+void LoadedImageCache::setWorkerCount(size_t workerCount) {
 	if (workerCount == m_WorkerCount)
 		return;
 	stopWorkers();
@@ -29,44 +30,48 @@ void ImageCache::setWorkerCount(size_t workerCount) {
 	startWorkers();
 }
 
-void ImageCache::load(const Timeline& timeline) {
+void LoadedImageCache::load(const Timeline& timeline) {
 	stopWorkers();
 	m_Timeline = timeline;
 	m_MediaRanges = getMediaRanges(m_Timeline);
 	if (m_MediaRanges.empty())
 		return;
 	startWorkers();
-	m_Cache.process(TimelineIterator(&m_Timeline, &m_MediaRanges, m_MediaRanges.begin()->first));
+	cue(m_MediaRanges.begin()->first);
 }
 
-void ImageCache::terminate() {
+void LoadedImageCache::cue(size_t frame) {
+	m_Cache.process(TimelineIterator(&m_Timeline, &m_MediaRanges, frame));
+}
+
+void LoadedImageCache::terminate() {
 	stopWorkers();
 }
 
-bool ImageCache::get(const MediaFrameReference &id, PackedFrame &data) const {
+bool LoadedImageCache::get(const MediaFrameReference &id, RawPackedFrame &data) const {
 	return m_Cache.get(id, data);
 }
 
-size_t ImageCache::getWorkerCount() const {
+size_t LoadedImageCache::getWorkerCount() const {
 	return m_WorkerCount;
 }
 
-void ImageCache::startWorkers() {
+void LoadedImageCache::startWorkers() {
 	if (!m_WorkerThreads.empty())
 		throw std::logic_error("You must stop workers thread before calling startWorkers");
 	m_Cache.terminate(false);
 	for (size_t i = 0; i < m_WorkerCount; ++i)
-		m_WorkerThreads.emplace_back(&ImageCache::workerFunction, this);
+		m_WorkerThreads.emplace_back(&LoadedImageCache::workerFunction, this);
 }
 
-void ImageCache::stopWorkers() {
+void LoadedImageCache::stopWorkers() {
 	m_Cache.terminate(true);
 	for (std::thread &thread : m_WorkerThreads)
 		thread.join();
 	m_WorkerThreads.clear();
 }
 
-void ImageCache::workerFunction() {
+void LoadedImageCache::workerFunction() {
 	MediaFrameReference mfr;
 	std::string path;
 	std::string error;
@@ -75,9 +80,9 @@ void ImageCache::workerFunction() {
 			workerStep(mfr, path, error);
 			if (!error.empty()) {
 				printf("error while reading %s : %s\n", path.c_str(), error.c_str());
-				m_Cache.push(mfr, 1UL, PackedFrame());
+				m_Cache.push(mfr, 1UL, RawPackedFrame());
 			} else {
-				printf("successfully loaded %s\n", path.c_str());
+//				printf("successfully loaded %s\n", path.c_str());
 			}
 		}
 	} catch (concurrent::terminated&) {
@@ -86,9 +91,10 @@ void ImageCache::workerFunction() {
 	}
 }
 
-static AlignedMalloc gAllocator; //FIXME this global allocator will suffer from congestion, use per thread allocators
+static AlignedMalloc gAlignedMallocator;
+static BigAlignedBlock gBigAlignedMallocator;
 
-std::string& ImageCache::workerStep(MediaFrameReference &mfr, std::string& path, std::string& error) {
+std::string& LoadedImageCache::workerStep(MediaFrameReference &mfr, std::string& path, std::string& error) {
 	error.clear();
 	m_Cache.pop(mfr);
 	const IMediaStream *pStream = mfr.first;
@@ -100,12 +106,13 @@ std::string& ImageCache::workerStep(MediaFrameReference &mfr, std::string& path,
 	const char* pExtension = fileExtension(path.c_str());
 	if (!pExtension)
 		return error = "stream has no extension";
-	duke::load(path.c_str(), pExtension, [&](PackedFrame&& packedFrame, const void* pVolatileData) {
+	duke::load(path.c_str(), pExtension, [&](RawPackedFrame&& packedFrame, const void* pVolatileData) {
 		const size_t dataSize = packedFrame.description.dataSize;
 		if(!packedFrame.pData) {
-			packedFrame.pData = make_shared_memory<char>(dataSize, gAllocator);
+			packedFrame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
 			memcpy(packedFrame.pData.get(), pVolatileData, dataSize);
 		}
+		packedFrame.attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
 		m_Cache.push(mfr, dataSize, std::move(packedFrame));
 	}, error);
 	return error;

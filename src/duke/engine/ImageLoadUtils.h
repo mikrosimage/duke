@@ -16,9 +16,9 @@ struct Attributes;
 
 namespace duke {
 
-struct PackedFrame;
+struct RawPackedFrame;
 
-typedef std::function<void(PackedFrame&& packedFrame, const void* pVolatileData)> LoadCallback;
+typedef std::function<void(RawPackedFrame&& packedFrame, const void* pVolatileData)> LoadCallback;
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
 

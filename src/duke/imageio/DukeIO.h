@@ -8,7 +8,7 @@
 #ifndef DUKEIO_H_
 #define DUKEIO_H_
 
-#include <duke/imageio/PackedFrame.h>
+#include <duke/imageio/RawPackedFrame.h>
 #include <duke/NonCopyable.h>
 
 #include <cstddef>
@@ -21,7 +21,7 @@ class IIODescriptor;
 
 class IImageReader: public noncopyable {
 private:
-	PackedFrame m_PackedFrame;
+	RawPackedFrame m_PackedFrame;
 protected:
 	const IIODescriptor * const m_pDescriptor;
 	PackedFrameDescription &m_Description;
@@ -39,7 +39,7 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline const PackedFrame& getPackedFrame() const {
+	inline const RawPackedFrame& getPackedFrame() const {
 		return m_PackedFrame;
 	}
 	inline const IIODescriptor * getDescriptor() const {

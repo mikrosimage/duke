@@ -9,6 +9,7 @@
 #define PACKEDFRAMEESCRIPTION_H_
 
 #include <cstddef>
+#include <tuple>
 
 struct PackedFrameDescription {
 	size_t width, height;
@@ -19,13 +20,12 @@ struct PackedFrameDescription {
 	PackedFrameDescription() :
 			width(0), height(0), glPackFormat(0), dataSize(0), swapEndianness(false), swapRedAndBlue(false) {
 	}
+	const std::tuple<size_t, size_t, size_t, size_t> asTuple() const {
+		return std::make_tuple(width, height, glPackFormat, dataSize);
+	}
+
 	bool operator<(const PackedFrameDescription &other) const {
-		return width < other.width && //
-				height < other.height && //
-				glPackFormat < other.glPackFormat && //
-				dataSize < other.dataSize && //
-				swapEndianness < other.swapEndianness && //
-				swapRedAndBlue < other.swapRedAndBlue;
+		return asTuple() < other.asTuple();
 	}
 };
 

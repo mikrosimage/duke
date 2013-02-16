@@ -122,7 +122,6 @@ std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	appendSwizzle(oss, description);
 	appendSampler(oss, description);
 	oss << pMain;
-	printf("Dumping shader:\n%s\n", oss.str().c_str());
 	return oss.str();
 }
 

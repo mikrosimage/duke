@@ -11,22 +11,23 @@
 #include <duke/NonCopyable.h>
 #include <duke/engine/cache/TimelineIterator.h>
 #include <duke/engine/Timeline.h>
-#include <duke/imageio/PackedFrame.h>
+#include <duke/imageio/RawPackedFrame.h>
 #include <concurrent/cache/lookahead_cache.hpp>
 #include <thread>
 #include <vector>
 
 namespace duke {
 
-struct ImageCache: public noncopyable {
-	ImageCache();
-	~ImageCache();
+struct LoadedImageCache: public noncopyable {
+	LoadedImageCache(unsigned workerThreadDefault, size_t maxSizeDefault);
+	~LoadedImageCache();
 
 	void setWorkerCount(size_t workerCount);
 	void load(const Timeline& timeline);
+	void cue(size_t frame);
 	void terminate();
 
-	bool get(const MediaFrameReference &id, PackedFrame &data) const;
+	bool get(const MediaFrameReference &id, RawPackedFrame &data) const;
 	size_t getWorkerCount() const;
 
 private:
@@ -36,7 +37,7 @@ private:
 	std::string& workerStep(MediaFrameReference&, std::string&, std::string&);
 	typedef MediaFrameReference ID_TYPE;
 	typedef uint64_t METRIC_TYPE;
-	typedef PackedFrame DATA_TYPE;
+	typedef RawPackedFrame DATA_TYPE;
 	typedef TimelineIterator WORK_UNIT_RANGE;
 	concurrent::cache::lookahead_cache<ID_TYPE, METRIC_TYPE, DATA_TYPE, WORK_UNIT_RANGE> m_Cache;
 	std::vector<std::thread> m_WorkerThreads;

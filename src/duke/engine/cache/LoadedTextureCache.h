@@ -9,24 +9,36 @@
 #define LOADEDTEXTURECACHE_H_
 
 #include <duke/NonCopyable.h>
-#include <duke/engine/cache/ImageCache.h>
-#include <duke/engine/cache/PboCache.h>
+#include <duke/engine/cache/LoadedImageCache.h>
+#include <duke/engine/cache/LoadedPboCache.h>
+#include <duke/engine/cache/TexturePackedFrame.h>
+#include <duke/engine/cache/TexturePool.h>
 #include <duke/engine/Timeline.h>
+#include <map>
+#include <vector>
 
 namespace duke {
 
+struct CmdLineParameters;
+
 struct LoadedTextureCache: public noncopyable {
+	LoadedTextureCache(const CmdLineParameters &parameters);
+
 	void load(const Timeline& timeline);
-	void prepare(size_t frame);
+	void ensureReady(size_t frame);
+
+	const TexturePackedFrame* getLoadedTexture(const MediaFrameReference &mfr) const;
 	const Timeline& getTimeline() const;
 private:
-	void fillMediaFor(size_t frame);
-
 	Timeline m_Timeline;
 	Ranges m_TimelineRanges;
-	ImageCache m_ImageCache;
-	PboCache m_PboCache;
-	std::vector<MediaFrameReference> frameMedia;
+	LoadedImageCache m_ImageCache;
+	LoadedPboCache m_PboCache;
+	TexturePool m_TexturePool;
+	size_t m_LastFrame;
+	std::set<MediaFrameReference> m_FrameMedia;
+	typedef std::map<MediaFrameReference, TexturePackedFrame> Map;
+	Map m_Map;
 };
 
 } /* namespace duke */

@@ -29,7 +29,6 @@ public:
 	GlObject(GLuint id);
 
 	Binder<GlObject> scope_bind() const { return {this}; }
-	void boundDo(const std::function<void()> &func) const;
 
 	const GLuint id;
 };
@@ -50,7 +49,6 @@ public:
 	virtual void unbind() const;
 
 	Binder<GlTextureObject> scope_bind_texture() const { return {this}; }
-	void boundDo(const std::function<void(const GLenum target)> &func) const;
 
 	const GLenum target;
 };
@@ -72,7 +70,6 @@ public:
 	virtual void unbind() const;
 
 	inline Binder<GlBufferObject> scope_bind_buffer() const { return {this}; }
-	void boundDo(const std::function<void(const GLenum target, const GLenum usage)> &func) const;
 
 	const GLenum target;
 	const GLenum usage;

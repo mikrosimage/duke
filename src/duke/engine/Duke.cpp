@@ -14,6 +14,7 @@
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/overlay/DukeSplashStream.h>
 #include <duke/engine/streams/DiskMediaStream.h>
+#include <duke/attributes/AttributeKeys.h>
 #include <duke/gl/GL.h>
 #include <glm/glm.hpp>
 #include <sequence/Parser.hpp>
@@ -60,8 +61,12 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 					track.add(offset, Clip { 1, std::make_shared<DiskMediaStream>(item), nullptr });
 					++offset;
 					break;
+				case Item::PACKED: {
+					const auto count = item.end - item.start + 1;
+					track.add(offset, Clip { count, std::make_shared<DiskMediaStream>(item), nullptr });
+					offset += count;
+				}
 				case Item::INDICED:
-				case Item::PACKED:
 				default:
 					break;
 				}
@@ -83,7 +88,8 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	return {track/*, overlay*/};
 }
 
-Duke::Duke(const CmdLineParameters &parameters) {
+Duke::Duke(const CmdLineParameters &parameters) :
+		m_Player(parameters) {
 	const bool fullscreen = parameters.fullscreen;
 	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
 	if (pPrimaryMonitor == nullptr) {
@@ -122,14 +128,8 @@ static const auto all = bvec4(false);
 }  // namespace
 
 void Duke::run() {
-	PackedFrame packedFrame;
-	PboCache pboCache;
-//	LoadedTextureCache loadedTextureCache;
 	Context context;
 	SharedMesh pSquare = getSquare();
-	context.renderTexture = [&](const Texture &texture, const Attributes& attributes) {
-		render(pSquare.get(), texture, attributes, context);
-	};
 	Metronom metronom(100);
 	auto milestone = duke_clock::now();
 	bool running = true;
@@ -146,8 +146,7 @@ void Duke::run() {
 
 		const size_t frame = context.currentFrame.round();
 
-		m_Player.getTextureCache().prepare(frame);
-
+		m_Player.getTextureCache().ensureReady(frame);
 
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
@@ -157,13 +156,10 @@ void Duke::run() {
 			if (pTrackItr == track.end())
 				continue;
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
-			if (mfr.first) {
-//				context.clipFrame = mfr.second;
-//				std::shared_ptr<TextureRectangle> pTexture = loadedTextureCache.get(mfr);
-//				if (!pTexture) {
-//					const bool loaded = m_Player.getImageCache().get(mfr, packedFrame);
-//
-//				}
+			auto pLoadedTexture = m_Player.getTextureCache().getLoadedTexture(mfr);
+			if (pLoadedTexture) {
+				auto boundTexture = pLoadedTexture->pTexture->scope_bind_texture();
+				renderWithBoundTexture(pSquare.get(), *pLoadedTexture, context);
 			}
 			const auto& pOverlay = pTrackItr->second.pOverlay;
 			if (pOverlay)

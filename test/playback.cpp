@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Player.h>
 
 static const size_t startFrame = 90000;
 
 using namespace duke;
+
+const CmdLineParameters gDefault(0, nullptr);
 
 Timeline getTimeline() {
 	Track track;
@@ -16,7 +19,7 @@ Timeline getTimeline() {
 }
 
 TEST(Player,time) {
-	Player player;
+	Player player(gDefault);
 	EXPECT_EQ(FrameIndex(), player.getCurrentFrame());
 	player.setPlaybackTime(10); // go to ten seconds
 	EXPECT_EQ(FrameIndex(25*10), player.getCurrentFrame());
@@ -29,7 +32,7 @@ TEST(Player,time) {
 }
 
 TEST(Player,playback) {
-	Player player;
+	Player player(gDefault);
 	player.load(getTimeline(), FrameDuration::PAL);
 	player.setPlaybackMode(Player::CONTINUE);
 	// playing
@@ -55,7 +58,7 @@ TEST(Player,playback) {
 }
 
 TEST(Player,stopping) {
-	Player player;
+	Player player(gDefault);
 	player.setPlaybackMode(Player::STOP);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
@@ -74,7 +77,7 @@ TEST(Player,stopping) {
 }
 
 TEST(Player,looping) {
-	Player player;
+	Player player(gDefault);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
 	player.load(timeline, FrameDuration::PAL);
@@ -97,7 +100,7 @@ TEST(Player,looping) {
 }
 
 TEST(Player,looping2) {
-	Player player;
+	Player player(gDefault);
 	Track track;
 	track.add(0, Clip { 1 });
 	track.add(1, Clip { 1 });
@@ -128,7 +131,7 @@ TEST(Player,looping2) {
 
 TEST(Player,loopingWithHugeStep) {
 	// if in looping mode with offset greater than timeline period, just doing nothing
-	Player player;
+	Player player(gDefault);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
 	player.load(timeline, FrameDuration::PAL);

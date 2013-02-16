@@ -8,15 +8,12 @@
 #ifndef PACKEDFRAME_H_
 #define PACKEDFRAME_H_
 
-#include <duke/imageio/ImageDescription.h>
-#include <duke/attributes/Attributes.h>
+#include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
 #include <memory>
 
 namespace duke {
 
-struct PackedFrame {
-	PackedFrameDescription description;
-	Attributes attributes;
+struct RawPackedFrame: public PackedFrameDescriptionAndAttributes {
 	std::shared_ptr<char> pData;
 };
 

@@ -6,8 +6,13 @@
  */
 
 #include "Player.h"
+#include <duke/cmdline/CmdLineParameters.h>
 
 namespace duke {
+
+Player::Player(const CmdLineParameters &parameters) :
+		m_TextureCache(parameters) {
+}
 
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
 	m_TextureCache.load(timeline);

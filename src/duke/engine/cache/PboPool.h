@@ -10,7 +10,7 @@
 
 #include <duke/Pool.h>
 #include <duke/gl/GlObjects.h>
-#include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/PackedFrameDescription.h>
 #include <map>
 #include <cstdio>
 
@@ -26,11 +26,12 @@ protected:
 		}
 		m_KeyMap[pValue] = key;
 		size += key;
-		printf("creating pbo of size %lu, pool size : %lu\n", key, size);
+//		printf("creating pbo of size %lu, pool size : %lu\n", key, size);
 		return pValue;
 	}
 
 	key_type retrieveKey(const value_type* pData) {
+//		printf("releasing pbo\n");
 		return m_KeyMap[pData];
 	}
 private:

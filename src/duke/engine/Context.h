@@ -34,7 +34,6 @@ struct Context {
 	float exposure = 1;
 	float gamma = 1;
 	ColorSpace colorSpace = ColorSpace::Source;
-	std::function<void(const Texture&, const Attributes&)> renderTexture;
 	// file
 	std::string filename;
 };

@@ -74,7 +74,7 @@ public:
 		GLubyte* ptr = (GLubyte*) glMapBufferRange(pbo.target, 0, dataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 		memcpy(ptr, pData, dataSize);
 		glUnmapBuffer(pbo.target);
-		glTexSubImage2D(texture.target, 0, 0, 0, textureSize.x, textureSize.y, conf.pixel_format, conf.pixel_type, 0);
+		glTexSubImage2D(texture.target, 0, 0, 0, textureSize.x, textureSize.y, conf.pixel_format, conf.pixel_type, nullptr);
 		firstUpdate = false;
 	}
 	virtual void destroy() {
@@ -92,7 +92,7 @@ void benchmark() {
 	const size_t seconds = 2;
 	const size_t viewportWidth = 512;
 	const size_t viewportHeight = 128;
-	const size_t allocatedDataSize = 120 * 1024 * 1024; //allocating 100 MB
+	const size_t allocatedDataSize = 120 * 1024 * 1024; //allocating 120 MB
 
 	AlignedMalloc allocator;
 	const auto pSharedData = make_shared_memory<char>(allocatedDataSize, allocator);
