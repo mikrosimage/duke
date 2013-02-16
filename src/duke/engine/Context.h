@@ -36,6 +36,8 @@ struct Context {
 	ColorSpace colorSpace = ColorSpace::Source;
 	// file
 	std::string filename;
+	// current drawing
+	const Attributes *pCurrentAttributes;
 };
 
 } /* namespace duke */

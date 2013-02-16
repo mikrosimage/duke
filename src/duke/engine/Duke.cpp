@@ -13,6 +13,7 @@
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/overlay/DukeSplashStream.h>
+#include <duke/engine/overlay/AttributesOverlay.h>
 #include <duke/engine/streams/DiskMediaStream.h>
 #include <duke/attributes/AttributeKeys.h>
 #include <duke/gl/GL.h>
@@ -76,16 +77,7 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 	}
 	if (track.empty())
 		track.add(offset, Clip { 1, nullptr, std::make_shared<DukeSplashStream>() });
-	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
-//	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
-//	Track overlay;
-//	overlay.disabled = true;
-//	overlay.name = pMetadataTrack;
-//	for (const auto& pair : track) {
-//		const auto& pStream = pair.second.pStream;
-//		overlay.add(pair.first, Clip { pair.second.frames, nullptr, std::make_shared<FileInfoOverlay>(pGlyphRenderer, std::static_pointer_cast<SingleFrameStream>(pStream)) });
-//	}
-	return {track/*, overlay*/};
+	return {track};
 }
 
 Duke::Duke(const CmdLineParameters &parameters) :
@@ -128,6 +120,11 @@ static const auto all = bvec4(false);
 }  // namespace
 
 void Duke::run() {
+	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
+	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
+	AttributesOverlay overlay(pGlyphRenderer);
+	bool showOverlay = false;
+
 	Context context;
 	SharedMesh pSquare = getSquare();
 	Metronom metronom(100);
@@ -158,12 +155,16 @@ void Duke::run() {
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
 			auto pLoadedTexture = m_Player.getTextureCache().getLoadedTexture(mfr);
 			if (pLoadedTexture) {
+				context.pCurrentAttributes = &pLoadedTexture->attributes;
 				auto boundTexture = pLoadedTexture->pTexture->scope_bind_texture();
 				renderWithBoundTexture(pSquare.get(), *pLoadedTexture, context);
 			}
 			const auto& pOverlay = pTrackItr->second.pOverlay;
 			if (pOverlay)
 				pOverlay->render(context);
+			if (showOverlay)
+				overlay.render(context);
+			context.pCurrentAttributes = nullptr;
 		}
 
 		// displaying
@@ -210,11 +211,7 @@ void Duke::run() {
 				context.exposure /= 1.2;
 				break;
 			case 'o': {
-				auto pTrack = m_Player.getTimeline().findTrack(pMetadataTrack);
-				if (pTrack) {
-					bool &disabled = pTrack->disabled;
-					disabled = !disabled;
-				}
+				showOverlay = !showOverlay;
 				break;
 			}
 			}
