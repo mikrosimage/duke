@@ -259,7 +259,8 @@ void Duke::run() {
 		keyStrokes.clear();
 
 		// check stop
-		running = !(m_pWindow->glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS && m_pWindow->glfwGetWindowParam(GLFW_FOCUSED));
+		running = !(m_pWindow->glfwGetWindowParam(GLFW_SHOULD_CLOSE)
+					|| (m_pWindow->glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS && m_pWindow->glfwGetWindowParam(GLFW_FOCUSED)));
 
 		// dump info every seconds
 		const auto now = duke_clock::now();
