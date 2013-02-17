@@ -9,6 +9,7 @@
 
 #include <numeric>
 #include <algorithm>
+#include <cmath>
 
 Metronom::Metronom(size_t values) :
 		m_Size(values), m_Min(0), m_Max(0), m_Mean(0), m_StdDev(0) {

@@ -10,7 +10,7 @@ endif()
 #
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
-add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
+add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES -DGLFW_INCLUDE_GLCOREARB)
 
 #
 # GLFW
