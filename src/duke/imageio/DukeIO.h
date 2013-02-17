@@ -26,6 +26,7 @@ protected:
 	const IIODescriptor * const m_pDescriptor;
 	PackedFrameDescription &m_Description;
 	Attributes &m_Attributes;
+	Attributes m_ReaderAttributes;
 	std::string m_Error;
 public:
 	IImageReader(const IIODescriptor * pDescriptor) :
@@ -39,7 +40,10 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline const RawPackedFrame& getPackedFrame() const {
+	inline Attributes& getReaderAttributes() {
+		return m_ReaderAttributes;
+	}
+	inline const RawPackedFrame& getRawPackedFrame() const {
 		return m_PackedFrame;
 	}
 	inline const IIODescriptor * getDescriptor() const {

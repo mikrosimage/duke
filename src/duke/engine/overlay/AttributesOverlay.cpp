@@ -8,6 +8,7 @@
 #include "AttributesOverlay.h"
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
+#include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
 #include <sstream>
 
 namespace duke {
@@ -17,10 +18,10 @@ AttributesOverlay::AttributesOverlay(const std::shared_ptr<GlyphRenderer> &pGlyp
 }
 
 void AttributesOverlay::render(const Context &context) const {
-	if (!context.pCurrentAttributes)
+	if (!context.pCurrentImage)
 		return;
 	std::ostringstream oss;
-	oss << *context.pCurrentAttributes;
+	oss << context.pCurrentImage->attributes;
 	drawText(*m_pGlyphRenderer, context.viewport, oss.str().c_str(), 50, 50, 1, 2);
 }
 

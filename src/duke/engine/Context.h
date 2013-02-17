@@ -18,6 +18,11 @@ struct Attributes;
 namespace duke {
 
 class Texture;
+struct PackedFrameDescriptionAndAttributes;
+
+enum class FitMode {
+	ACTUAL, FREE, INNER, OUTER
+};
 
 struct Context {
 	// timing
@@ -26,8 +31,9 @@ struct Context {
 	FrameIndex currentFrame;
 	size_t clipFrame = 0;
 	// geometry
-	int zoom = 0;
 	Viewport viewport;
+	FitMode fitMode = FitMode::ACTUAL;
+	float zoom = 1;
 	glm::ivec2 pan;
 	// grading
 	glm::bvec4 channels = glm::bvec4(false);
@@ -37,7 +43,7 @@ struct Context {
 	// file
 	std::string filename;
 	// current drawing
-	const Attributes *pCurrentAttributes;
+	const PackedFrameDescriptionAndAttributes *pCurrentImage;
 };
 
 } /* namespace duke */

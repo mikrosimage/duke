@@ -34,6 +34,9 @@ Range& Range::operator+=(size_t frame) {
 	last += frame;
 	return *this;
 }
+size_t Range::count() const {
+	return first <= last ? last - first + 1 : first - last + 1;
+}
 
 namespace rangeutils {
 

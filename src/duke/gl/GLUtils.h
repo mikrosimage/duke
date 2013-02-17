@@ -9,6 +9,7 @@
 #define GLUTILS_H_
 
 #include <string>
+#include <vector>
 
 void setTextureDimensions(unsigned int dimensionUniformParameter, size_t uwidth, size_t uheight, int orientation = 1);
 
@@ -31,5 +32,6 @@ void checkShaderError(unsigned int shaderId, const char* source);
 void checkProgramError(unsigned int programId);
 
 std::string slurpFile(const char* pFilename);
+std::vector<unsigned char> slurpBinaryFile(const char* pFilename);
 
 #endif /* GLUTILS_H_ */

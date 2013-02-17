@@ -26,6 +26,7 @@ struct Range {
 
 	Range operator+(size_t frame) const;
 	bool operator==(const Range&other) const;
+	size_t count() const;
 
 	size_t first, last;
 	static const Range EMPTY;
@@ -69,7 +70,7 @@ struct Track: public std::map<size_t, Clip> {
 };
 
 namespace rangeutils {
-	Range getRange(const Track::TrackClip& trackClip);
+Range getRange(const Track::TrackClip& trackClip);
 }
 
 struct Timeline: public std::vector<Track> {

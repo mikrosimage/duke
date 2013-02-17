@@ -9,7 +9,6 @@
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/filesystem/FsUtils.h>
 #include <duke/time/Clock.h>
-#include <duke/engine/Context.h>
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/overlay/DukeSplashStream.h>
@@ -55,9 +54,9 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 			for (Item item : sequence::parseDir(getParserConf(), absolutePath.c_str()).files) {
 				const auto type = item.getType();
 				if (type == Item::INVALID)
-					throw commandline_error("invalid item");
+					throw commandline_error("invalid item while parsing directory");
 				if (!item.filename.empty() && item.filename[0] == '.')
-					continue;
+					continue; // escaping hidden file
 				item.filename = absolutePath + '/' + item.filename;
 				switch (type) {
 				case Item::SINGLE:
@@ -77,12 +76,10 @@ Timeline buildTimeline(const CmdLineParameters &parameters) {
 			break;
 		}
 	}
-	if (track.empty())
-		track.add(offset, Clip { 1, nullptr, std::make_shared<DukeSplashStream>() });
 	return {track};
 }
 
-Duke::Duke(const CmdLineParameters &parameters) :
+Duke::Duke(CmdLineParameters parameters) :
 		m_Player(parameters) {
 	const bool fullscreen = parameters.fullscreen;
 	GLFWmonitor* pPrimaryMonitor = glfwGetPrimaryMonitor();
@@ -107,7 +104,20 @@ Duke::Duke(const CmdLineParameters &parameters) :
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 
-	m_Player.load(buildTimeline(parameters), FrameDuration::PAL);
+	auto timeline = buildTimeline(parameters);
+	const bool demoMode = timeline.empty();
+	if (demoMode) {
+		parameters.additionnalOptions.emplace_back("splashscreen");
+		timeline = buildTimeline(parameters);
+		const Range range = timeline.empty() ? Range(0, 0) : timeline.getRange();
+		Track overlay;
+		overlay.add(range.first, Clip { range.count(), nullptr, std::make_shared<DukeSplashStream>() });
+		timeline.push_back(overlay);
+		m_Context.fitMode = FitMode::OUTER;
+		m_Player.load(timeline, FrameDuration(1, 15));
+		m_Player.setPlaybackSpeed(1);
+	} else
+		m_Player.load(timeline, FrameDuration::PAL);
 }
 
 namespace { // defining channel mask constants
@@ -121,13 +131,29 @@ static const auto all = bvec4(false);
 
 }  // namespace
 
+bool setNextMode(FitMode &mode) {
+	switch (mode) {
+	case FitMode::ACTUAL:
+		mode = FitMode::INNER;
+		return true;
+	case FitMode::INNER:
+		mode = FitMode::OUTER;
+		return true;
+	case FitMode::FREE:
+		mode = FitMode::ACTUAL;
+		return true;
+	case FitMode::OUTER:
+		mode = FitMode::FREE;
+		return false;
+	}
+}
+
 void Duke::run() {
-	// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
+// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
 	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
 	AttributesOverlay overlay(pGlyphRenderer);
 	bool showOverlay = false;
 
-	Context context;
 	SharedMesh pSquare = getSquare();
 	Metronom metronom(100);
 	auto milestone = duke_clock::now();
@@ -137,13 +163,13 @@ void Duke::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// setting up context
-		context.viewport = m_pWindow->useViewport(false, false, false, false);
-		context.currentFrame = m_Player.getCurrentFrame();
-		context.playbackTime = m_Player.getPlaybackTime();
-		context.pan = m_pWindow->getPanPos();
-		context.zoom = m_pWindow->getScrollPos().y;
+		m_Context.viewport = m_pWindow->useViewport(false, false, false, false);
+		m_Context.currentFrame = m_Player.getCurrentFrame();
+		m_Context.playbackTime = m_Player.getPlaybackTime();
+		m_Context.pan = m_pWindow->getPanPos();
+		m_Context.zoom = m_pWindow->getScrollPos().y;
 
-		const size_t frame = context.currentFrame.round();
+		const size_t frame = m_Context.currentFrame.round();
 
 		m_Player.getTextureCache().ensureReady(frame);
 
@@ -154,19 +180,22 @@ void Duke::run() {
 			const auto pTrackItr = track.clipContaining(frame);
 			if (pTrackItr == track.end())
 				continue;
-			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(context.currentFrame.round());
+			m_Context.pCurrentImage = nullptr;
+			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(m_Context.currentFrame.round());
 			auto pLoadedTexture = m_Player.getTextureCache().getLoadedTexture(mfr);
 			if (pLoadedTexture) {
-				context.pCurrentAttributes = &pLoadedTexture->attributes;
+				m_Context.pCurrentImage = pLoadedTexture;
 				auto boundTexture = pLoadedTexture->pTexture->scope_bind_texture();
-				renderWithBoundTexture(pSquare.get(), *pLoadedTexture, context);
+				glTexParameteri(pLoadedTexture->pTexture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(pLoadedTexture->pTexture->target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+				renderWithBoundTexture(pSquare.get(), m_Context);
 			}
-			const auto& pOverlay = pTrackItr->second.pOverlay;
-			if (pOverlay)
-				pOverlay->render(context);
+			const auto& pOverlayTrack = pTrackItr->second.pOverlay;
+			if (pOverlayTrack)
+				pOverlayTrack->render(m_Context);
 			if (showOverlay)
-				overlay.render(context);
-			context.pCurrentAttributes = nullptr;
+				overlay.render(m_Context);
 		}
 
 		// displaying
@@ -175,7 +204,7 @@ void Duke::run() {
 		// updating time
 		const auto elapsedMicroSeconds = metronom.tick();
 		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
-		context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
+		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
 		// handling input
 		auto &keyStrokes = m_pWindow->getPendingKeys();
@@ -201,27 +230,30 @@ void Duke::run() {
 				m_pWindow->setScroll(glm::vec2());
 				break;
 			case 'r':
-				context.channels = context.channels == r ? all : r;
+				m_Context.channels = m_Context.channels == r ? all : r;
 				break;
 			case 'g':
-				context.channels = context.channels == g ? all : g;
+				m_Context.channels = m_Context.channels == g ? all : g;
 				break;
 			case 'b':
-				context.channels = context.channels == b ? all : b;
+				m_Context.channels = m_Context.channels == b ? all : b;
 				break;
 			case 'a':
-				context.channels = context.channels == a ? all : a;
+				m_Context.channels = m_Context.channels == a ? all : a;
 				break;
 			case '+':
-				context.exposure *= 1.2;
+				m_Context.exposure *= 1.2;
 				break;
 			case '-':
-				context.exposure /= 1.2;
+				m_Context.exposure /= 1.2;
 				break;
-			case 'o': {
+			case 'o':
 				showOverlay = !showOverlay;
 				break;
-			}
+			case 'f':
+				if (setNextMode(m_Context.fitMode))
+					m_pWindow->setPan(glm::ivec2());
+				break;
 			}
 		}
 		keyStrokes.clear();

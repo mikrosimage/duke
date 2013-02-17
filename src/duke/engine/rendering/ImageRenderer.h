@@ -14,7 +14,7 @@ class PackedFrameDescriptionAndAttributes;
 class Mesh;
 struct Context;
 
-void renderWithBoundTexture(const Mesh *pMesh,const PackedFrameDescriptionAndAttributes& descriptionAndAttributes, const Context &context);
+void renderWithBoundTexture(const Mesh *pMesh, const Context &context);
 
 } /* namespace duke */
 #endif /* IMAGERENDERE_H_ */

@@ -11,6 +11,7 @@
 #include <duke/NonCopyable.h>
 #include <duke/engine/DukeWindow.h>
 #include <duke/engine/Player.h>
+#include <duke/engine/Context.h>
 
 namespace duke {
 
@@ -18,12 +19,13 @@ struct CmdLineParameters;
 
 class Duke: public noncopyable {
 public:
-	Duke(const CmdLineParameters &parameters);
+	Duke(CmdLineParameters parameters);
 	void run();
 private:
 	DukeGLFWApplication m_Application;
 	std::unique_ptr<DukeWindow> m_pWindow;
 	Player m_Player;
+	Context m_Context;
 };
 
 } /* namespace duke */

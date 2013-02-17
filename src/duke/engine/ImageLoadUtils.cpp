@@ -26,7 +26,7 @@ static std::string loadImage(IImageReader *pRawReader, const LoadCallback& callb
 		return "bad state : IImageReader==nullptr";
 	if (pReader->hasError())
 		return pReader->getError();
-	RawPackedFrame packedFrame = pReader->getPackedFrame();
+	RawPackedFrame packedFrame = pReader->getRawPackedFrame();
 	const void* pMapped = pReader->getMappedImageData();
 	if (pMapped == nullptr) {
 		packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);

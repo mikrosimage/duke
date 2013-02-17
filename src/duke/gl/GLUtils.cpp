@@ -437,6 +437,18 @@ std::string slurpFile(const char* pFilename) {
 	return sstr.str();
 }
 
+std::vector<unsigned char> slurpBinaryFile(const char* pFilename) {
+	std::ifstream in(pFilename, std::ios::in | std::ios::binary | std::ios::ate);
+	if (!in)
+		throw std::ios_base::failure(std::string("unable to load file : ") + pFilename);
+	const size_t fileSize = in.tellg();
+	std::vector<unsigned char> result;
+	result.resize(fileSize);
+	in.seekg(0, std::ios::beg);
+	in.read(reinterpret_cast<char*>(result.data()), fileSize);
+	return result;
+}
+
 void setTextureDimensions(GLuint dimensionUniformParameter, size_t uwidth, size_t uheight, int orientation) {
 	float width = uwidth;
 	float height = uheight;

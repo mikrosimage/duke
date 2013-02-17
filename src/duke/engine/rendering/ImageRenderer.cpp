@@ -39,6 +39,8 @@ static ColorSpace resolveFromExtension(const char* pFileExtension) {
 	if (pFileExtension) {
 		if (streq(pFileExtension, "dpx"))
 			return ColorSpace::KodakLog;
+		if (streq(pFileExtension, "png"))
+			return ColorSpace::sRGB;
 	}
 	printf("Unable to find default ColorSpace for extension '%s' assuming sRGB\n", pFileExtension);
 	return ColorSpace::sRGB;
@@ -53,25 +55,58 @@ static ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
 }
 
-void renderWithBoundTexture(const Mesh *pMesh, const PackedFrameDescriptionAndAttributes& descriptionAndAttributes, const Context &context) {
-	const auto &description = descriptionAndAttributes.description;
+static inline float getAspectRatio(glm::vec2 dim) {
+	return dim.x / dim.y;
+}
+
+static float getZoomValue(const Context &context) {
+	switch (context.fitMode) {
+	case FitMode::ACTUAL:
+		return 1;
+	case FitMode::FREE:
+		return 1 + (0.1 * context.zoom);
+	default:
+		break;
+	}
+	if (!context.pCurrentImage)
+		return 1;
+	const auto viewportDim = glm::vec2(context.viewport.dimension);
+	const auto viewportAspect = getAspectRatio(viewportDim);
+	const auto &imageDescription = context.pCurrentImage->description;
+	const auto imageDim = glm::vec2(imageDescription.width, imageDescription.height);
+	const auto imageAspect = getAspectRatio(imageDim);
+	switch (context.fitMode) {
+	case FitMode::INNER:
+		if (viewportAspect > imageAspect)
+			return viewportDim.y / imageDim.y;
+		return viewportDim.x / imageDim.x;
+	case FitMode::OUTER:
+		if (viewportAspect > imageAspect)
+			return viewportDim.x / imageDim.x;
+		return viewportDim.y / imageDim.y;
+	}
+	throw std::runtime_error("invalid fit mode");
+}
+void renderWithBoundTexture(const Mesh *pMesh, const Context &context) {
+	const auto &description = context.pCurrentImage->description;
 	bool redBlueSwapped = description.swapRedAndBlue;
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
 		redBlueSwapped = !redBlueSwapped;
 	const ShaderDescription shaderDesc(description.swapEndianness, //
 			redBlueSwapped, //
 			description.glPackFormat == GL_RGB10_A2UI, //
-			resolve(descriptionAndAttributes.attributes, context.colorSpace));
+			resolve(context.pCurrentImage->attributes, context.colorSpace));
 	const auto pProgram = gProgramPool.get(shaderDesc);
 	pProgram->use();
-	setTextureDimensions(pProgram->getUniformLocation("gImage"), description.width, description.height, descriptionAndAttributes.attributes.getOrientation());
+	setTextureDimensions(pProgram->getUniformLocation("gImage"), description.width, description.height, context.pCurrentImage->attributes.getOrientation());
 	glUniform2i(pProgram->getUniformLocation("gViewport"), context.viewport.dimension.x, context.viewport.dimension.y);
 	glUniform1i(pProgram->getUniformLocation("gTextureSampler"), 0);
 	glUniform2i(pProgram->getUniformLocation("gPan"), context.pan.x, context.pan.y);
-	glUniform1i(pProgram->getUniformLocation("gZoom"), context.zoom);
 	glUniform1f(pProgram->getUniformLocation("gExposure"), context.exposure);
 	glUniform1f(pProgram->getUniformLocation("gGamma"), context.gamma);
 	glUniform4i(pProgram->getUniformLocation("gShowChannel"), context.channels.x, context.channels.y, context.channels.z, context.channels.w);
+
+	glUniform1f(pProgram->getUniformLocation("gZoom"), getZoomValue(context));
 	pMesh->draw();
 	glCheckError();
 }
