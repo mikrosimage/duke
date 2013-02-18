@@ -10,7 +10,12 @@ endif()
 #
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
-add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES -DGLFW_INCLUDE_GLCOREARB)
+add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
+
+if(APPLE)
+	add_definitions(-DGLFW_INCLUDE_GLCOREARB)
+endif()
+
 
 #
 # GLFW
