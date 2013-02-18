@@ -22,6 +22,12 @@ public:
 	Duke(CmdLineParameters parameters);
 	void run();
 private:
+	void cue(int offset);
+	void togglePlayStop();
+
+	bool keyPressed(int) const;
+	bool hasWindowParam(int) const;
+
 	DukeGLFWApplication m_Application;
 	std::unique_ptr<DukeWindow> m_pWindow;
 	Player m_Player;

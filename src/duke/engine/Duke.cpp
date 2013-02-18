@@ -131,7 +131,7 @@ static const auto all = bvec4(false);
 
 }  // namespace
 
-bool setNextMode(FitMode &mode) {
+static bool setNextMode(FitMode &mode) {
 	switch (mode) {
 	case FitMode::ACTUAL:
 		mode = FitMode::INNER;
@@ -146,6 +146,25 @@ bool setNextMode(FitMode &mode) {
 		mode = FitMode::FREE;
 		return false;
 	}
+	throw std::runtime_error("unknown fitmode");
+}
+
+bool Duke::keyPressed(int key) const {
+	return m_pWindow->glfwGetKey(key) == GLFW_PRESS;
+}
+
+bool Duke::hasWindowParam(int param) const {
+	return m_pWindow->glfwGetWindowParam(param);
+}
+
+void Duke::cue(int offset) {
+	m_Player.setPlaybackSpeed(offset);
+	m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
+	m_Player.setPlaybackSpeed(0);
+}
+
+void Duke::togglePlayStop() {
+	m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
 }
 
 void Duke::run() {
@@ -169,9 +188,11 @@ void Duke::run() {
 		m_Context.pan = m_pWindow->getPanPos();
 		m_Context.zoom = m_pWindow->getScrollPos().y;
 
+		//current frame
 		const size_t frame = m_Context.currentFrame.round();
 
-		m_Player.getTextureCache().ensureReady(frame);
+		auto &textureCache = m_Player.getTextureCache();
+		textureCache.ensureReady(frame);
 
 		// rendering
 		for (const Track &track : m_Player.getTimeline()) {
@@ -182,7 +203,7 @@ void Duke::run() {
 				continue;
 			m_Context.pCurrentImage = nullptr;
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(m_Context.currentFrame.round());
-			auto pLoadedTexture = m_Player.getTextureCache().getLoadedTexture(mfr);
+			auto pLoadedTexture = textureCache.getLoadedTexture(mfr);
 			if (pLoadedTexture) {
 				m_Context.pCurrentImage = pLoadedTexture;
 				auto boundTexture = pLoadedTexture->pTexture->scope_bind_texture();
@@ -206,22 +227,18 @@ void Duke::run() {
 		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
-		// handling input
-		auto &keyStrokes = m_pWindow->getPendingKeys();
-		for (const int key : keyStrokes) {
+		// handling input by char
+		auto &charStrokes = m_pWindow->getPendingChars();
+		for (const int key : charStrokes) {
 			switch (key) {
 			case ' ':
-				m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
+				togglePlayStop();
 				break;
 			case '4':
-				m_Player.setPlaybackSpeed(-1);
-				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
-				m_Player.setPlaybackSpeed(0);
+				cue(-1);
 				break;
 			case '6':
-				m_Player.setPlaybackSpeed(1);
-				m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
-				m_Player.setPlaybackSpeed(0);
+				cue(1);
 				break;
 			case 'p':
 				m_pWindow->setPan(glm::ivec2());
@@ -256,11 +273,26 @@ void Duke::run() {
 				break;
 			}
 		}
+		charStrokes.clear();
+
+		// handling input by key
+		auto &keyStrokes = m_pWindow->getPendingKeys();
+		const bool ctrlModifier = keyPressed(GLFW_KEY_LEFT_CONTROL) || keyPressed(GLFW_KEY_RIGHT_CONTROL);
+//		const bool shiftModifier = keyPressed(GLFW_KEY_LEFT_SHIFT) || keyPressed(GLFW_KEY_RIGHT_SHIFT);
+		for (const int key : keyStrokes) {
+			switch (key) {
+			case GLFW_KEY_LEFT:
+				cue(ctrlModifier ? -25 : -1);
+				break;
+			case GLFW_KEY_RIGHT:
+				cue(ctrlModifier ? 25 : 1);
+				break;
+			}
+		}
 		keyStrokes.clear();
 
 		// check stop
-		running = !(m_pWindow->glfwGetWindowParam(GLFW_SHOULD_CLOSE)
-					|| (m_pWindow->glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS && m_pWindow->glfwGetWindowParam(GLFW_FOCUSED)));
+		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC) && hasWindowParam(GLFW_FOCUSED)));
 
 		// dump info every seconds
 		const auto now = duke_clock::now();

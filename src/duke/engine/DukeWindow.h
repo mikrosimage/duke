@@ -28,7 +28,8 @@ struct Viewport {
 struct DukeWindow: public DukeGLFWWindow {
 	DukeWindow(GLFWwindow *pWindow);
 	//setter
-	void onKeyPressed(int unicodeCodePoint);
+	void onKey(int key, int action);
+	void onChar(int unicodeCodePoint);
 	void onWindowResize(int width, int height);
 	void onMouseMove(int x, int y);
 	void onMouseClick(int buttonId, int buttonState);
@@ -43,6 +44,7 @@ struct DukeWindow: public DukeGLFWWindow {
 	glm::ivec2 getPanPos() const;
 	glm::ivec2 getRelativeMousePos() const;
 	glm::ivec2 getViewportMousePos(const Viewport& viewport) const;
+	std::vector<int>& getPendingChars();
 	std::vector<int>& getPendingKeys();
 
 	// GLFW functions
@@ -57,7 +59,8 @@ private:
 	glm::ivec2 m_Pan;
 	glm::ivec2 m_Dimension;
 	glm::vec2 m_Scroll;
-	std::vector<int> m_AllKeyStrokes;
+	std::vector<int> m_CharStrokes;
+	std::vector<int> m_KeyStrokes;
 };
 
 }  // namespace duke

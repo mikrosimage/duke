@@ -23,7 +23,8 @@ DukeWindow::DukeWindow(GLFWwindow *pWindow) :
 	mousePosCallback = bind(&DukeWindow::onMouseMove, this, placeholders::_1, placeholders::_2);
 	scrollCallback = bind(&DukeWindow::onScroll, this, placeholders::_1, placeholders::_2);
 	windowResizeCallback = bind(&DukeWindow::onWindowResize, this, placeholders::_1, placeholders::_2);
-	charCallback = bind(&DukeWindow::onKeyPressed, this, placeholders::_1);
+	charCallback = bind(&DukeWindow::onChar, this, placeholders::_1);
+	keyCallback = bind(&DukeWindow::onKey, this, placeholders::_1, placeholders::_2);
 }
 
 void DukeWindow::onWindowResize(int width, int height) {
@@ -62,14 +63,18 @@ void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 			break;
 		case GLFW_RELEASE:
 			m_LeftButton = false;
-//			m_Pan += m_MouseDragStartPos - m_MousePos;
 			m_MouseDragStartPos.x = m_MouseDragStartPos.y = 0;
 			break;
 		}
 }
 
-void DukeWindow::onKeyPressed(int unicodeCodePoint) {
-	m_AllKeyStrokes.push_back(unicodeCodePoint);
+void DukeWindow::onChar(int unicodeCodePoint) {
+	m_CharStrokes.push_back(unicodeCodePoint);
+}
+
+void DukeWindow::onKey(int key, int action) {
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+		m_KeyStrokes.push_back(key);
 }
 
 const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool west) const {
@@ -84,8 +89,11 @@ const Viewport DukeWindow::useViewport(bool north, bool south, bool east, bool w
 	return viewport;
 }
 
+vector<int>& DukeWindow::getPendingChars() {
+	return m_CharStrokes;
+}
 vector<int>& DukeWindow::getPendingKeys() {
-	return m_AllKeyStrokes;
+	return m_KeyStrokes;
 }
 
 glm::ivec2 DukeWindow::getRelativeMousePos() const {
