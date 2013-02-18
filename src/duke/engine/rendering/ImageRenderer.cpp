@@ -84,9 +84,11 @@ static float getZoomValue(const Context &context) {
 		if (viewportAspect > imageAspect)
 			return viewportDim.x / imageDim.x;
 		return viewportDim.y / imageDim.y;
+	default:
+		throw std::runtime_error("invalid fit mode");
 	}
-	throw std::runtime_error("invalid fit mode");
 }
+
 void renderWithBoundTexture(const Mesh *pMesh, const Context &context) {
 	const auto &description = context.pCurrentImage->description;
 	bool redBlueSwapped = description.swapRedAndBlue;
