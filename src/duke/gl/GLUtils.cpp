@@ -258,6 +258,7 @@ const char* getPixelTypeString(unsigned int pixelType) {
 	return "Unknown";
 }
 
+#ifndef NDEBUG
 static const char* getErrorString(unsigned error) {
 	switch (error) {
 	case GL_INVALID_ENUM:
@@ -277,6 +278,7 @@ static const char* getErrorString(unsigned error) {
 	}
 	return "Unknown error";
 }
+#endif
 
 void glCheckError() {
 #ifndef NDEBUG
