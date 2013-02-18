@@ -7,9 +7,15 @@
 
 #include "LoadedTextureCache.h"
 #include <duke/cmdline/CmdLineParameters.h>
-#include <duke/MapRemoveIf.h>
+#include <algorithm>
 
 namespace duke {
+
+template<typename Map, typename F>
+void map_erase_if(Map& m, F pred) {
+	for (auto i = std::begin(m); (i = std::find_if(i, std::end(m), pred)) != std::end(m);)
+		m.erase(i++);
+}
 
 LoadedTextureCache::LoadedTextureCache(const CmdLineParameters &parameters) :
 		m_ImageCache(parameters.workerThreadDefault, parameters.imageCacheSizeDefault), m_LastFrame(0) {

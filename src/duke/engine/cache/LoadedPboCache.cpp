@@ -7,14 +7,12 @@
 
 #include "LoadedPboCache.h"
 #include <duke/engine/cache/LoadedImageCache.h>
-#include <duke/MapRemoveIf.h>
 
 namespace duke {
 
 bool LoadedPboCache::get(const LoadedImageCache& imageCache, const MediaFrameReference& mfr, PboPackedFrame &pbo) {
 	auto pFound = m_Map.find(mfr);
 	if (pFound == m_Map.end()) {
-//		printf("next frame to serve is : stream %p and frame %lu\n", mfr.first, mfr.second);
 		RawPackedFrame packedFrame;
 		const bool inCache = imageCache.get(mfr, packedFrame);
 		if (!inCache || packedFrame.description.dataSize == 0)

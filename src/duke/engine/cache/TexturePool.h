@@ -22,12 +22,10 @@ protected:
 			pValue->initialize(key, nullptr);
 		}
 		++count;
-//		printf("creating texture of size %lux%lu, format '%s', pool size : %lu\n", key.width, key.height, getInternalFormatString(key.glPackFormat), count);
 		return pValue;
 	}
 
 	key_type retrieveKey(const value_type* pData) {
-//		printf("releasing texture\n");
 		return pData->description;
 	}
 public:
