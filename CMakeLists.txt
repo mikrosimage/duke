@@ -20,8 +20,9 @@ include_directories(SYSTEM dependencies/glm)
 include_directories(src)
 
 # adding Wall to configurations
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
-set(CMAKE_CSS_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+if (NOT MSVC)
+    add_definitions ("-Wall")
+endif()
 
 # clang && macosx
 if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND APPLE)
