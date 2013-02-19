@@ -22,8 +22,7 @@ public:
 	Duke(CmdLineParameters parameters);
 	void run();
 private:
-	void cue(int offset);
-	void togglePlayStop();
+	bool togglePlayStop();
 
 	bool keyPressed(int) const;
 	bool hasWindowParam(int) const;

@@ -5,9 +5,15 @@
  *      Author: Guillaume Chatelet
  */
 
-#include <duke/imageio/DukeIO.h>
 #include <duke/gl/GL.h>
-#include <duke/ByteSwap.h>
+#include <duke/ByteSwap.h>              // for bswap_32
+#include <duke/imageio/DukeIO.h>        // for IIODescriptor::Capability, etc
+#include <stddef.h>                     // for size_t
+#include <stdint.h>                     // for int32_t
+#include <string>                       // for string
+#include <vector>                       // for vector
+#include "duke/attributes/Attributes.h"  // for Attributes
+#include "duke/imageio/PackedFrameDescription.h"
 
 #define DPX_MAGIC           0x53445058
 #define DPX_MAGIC_SWAP      0x58504453

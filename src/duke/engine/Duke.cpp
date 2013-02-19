@@ -13,6 +13,7 @@
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/overlay/DukeSplashStream.h>
 #include <duke/engine/overlay/AttributesOverlay.h>
+#include <duke/engine/overlay/StatusOverlay.h>
 #include <duke/engine/streams/DiskMediaStream.h>
 #include <duke/attributes/AttributeKeys.h>
 #include <duke/gl/GL.h>
@@ -149,6 +150,20 @@ static bool setNextMode(FitMode &mode) {
 	throw std::runtime_error("unknown fitmode");
 }
 
+static const char* getFitModeString(FitMode &mode) {
+	switch (mode) {
+	case FitMode::ACTUAL:
+		return "Actual pixel";
+	case FitMode::INNER:
+		return "Fit inner frame";
+	case FitMode::FREE:
+		return "No fit";
+	case FitMode::OUTER:
+		return "Fit outer frame";
+	}
+	throw std::runtime_error("unknown fitmode");
+}
+
 bool Duke::keyPressed(int key) const {
 	return m_pWindow->glfwGetKey(key) == GLFW_PRESS;
 }
@@ -157,21 +172,17 @@ bool Duke::hasWindowParam(int param) const {
 	return m_pWindow->glfwGetWindowParam(param);
 }
 
-void Duke::cue(int offset) {
-	m_Player.setPlaybackSpeed(offset);
-	m_Player.offsetPlaybackTime(m_Player.getFrameDuration());
-	m_Player.setPlaybackSpeed(0);
-}
-
-void Duke::togglePlayStop() {
-	m_Player.setPlaybackSpeed(m_Player.getPlaybackSpeed() == 0 ? 1 : 0);
+bool Duke::togglePlayStop() {
+	const int speed = m_Player.getPlaybackSpeed() == 0 ? 1 : 0;
+	m_Player.setPlaybackSpeed(speed);
+	return speed != 0;
 }
 
 void Duke::run() {
-// find textures here : http://dwarffortresswiki.org/index.php/Tileset_repository
 	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
-	AttributesOverlay overlay(pGlyphRenderer);
-	bool showOverlay = false;
+	AttributesOverlay attributesOverlay(pGlyphRenderer);
+	StatusOverlay statusOverlay(pGlyphRenderer);
+	bool showAttributesOverlay = false;
 
 	SharedMesh pSquare = getSquare();
 	Metronom metronom(100);
@@ -188,36 +199,45 @@ void Duke::run() {
 		m_Context.pan = m_pWindow->getPanPos();
 		m_Context.zoom = m_pWindow->getScrollPos().y;
 
-		//current frame
+		// current frame
 		const size_t frame = m_Context.currentFrame.round();
 
+		// preparing current frame textures
 		auto &textureCache = m_Player.getTextureCache();
 		textureCache.ensureReady(frame);
 
-		// rendering
+		// rendering tracks
 		for (const Track &track : m_Player.getTimeline()) {
 			if (track.disabled)
 				continue;
+
 			const auto pTrackItr = track.clipContaining(frame);
 			if (pTrackItr == track.end())
 				continue;
-			m_Context.pCurrentImage = nullptr;
-			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(m_Context.currentFrame.round());
-			auto pLoadedTexture = textureCache.getLoadedTexture(mfr);
-			if (pLoadedTexture) {
-				m_Context.pCurrentImage = pLoadedTexture;
-				auto boundTexture = pLoadedTexture->pTexture->scope_bind_texture();
-				glTexParameteri(pLoadedTexture->pTexture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(pLoadedTexture->pTexture->target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-				renderWithBoundTexture(pSquare.get(), m_Context);
+			m_Context.pCurrentImage = nullptr;
+			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(frame);
+			const auto pMediaStream = mfr.first;
+			if (pMediaStream) {
+				auto pLoadedTexture = textureCache.getLoadedTexture(mfr);
+				if (pLoadedTexture) {
+					m_Context.pCurrentImage = pLoadedTexture;
+					auto &texture = *pLoadedTexture->pTexture;
+					auto boundTexture = texture.scope_bind_texture();
+					glTexParameteri(texture.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(texture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					renderWithBoundTexture(pSquare.get(), m_Context);
+				} else {
+					drawText(*pGlyphRenderer, m_Context.viewport, "missing frame", 100, 100, 1, 3);
+				}
 			}
 			const auto& pOverlayTrack = pTrackItr->second.pOverlay;
 			if (pOverlayTrack)
 				pOverlayTrack->render(m_Context);
-			if (showOverlay)
-				overlay.render(m_Context);
+			if (showAttributesOverlay)
+				attributesOverlay.render(m_Context);
 		}
+		statusOverlay.render(m_Context);
 
 		// displaying
 		m_pWindow->glfwSwapBuffers();
@@ -227,24 +247,30 @@ void Duke::run() {
 		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
+		// preparing display function
+		const auto display = [&](const std::string &msg) {
+			statusOverlay.setString(m_Context.liveTime, msg);
+		};
+		const auto displayExposure = [&]() {
+			std::ostringstream oss;
+			oss << "exposure " << m_Context.exposure;
+			display(oss.str());
+		};
+
 		// handling input by char
 		auto &charStrokes = m_pWindow->getPendingChars();
 		for (const int key : charStrokes) {
 			switch (key) {
-			case ' ':
-				togglePlayStop();
+			case ' ': {
+				const bool playing = togglePlayStop();
+				display(playing ? "play" : "stop");
 				break;
+			}
 			case '4':
-				cue(-1);
+				m_Player.cueRelative(-1);
 				break;
 			case '6':
-				cue(1);
-				break;
-			case 'p':
-				m_pWindow->setPan(glm::ivec2());
-				break;
-			case 'z':
-				m_pWindow->setScroll(glm::vec2());
+				m_Player.cueRelative(1);
 				break;
 			case 'r':
 				m_Context.channels = m_Context.channels == r ? all : r;
@@ -260,16 +286,19 @@ void Duke::run() {
 				break;
 			case '+':
 				m_Context.exposure *= 1.2;
+				displayExposure();
 				break;
 			case '-':
 				m_Context.exposure /= 1.2;
+				displayExposure();
 				break;
 			case 'o':
-				showOverlay = !showOverlay;
+				showAttributesOverlay = !showAttributesOverlay;
 				break;
 			case 'f':
 				if (setNextMode(m_Context.fitMode))
 					m_pWindow->setPan(glm::ivec2());
+				display(getFitModeString(m_Context.fitMode));
 				break;
 			}
 		}
@@ -281,11 +310,17 @@ void Duke::run() {
 //		const bool shiftModifier = keyPressed(GLFW_KEY_LEFT_SHIFT) || keyPressed(GLFW_KEY_RIGHT_SHIFT);
 		for (const int key : keyStrokes) {
 			switch (key) {
+			case GLFW_KEY_HOME:
+				m_Player.cue(m_Player.getTimeline().getRange().first);
+				break;
+			case GLFW_KEY_END:
+				m_Player.cue(m_Player.getTimeline().getRange().last);
+				break;
 			case GLFW_KEY_LEFT:
-				cue(ctrlModifier ? -25 : -1);
+				m_Player.cueRelative(ctrlModifier ? -25 : -1);
 				break;
 			case GLFW_KEY_RIGHT:
-				cue(ctrlModifier ? 25 : 1);
+				m_Player.cueRelative(ctrlModifier ? 25 : 1);
 				break;
 			}
 		}

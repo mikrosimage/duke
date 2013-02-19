@@ -22,6 +22,7 @@ struct Player: public noncopyable {
 	// frame based
 	void stop();
 	void cue(uint32_t frame);
+	void cueRelative(int32_t frame);
 
 	// time based
 	void setPlaybackSpeed(int speed);

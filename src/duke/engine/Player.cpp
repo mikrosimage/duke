@@ -79,6 +79,11 @@ void Player::cue(uint32_t frame) {
 	stop();
 }
 
+void Player::cueRelative(int32_t frame) {
+	m_PlaybackTime += m_FrameDuration * frame;
+	stop();
+}
+
 FrameIndex Player::getCurrentFrame() const {
 	return m_PlaybackTime / m_FrameDuration;
 }

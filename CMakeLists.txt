@@ -25,7 +25,7 @@ if (NOT MSVC)
 endif()
 
 # clang && macosx
-if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND APPLE)
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 
