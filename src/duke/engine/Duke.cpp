@@ -269,12 +269,6 @@ void Duke::run() {
 				display(playing ? "play" : "stop");
 				break;
 			}
-			case '4':
-				m_Player.cueRelative(-1);
-				break;
-			case '6':
-				m_Player.cueRelative(1);
-				break;
 			case 'r':
 				m_Context.channels = m_Context.channels == r ? all : r;
 				break;
