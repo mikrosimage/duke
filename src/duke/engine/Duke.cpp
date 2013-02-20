@@ -255,7 +255,8 @@ void Duke::run() {
 		};
 		const auto displayExposure = [&]() {
 			std::ostringstream oss;
-			oss << "exposure " << m_Context.exposure;
+			oss.precision(3);
+			oss << "exposure "<< std::fixed << m_Context.exposure;
 			display(oss.str());
 		};
 
