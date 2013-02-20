@@ -29,6 +29,7 @@ struct LoadedTextureCache: public noncopyable {
 
 	const TexturePackedFrame* getLoadedTexture(const MediaFrameReference &mfr) const;
 	const Timeline& getTimeline() const;
+	const LoadedImageCache& getImageCache() const;
 private:
 	Timeline m_Timeline;
 	Ranges m_TimelineRanges;

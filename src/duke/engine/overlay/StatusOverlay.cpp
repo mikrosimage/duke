@@ -25,13 +25,15 @@ void StatusOverlay::setString(const Time& time, const std::string &msg) {
 void StatusOverlay::render(const Context& context) const {
 	const Time time = context.liveTime - m_ShowTime;
 	const auto ms = time.asMilliseconds();
-	Animation<float> alpha(800, 1, 0);
-	drawText(*m_pGlyphRenderer, //
-			context.viewport, //
-			m_Message.c_str(), //
-			100, 100, //
-			alpha.getAnimatedValue(ms, EasingCurveTimeInterpolator(EasingCurve::InExpo)), //
-			3);
+	const Animation<float> alpha(800, 1, 0);
+	const float value = alpha.getAnimatedValue(ms, EasingCurveTimeInterpolator(EasingCurve::InExpo));
+	if (value > 0)
+		drawText(*m_pGlyphRenderer, //
+				context.viewport, //
+				m_Message.c_str(), //
+				100, 100, //
+				value, //
+				3);
 }
 
 } /* namespace duke */

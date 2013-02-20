@@ -28,6 +28,8 @@ struct LoadedImageCache: public noncopyable {
 	void terminate();
 
 	bool get(const MediaFrameReference &id, RawPackedFrame &data) const;
+	uint64_t dumpState(std::map<const IMediaStream*, std::vector<Range> > &state) const;
+	uint64_t getMaxWeight() const;
 	size_t getWorkerCount() const;
 
 private:
@@ -35,15 +37,20 @@ private:
 	void stopWorkers();
 	void workerFunction();
 	std::string& workerStep(MediaFrameReference&, std::string&, std::string&);
+
 	typedef MediaFrameReference ID_TYPE;
 	typedef uint64_t METRIC_TYPE;
 	typedef RawPackedFrame DATA_TYPE;
 	typedef TimelineIterator WORK_UNIT_RANGE;
+
+	size_t m_MaxWeight;
 	concurrent::cache::lookahead_cache<ID_TYPE, METRIC_TYPE, DATA_TYPE, WORK_UNIT_RANGE> m_Cache;
 	std::vector<std::thread> m_WorkerThreads;
 	Timeline m_Timeline;
 	Ranges m_MediaRanges;
 	size_t m_WorkerCount;
+
+	mutable std::vector<MediaFrameReference> m_DumpStateTmp;
 };
 
 } /* namespace duke */

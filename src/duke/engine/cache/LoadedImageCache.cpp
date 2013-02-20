@@ -15,7 +15,7 @@
 namespace duke {
 
 LoadedImageCache::LoadedImageCache(unsigned workerThreadDefault, size_t maxSizeDefault) :
-		m_Cache(maxSizeDefault), m_WorkerCount(workerThreadDefault) {
+		m_MaxWeight(maxSizeDefault), m_Cache(m_MaxWeight), m_WorkerCount(workerThreadDefault) {
 }
 
 LoadedImageCache::~LoadedImageCache() {
@@ -50,6 +50,42 @@ void LoadedImageCache::terminate() {
 
 bool LoadedImageCache::get(const MediaFrameReference &id, RawPackedFrame &data) const {
 	return m_Cache.get(id, data);
+}
+
+uint64_t LoadedImageCache::dumpState(std::map<const IMediaStream*, std::vector<Range> > &state) const {
+	state.clear();
+
+	const auto currentWeight = m_Cache.dumpKeys(m_DumpStateTmp);
+	std::sort(begin(m_DumpStateTmp), end(m_DumpStateTmp));
+
+	const IMediaStream *pLastMedia = nullptr;
+	std::vector<Range> mediaRanges;
+
+	for (const auto &key : m_DumpStateTmp) {
+		const IMediaStream *pCurrentMedia = key.first;
+		const size_t frame = key.second;
+		const bool newMedia = pCurrentMedia != pLastMedia;
+		if (newMedia) {
+			if (pLastMedia != nullptr)
+				state.insert(std::make_pair(pLastMedia, std::move(mediaRanges)));
+			mediaRanges.clear();
+			mediaRanges.emplace_back(frame, frame);
+		} else {
+			if (mediaRanges.back().last + 1 == frame)
+				++mediaRanges.back().last;
+			else
+				mediaRanges.emplace_back(frame, frame);
+		}
+		pLastMedia = pCurrentMedia;
+	}
+	if (pLastMedia != nullptr)
+		state.insert(std::make_pair(pLastMedia, std::move(mediaRanges)));
+
+	return currentWeight;
+}
+
+uint64_t LoadedImageCache::getMaxWeight() const {
+	return m_MaxWeight;
 }
 
 size_t LoadedImageCache::getWorkerCount() const {

@@ -179,6 +179,8 @@ bool Duke::togglePlayStop() {
 }
 
 void Duke::run() {
+	std::map<const IMediaStream*, std::vector<Range> > cacheStateTmp;
+
 	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
 	AttributesOverlay attributesOverlay(pGlyphRenderer);
 	StatusOverlay statusOverlay(pGlyphRenderer);
@@ -329,9 +331,18 @@ void Duke::run() {
 		// check stop
 		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC) && hasWindowParam(GLFW_FOCUSED)));
 
-		// dump info every seconds
+		// dumping cache state every 50 ms
 		const auto now = duke_clock::now();
-		if ((now - milestone) > std::chrono::seconds(1)) {
+		if ((now - milestone) > std::chrono::milliseconds(50)) {
+			const auto currentWeight = textureCache.getImageCache().dumpState(cacheStateTmp);
+			std::cout << (currentWeight / 1024 / 1024) << " MiB";
+			for (const auto& pair : cacheStateTmp) {
+				std::cout << " " << pair.first;
+				for (const auto &range : pair.second)
+					std::cout << " [" << range.first << ',' << range.last << ']';
+			}
+			std::cout << std::endl;
+
 //				metronom.dump();
 			milestone = now;
 		}

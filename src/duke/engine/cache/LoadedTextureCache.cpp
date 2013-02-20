@@ -54,6 +54,10 @@ const Timeline& LoadedTextureCache::getTimeline() const {
 	return m_Timeline;
 }
 
+const LoadedImageCache& LoadedTextureCache::getImageCache() const {
+	return m_ImageCache;
+}
+
 const TexturePackedFrame* LoadedTextureCache::getLoadedTexture(const MediaFrameReference &mfr) const {
 	auto pFound = m_Map.find(mfr);
 	if (pFound == m_Map.end())
