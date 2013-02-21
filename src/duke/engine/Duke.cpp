@@ -330,9 +330,9 @@ void Duke::run() {
 		// check stop
 		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC) && hasWindowParam(GLFW_FOCUSED)));
 
-		// dumping cache state every 50 ms
+		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
-		if ((now - milestone) > std::chrono::milliseconds(50)) {
+		if ((now - milestone) > std::chrono::milliseconds(200)) {
 			const auto currentWeight = textureCache.getImageCache().dumpState(cacheStateTmp);
 			std::cout << (currentWeight / 1024 / 1024) << " MiB";
 			for (const auto& pair : cacheStateTmp) {
