@@ -22,5 +22,9 @@ const char* fileExtension(const char* pFilename);
 
 std::string getAbsoluteFilename(const char* pFilename);
 
+std::string getExePath();
+
+std::string getDirname(const std::string &file);
+
 } /* namespace duke */
 #endif /* FSUTILS_H_ */

@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <limits.h>
+#include <unistd.h>
 
 namespace duke {
 
@@ -33,12 +34,21 @@ const char* fileExtension(const char* pFilename) {
 }
 
 std::string getAbsoluteFilename(const char* pFilename) {
-	std::string toAbsolute;
-	toAbsolute.resize(PATH_MAX);
-	if (!realpath(pFilename, const_cast<char*>(toAbsolute.data())))
-		toAbsolute.clear();
-	toAbsolute.resize(strlen(toAbsolute.c_str()));
-	return toAbsolute;
+	char result[PATH_MAX];
+	if (!realpath(pFilename, result))
+		return {};
+	return result;
+}
+
+// from http://www.cplusplus.com/forum/general/11104/
+std::string getExePath() {
+	char result[PATH_MAX];
+	ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+	return std::string(result, (count > 0) ? count : 0);
+}
+
+std::string getDirname(const std::string &file) {
+	return file.substr(0, file.rfind('/'));
 }
 
 } /* namespace duke */

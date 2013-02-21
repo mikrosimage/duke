@@ -108,8 +108,12 @@ Duke::Duke(CmdLineParameters parameters) :
 	auto timeline = buildTimeline(parameters);
 	const bool demoMode = timeline.empty();
 	if (demoMode) {
-		parameters.additionnalOptions.emplace_back("splashscreen");
-		timeline = buildTimeline(parameters);
+		const std::string exePath = getDirname(getExePath());
+		const std::string splashScreenPath = exePath + "/splashscreen";
+		if (getFileStatus(splashScreenPath.c_str()) == FileStatus::DIRECTORY) {
+			parameters.additionnalOptions.push_back(splashScreenPath);
+			timeline = buildTimeline(parameters);
+		}
 		const Range range = timeline.empty() ? Range(0, 0) : timeline.getRange();
 		Track overlay;
 		overlay.add(range.first, Clip { range.count(), nullptr, std::make_shared<DukeSplashStream>() });
