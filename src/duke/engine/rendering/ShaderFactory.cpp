@@ -9,10 +9,20 @@
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
+#include <tuple>
 
 using namespace std;
 
 namespace duke {
+ShaderDescription::ShaderDescription(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) :
+		swapEndianness(swapEndianness), swapRedAndBlue(swapRedAndBlue), tenBitUnpack(tenBitUnpack), colorspace(colorspace) {
+}
+static inline std::tuple<bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+	return std::make_tuple(sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+}
+bool ShaderDescription::operator<(const ShaderDescription &other) const {
+	return asTuple(*this) < asTuple(other);
+}
 
 static const char * const pColorSpaceConversions =
 		R"(
