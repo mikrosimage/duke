@@ -31,15 +31,15 @@ void DukeSplashStream::render(const Context& context) const {
 	const auto bound = renderer.begin(context.viewport);
 	const char greetingsString[] = "Duke R0XX!!!";
 	for (size_t i = 0; i < sizeof(greetingsString); ++i) {
-		Animation<dvec2> pos = Animation<dvec2>(500, dvec2(-500, 100), dvec2(100, 100)).startIn(500);
-		Animation<double> alpha = Animation<double>(500, 0, 1).startIn(500);
-		ivec2 offset(glyphWidth * i, 0);
-		int64_t letterTime = time - 50 * i;
+		const ivec2 offset(glyphWidth * i, 0);
+		const int64_t letterTime = time - 50 * i;
+		const double alpha = animatedValue<double>(EasingCurve::InQuad, 500, 0, 1, letterTime, 500);
+		const dvec2 position = animatedValue<dvec2>(EasingCurve::OutBack, 500, dvec2(-500, 100), dvec2(100, 100), letterTime, 500, 0, 0, 1.5);
 		drawLetter(renderer, //
 				greetingsString[i], //
 				zoom, //
-				alpha.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::InQuad)), //
-				offset + ivec2(pos.getAnimatedValue(letterTime, EasingCurveTimeInterpolator(EasingCurve::OutBack, 0, 0, 1.5))));
+				alpha, //
+				offset + ivec2(position));
 	}
 	const char insertCoinString[] = "INSERT FRAMES";
 	for (size_t i = 0; i < sizeof(greetingsString); ++i) {

@@ -90,5 +90,13 @@ public:
 	double overshoot;
 };
 
+template<typename T>
+T animatedValue(EasingCurve type, int32_t duration, T start, T end, int64_t time, int64_t startTime = 0, double period = .3, double amplitude = 1, double overshoot = 1.70158) {
+	Animation<T> animation(duration, start, end);
+	animation.startIn(startTime);
+	EasingCurveTimeInterpolator interpolator(type, period, amplitude, overshoot);
+	return animation.getAnimatedValue(time, interpolator);
+}
+
 } /* namespace duke */
 #endif /* ANIMATION_H_ */
