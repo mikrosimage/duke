@@ -22,7 +22,7 @@ typedef std::function<void(RawPackedFrame&& packedFrame, const void* pVolatileDa
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
 
-class Texture;
+struct Texture;
 bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error);
 
 } /* namespace duke */

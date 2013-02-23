@@ -17,7 +17,7 @@ struct Attributes;
 
 namespace duke {
 
-class Texture;
+struct Texture;
 struct PackedFrameDescriptionAndAttributes;
 
 enum class FitMode {
