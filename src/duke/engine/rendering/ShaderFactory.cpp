@@ -14,14 +14,29 @@
 using namespace std;
 
 namespace duke {
-ShaderDescription::ShaderDescription(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) :
-		swapEndianness(swapEndianness), swapRedAndBlue(swapRedAndBlue), tenBitUnpack(tenBitUnpack), colorspace(colorspace) {
+ShaderDescription::ShaderDescription() {
 }
-static inline std::tuple<bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
-	return std::make_tuple(sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+
+static inline std::tuple<bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+	return std::make_tuple(sd.sampleTexture, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
 }
 bool ShaderDescription::operator<(const ShaderDescription &other) const {
 	return asTuple(*this) < asTuple(other);
+}
+
+ShaderDescription ShaderDescription::createSolidDesc() {
+	ShaderDescription description;
+	description.sampleTexture = false;
+	return description;
+}
+ShaderDescription ShaderDescription::createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
+	ShaderDescription description;
+	description.sampleTexture = true;
+	description.swapEndianness = swapEndianness;
+	description.swapRedAndBlue = swapRedAndBlue;
+	description.tenBitUnpack = tenBitUnpack;
+	description.colorspace = colorspace;
+	return description;
 }
 
 static const char * const pColorSpaceConversions =
@@ -66,7 +81,7 @@ vec4 sample() {
 }
 )";
 
-static const char* const pMain =
+static const char* const pTexturedMain =
 		R"(
 out vec4 vFragColor;
 uniform bvec4 gShowChannel;
@@ -84,6 +99,16 @@ void main(void)
 	sampled.rgb = pow(sampled.rgb,vec3(gGamma));
 	sampled.rgb = lintosrgb(sampled.rgb);
 	vFragColor = sampled;
+}
+)";
+
+static const char* const pSolidMain = R"(
+out vec4 vFragColor;
+uniform vec4 gSolidColor;
+
+void main(void)
+{
+	vFragColor = gSolidColor;
 }
 )";
 
@@ -128,10 +153,14 @@ static void appendSwizzle(ostream&stream, const ShaderDescription &description) 
 std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	ostringstream oss;
 	oss << "#version 330" << endl;
-	appendColorspace(oss, description.colorspace);
-	appendSwizzle(oss, description);
-	appendSampler(oss, description);
-	oss << pMain;
+	if (description.sampleTexture) {
+		appendColorspace(oss, description.colorspace);
+		appendSwizzle(oss, description);
+		appendSampler(oss, description);
+		oss << pTexturedMain;
+	} else {
+		oss << pSolidMain;
+	}
 	return oss.str();
 }
 

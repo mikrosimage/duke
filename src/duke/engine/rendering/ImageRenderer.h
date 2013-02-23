@@ -10,7 +10,6 @@
 
 namespace duke {
 
-class PackedFrameDescriptionAndAttributes;
 class Mesh;
 struct Context;
 

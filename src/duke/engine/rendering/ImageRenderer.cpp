@@ -94,7 +94,7 @@ void renderWithBoundTexture(const Mesh *pMesh, const Context &context) {
 	bool redBlueSwapped = description.swapRedAndBlue;
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
 		redBlueSwapped = !redBlueSwapped;
-	const ShaderDescription shaderDesc(description.swapEndianness, //
+	const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc(description.swapEndianness, //
 			redBlueSwapped, //
 			description.glPackFormat == GL_RGB10_A2UI, //
 			resolve(context.pCurrentImage->attributes, context.colorSpace));

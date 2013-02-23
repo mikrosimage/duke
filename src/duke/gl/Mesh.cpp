@@ -79,4 +79,13 @@ SharedMesh getSquare() {
 					{ glm::vec3(1, -1, z), glm::vec2(1, 0) } };
 	return make_shared<Mesh>(GL_TRIANGLE_FAN, vertices.data(), vertices.size());
 }
+
+SharedMesh getLine() {
+	using namespace std;
+	const float z = 1;
+	const vector<VertexPosUv0> vertices = { //
+			{ glm::vec3(-1, -1, z), glm::vec2(0, 0) }, //
+					{ glm::vec3(1, 1, z), glm::vec2(1, 1) } };
+	return make_shared<Mesh>(GL_LINES, vertices.data(), vertices.size());
+}
 }  // namespace duke

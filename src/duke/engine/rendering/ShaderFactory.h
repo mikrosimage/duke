@@ -14,12 +14,20 @@
 namespace duke {
 
 struct ShaderDescription {
+	// vertex
+	// fragment
+	bool sampleTexture = true;
+	// texture
 	bool swapEndianness = false;
 	bool swapRedAndBlue = false;
 	bool tenBitUnpack = false;
 	ColorSpace colorspace = ColorSpace::Source;
-	ShaderDescription(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
+
+	ShaderDescription();
 	bool operator<(const ShaderDescription &other) const;
+
+	static ShaderDescription createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
+	static ShaderDescription createSolidDesc();
 };
 
 std::string buildFragmentShaderSource(const ShaderDescription &description);
