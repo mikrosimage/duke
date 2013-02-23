@@ -139,18 +139,18 @@ static const auto all = bvec4(false);
 
 static bool setNextMode(FitMode &mode) {
 	switch (mode) {
-	case FitMode::ACTUAL:
+	case FitMode::FREE:
 		mode = FitMode::INNER;
 		return true;
 	case FitMode::INNER:
 		mode = FitMode::OUTER;
 		return true;
-	case FitMode::FREE:
-		mode = FitMode::ACTUAL;
-		return true;
 	case FitMode::OUTER:
-		mode = FitMode::FREE;
+		mode = FitMode::ACTUAL;
 		return false;
+	case FitMode::ACTUAL:
+		mode = FitMode::INNER;
+		return true;
 	}
 	throw std::runtime_error("unknown fitmode");
 }
@@ -196,8 +196,19 @@ void Duke::run() {
 	auto milestone = duke_clock::now();
 	bool running = true;
 	while (running) {
+		// fetching user inputs
 		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// checking pan position or zoom changed
+		const bool notFreeMode = m_Context.fitMode != FitMode::FREE;
+		const bool panChanged = m_Context.pan != m_pWindow->getPanPos();
+		const bool zoomChanged = m_Context.zoom != m_pWindow->getScrollPos().y;
+		const bool switchToFreeFitMode = notFreeMode && (panChanged || zoomChanged);
+		if (switchToFreeFitMode) {
+			m_Context.fitMode = FitMode::FREE;
+			m_pWindow->setPan(glm::ivec2());
+			m_pWindow->setScroll(glm::vec2());
+		}
 
 		// setting up context
 		m_Context.viewport = m_pWindow->useViewport(false, false, false, false);
@@ -214,6 +225,7 @@ void Duke::run() {
 		textureCache.ensureReady(frame);
 
 		// rendering tracks
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		for (const Track &track : m_Player.getTimeline()) {
 			if (track.disabled)
 				continue;
@@ -298,8 +310,11 @@ void Duke::run() {
 				showAttributesOverlay = !showAttributesOverlay;
 				break;
 			case 'f':
-				if (setNextMode(m_Context.fitMode))
-					m_pWindow->setPan(glm::ivec2());
+				setNextMode(m_Context.fitMode);
+				m_Context.pan = glm::ivec2();
+				m_pWindow->setPan(glm::ivec2());
+				m_Context.zoom = 0;
+				m_pWindow->setScroll(glm::vec2());
 				display(getFitModeString(m_Context.fitMode));
 				break;
 			}
