@@ -349,15 +349,6 @@ void Duke::run() {
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
 		if ((now - milestone) > std::chrono::milliseconds(200)) {
-			const auto currentWeight = textureCache.getImageCache().dumpState(cacheStateTmp);
-			std::cout << (currentWeight / 1024 / 1024) << " MiB";
-			for (const auto& pair : cacheStateTmp) {
-				std::cout << " " << pair.first;
-				for (const auto &range : pair.second)
-					std::cout << " [" << range.first << ',' << range.last << ']';
-			}
-			std::cout << std::endl;
-
 //				metronom.dump();
 			milestone = now;
 		}
