@@ -161,7 +161,7 @@ void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const cha
 	const glm::ivec2 glyphDim = glm::ivec2(zoom * 8);
 	const glm::ivec2 rectDim = textDimensions(pText, glyphDim);
 	const glm::ivec2 viewportDim(viewport.dimension);
-	renderSolidRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
+	drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
 
 	const int xOrigin = x;
 	const auto bound = renderer.begin(viewport);

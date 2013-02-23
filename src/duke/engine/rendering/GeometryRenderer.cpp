@@ -28,12 +28,12 @@ static void render(Mesh *pMesh, const glm::ivec2 &viewport, const glm::ivec2 &di
 
 	glCheckError();
 }
-void renderSolidRect(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) {
+void drawRect(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) {
 	static SharedMesh gUnitSquare = getSquare();
 	render(gUnitSquare.get(), viewport, dimensions, pan, color);
 }
 
-void renderSolidLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) {
+void drawLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) {
 	static SharedMesh gUnitLine = getLine();
 	render(gUnitLine.get(), viewport, dimensions, pan, color);
 }
