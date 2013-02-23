@@ -80,7 +80,8 @@ void Player::cue(uint32_t frame) {
 }
 
 void Player::cueRelative(int32_t frame) {
-	m_PlaybackTime += m_FrameDuration * frame;
+	setPlaybackSpeed(1);
+	offsetPlaybackTime(m_FrameDuration * frame);
 	stop();
 }
 
