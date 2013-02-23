@@ -8,6 +8,7 @@
 #include "GlyphRenderer.h"
 #include <duke/engine/DukeWindow.h>
 #include <duke/engine/ImageLoadUtils.h>
+#include <duke/engine/rendering/GeometryRenderer.h>
 
 namespace duke {
 
@@ -132,9 +133,36 @@ void GlyphRenderer::draw(const char glyph) const {
 	m_pMesh->draw();
 }
 
+static glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
+	int lines = 0;
+	int maxChars = 0;
+	int currentLineChars = 0;
+	const auto setMax = [&]() {
+		if (maxChars < currentLineChars)
+		maxChars = currentLineChars;
+	};
+	for (; pMsg && *pMsg != '\0'; ++pMsg) {
+		const char c = *pMsg;
+		if (c == '\n') {
+			setMax();
+			++lines;
+			currentLineChars = 0;
+		}
+		++currentLineChars;
+	}
+	setMax();
+	const glm::ivec2 textDim(maxChars, lines + 1);
+	return (textDim++) * glyphDim;
+}
 void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
 	if (pText == nullptr || *pText == '\0')
 		return;
+
+	const glm::ivec2 glyphDim = glm::ivec2(zoom * 8);
+	const glm::ivec2 rectDim = textDimensions(pText, glyphDim);
+	const glm::ivec2 viewportDim(viewport.dimension);
+	renderSolidRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
+
 	const int xOrigin = x;
 	const auto bound = renderer.begin(viewport);
 	renderer.setAlpha(alpha);

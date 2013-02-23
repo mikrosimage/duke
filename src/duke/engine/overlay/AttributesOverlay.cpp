@@ -10,12 +10,14 @@
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
 #include <sstream>
+#include <algorithm>
 
 namespace duke {
 
 AttributesOverlay::AttributesOverlay(const std::shared_ptr<GlyphRenderer> &pGlyphRenderer) :
 		m_pGlyphRenderer(pGlyphRenderer) {
 }
+
 
 void AttributesOverlay::render(const Context &context) const {
 	if (!context.pCurrentImage)
