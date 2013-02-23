@@ -245,8 +245,6 @@ void Duke::run() {
 				attributesOverlay.render(m_Context);
 		}
 		statusOverlay.render(m_Context);
-		renderSolidRect(m_Context.viewport.dimension, glm::ivec2(100, 50), glm::ivec2(0, -100), glm::vec4(1, 1, 0, 1));
-		renderSolidLine(m_Context.viewport.dimension, glm::ivec2(100, 50), glm::ivec2(0, -100), glm::vec4(1, 0, 0, 1));
 
 		// displaying
 		m_pWindow->glfwSwapBuffers();
