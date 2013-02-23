@@ -10,6 +10,7 @@
 
 #include "IOverlay.h"
 #include <duke/time/FrameUtils.h>
+#include <duke/animation/Animation.h>
 #include <string>
 #include <memory>
 
@@ -29,6 +30,7 @@ private:
 	const std::shared_ptr<GlyphRenderer> m_pGlyphRenderer;
 	Time m_ShowTime;
 	std::string m_Message;
+	AnimationData m_Alpha;
 };
 
 } /* namespace duke */

@@ -21,51 +21,6 @@ enum RepeatCount
 		INFINITE = -1
 };
 
-struct TimeCycleEvaluator {
-	TimeCycleEvaluator(int64_t duration = 300);
-	double getInterpolatedTime(int64_t time) const;
-
-	int64_t duration;
-	int64_t repeatCount = 0; // RepeatCount::INFINITE;
-	RepeatMode repeatMode = RepeatMode::RESTART;
-	int64_t startTime = 0;
-private:
-	double getFractionWithMode(int64_t elapsed, int64_t count) const;
-	double getReverseFraction(int64_t elapsed) const;
-	double getFraction(int64_t elapsed) const;
-	bool isInfinite() const;
-};
-
-class TimeInterpolator {
-public:
-	virtual ~TimeInterpolator() = 0;
-	virtual double getInterpolation(double input) const = 0;
-};
-
-template<typename T>
-struct Animation: TimeCycleEvaluator {
-	Animation() :
-			TimeCycleEvaluator(), startValue(), endValue() {
-	}
-	Animation(int32_t duration, T start, T end) :
-			TimeCycleEvaluator(duration), startValue(start), endValue(end) {
-	}
-
-	T getAnimatedValue(int64_t time, const TimeInterpolator &interpolator) const {
-		const double normalizedTime = getInterpolatedTime(time);
-		const double interpolatedTime = interpolator.getInterpolation(normalizedTime);
-		return startValue * (1 - interpolatedTime) + endValue * interpolatedTime;
-	}
-
-	Animation& startIn(int64_t startTime) {
-		this->startTime = startTime;
-		return *this;
-	}
-
-	T startValue;
-	T endValue;
-};
-
 enum class EasingCurve {
 	Linear, //
 	InQuad, OutQuad, InOutQuad, OutInQuad, //
@@ -80,22 +35,25 @@ enum class EasingCurve {
 	InBounce, OutBounce, InOutBounce, OutInBounce
 };
 
-class EasingCurveTimeInterpolator: public TimeInterpolator {
-public:
-	EasingCurveTimeInterpolator(EasingCurve type, double period = .3, double amplitude = 1, double overshoot = 1.70158);
-	virtual double getInterpolation(double input) const;
-	EasingCurve type;
-	double period;
-	double amplitude;
-	double overshoot;
+struct AnimationData {
+	int64_t duration = 300;
+	int64_t repeatCount = 0; // RepeatCount::INFINITE;
+	RepeatMode repeatMode = RepeatMode::RESTART;
+	int64_t startTime = 0;
+	EasingCurve type = EasingCurve::Linear;
+	double period = .3;
+	double amplitude = 1;
+	double overshoot = 1.70158;
 };
 
+double getCycleValue(const AnimationData&, int64_t time);
+double interpolateCycleValue(const AnimationData&, double input);
+
 template<typename T>
-T animatedValue(EasingCurve type, int32_t duration, T start, T end, int64_t time, int64_t startTime = 0, double period = .3, double amplitude = 1, double overshoot = 1.70158) {
-	Animation<T> animation(duration, start, end);
-	animation.startIn(startTime);
-	EasingCurveTimeInterpolator interpolator(type, period, amplitude, overshoot);
-	return animation.getAnimatedValue(time, interpolator);
+T interpolateValue(const AnimationData& data, T startValue, T endValue, int64_t time) {
+	const double normalizedTime = getCycleValue(data, time);
+	const double interpolatedTime = interpolateCycleValue(data, normalizedTime);
+	return startValue * (1 - interpolatedTime) + endValue * interpolatedTime;
 }
 
 } /* namespace duke */

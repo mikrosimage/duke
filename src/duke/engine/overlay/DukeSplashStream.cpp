@@ -14,6 +14,21 @@ using namespace glm;
 
 namespace duke {
 
+DukeSplashStream::DukeSplashStream() {
+	m_LeftAlpha.duration = 500;
+	m_LeftAlpha.startTime = 500;
+	m_LeftAlpha.type = EasingCurve::InQuad;
+	m_LeftPos.duration = 500;
+	m_LeftPos.startTime = 500;
+	m_LeftPos.type = EasingCurve::OutBack;
+	m_LeftPos.overshoot = 1.5;
+	m_RightAlpha.duration = 1000;
+	m_RightAlpha.startTime = 2000;
+	m_RightAlpha.type = EasingCurve::InOutExpo;
+	m_RightAlpha.repeatCount = RepeatCount::INFINITE;
+	m_RightAlpha.repeatMode = RepeatMode::REVERSE;
+}
+
 DukeSplashStream::~DukeSplashStream() {
 }
 
@@ -29,28 +44,29 @@ void DukeSplashStream::render(const Context& context) const {
 	const size_t glyphWidth = zoom * 8;
 	const auto time = context.liveTime.asMilliseconds();
 	const auto bound = renderer.begin(context.viewport);
-	const char greetingsString[] = "Duke R0XX!!!";
-	for (size_t i = 0; i < sizeof(greetingsString); ++i) {
-		const ivec2 offset(glyphWidth * i, 0);
-		const int64_t letterTime = time - 50 * i;
-		const double alpha = animatedValue<double>(EasingCurve::InQuad, 500, 0, 1, letterTime, 500);
-		const dvec2 position = animatedValue<dvec2>(EasingCurve::OutBack, 500, dvec2(-500, 100), dvec2(100, 100), letterTime, 500, 0, 0, 1.5);
-		drawLetter(renderer, //
-				greetingsString[i], //
-				zoom, //
-				alpha, //
-				offset + ivec2(position));
+	{
+		const char greetingsString[] = "Duke R0XX!!!";
+		for (size_t i = 0; i < sizeof(greetingsString); ++i) {
+			const ivec2 offset(glyphWidth * i, 0);
+			const int64_t letterTime = time - 50 * i;
+			const float alpha = interpolateValue<float>(m_LeftAlpha, 0, 1, letterTime);
+			const dvec2 position = interpolateValue<dvec2>(m_LeftPos, dvec2(-500, 100), dvec2(100, 100), letterTime);
+			drawLetter(renderer, //
+					greetingsString[i], //
+					zoom, //
+					alpha, //
+					offset + ivec2(position));
+		}
 	}
-	const char insertCoinString[] = "INSERT FRAMES";
-	for (size_t i = 0; i < sizeof(greetingsString); ++i) {
-		Animation<double> alpha = Animation<double>(1000, 0, 1).startIn(2000);
-		alpha.repeatCount = RepeatCount::INFINITE;
-		alpha.repeatMode = RepeatMode::REVERSE;
-		drawLetter(renderer, //
-				insertCoinString[i], //
-				zoom, //
-				alpha.getAnimatedValue(time, EasingCurveTimeInterpolator(EasingCurve::InOutExpo)), //
-				ivec2(context.viewport.dimension.x - 100 - (sizeof(greetingsString) - i) * glyphWidth, 100));
+	{
+		const char insertCoinString[] = "INSERT FRAMES";
+		for (size_t i = 0; i < sizeof(insertCoinString); ++i) {
+			drawLetter(renderer, //
+					insertCoinString[i], //
+					zoom, //
+					interpolateValue<float>(m_RightAlpha, 0, 1, time), //
+					ivec2(context.viewport.dimension.x - 100 - (sizeof(insertCoinString) - i) * glyphWidth, 100));
+		}
 	}
 }
 

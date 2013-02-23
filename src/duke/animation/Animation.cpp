@@ -16,42 +16,19 @@ static bool isOdd(int64_t count) {
 	return (count & 0x01) > 0;
 }
 
-TimeCycleEvaluator::TimeCycleEvaluator(int64_t duration) :
-		duration(duration) {
-}
-
-double TimeCycleEvaluator::getInterpolatedTime(int64_t time) const {
-	const int64_t elapsed = time - startTime;
+double getCycleValue(const AnimationData& data, int64_t time) {
+	const int64_t elapsed = time - data.startTime;
 	const int64_t forwardElapsed = elapsed < 0 ? 0 : elapsed;
-	const int64_t repeatedCount = forwardElapsed / duration;
-	const int64_t elapsedFraction = forwardElapsed - (repeatedCount * duration);
-	if (!isInfinite() && repeatedCount > repeatCount)
+	const int64_t repeatedCount = forwardElapsed / data.duration;
+	const bool isInfinite = data.repeatCount == RepeatCount::INFINITE;
+	if (!isInfinite && repeatedCount > data.repeatCount)
 		return 1;
-	return getFractionWithMode(elapsedFraction, repeatedCount);
+	const int64_t elapsedFraction = forwardElapsed - (repeatedCount * data.duration);
+	const double fraction = double(elapsedFraction) / data.duration;
+	const double reverseFraction = 1 - fraction;
+	return data.repeatMode == RepeatMode::REVERSE && isOdd(repeatedCount) ? reverseFraction : fraction;
 }
 
-double TimeCycleEvaluator::getFractionWithMode(int64_t elapsed, int64_t count) const {
-	return repeatMode == RepeatMode::REVERSE && isOdd(count) ? getReverseFraction(elapsed) : getFraction(elapsed);
-}
-
-double TimeCycleEvaluator::getReverseFraction(int64_t elapsed) const {
-	return 1 - getFraction(elapsed);
-}
-
-double TimeCycleEvaluator::getFraction(int64_t elapsed) const {
-	return double(elapsed) / duration;
-}
-
-bool TimeCycleEvaluator::isInfinite() const {
-	return repeatCount == RepeatCount::INFINITE;
-}
-
-TimeInterpolator::~TimeInterpolator() {
-}
-
-EasingCurveTimeInterpolator::EasingCurveTimeInterpolator(EasingCurve type, double period, double amplitude, double overshoot) :
-		type(type), period(period), amplitude(amplitude), overshoot(overshoot) {
-}
 struct quadratic {
 	static inline double apply(double t) {
 		return t * t;
@@ -161,8 +138,8 @@ struct outin {
 	}
 };
 
-double EasingCurveTimeInterpolator::getInterpolation(double t) const {
-	switch (type) {
+double interpolateCycleValue(const AnimationData &data, double t) {
+	switch (data.type) {
 	case EasingCurve::Linear:
 		return t;
 	case EasingCurve::InQuad:
@@ -222,29 +199,29 @@ double EasingCurveTimeInterpolator::getInterpolation(double t) const {
 	case EasingCurve::OutInCirc:
 		return outin<circ>::apply(t);
 	case EasingCurve::InElastic:
-		return out<elastic_reversed, double, double>::apply(t, amplitude, period);
+		return out<elastic_reversed, double, double>::apply(t, data.amplitude, data.period);
 	case EasingCurve::OutElastic:
-		return in<elastic_reversed, double, double>::apply(t, amplitude, period);
+		return in<elastic_reversed, double, double>::apply(t, data.amplitude, data.period);
 	case EasingCurve::InOutElastic:
-		return outin<elastic_reversed, double, double>::apply(t, amplitude, period);
+		return outin<elastic_reversed, double, double>::apply(t, data.amplitude, data.period);
 	case EasingCurve::OutInElastic:
-		return inout<elastic_reversed, double, double>::apply(t, amplitude, period);
+		return inout<elastic_reversed, double, double>::apply(t, data.amplitude, data.period);
 	case EasingCurve::InBack:
-		return in<back, double>::apply(t, overshoot);
+		return in<back, double>::apply(t, data.overshoot);
 	case EasingCurve::OutBack:
-		return out<back, double>::apply(t, overshoot);
+		return out<back, double>::apply(t, data.overshoot);
 	case EasingCurve::InOutBack:
-		return inout<back, double>::apply(t, overshoot);
+		return inout<back, double>::apply(t, data.overshoot);
 	case EasingCurve::OutInBack:
-		return outin<back, double>::apply(t, overshoot);
+		return outin<back, double>::apply(t, data.overshoot);
 	case EasingCurve::InBounce:
-		return out<bounce_reverse, double>::apply(t, amplitude);
+		return out<bounce_reverse, double>::apply(t, data.amplitude);
 	case EasingCurve::OutBounce:
-		return in<bounce_reverse, double>::apply(t, amplitude);
+		return in<bounce_reverse, double>::apply(t, data.amplitude);
 	case EasingCurve::InOutBounce:
-		return outin<bounce_reverse, double>::apply(t, amplitude);
+		return outin<bounce_reverse, double>::apply(t, data.amplitude);
 	case EasingCurve::OutInBounce:
-		return inout<bounce_reverse, double>::apply(t, amplitude);
+		return inout<bounce_reverse, double>::apply(t, data.amplitude);
 	}
 	throw std::runtime_error("Easing curve not yet implemented");
 }

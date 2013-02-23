@@ -15,6 +15,8 @@ namespace duke {
 
 StatusOverlay::StatusOverlay(const std::shared_ptr<GlyphRenderer>&pGlyphRenderer) :
 		m_pGlyphRenderer(pGlyphRenderer) {
+	m_Alpha.duration = 800;
+	m_Alpha.type = EasingCurve::InExpo;
 }
 
 void StatusOverlay::setString(const Time& time, const std::string &msg) {
@@ -25,7 +27,7 @@ void StatusOverlay::setString(const Time& time, const std::string &msg) {
 void StatusOverlay::render(const Context& context) const {
 	const Time time = context.liveTime - m_ShowTime;
 	const auto ms = time.asMilliseconds();
-	const double alpha = animatedValue<double>(EasingCurve::InExpo, 800, 1, 0, ms);
+	const double alpha = interpolateValue<double>(m_Alpha, 1, 0, ms);
 	if (alpha > 0)
 		drawText(*m_pGlyphRenderer, //
 				context.viewport, //
