@@ -206,8 +206,7 @@ void Duke::run() {
 		const bool switchToFreeFitMode = notFreeMode && (panChanged || zoomChanged);
 		if (switchToFreeFitMode) {
 			m_Context.fitMode = FitMode::FREE;
-			m_pWindow->setPan(glm::ivec2());
-			m_pWindow->setScroll(glm::vec2());
+			m_pWindow->resetPanAndScroll();
 		}
 
 		// setting up context
@@ -298,6 +297,10 @@ void Duke::run() {
 			case 'a':
 				m_Context.channels = m_Context.channels == a ? all : a;
 				break;
+			case '*':
+				m_Context.exposure = 1;
+				displayExposure();
+				break;
 			case '+':
 				m_Context.exposure *= 1.2;
 				displayExposure();
@@ -312,9 +315,8 @@ void Duke::run() {
 			case 'f':
 				setNextMode(m_Context.fitMode);
 				m_Context.pan = glm::ivec2();
-				m_pWindow->setPan(glm::ivec2());
 				m_Context.zoom = 0;
-				m_pWindow->setScroll(glm::vec2());
+				m_pWindow->resetPanAndScroll();
 				display(getFitModeString(m_Context.fitMode));
 				break;
 			}

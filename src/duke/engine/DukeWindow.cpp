@@ -54,6 +54,13 @@ void DukeWindow::setPan(glm::ivec2 pan) {
 	m_Pan = pan;
 }
 
+void DukeWindow::resetPanAndScroll() {
+	m_Pan.x = 0;
+	m_Pan.y = 0;
+	m_Scroll.x = 0;
+	m_Scroll.y = 0;
+}
+
 void DukeWindow::onMouseClick(int buttonId, int buttonState) {
 	if (buttonId == GLFW_MOUSE_BUTTON_LEFT)
 		switch (buttonState) {

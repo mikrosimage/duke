@@ -21,7 +21,7 @@ struct ShaderDescription {
 	bool swapEndianness = false;
 	bool swapRedAndBlue = false;
 	bool tenBitUnpack = false;
-	ColorSpace colorspace = ColorSpace::Source;
+	ColorSpace colorspace = ColorSpace::Auto;
 
 	ShaderDescription();
 	bool operator<(const ShaderDescription &other) const;

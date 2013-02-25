@@ -32,7 +32,7 @@ static ColorSpace resolveFromMetadata(const char* pColorspace) {
 		if (streq(pColorspace, "AdobeRGB"))
 			return ColorSpace::AdobeRGB;
 	}
-	return ColorSpace::Source;
+	return ColorSpace::Auto;
 }
 
 static ColorSpace resolveFromExtension(const char* pFileExtension) {
@@ -47,10 +47,10 @@ static ColorSpace resolveFromExtension(const char* pFileExtension) {
 }
 
 static ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
-	if (original != ColorSpace::Source)
+	if (original != ColorSpace::Auto)
 		return original;
 	original = resolveFromMetadata(attributes.findString(attribute::pOiioColospaceKey));
-	if (original != ColorSpace::Source)
+	if (original != ColorSpace::Auto)
 		return original;
 	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
 }

@@ -14,7 +14,6 @@
 
 namespace duke {
 
-struct Context;
 class IMediaStream: public noncopyable {
 public:
 	virtual ~IMediaStream() = 0;

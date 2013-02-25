@@ -55,12 +55,13 @@ static std::string load(const char* pFilename, const char *pExtension, const Loa
 	const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
 	if (descriptors.empty())
 		return "no reader available";
+	std::string error;
 	for (const IIODescriptor *pDescriptor : descriptors) {
-		std::string error = tryReader(pFilename, pDescriptor, callback);
+		error = tryReader(pFilename, pDescriptor, callback);
 		if (error.empty())
 			return std::string();
 	}
-	return "no reader succeeded";
+	return "no reader succeeded, last message was : " + error;
 }
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error) {

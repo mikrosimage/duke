@@ -147,8 +147,8 @@ static glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
 			setMax();
 			++lines;
 			currentLineChars = 0;
-		}
-		++currentLineChars;
+		} else
+			++currentLineChars;
 	}
 	setMax();
 	const glm::ivec2 textDim(maxChars, lines + 1);

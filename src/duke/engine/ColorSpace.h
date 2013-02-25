@@ -12,7 +12,7 @@ namespace duke {
 
 enum class ColorSpace
 	: unsigned char {
-		Source, Linear, sRGB, GammaCorrected, AdobeRGB, Rec709, KodakLog
+		Auto, Linear, sRGB, GammaCorrected, AdobeRGB, Rec709, KodakLog, _END
 };
 
 } /* namespace duke */

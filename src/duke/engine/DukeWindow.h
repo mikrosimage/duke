@@ -37,6 +37,7 @@ struct DukeWindow: public DukeGLFWWindow {
 
 	void setScroll(glm::vec2 scroll);
 	void setPan(glm::ivec2 pan);
+	void resetPanAndScroll();
 
 	// getter
 	const Viewport useViewport(bool north, bool south, bool east, bool west) const;

@@ -121,7 +121,7 @@ static const char* chooseColorspace(const ColorSpace colospace) {
 	case ColorSpace::sRGB:
 	case ColorSpace::GammaCorrected:
 		return "srgbtolin";
-	case ColorSpace::Source:
+	case ColorSpace::Auto:
 	default:
 		throw std::runtime_error("ColorSpace must be resolved at this point");
 	}

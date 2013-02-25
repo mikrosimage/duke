@@ -348,12 +348,13 @@ void checkProgramError(unsigned int programId) {
 GLenum getPixelFormat(GLint internalFormat) {
 	switch (internalFormat) {
 	case GL_RGB8:
+	case GL_RGB16F:
 		return GL_BGR;
 	case GL_RGBA8:
+	case GL_RGBA16F:
 		return GL_BGRA;
 	case GL_RGB10_A2UI:
 		return GL_BGRA_INTEGER;
-	case GL_RGBA16F:
 		return GL_BGRA;
 	default:
 		std::ostringstream oss;
@@ -387,6 +388,7 @@ GLenum getPixelType(GLint internalFormat) {
 	case GL_RGBA8:
 		return GL_UNSIGNED_INT_8_8_8_8_REV;
 	case GL_RGBA16F:
+	case GL_RGB16F:
 		return GL_HALF_FLOAT;
 	default:
 		std::ostringstream oss;

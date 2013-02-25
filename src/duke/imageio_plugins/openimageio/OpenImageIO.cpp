@@ -101,7 +101,9 @@ public:
 		static const vector<string> RGB = { "R", "G", "B" };
 		static const vector<string> RGBA = { "R", "G", "B", "A" };
 		if (m_Spec.channelnames != RGB && m_Spec.channelnames != RGBA) {
-			m_Error = "Can only handle RGB and RGBA images for now";
+			m_Error = "Can only handle RGB and RGBA images for now, was ";
+			for (const auto& string : m_Spec.channelnames)
+				m_Error += string;
 			return;
 		}
 
