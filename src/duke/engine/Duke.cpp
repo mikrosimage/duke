@@ -9,12 +9,12 @@
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/filesystem/FsUtils.h>
 #include <duke/time/Clock.h>
-#include <duke/engine/rendering/GeometryRenderer.h>
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/overlay/DukeSplashStream.h>
 #include <duke/engine/overlay/AttributesOverlay.h>
 #include <duke/engine/overlay/StatusOverlay.h>
+#include <duke/engine/overlay/CacheOverlay.h>
 #include <duke/engine/streams/DiskMediaStream.h>
 #include <duke/attributes/AttributeKeys.h>
 #include <duke/gl/GL.h>
@@ -189,6 +189,7 @@ void Duke::run() {
 	const auto pGlyphRenderer = std::make_shared<GlyphRenderer>();
 	AttributesOverlay attributesOverlay(pGlyphRenderer);
 	StatusOverlay statusOverlay(pGlyphRenderer);
+	CacheOverlay cacheOverlay(pGlyphRenderer, cacheStateTmp, m_Player.getTimeline());
 	bool showAttributesOverlay = false;
 
 	SharedMesh pSquare = getSquare();
@@ -256,6 +257,7 @@ void Duke::run() {
 				attributesOverlay.render(m_Context);
 		}
 		statusOverlay.render(m_Context);
+		cacheOverlay.render(m_Context);
 
 		// displaying
 		m_pWindow->glfwSwapBuffers();
@@ -350,7 +352,8 @@ void Duke::run() {
 
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
-		if ((now - milestone) > std::chrono::milliseconds(200)) {
+		if ((now - milestone) > std::chrono::milliseconds(100)) {
+			textureCache.getImageCache().dumpState(cacheStateTmp);
 //				metronom.dump();
 			milestone = now;
 		}
