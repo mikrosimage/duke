@@ -142,18 +142,12 @@ static const char* getToScreenFunction(const ColorSpace fromColorspace) {
 }
 
 static void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
-	stream << R"(
-vec3 toLinear(vec3 sample){
-	return )" << getToLinearFunction(colorspace) << R"((sample);
+	stream << endl << "vec3 toLinear(vec3 sample){return " << getToLinearFunction(colorspace) << "(sample);}" << endl;
 }
-)";}
 
 static void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
-	stream << R"(
-vec3 toScreen(vec3 sample){
-	return )" << getToScreenFunction(colorspace) << R"((sample);
+	stream << endl << "vec3 toScreen(vec3 sample){return " << getToScreenFunction(colorspace) << "(sample);}" << endl;
 }
-)";}
 
 static void appendSampler(ostream&stream, const ShaderDescription &description) {
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
@@ -166,10 +160,7 @@ static void appendSwizzle(ostream&stream, const ShaderDescription &description) 
 		std::swap(swizzling[0], swizzling[2]);
 	if (description.swapEndianness)
 		std::reverse(swizzling.begin(), swizzling.end());
-	stream << type << " swizzle(" << type << R"( sample){
-	return sample.)" << swizzling << R"(;
-}
-)";
+	stream << type << " swizzle(" << type << " sample){return sample." << swizzling << ";}";
 }
 
 std::string buildFragmentShaderSource(const ShaderDescription &description) {
