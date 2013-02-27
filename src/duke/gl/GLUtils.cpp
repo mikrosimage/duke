@@ -349,13 +349,12 @@ GLenum getPixelFormat(GLint internalFormat) {
 	switch (internalFormat) {
 	case GL_RGB8:
 	case GL_RGB16F:
-		return GL_BGR;
+		return GL_RGB;
 	case GL_RGBA8:
 	case GL_RGBA16F:
-		return GL_BGRA;
+		return GL_RGBA;
 	case GL_RGB10_A2UI:
-		return GL_BGRA_INTEGER;
-		return GL_BGRA;
+		return GL_RGBA_INTEGER;
 	default:
 		std::ostringstream oss;
 		oss << "Don't know how to convert internal image format ";
@@ -369,10 +368,11 @@ bool isInternalOptimizedFormatRedBlueSwapped(int internalFormat) {
 	case GL_RGB8:
 	case GL_RGBA8:
 	case GL_RGB10_A2UI:
+	case GL_RGB16F:
 	case GL_RGBA16F:
-		return true;
-	default:
 		return false;
+	default:
+		return true;
 	}
 }
 
