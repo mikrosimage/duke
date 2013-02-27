@@ -97,7 +97,7 @@ void main(void)
 		sampled = vec4(sampled.aaa,1);
 	sampled.rgb = sampled.rgb * gExposure;
 	sampled.rgb = pow(sampled.rgb,vec3(gGamma));
-	sampled.rgb = lintosrgb(sampled.rgb);
+	sampled.rgb = toScreen(sampled.rgb);
 	vFragColor = sampled;
 }
 )";
@@ -112,8 +112,8 @@ void main(void)
 }
 )";
 
-static const char* chooseColorspace(const ColorSpace colospace) {
-	switch (colospace) {
+static const char* getToLinearFunction(const ColorSpace fromColorspace) {
+	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
 		return "cineontolin";
 	case ColorSpace::Linear:
@@ -126,17 +126,39 @@ static const char* chooseColorspace(const ColorSpace colospace) {
 		throw std::runtime_error("ColorSpace must be resolved at this point");
 	}
 }
-static void appendColorspace(ostream&stream, const ColorSpace colorspace) {
-	stream << pColorSpaceConversions << endl;
+
+static const char* getToScreenFunction(const ColorSpace fromColorspace) {
+	switch (fromColorspace) {
+	case ColorSpace::KodakLog:
+	case ColorSpace::Linear:
+		return "lintolin";
+	case ColorSpace::sRGB:
+	case ColorSpace::GammaCorrected:
+		return "lintosrgb";
+	case ColorSpace::Auto:
+	default:
+		throw std::runtime_error("ColorSpace must be resolved at this point");
+	}
+}
+
+static void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
 	stream << R"(
 vec3 toLinear(vec3 sample){
-	return )" << chooseColorspace(colorspace) << R"((sample);
+	return )" << getToLinearFunction(colorspace) << R"((sample);
 }
-)";
+)";}
+
+static void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
+	stream << R"(
+vec3 toScreen(vec3 sample){
+	return )" << getToScreenFunction(colorspace) << R"((sample);
 }
+)";}
+
 static void appendSampler(ostream&stream, const ShaderDescription &description) {
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
 }
+
 static void appendSwizzle(ostream&stream, const ShaderDescription &description) {
 	const char* type = description.tenBitUnpack ? "uvec4" : "vec4";
 	string swizzling = "rgba";
@@ -154,7 +176,9 @@ std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	ostringstream oss;
 	oss << "#version 330" << endl;
 	if (description.sampleTexture) {
-		appendColorspace(oss, description.colorspace);
+		oss << pColorSpaceConversions << endl;
+		appendToLinearFunction(oss, description.colorspace);
+		appendToScreenFunction(oss, description.colorspace);
 		appendSwizzle(oss, description);
 		appendSampler(oss, description);
 		oss << pTexturedMain;
