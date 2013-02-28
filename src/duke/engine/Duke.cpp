@@ -193,7 +193,10 @@ void Duke::run() {
 	bool showAttributesOverlay = false;
 
 	SharedMesh pSquare = getSquare();
-	Metronom metronom(100);
+	Metronom vBlankMetronom(100);
+	Metronom frameMetronom(30);
+
+	size_t lastFrame = 0;
 	auto milestone = duke_clock::now();
 	bool running = true;
 	while (running) {
@@ -263,9 +266,14 @@ void Duke::run() {
 		m_pWindow->glfwSwapBuffers();
 
 		// updating time
-		const auto elapsedMicroSeconds = metronom.tick();
+		const auto elapsedMicroSeconds = vBlankMetronom.tick();
 		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
+
+		if (frame != lastFrame) {
+			frameMetronom.tick();
+			lastFrame = frame;
+		}
 
 		// preparing display function
 		const auto display = [&](const std::string &msg) {
@@ -354,7 +362,8 @@ void Duke::run() {
 		const auto now = duke_clock::now();
 		if ((now - milestone) > std::chrono::milliseconds(100)) {
 			textureCache.getImageCache().dumpState(cacheStateTmp);
-//				metronom.dump();
+//			vBlankMetronom.dump();
+//			frameMetronom.dump();
 			milestone = now;
 		}
 	}
