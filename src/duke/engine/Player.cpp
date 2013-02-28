@@ -17,15 +17,18 @@ Player::Player(const CmdLineParameters &parameters) :
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
 	m_TextureCache.load(timeline);
 	m_TimelineRange = timeline.getRange();
+	setFrameDuration(duration);
+	cue(m_TimelineRange == Range::EMPTY ? 0 : m_TimelineRange.first);
+}
+
+void Player::setFrameDuration(const FrameDuration &duration) {
 	m_FrameDuration = duration;
-	const bool empty = m_TimelineRange == Range::EMPTY;
-	if (empty) {
+	if (m_TimelineRange == Range::EMPTY) {
 		m_FirstFrameTime = m_LastFrameTime = 0;
 	} else {
 		m_FirstFrameTime = frameToTime(m_TimelineRange.first, getFrameDuration());
 		m_LastFrameTime = frameToTime(m_TimelineRange.last, getFrameDuration());
 	}
-	cue(empty ? 0 : m_TimelineRange.first);
 }
 
 void Player::setPlaybackTime(const Time time) {

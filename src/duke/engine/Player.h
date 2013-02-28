@@ -17,7 +17,9 @@ struct Player: public noncopyable {
 		CONTINUE, LOOP, STOP
 	};
 
+	// setup
 	void load(const Timeline& timeline, const FrameDuration &duration);
+	void setFrameDuration(const FrameDuration &duration);
 
 	// frame based
 	void stop();

@@ -119,11 +119,11 @@ Duke::Duke(CmdLineParameters parameters) :
 		Track overlay;
 		overlay.add(range.first, Clip { range.count(), nullptr, std::make_shared<DukeSplashStream>() });
 		timeline.push_back(overlay);
-		m_Context.fitMode = FitMode::OUTER;
 		m_Player.load(timeline, FrameDuration(1, 15));
 		m_Player.setPlaybackSpeed(1);
+		m_Context.fitMode = FitMode::OUTER;
 	} else
-		m_Player.load(timeline, FrameDuration::PAL);
+		m_Player.load(timeline, parameters.defaultFrameRate);
 }
 
 namespace { // defining channel mask constants

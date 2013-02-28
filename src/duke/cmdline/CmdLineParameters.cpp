@@ -39,6 +39,12 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 			fullscreen = true;
 		else if (matches(pOption, "-t", "--threads"))
 			getArgs(argc, argv, ++i, workerThreadDefault);
+		else if (matches(pOption, "", "--film"))
+			defaultFrameRate = FrameDuration::FILM;
+		else if (matches(pOption, "", "--ntsc"))
+			defaultFrameRate = FrameDuration::NTSC;
+		else if (matches(pOption, "", "--pal"))
+			defaultFrameRate = FrameDuration::PAL;
 		else if (matches(pOption, "-s", "--cache-size")) {
 			getArgs(argc, argv, ++i, imageCacheSizeDefault);
 			imageCacheSizeDefault *= 1024 * 1024;
@@ -56,10 +62,16 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 const char* CmdLineParameters::getHelpMessage() const {
 	return R"(Usage: duke [OPTION]... [FILE/FOLDER]...
   -h, --help                 displays this message
+
+      --pal                  sets framerate to 25 fps (default)
+      --film                 sets framerate to 24 fps
+      --ntsc                 sets framerate to 29.97 fps
+
       --swapinterval         specifies n as the mandatory count of wait for
                              vblank before displaying a frame, default is 1.
   -t, --threads              specify the number of decoding threads.
-  -s, --cache-size           size of the in-memory cache system in MB.
+                             default is max( 1, min( count(CPU) - 2 , 4) )
+  -s, --cache-size           size of the in-memory cache system in MiB.
   -f, --fullscreen           switch to fullscreen mode.
       --benchmark            tests current machine's performance.
 )";
