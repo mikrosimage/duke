@@ -356,7 +356,7 @@ void Duke::run() {
 		keyStrokes.clear();
 
 		// check stop
-		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC) && hasWindowParam(GLFW_FOCUSED)));
+		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC)));
 
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
