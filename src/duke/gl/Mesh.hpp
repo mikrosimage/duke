@@ -57,8 +57,8 @@ private:
 typedef std::shared_ptr<Mesh> SharedMesh;
 typedef std::shared_ptr<IndexedMesh> SharedIndexedMesh;
 
-SharedMesh getSquare();
-SharedMesh getLine();
+SharedMesh createSquare();
+SharedMesh createLine();
 
 }  // namespace duke
 

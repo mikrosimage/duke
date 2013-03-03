@@ -14,17 +14,16 @@
 
 namespace duke {
 
-AttributesOverlay::AttributesOverlay(const std::shared_ptr<GlyphRenderer> &pGlyphRenderer) :
-		m_pGlyphRenderer(pGlyphRenderer) {
+AttributesOverlay::AttributesOverlay(const GlyphRenderer &glyphRenderer) :
+		m_GlyphRenderer(glyphRenderer) {
 }
-
 
 void AttributesOverlay::render(const Context &context) const {
 	if (!context.pCurrentImage)
 		return;
 	std::ostringstream oss;
 	oss << context.pCurrentImage->attributes;
-	drawText(*m_pGlyphRenderer, context.viewport, oss.str().c_str(), 50, 50, 1, 2);
+	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 50, 50, 1, 2);
 }
 
 } /* namespace duke */

@@ -11,13 +11,12 @@
 #include <duke/attributes/Attributes.h>
 #include <duke/attributes/AttributeKeys.h>
 #include <duke/engine/Context.h>
+#include <duke/engine/rendering/ShaderFactory.h>
 #include <duke/engine/rendering/ShaderPool.h>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.h>
 
 namespace duke {
-
-static ShaderPool gProgramPool;
 
 static ColorSpace resolveFromMetadata(const char* pColorspace) {
 	if (pColorspace) {
@@ -89,7 +88,7 @@ static float getZoomValue(const Context &context) {
 	}
 }
 
-void renderWithBoundTexture(const Mesh *pMesh, const Context &context) {
+void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context) {
 	const auto &description = context.pCurrentImage->description;
 	bool redBlueSwapped = description.swapRedAndBlue;
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
@@ -98,7 +97,7 @@ void renderWithBoundTexture(const Mesh *pMesh, const Context &context) {
 			redBlueSwapped, //
 			description.glPackFormat == GL_RGB10_A2UI, //
 			resolve(context.pCurrentImage->attributes, context.colorSpace));
-	const auto pProgram = gProgramPool.get(shaderDesc);
+	const auto pProgram = shaderPool.get(shaderDesc);
 	pProgram->use();
 	setTextureDimensions(pProgram->getUniformLocation("gImage"), description.width, description.height, context.pCurrentImage->attributes.getOrientation());
 	glUniform2i(pProgram->getUniformLocation("gViewport"), context.viewport.dimension.x, context.viewport.dimension.y);

@@ -18,10 +18,10 @@ struct GlyphRenderer;
 
 class AttributesOverlay: public IOverlay {
 public:
-	AttributesOverlay(const std::shared_ptr<GlyphRenderer>&);
+	AttributesOverlay(const GlyphRenderer&);
 	virtual void render(const Context&) const;
 private:
-	const std::shared_ptr<GlyphRenderer> m_pGlyphRenderer;
+	const GlyphRenderer &m_GlyphRenderer;
 };
 
 } /* namespace duke */

@@ -17,6 +17,7 @@ struct ShaderDescription {
 	// vertex
 	// fragment
 	bool sampleTexture = true;
+	bool displayUv = false;
 	// texture
 	bool swapEndianness = false;
 	bool swapRedAndBlue = false;
@@ -28,6 +29,7 @@ struct ShaderDescription {
 
 	static ShaderDescription createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
 	static ShaderDescription createSolidDesc();
+	static ShaderDescription createUvDesc();
 };
 
 std::string buildFragmentShaderSource(const ShaderDescription &description);

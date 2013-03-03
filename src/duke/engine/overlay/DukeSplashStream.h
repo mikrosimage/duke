@@ -20,7 +20,6 @@ public:
 	virtual ~DukeSplashStream();
 	virtual void render(const Context&) const;
 private:
-	GlyphRenderer renderer;
 	AnimationData m_RightAlpha;
 	AnimationData m_LeftAlpha;
 	AnimationData m_LeftPos;

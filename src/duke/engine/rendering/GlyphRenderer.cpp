@@ -6,9 +6,10 @@
  */
 
 #include "GlyphRenderer.h"
-#include <duke/engine/DukeWindow.h>
+#include <duke/engine/Viewport.h>
 #include <duke/engine/ImageLoadUtils.h>
 #include <duke/engine/rendering/GeometryRenderer.h>
+#include <duke/engine/rendering/MeshPool.h>
 
 namespace duke {
 
@@ -89,8 +90,8 @@ void main(void)
     vFragColor = sample;
 })";
 
-GlyphRenderer::GlyphRenderer(const char *glyphsFilename) :
-		m_pMesh(getSquare()), //
+GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename) :
+		m_GeometryRenderer(renderer), //
 		m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
 		gTextureSampler(m_Program.getUniformLocation("rectangleImageSampler")), //
 		gViewport(m_Program.getUniformLocation("gViewport")), //
@@ -130,7 +131,11 @@ void GlyphRenderer::setPosition(int x, int y) const {
 
 void GlyphRenderer::draw(const char glyph) const {
 	glUniform1i(gChar, glyph);
-	m_pMesh->draw();
+	m_GeometryRenderer.meshPool.getSquare()->draw();
+}
+
+const GeometryRenderer &GlyphRenderer::getGeometryRenderer() const {
+	return m_GeometryRenderer;
 }
 
 static glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
@@ -154,19 +159,20 @@ static glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
 	const glm::ivec2 textDim(maxChars, lines + 1);
 	return (textDim++) * glyphDim;
 }
-void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
+
+void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
 	if (pText == nullptr || *pText == '\0')
 		return;
 
 	const glm::ivec2 glyphDim = glm::ivec2(zoom * 8);
 	const glm::ivec2 rectDim = textDimensions(pText, glyphDim);
 	const glm::ivec2 viewportDim(viewport.dimension);
-	drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
+	glyphRenderer.getGeometryRenderer().drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
 
 	const int xOrigin = x;
-	const auto bound = renderer.begin(viewport);
-	renderer.setAlpha(alpha);
-	renderer.setZoom(zoom);
+	const auto bound = glyphRenderer.begin(viewport);
+	glyphRenderer.setAlpha(alpha);
+	glyphRenderer.setZoom(zoom);
 	for (; *pText != '\0'; ++pText) {
 		const char c = *pText;
 		if (c == '\n') {
@@ -174,8 +180,8 @@ void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const cha
 			y += 8 * zoom;
 			continue;
 		}
-		renderer.setPosition(x, y);
-		renderer.draw(c);
+		glyphRenderer.setPosition(x, y);
+		glyphRenderer.draw(c);
 		x += 8 * zoom;
 	}
 }

@@ -43,6 +43,7 @@ void DukeSplashStream::render(const Context& context) const {
 	const size_t zoom = 2;
 	const size_t glyphWidth = zoom * 8;
 	const auto time = context.liveTime.asMilliseconds();
+	const auto &renderer = *context.pGlyphRenderer;
 	const auto bound = renderer.begin(context.viewport);
 	{
 		const char greetingsString[] = "Duke R0XX!!!";

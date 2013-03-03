@@ -18,15 +18,13 @@ struct GlyphRenderer;
 
 class CacheOverlay: public duke::IOverlay {
 public:
-	CacheOverlay(const std::shared_ptr<GlyphRenderer>&,
-			const std::map<const IMediaStream*, std::vector<Range> > &,
-			const Timeline& timeline);
+	CacheOverlay(const GlyphRenderer&, const std::map<const IMediaStream*, std::vector<Range> > &, const Timeline& timeline);
 	virtual void render(const Context&) const;
 
 private:
-	const std::shared_ptr<GlyphRenderer> m_pGlyphRenderer;
+	const GlyphRenderer &m_GlyphRenderer;
 	const std::map<const IMediaStream*, std::vector<Range> > & m_CacheState;
-	const Timeline& m_timeline;
+	const Timeline& m_Timeline;
 };
 
 } /* namespace duke */

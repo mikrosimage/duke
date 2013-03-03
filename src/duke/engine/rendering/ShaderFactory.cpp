@@ -17,11 +17,18 @@ namespace duke {
 ShaderDescription::ShaderDescription() {
 }
 
-static inline std::tuple<bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
-	return std::make_tuple(sd.sampleTexture, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+static inline std::tuple<bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+	return std::make_tuple(sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
 }
 bool ShaderDescription::operator<(const ShaderDescription &other) const {
 	return asTuple(*this) < asTuple(other);
+}
+
+ShaderDescription ShaderDescription::createUvDesc() {
+	ShaderDescription description;
+	description.sampleTexture = false;
+	description.displayUv = true;
+	return description;
 }
 
 ShaderDescription ShaderDescription::createSolidDesc() {
@@ -29,6 +36,7 @@ ShaderDescription ShaderDescription::createSolidDesc() {
 	description.sampleTexture = false;
 	return description;
 }
+
 ShaderDescription ShaderDescription::createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
 	ShaderDescription description;
 	description.sampleTexture = true;
@@ -112,6 +120,16 @@ void main(void)
 }
 )";
 
+static const char* const pUvMain = R"(
+out vec4 vFragColor;
+smooth in vec2 vVaryingTexCoord;
+
+void main(void)
+{
+	vFragColor = vec4(vVaryingTexCoord,0,1);
+}
+)";
+
 static const char* getToLinearFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
@@ -174,7 +192,10 @@ std::string buildFragmentShaderSource(const ShaderDescription &description) {
 		appendSampler(oss, description);
 		oss << pTexturedMain;
 	} else {
-		oss << pSolidMain;
+		if (description.displayUv)
+			oss << pUvMain;
+		else
+			oss << pSolidMain;
 	}
 	return oss.str();
 }

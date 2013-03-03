@@ -1,5 +1,5 @@
 #include <duke/cmdline/CmdLineParameters.h>
-#include <duke/engine/Duke.h>
+#include <duke/engine/DukeApplication.h>
 #include <duke/benchmark/Benchmark.h>
 
 int main(int argc, char** argv) {
@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
                 benchmark();
                 break;
             case ApplicationMode::DUKE:
-                Duke duke(parameters);
+                DukeApplication duke(parameters);
                 duke.run();
                 break;
         }

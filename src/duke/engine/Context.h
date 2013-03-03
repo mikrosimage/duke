@@ -8,8 +8,9 @@
 #ifndef CONTEXT_H_
 #define CONTEXT_H_
 
-#include "DukeWindow.h"
+#include <duke/engine/FitMode.h>
 #include <duke/engine/ColorSpace.h>
+#include <duke/engine/Viewport.h>
 #include <duke/time/FrameUtils.h>
 #include <glm/glm.hpp>
 
@@ -19,12 +20,13 @@ namespace duke {
 
 struct Texture;
 struct PackedFrameDescriptionAndAttributes;
-
-enum class FitMode {
-	ACTUAL, FREE, INNER, OUTER
-};
+struct GeometryRenderer;
+struct GlyphRenderer;
 
 struct Context {
+	// drawing
+	GeometryRenderer *pGeometryRenderer;
+	GlyphRenderer *pGlyphRenderer;
 	// timing
 	Time liveTime;
 	Time playbackTime;

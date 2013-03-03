@@ -69,7 +69,7 @@ void IndexedMesh::callDraw() const {
 	glDrawElements(primitiveType, indexCount, GL_UNSIGNED_INT, 0);
 }
 
-SharedMesh getSquare() {
+SharedMesh createSquare() {
 	using namespace std;
 	const float z = 1;
 	const vector<VertexPosUv0> vertices = { //
@@ -80,7 +80,7 @@ SharedMesh getSquare() {
 	return make_shared<Mesh>(GL_TRIANGLE_FAN, vertices.data(), vertices.size());
 }
 
-SharedMesh getLine() {
+SharedMesh createLine() {
 	using namespace std;
 	const float z = 1;
 	const vector<VertexPosUv0> vertices = { //

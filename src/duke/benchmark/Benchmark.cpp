@@ -134,7 +134,7 @@ void benchmark() {
 
 	glfwSwapInterval(0); // ensuring no vsync
 
-	SharedMesh pMesh = getSquare();
+	SharedMesh pMesh = createSquare();
 	const ShaderDescription description = ShaderDescription::createTextureDesc(false, false, false, ColorSpace::Linear);
 	Program program(makeVertexShader(buildVertexShaderSource(description).c_str()), //
 			makeFragmentShader(
