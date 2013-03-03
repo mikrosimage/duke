@@ -108,25 +108,58 @@ TEST(Player,looping2) {
 	track.add(3, Clip { 1 });
 	const auto timeline = Timeline { track };
 	const auto range = timeline.getRange();
-	auto advance = [&]() {player.offsetPlaybackTime(player.getFrameDuration());};
+	auto step = [&]() {player.offsetPlaybackTime(player.getFrameDuration());};
 	EXPECT_EQ(range, Range (0,3));
 	player.load(timeline, FrameDuration::PAL);
 	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
 	// moving one frame
 	player.setPlaybackSpeed(-1);
-	advance(); // reverse should go last frame
+	step(); // reverse should go last frame
 	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
 	player.setPlaybackSpeed(1);
-	advance(); // forward should go first frame
+	step(); // forward should go first frame
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(2), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
+}
+
+TEST(Player,looping3) {
+	Player player(gDefault);
+	Track track;
+	track.add(0, Clip { 2 });
+	const auto timeline = Timeline { track };
+	const auto range = timeline.getRange();
+	EXPECT_EQ(range, Range (0,1));
+	player.load(timeline, FrameDuration(1));
+	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
+	player.setPlaybackSpeed(1);
+	player.offsetPlaybackTime(Time(1)); // 1s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 1.333s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 1.666s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 2s => looping
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
+	player.cue(0);
+	player.setPlaybackSpeed(1);
+	EXPECT_EQ(Time(0), player.getPlaybackTime());
+	player.offsetPlaybackTime(Time(-1, 3)); // looping 1.666s
+	EXPECT_EQ(Time(5,3), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(-2, 3)); // 1s
+	EXPECT_EQ(Time(1), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(-1, 1000)); // 0.999s
+	EXPECT_EQ(Time(999,1000), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
 }
 
 TEST(Player,loopingWithHugeStep) {

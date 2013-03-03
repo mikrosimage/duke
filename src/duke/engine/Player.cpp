@@ -28,6 +28,7 @@ void Player::setFrameDuration(const FrameDuration &duration) {
 	} else {
 		m_FirstFrameTime = frameToTime(m_TimelineRange.first, getFrameDuration());
 		m_LastFrameTime = frameToTime(m_TimelineRange.last, getFrameDuration());
+		m_EndFrameTime = frameToTime(m_TimelineRange.last + 1, getFrameDuration());
 	}
 }
 
@@ -36,7 +37,7 @@ void Player::setPlaybackTime(const Time time) {
 }
 
 void Player::offsetPlaybackTime(const Time time) {
-	const Time offset = time * m_PlaybackSpeed;
+	const auto offset = time * m_PlaybackSpeed;
 	if (m_PlaybackMode == CONTINUE) {
 		m_PlaybackTime += offset;
 		return;
@@ -44,8 +45,9 @@ void Player::offsetPlaybackTime(const Time time) {
 	if (m_TimelineRange == Range::EMPTY || offset == 0)
 		return;
 	const bool forward = offset > 0;
-	auto overshoot = forward ? (m_PlaybackTime + offset) - m_LastFrameTime : m_FirstFrameTime - (m_PlaybackTime + offset);
-	if (overshoot <= 0) {
+	const auto newTime = m_PlaybackTime + offset;
+	auto overshoot = forward ? newTime - m_EndFrameTime : m_FirstFrameTime - newTime;
+	if (overshoot < 0) {
 		m_PlaybackTime += offset;
 		return;
 	}
@@ -55,10 +57,9 @@ void Player::offsetPlaybackTime(const Time time) {
 		m_PlaybackSpeed = 0;
 		break;
 	case LOOP:
-		overshoot -= getFrameDuration();
-		if (overshoot > (m_LastFrameTime - m_FirstFrameTime))
+		if (overshoot > (m_EndFrameTime - m_FirstFrameTime))
 			return;
-		m_PlaybackTime = forward ? m_FirstFrameTime + overshoot : m_LastFrameTime - overshoot;
+		m_PlaybackTime = forward ? m_FirstFrameTime + overshoot : m_EndFrameTime - overshoot;
 		break;
 	default:
 		throw std::logic_error("Not yet implemented");

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <duke/Rational.h>
+#include <duke/math/Rational.hpp>
 
-typedef rational<int64_t> Rational;
+typedef boost::rational<int64_t> Rational;
 
 TEST(Rational,default) {
 	EXPECT_EQ(0, Rational().numerator());

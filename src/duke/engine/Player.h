@@ -48,6 +48,7 @@ private:
 	Range m_TimelineRange = Range::EMPTY;
 	Time m_FirstFrameTime;
 	Time m_LastFrameTime;
+	Time m_EndFrameTime;
 	Time m_PlaybackTime;
 	FrameDuration m_FrameDuration = FrameDuration::PAL;
 	int m_PlaybackSpeed = 0;

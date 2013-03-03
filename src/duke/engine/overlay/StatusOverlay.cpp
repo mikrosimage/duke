@@ -25,7 +25,8 @@ void StatusOverlay::setString(const Time& time, const std::string &msg) {
 }
 
 void StatusOverlay::render(const Context& context) const {
-	const Time time = context.liveTime - m_ShowTime;
+	Time time = context.liveTime;
+	time -= m_ShowTime;
 	const auto ms = time.asMilliseconds();
 	const double alpha = interpolateValue<double>(m_Alpha, 1, 0, ms);
 	if (alpha > 0)
