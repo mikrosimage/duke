@@ -43,6 +43,8 @@ private:
 	std::vector<int> m_KeyStrokes;
 	bool m_MouseLeftDown = false;
 
+
+	const CmdLineParameters &m_CmdLine;
 	Player m_Player;
 	GeometryRenderer m_GeometryRenderer;
 	GlyphRenderer m_GlyphRenderer;

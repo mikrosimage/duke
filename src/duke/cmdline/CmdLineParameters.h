@@ -33,6 +33,7 @@ struct CmdLineParameters {
 	const char* getHelpMessage() const;
 	unsigned swapBufferInterval = 1;
 	bool fullscreen = false;
+	bool unlimitedFPS = false;
 	unsigned workerThreadDefault = std::max(1u, std::min(4u, std::thread::hardware_concurrency() - 2));
 	size_t imageCacheSizeDefault = 500 * 1024 * 1024; // 500MiB
 	ApplicationMode mode = ApplicationMode::DUKE;

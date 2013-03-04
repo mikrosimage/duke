@@ -37,6 +37,8 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 			getArgs(argc, argv, ++i, swapBufferInterval);
 		else if (matches(pOption, "-f", "--fullscreen"))
 			fullscreen = true;
+		else if (matches(pOption, "", "--unlimited"))
+			unlimitedFPS = true;
 		else if (matches(pOption, "-t", "--threads"))
 			getArgs(argc, argv, ++i, workerThreadDefault);
 		else if (matches(pOption, "", "--film"))
@@ -66,6 +68,7 @@ const char* CmdLineParameters::getHelpMessage() const {
       --pal                  sets framerate to 25 fps (default)
       --film                 sets framerate to 24 fps
       --ntsc                 sets framerate to 29.97 fps
+      --unlimited            unlimited framerate, benchmarking purpose
 
       --swapinterval         specifies n as the mandatory count of wait for
                              vblank before displaying a frame, default is 1.

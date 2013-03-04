@@ -20,7 +20,7 @@
 namespace duke {
 
 DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &parameters) :
-		DukeGLFWWindow(pWindow), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer), m_Pan(m_Context.pan), m_Zoom(m_Context.zoom) {
+		DukeGLFWWindow(pWindow), m_CmdLine(parameters), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer), m_Pan(m_Context.pan), m_Zoom(m_Context.zoom) {
 	m_Context.pGlyphRenderer = &m_GlyphRenderer;
 	m_Context.pGeometryRenderer = &m_GeometryRenderer;
 
@@ -243,7 +243,8 @@ void DukeMainWindow::run() {
 
 		// updating time
 		const auto elapsedMicroSeconds = vBlankMetronom.tick();
-		m_Player.offsetPlaybackTime(elapsedMicroSeconds);
+		const Time offset = m_CmdLine.unlimitedFPS ? m_Player.getFrameDuration() : Time(elapsedMicroSeconds);
+		m_Player.offsetPlaybackTime(offset);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
 		if (frame != lastFrame) {
@@ -324,8 +325,8 @@ void DukeMainWindow::run() {
 		const auto now = duke_clock::now();
 		if ((now - milestone) > std::chrono::milliseconds(100)) {
 			textureCache.getImageCache().dumpState(cacheStateTmp);
-			//			vBlankMetronom.dump();
-			//			frameMetronom.dump();
+			// vBlankMetronom.dump();
+			// frameMetronom.dump();
 			milestone = now;
 		}
 	}
