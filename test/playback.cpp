@@ -148,6 +148,7 @@ TEST(Player,looping3) {
 	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
 	player.offsetPlaybackTime(Time(1, 3)); // 2s => looping
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
+	// backward
 	player.cue(0);
 	player.setPlaybackSpeed(1);
 	EXPECT_EQ(Time(0), player.getPlaybackTime());
@@ -159,6 +160,23 @@ TEST(Player,looping3) {
 	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
 	player.offsetPlaybackTime(Time(-1, 1000)); // 0.999s
 	EXPECT_EQ(Time(999,1000), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
+}
+
+TEST(Player,forwardThenBackToStart) {
+	Player player(gDefault);
+	Track track;
+	track.add(0, Clip { 200 });
+	const auto timeline = Timeline { track };
+	player.load(timeline, FrameDuration::PAL);
+	player.setPlaybackSpeed(1);
+	for (size_t i = 0; i < 4; ++i)
+		player.offsetPlaybackTime(FrameDuration::PAL);
+	EXPECT_EQ(FrameIndex(4), player.getCurrentFrame().round());
+	player.setPlaybackSpeed(-1);
+	for (size_t i = 0; i < 3; ++i)
+		player.offsetPlaybackTime(FrameDuration::PAL);
+	player.offsetPlaybackTime(FrameDuration::PAL);
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
 }
 
