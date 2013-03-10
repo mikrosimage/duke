@@ -12,11 +12,6 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 
-if(APPLE)
-	add_definitions(-DGLFW_INCLUDE_GLCOREARB)
-endif()
-
-
 #
 # GLFW
 #
@@ -27,6 +22,10 @@ if(NOT ${GL3HEADER} MATCHES NOTFOUND)
 add_definitions(-DGLFW_INCLUDE_GL3)
 endif()
 
+if(APPLE)
+add_definitions(-DGLFW_INCLUDE_GLCOREARB)
+endif()
+
 #
 # duke sources
 #
@@ -35,10 +34,10 @@ file(GLOB_RECURSE DUKE_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 list(REMOVE_ITEM DUKE_SRC_FILES main.cpp ${DUKE_PLUGINS_FILES})
 add_library(duke_core ${DUKE_SRC_FILES} ${PROJECT_SOURCE_DIR}/dependencies/light_sequence_parser/src/FolderParser.cpp)
+target_link_libraries(duke_core ${CMAKE_THREAD_LIBS_INIT} glfw ${GLFW_LIBRARIES})
 
 add_executable(duke ${DUKE_PLUGINS_FILES} main.cpp)
-target_link_libraries(duke duke_core ${CMAKE_THREAD_LIBS_INIT} ${OPENGL_LIBRARIES})
-target_link_libraries(duke ${GLFW_LIBRARIES} glfw)
+target_link_libraries(duke duke_core)
 
 #
 # OpenImageIO

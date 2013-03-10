@@ -9,10 +9,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 file(GLOB TEST_SRC_FILES *.cpp)
-include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(runAllTests ${TEST_SRC_FILES})
-target_link_libraries(runAllTests duke_core ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(runAllTests duke_core ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-target_link_libraries(runAllTests ${GLFW_LIBRARIES} glfw)
+target_link_libraries(runAllTests duke_core gtest_main gtest)
 add_custom_command(TARGET runAllTests POST_BUILD COMMAND runAllTests)
 

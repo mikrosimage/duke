@@ -38,7 +38,12 @@ endif()
 add_subdirectory(src/duke)
 
 # tests
-find_package(Gtest)
-if(GTEST_FOUND)
+if(EXISTS "${CMAKE_SOURCE_DIR}/dependencies/gtest-1.6.0/")
+add_subdirectory(dependencies/gtest-1.6.0)
 add_subdirectory(test)
+else()
+MESSAGE(STATUS "Could NOT find gtest (missing: 'dependencies/gtest-1.6.0/' folder) : tests disabled
+To unable tests
+* download http://code.google.com/p/googletest/downloads/detail?name=gtest-1.6.0.zip
+* unzip into 'dependencies/gtest-1.6.0/'")
 endif()
