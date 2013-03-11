@@ -136,45 +136,5 @@ const Track& TimelineIterator::getCurrentTrack() const {
 	return (*m_pTimeline)[m_CurrentTrackIndex];
 }
 
-//LimitedTimelineIterator::LimitedTimelineIterator() :
-//		m_Iterator(), m_LastFrame(0), m_FrameToGo(0) {
-//}
-//
-//LimitedTimelineIterator::LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t framesToGo) :
-//		m_Iterator(pTimeline, pMediaRanges, currentFrame), m_LastFrame(currentFrame), m_FrameToGo(framesToGo) {
-//	if (stop())
-//		clear();
-//}
-//
-//bool LimitedTimelineIterator::stop() const {
-//	return m_FrameToGo == 0;
-//}
-//
-//void LimitedTimelineIterator::clear() {
-//	m_Iterator.clear();
-//}
-//
-//MediaFrameReference LimitedTimelineIterator::next() {
-//	assert(m_FrameToGo != 0);
-//	printf("calling next will serve frame %lu", getCurrentFrame());
-//	MediaFrameReference mfr = m_Iterator.next();
-//	printf(", stream %p, frame within %lu\n", mfr.first, mfr.second);
-//	if (getCurrentFrame() != m_LastFrame) {
-//		--m_FrameToGo;
-//		m_LastFrame = getCurrentFrame();
-//	}
-//	if (stop())
-//		clear();
-//	return mfr;
-//}
-//
-//bool LimitedTimelineIterator::empty() {
-//	return m_Iterator.empty();
-//}
-//
-//size_t LimitedTimelineIterator::getCurrentFrame() const {
-//	return m_Iterator.getCurrentFrame();
-//}
-
 }
 /* namespace duke */

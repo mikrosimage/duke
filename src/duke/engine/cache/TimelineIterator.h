@@ -37,19 +37,5 @@ private:
 	size_t m_EndFrame;
 };
 
-//struct LimitedTimelineIterator {
-//	LimitedTimelineIterator();
-//	LimitedTimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, size_t framesToGo);
-//	void clear();
-//	MediaFrameReference next();
-//	bool empty();
-//	size_t getCurrentFrame() const;
-//private:
-//	bool stop() const;
-//	TimelineIterator m_Iterator;
-//	size_t m_LastFrame;
-//	size_t m_FrameToGo;
-//};
-
 } /* namespace duke */
 #endif /* TIMELINEITERATOR_H_ */
