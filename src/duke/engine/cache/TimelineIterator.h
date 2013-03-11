@@ -15,6 +15,20 @@ namespace duke {
 Ranges getMediaRanges(const Timeline &timeline);
 bool contains(const Ranges &range, size_t frame);
 
+struct TrackMediaFrameIterator {
+	TrackMediaFrameIterator() = default;
+	TrackMediaFrameIterator(TrackMediaFrameIterator&&) = default;
+	TrackMediaFrameIterator(const Timeline * pTimeline, size_t currentFrame);
+
+	void reset(const Timeline * pTimeline, size_t currentFrame);
+
+    void clear();
+    MediaFrameReference next();
+    bool empty() const;
+private:
+	std::vector<MediaFrameReference> m_References;
+};
+
 struct TimelineIterator {
 	TimelineIterator();
 	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame);
