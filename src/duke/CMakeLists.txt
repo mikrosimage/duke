@@ -1,3 +1,8 @@
+# adding Wall to configurations
+if (NOT MSVC)
+    add_definitions ("-Wall")
+endif()
+
 #
 # Removing rtti for duke
 #

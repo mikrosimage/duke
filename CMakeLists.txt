@@ -19,13 +19,8 @@ include_directories(SYSTEM dependencies/glfw/include)
 include_directories(SYSTEM dependencies/glm)
 include_directories(src)
 
-# adding Wall to configurations
-if (NOT MSVC)
-    add_definitions ("-Wall")
-endif()
-
 # clang && macosx
-if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 

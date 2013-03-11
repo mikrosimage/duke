@@ -3,9 +3,9 @@
 #
 enable_testing()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+	set(CMAKE_CXX_FLAGS "-Wno-sign-compare ${CMAKE_CXX_FLAGS}")
+endif()
 
 add_definitions(-DGL_GLEXT_PROTOTYPES -DGL3_PROTOTYPES)
 file(GLOB TEST_SRC_FILES *.cpp)
