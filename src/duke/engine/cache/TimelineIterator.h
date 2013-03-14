@@ -22,11 +22,32 @@ struct TrackMediaFrameIterator {
 
 	void reset(const Timeline * pTimeline, size_t currentFrame);
 
-    void clear();
-    MediaFrameReference next();
-    bool empty() const;
+	void clear();
+	MediaFrameReference next();
+	bool empty() const;
 private:
 	std::vector<MediaFrameReference> m_References;
+};
+
+enum class IterationMode
+	: unsigned char {
+		FORWARD, BACKWARD, PINGPONG
+};
+
+struct FrameIterator {
+	FrameIterator(const Ranges *pMediaRanges, size_t initialFrame, IterationMode mode = IterationMode::FORWARD);
+
+	void clear();
+	size_t next();
+	bool empty() const;
+private:
+	size_t findNext(size_t) const;
+	size_t findPrevious(size_t) const;
+
+	const Ranges *m_pMediaRanges;
+	IterationMode m_Mode;
+	size_t m_Forward, m_Backward, m_FramesToGo, m_SpanCount;
+	bool m_bForward;
 };
 
 struct TimelineIterator {
