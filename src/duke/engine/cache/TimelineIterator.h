@@ -56,7 +56,7 @@ struct TimelineIterator {
 	TimelineIterator();
 	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode = IterationMode::FORWARD);
 
-	inline void setMaxIterations(size_t maxIterations) {
+	inline void setMaxFrameIterations(size_t maxIterations) {
 		m_FrameIterator.setMaxIterations(maxIterations);
 	}
 
