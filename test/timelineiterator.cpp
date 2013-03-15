@@ -112,6 +112,13 @@ TEST(FrameIterator, allDirectionsNoHole) {
 	checkIteration(FrameIterator(&ranges, startFrame, IterationMode::PINGPONG), { 3, 0, 2, 1 });
 }
 
+TEST(FrameIterator, limitedIterations) {
+	Ranges ranges = { Range(0, 3) };
+	checkIteration(FrameIterator(&ranges, 0UL, IterationMode::FORWARD), { 0, 1, 2, 3 });
+	checkIteration(std::move(FrameIterator(&ranges, 0UL, IterationMode::FORWARD).setMaxIterations(0)), { });
+	checkIteration(std::move(FrameIterator(&ranges, 0UL, IterationMode::FORWARD).setMaxIterations(1)), { 0 });
+}
+
 TEST(TimelineIterator, emptiness) {
 	EXPECT_TRUE(TimelineIterator().empty());
 	Timeline timeline;

@@ -27,13 +27,15 @@ void LoadedTextureCache::load(const Timeline& timeline) {
 	m_ImageCache.load(timeline);
 }
 
-void LoadedTextureCache::ensureReady(size_t frame) {
+void LoadedTextureCache::prepare(size_t frame, IterationMode mode) {
 	if (frame != m_LastFrame) {
-		m_ImageCache.cue(frame);
+		m_ImageCache.cue(frame, mode);
 		m_LastFrame = frame;
 	}
 	m_FrameMedia.clear();
-	for (TimelineIterator itr(&m_Timeline, &m_TimelineRanges, frame); !itr.empty() && frame == itr.getCurrentFrame();) {
+	TimelineIterator itr(&m_Timeline, &m_TimelineRanges, frame);
+	itr.setMaxIterations(1);
+	for (; !itr.empty();) {
 		const auto mfr = itr.next();
 		m_FrameMedia.insert(mfr);
 		if (m_Map.find(mfr) != m_Map.end())

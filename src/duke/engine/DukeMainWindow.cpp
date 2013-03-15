@@ -201,7 +201,9 @@ void DukeMainWindow::run() {
 
 		// preparing current frame textures
 		auto &textureCache = m_Player.getTextureCache();
-		textureCache.ensureReady(frame);
+		const auto speed = m_Player.getPlaybackSpeed();
+		const auto mode = speed < 0 ? IterationMode::BACKWARD : (speed > 0 ? IterationMode::FORWARD : IterationMode::PINGPONG);
+		textureCache.prepare(frame, mode);
 
 		// rendering tracks
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -37,11 +37,11 @@ void LoadedImageCache::load(const Timeline& timeline) {
 	if (m_MediaRanges.empty())
 		return;
 	startWorkers();
-	cue(m_MediaRanges.begin()->first);
+	cue(m_MediaRanges.begin()->first, IterationMode::PINGPONG);
 }
 
-void LoadedImageCache::cue(size_t frame) {
-	m_Cache.process(TimelineIterator(&m_Timeline, &m_MediaRanges, frame));
+void LoadedImageCache::cue(size_t frame, IterationMode mode) {
+	m_Cache.process(TimelineIterator(&m_Timeline, &m_MediaRanges, frame, mode));
 }
 
 void LoadedImageCache::terminate() {

@@ -17,7 +17,7 @@ bool contains(const Ranges &range, size_t frame);
 
 struct TrackMediaFrameIterator {
 	TrackMediaFrameIterator() = default;
-	TrackMediaFrameIterator(TrackMediaFrameIterator&&) = default;
+	TrackMediaFrameIterator(const TrackMediaFrameIterator&) = default;
 	TrackMediaFrameIterator(const Timeline * pTimeline, size_t currentFrame);
 
 	void reset(const Timeline * pTimeline, size_t currentFrame);
@@ -37,6 +37,8 @@ enum class IterationMode
 struct FrameIterator {
 	FrameIterator(const Ranges *pMediaRanges, size_t initialFrame, IterationMode mode = IterationMode::FORWARD);
 
+	FrameIterator& setMaxIterations(size_t maxIterations);
+
 	void clear();
 	size_t next();
 	bool empty() const;
@@ -52,24 +54,19 @@ private:
 
 struct TimelineIterator {
 	TimelineIterator();
-	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame);
+	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode = IterationMode::FORWARD);
+
+	inline void setMaxIterations(size_t maxIterations) {
+		m_FrameIterator.setMaxIterations(maxIterations);
+	}
+
 	void clear();
 	MediaFrameReference next();
 	bool empty();
-	size_t getCurrentFrame() const;
 private:
-	void regularizeCurrentFrame();
-	void stepForward();
-	void stepUntilValidOrExhausted();
-	bool valid() const;
-	bool finished() const;
-	const Track& getCurrentTrack() const;
-
 	const Timeline * m_pTimeline;
-	const Ranges *m_pMediaRanges;
-	size_t m_CurrentFrame;
-	size_t m_CurrentTrackIndex;
-	size_t m_EndFrame;
+	FrameIterator m_FrameIterator;
+	TrackMediaFrameIterator m_TrackIterator;
 };
 
 } /* namespace duke */

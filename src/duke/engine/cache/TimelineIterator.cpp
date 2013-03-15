@@ -76,9 +76,9 @@ bool TrackMediaFrameIterator::empty() const {
 }
 
 FrameIterator::FrameIterator(const Ranges *pMediaRanges, size_t initialFrame, IterationMode mode) :
-		m_pMediaRanges(pMediaRanges), m_Mode(mode), m_FramesToGo(-1), m_bForward(m_Mode == IterationMode::FORWARD) {
-	if (!empty()) {
-		m_FramesToGo = 0;
+		m_pMediaRanges(pMediaRanges), m_Mode(mode), m_FramesToGo(0), m_bForward(m_Mode == IterationMode::FORWARD) {
+	const bool empty = m_pMediaRanges == nullptr || m_pMediaRanges->empty();
+	if (!empty) {
 		const Range span(m_pMediaRanges->front().first, m_pMediaRanges->back().last);
 		m_SpanCount = span.count();
 		size_t lowerFrame = span.first;
@@ -153,93 +153,33 @@ size_t FrameIterator::findPrevious(size_t frame) const {
 	}
 	return nextAbsoluteFrame;
 }
-
-static const Timeline* nullIfEmpty(const Timeline * pTimeline) {
-	if (pTimeline == nullptr || pTimeline->empty())
-		return nullptr;
-	return pTimeline;
+FrameIterator& FrameIterator::setMaxIterations(size_t maxIterations) {
+	m_FramesToGo = std::min(m_FramesToGo, maxIterations);
+	return *this;
 }
 
 TimelineIterator::TimelineIterator() :
 		TimelineIterator(nullptr, nullptr, 0) {
 }
 
-TimelineIterator::TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame) :
-		m_pTimeline(nullIfEmpty(pTimeline)), //
-		m_pMediaRanges(pMediaRanges), //
-		m_CurrentFrame(currentFrame), //
-		m_CurrentTrackIndex(0) {
-	if (!empty() && !valid())
-		stepUntilValidOrExhausted();
-	m_EndFrame = m_CurrentFrame;
+TimelineIterator::TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode) :
+		m_pTimeline(pTimeline), m_FrameIterator(pMediaRanges, currentFrame, mode), m_TrackIterator() {
 }
 
 bool TimelineIterator::empty() {
-	return m_pMediaRanges == nullptr || m_pMediaRanges->empty();
+	return m_FrameIterator.empty() && m_TrackIterator.empty();
 }
 
 void TimelineIterator::clear() {
-	m_pTimeline = nullptr;
-	m_pMediaRanges = nullptr;
+	m_FrameIterator.clear();
+	m_TrackIterator.clear();
 }
 
 MediaFrameReference TimelineIterator::next() {
-	assert(m_pTimeline);
-	assert(m_pMediaRanges);
-	MediaFrameReference reference = getCurrentTrack().getMediaFrameReferenceAt(m_CurrentFrame);
-	stepUntilValidOrExhausted();
-	return reference;
-}
-
-size_t TimelineIterator::getCurrentFrame() const {
-	return m_CurrentFrame;
-}
-
-void TimelineIterator::stepUntilValidOrExhausted() {
 	assert(!empty());
-	do {
-		stepForward();
-		if (finished()) {
-			clear();
-			return;
-		}
-	} while (!valid());
-}
-
-bool TimelineIterator::finished() const {
-	return m_CurrentFrame == m_EndFrame && m_CurrentTrackIndex == 0;
-}
-
-void TimelineIterator::regularizeCurrentFrame() {
-	if (contains(*m_pMediaRanges, m_CurrentFrame))
-		return;
-	if (m_CurrentFrame > m_pMediaRanges->back().last) {
-		m_CurrentFrame = m_pMediaRanges->front().first;
-	} else {
-		const auto pFound = std::find_if(m_pMediaRanges->rbegin(), m_pMediaRanges->rend(), [=](const Range &range) {
-			return m_CurrentFrame< range.first;
-		});
-		m_CurrentFrame = pFound->first;
-	}
-}
-
-void TimelineIterator::stepForward() {
-	++m_CurrentTrackIndex;
-	if (m_CurrentTrackIndex == m_pTimeline->size()) {
-		m_CurrentTrackIndex = 0;
-		++m_CurrentFrame;
-		regularizeCurrentFrame();
-	}
-}
-
-bool TimelineIterator::valid() const {
-	const Track &track = getCurrentTrack();
-	const auto pFound = track.clipContaining(m_CurrentFrame);
-	return pFound == track.end() ? false : pFound->second.pStream != nullptr;
-}
-
-const Track& TimelineIterator::getCurrentTrack() const {
-	return (*m_pTimeline)[m_CurrentTrackIndex];
+	if (m_TrackIterator.empty())
+		m_TrackIterator.reset(m_pTimeline, m_FrameIterator.next());
+	return m_TrackIterator.next();
 }
 
 }

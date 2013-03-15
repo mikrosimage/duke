@@ -25,7 +25,7 @@ struct LoadedTextureCache: public noncopyable {
 	LoadedTextureCache(const CmdLineParameters &parameters);
 
 	void load(const Timeline& timeline);
-	void ensureReady(size_t frame);
+	void prepare(size_t frame, IterationMode mode);
 
 	const TexturePackedFrame* getLoadedTexture(const MediaFrameReference &mfr) const;
 	const Timeline& getTimeline() const;

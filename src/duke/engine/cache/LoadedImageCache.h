@@ -24,7 +24,7 @@ struct LoadedImageCache: public noncopyable {
 
 	void setWorkerCount(size_t workerCount);
 	void load(const Timeline& timeline);
-	void cue(size_t frame);
+	void cue(size_t frame, IterationMode mode);
 	void terminate();
 
 	bool get(const MediaFrameReference &id, RawPackedFrame &data) const;
