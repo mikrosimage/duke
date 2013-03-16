@@ -34,6 +34,12 @@ endif()
 #
 # duke sources
 #
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/config.h"
+)
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+
 file(GLOB_RECURSE DUKE_PLUGINS_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} imageio_plugins/*.c*)
 file(GLOB_RECURSE DUKE_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 

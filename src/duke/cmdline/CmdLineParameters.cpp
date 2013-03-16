@@ -54,6 +54,8 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 			mode = ApplicationMode::BENCHMARK;
 		else if (matches(pOption, "-h", "--help"))
 			mode = ApplicationMode::HELP;
+		else if (matches(pOption, "-v", "--version"))
+			mode = ApplicationMode::VERSION;
 		else if (*pOption != '-')
 			additionnalOptions.push_back(pOption);
 		else
@@ -64,6 +66,7 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 const char* CmdLineParameters::getHelpMessage() const {
 	return R"(Usage: duke [OPTION]... [FILE/FOLDER]...
   -h, --help                 displays this message
+  -v, --version              displays revision version
 
       --pal                  sets framerate to 25 fps (default)
       --film                 sets framerate to 24 fps

@@ -25,7 +25,7 @@ struct commandline_error: std::runtime_error {
 };
 
 enum class ApplicationMode {
-	DUKE, BENCHMARK, HELP
+	DUKE, BENCHMARK, HELP, VERSION
 };
 
 struct CmdLineParameters {
