@@ -5,7 +5,7 @@
  *      Author: Nicolas Rondaud
  */
 
-#include "CacheOverlay.h"
+#include "StatisticsOverlay.h"
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/rendering/GeometryRenderer.h>
@@ -13,11 +13,11 @@
 
 namespace duke {
 
-CacheOverlay::CacheOverlay(const GlyphRenderer & glyphRenderer, const std::map<const IMediaStream*, std::vector<Range> > & state, const Timeline& timeline) :
+StatisticsOverlay::StatisticsOverlay(const GlyphRenderer & glyphRenderer, const std::map<const IMediaStream*, std::vector<Range> > & state, const Timeline& timeline) :
 		m_GlyphRenderer(glyphRenderer), m_CacheState(state), m_Timeline(timeline){
 }
 
-void CacheOverlay::render(const Context& context) const {
+void StatisticsOverlay::render(const Context& context) const {
 	if (!context.pCurrentImage)
 		return;
 

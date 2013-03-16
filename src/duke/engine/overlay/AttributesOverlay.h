@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ATTRIBUTESOVERLAY_H_
-#define ATTRIBUTESOVERLAY_H_
+#pragma once
 
 #include "IOverlay.h"
 #include <memory>
@@ -25,4 +24,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* ATTRIBUTESOVERLAY_H_ */

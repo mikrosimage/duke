@@ -5,8 +5,7 @@
  *      Author: Nicolas Rondaud
  */
 
-#ifndef CACHEOVERLAY_H_
-#define CACHEOVERLAY_H_
+#pragma once
 
 #include "IOverlay.h"
 #include <duke/engine/Timeline.h>
@@ -16,9 +15,9 @@ namespace duke {
 struct Context;
 struct GlyphRenderer;
 
-class CacheOverlay: public duke::IOverlay {
+class StatisticsOverlay: public duke::IOverlay {
 public:
-	CacheOverlay(const GlyphRenderer&, const std::map<const IMediaStream*, std::vector<Range> > &, const Timeline& timeline);
+	StatisticsOverlay(const GlyphRenderer&, const std::map<const IMediaStream*, std::vector<Range> > &, const Timeline& timeline);
 	virtual void render(const Context&) const;
 
 private:
@@ -28,4 +27,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* CACHEOVERLAY_H_ */

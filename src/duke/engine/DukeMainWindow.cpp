@@ -7,8 +7,8 @@
 
 #include "DukeMainWindow.h"
 
-#include <duke/engine/overlay/CacheOverlay.h>
-#include <duke/engine/overlay/StatusOverlay.h>
+#include <duke/engine/overlay/StatisticsOverlay.h>
+#include <duke/engine/overlay/OnScreenDisplayOverlay.h>
 #include <duke/engine/overlay/AttributesOverlay.h>
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/time/Clock.h>
@@ -137,8 +137,8 @@ void DukeMainWindow::run() {
 	std::map<const IMediaStream*, std::vector<Range> > cacheStateTmp;
 
 	AttributesOverlay attributesOverlay(m_GlyphRenderer);
-	StatusOverlay statusOverlay(m_GlyphRenderer);
-	CacheOverlay cacheOverlay(m_GlyphRenderer, cacheStateTmp, m_Player.getTimeline());
+	OnScreenDisplayOverlay statusOverlay(m_GlyphRenderer);
+	StatisticsOverlay cacheOverlay(m_GlyphRenderer, cacheStateTmp, m_Player.getTimeline());
 	bool showAttributesOverlay = false;
 
 	SharedMesh pSquare = createSquare();

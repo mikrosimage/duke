@@ -5,7 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#include "StatusOverlay.h"
+#include "OnScreenDisplayOverlay.h"
 #include <duke/engine/rendering/GlyphRenderer.h>
 #include <duke/engine/Context.h>
 #include <duke/animation/Animation.h>
@@ -13,18 +13,18 @@
 
 namespace duke {
 
-StatusOverlay::StatusOverlay(const GlyphRenderer &glyphRenderer) :
+OnScreenDisplayOverlay::OnScreenDisplayOverlay(const GlyphRenderer &glyphRenderer) :
 		m_GlyphRenderer(glyphRenderer) {
 	m_Alpha.duration = 800;
 	m_Alpha.type = EasingCurve::InExpo;
 }
 
-void StatusOverlay::setString(const Time& time, const std::string &msg) {
+void OnScreenDisplayOverlay::setString(const Time& time, const std::string &msg) {
 	m_ShowTime = time;
 	m_Message = msg;
 }
 
-void StatusOverlay::render(const Context& context) const {
+void OnScreenDisplayOverlay::render(const Context& context) const {
 	Time time = context.liveTime;
 	time -= m_ShowTime;
 	const auto ms = time.asMilliseconds();
