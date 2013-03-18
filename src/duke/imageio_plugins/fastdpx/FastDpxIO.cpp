@@ -1,9 +1,4 @@
-/*
- * FastDpxIO.cpp
- *
- *  Created on: Dec 16, 2012
- *      Author: Guillaume Chatelet
- */
+#ifdef DUKE_FAST_DPX
 
 #include <duke/gl/GL.h>
 #include <duke/ByteSwap.h>              // for bswap_32
@@ -123,3 +118,5 @@ bool registrar = IODescriptors::instance().registerDescriptor(new FastDpxDescrip
 }  // namespace
 
 }  // namespace duke
+
+#endif // DUKE_FAST_DPX

@@ -103,6 +103,9 @@ class IODescriptors: public noncopyable {
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
 	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
+	inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const {
+		return m_Descriptors;
+	}
 
 	static IODescriptors& instance();
 };

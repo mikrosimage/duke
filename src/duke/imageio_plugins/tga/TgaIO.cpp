@@ -1,9 +1,4 @@
-/*
- * TgaIO.cpp
- *
- *  Created on: Dec 15, 2012
- *      Author: Guillaume Chatelet
- */
+#ifdef DUKE_TGA
 
 #include <duke/imageio/DukeIO.h>
 
@@ -102,3 +97,5 @@ bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor(
 }  // namespace
 
 }  // namespace duke
+
+#endif // DUKE_TGA
