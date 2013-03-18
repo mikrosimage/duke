@@ -13,8 +13,8 @@
 
 namespace duke {
 
-StatisticsOverlay::StatisticsOverlay(const GlyphRenderer & glyphRenderer, const std::map<const IMediaStream*, std::vector<Range> > & state, const Timeline& timeline) :
-		m_GlyphRenderer(glyphRenderer), m_CacheState(state), m_Timeline(timeline){
+StatisticsOverlay::StatisticsOverlay(const GlyphRenderer & glyphRenderer, const Timeline& timeline) :
+		vBlankMetronom(100), frameMetronom(10), m_GlyphRenderer(glyphRenderer), m_Timeline(timeline) {
 }
 
 void StatisticsOverlay::render(const Context& context) const {
@@ -38,8 +38,8 @@ void StatisticsOverlay::render(const Context& context) const {
 	for (const Track &track : m_Timeline) {
 		for (const auto & clip : track) {
 			if (clip.second.pStream) {
-				const auto it = m_CacheState.find(clip.second.pStream.get());
-				if (it != m_CacheState.end())
+				const auto it = cacheState.find(clip.second.pStream.get());
+				if (it != cacheState.end())
 					for (const auto range : it->second) {
 						size_t rangeLength = frameLength * (range.last - range.first + 1);
 						geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2(rangeLength, height), //size
@@ -57,7 +57,13 @@ void StatisticsOverlay::render(const Context& context) const {
 
 	//  draw current frame
 	std::ostringstream oss;
-	oss << context.currentFrame.round();
+
+	oss << context.currentFrame.round() << '\n';
+	oss << std::fixed;
+	oss.width(5);
+	oss.precision(2);
+	oss << frameMetronom.getFPS() << "  FPS" << '\n';
+	oss << vBlankMetronom.getFPS() << " VBPS";
 	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 5, height + 10, 1.f, 1.f);
 }
 

@@ -19,7 +19,8 @@ std::chrono::microseconds Metronom::tick() {
 	if (m_Durations.size() >= m_Size)
 		m_Durations.pop_front();
 	const auto elapsedMicroSeconds = m_StopWatch.elapsedMicroSeconds();
-	m_Durations.push_back(elapsedMicroSeconds.count() / 1000.);
+	const double elapsedMilliSeconds = elapsedMicroSeconds.count() / 1000.;
+	m_Durations.push_back(elapsedMilliSeconds);
 	return elapsedMicroSeconds;
 }
 

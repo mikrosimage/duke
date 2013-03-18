@@ -37,7 +37,9 @@ private:
 struct Metronom {
 	Metronom(std::size_t bufferSize);
 	std::chrono::microseconds tick();
+
 	void compute();
+
 	double getMin() const {
 		return m_Min;
 	}

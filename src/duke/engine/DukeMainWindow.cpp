@@ -134,16 +134,13 @@ static const char* getFitModeString(FitMode &mode) {
 }
 
 void DukeMainWindow::run() {
-	std::map<const IMediaStream*, std::vector<Range> > cacheStateTmp;
-
 	AttributesOverlay attributesOverlay(m_GlyphRenderer);
 	OnScreenDisplayOverlay statusOverlay(m_GlyphRenderer);
-	StatisticsOverlay cacheOverlay(m_GlyphRenderer, cacheStateTmp, m_Player.getTimeline());
+	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
 	bool showAttributesOverlay = false;
+	bool showStatisticOverlay = true;
 
 	SharedMesh pSquare = createSquare();
-	Metronom vBlankMetronom(100);
-	Metronom frameMetronom(30);
 
 	size_t lastFrame = 0;
 	auto milestone = duke_clock::now();
@@ -238,19 +235,20 @@ void DukeMainWindow::run() {
 				attributesOverlay.render(m_Context);
 		}
 		statusOverlay.render(m_Context);
-		cacheOverlay.render(m_Context);
+		if (showStatisticOverlay)
+			statisticOverlay.render(m_Context);
 
 		// displaying
 		::glfwSwapBuffers(m_pWindow);
 
 		// updating time
-		const auto elapsedMicroSeconds = vBlankMetronom.tick();
+		const auto elapsedMicroSeconds = statisticOverlay.vBlankMetronom.tick();
 		const Time offset = m_CmdLine.unlimitedFPS ? m_Player.getFrameDuration() : Time(elapsedMicroSeconds);
 		m_Player.offsetPlaybackTime(offset);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
 		if (frame != lastFrame) {
-			frameMetronom.tick();
+			statisticOverlay.frameMetronom.tick();
 			lastFrame = frame;
 		}
 
@@ -289,6 +287,9 @@ void DukeMainWindow::run() {
 			case 'o':
 				showAttributesOverlay = !showAttributesOverlay;
 				break;
+			case 's':
+				showStatisticOverlay = !showStatisticOverlay;
+				break;
 			case 'f':
 				setNextMode(m_Context.fitMode);
 				m_Context.pan = m_Pan = glm::ivec2();
@@ -326,9 +327,9 @@ void DukeMainWindow::run() {
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
 		if ((now - milestone) > std::chrono::milliseconds(100)) {
-			textureCache.getImageCache().dumpState(cacheStateTmp);
-			// vBlankMetronom.dump();
-			// frameMetronom.dump();
+			textureCache.getImageCache().dumpState(statisticOverlay.cacheState);
+			statisticOverlay.vBlankMetronom.compute();
+			statisticOverlay.frameMetronom.compute();
 			milestone = now;
 		}
 	}

@@ -9,6 +9,7 @@
 
 #include "IOverlay.h"
 #include <duke/engine/Timeline.h>
+#include <duke/time/Clock.h>
 
 namespace duke {
 
@@ -17,12 +18,16 @@ struct GlyphRenderer;
 
 class StatisticsOverlay: public duke::IOverlay {
 public:
-	StatisticsOverlay(const GlyphRenderer&, const std::map<const IMediaStream*, std::vector<Range> > &, const Timeline& timeline);
+	StatisticsOverlay(const GlyphRenderer&, const Timeline& timeline);
+
+
 	virtual void render(const Context&) const;
 
+	std::map<const IMediaStream*, std::vector<Range> > cacheState;
+	Metronom vBlankMetronom;
+	Metronom frameMetronom;
 private:
 	const GlyphRenderer &m_GlyphRenderer;
-	const std::map<const IMediaStream*, std::vector<Range> > & m_CacheState;
 	const Timeline& m_Timeline;
 };
 
