@@ -24,7 +24,7 @@ public:
 	void registerCallbacks();
 	GLFWwindow *getHandle();
 
-	std::function<int()> windowCloseCallback;
+	std::function<void()> windowCloseCallback;
 	std::function<void(int)> windowFocusCallback;
 	std::function<void(int width, int height)> windowResizeCallback;
 	std::function<void()> windowRefreshFunCallback;
@@ -32,7 +32,7 @@ public:
 	std::function<void(int x, int y)> mousePosCallback;
 	std::function<void(double x, double y)> scrollCallback;
 	std::function<void(int key, int action)> keyCallback;
-	std::function<void(int unicodeCodePoint)> charCallback;
+	std::function<void(unsigned unicodeCodePoint)> charCallback;
 
 protected:
 	GLFWwindow *m_pWindow;

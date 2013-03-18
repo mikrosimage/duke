@@ -29,11 +29,10 @@ static DukeGLFWWindow* safeGetDukeWindow(GLFWwindow *pWindow) {
 		throw std::runtime_error("Trying to reach an inexistent window");
 	return pFound->second;
 }
-static int onWindowCloseFun(GLFWwindow *pWindow) {
+static void onWindowCloseFun(GLFWwindow *pWindow) {
 	auto pDukeWindow = safeGetDukeWindow(pWindow);
 	if (pDukeWindow->windowCloseCallback)
-		return pDukeWindow->windowCloseCallback();
-	return GL_TRUE;
+		pDukeWindow->windowCloseCallback();
 }
 static void onWindowFocusFun(GLFWwindow *pWindow, int focus) {
 	auto pDukeWindow = safeGetDukeWindow(pWindow);
@@ -70,7 +69,7 @@ static void onKeyFun(GLFWwindow *pWindow, int keyId, int keyState) {
 	if (pDukeWindow->keyCallback)
 		pDukeWindow->keyCallback(keyId, keyState);
 }
-static void onCharFun(GLFWwindow *pWindow, int unicodeCodePoint) {
+static void onCharFun(GLFWwindow *pWindow, unsigned int unicodeCodePoint) {
 	auto pDukeWindow = safeGetDukeWindow(pWindow);
 	if (pDukeWindow->charCallback)
 		pDukeWindow->charCallback(unicodeCodePoint);

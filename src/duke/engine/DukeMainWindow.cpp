@@ -57,7 +57,7 @@ void DukeMainWindow::onKey(int key, int action) {
 		m_KeyStrokes.push_back(key);
 }
 
-void DukeMainWindow::onChar(int unicodeCodePoint) {
+void DukeMainWindow::onChar(unsigned int unicodeCodePoint) {
 	m_CharStrokes.push_back(unicodeCodePoint);
 }
 
@@ -150,8 +150,8 @@ void DukeMainWindow::run() {
 		return ::glfwGetKey(m_pWindow, key) == GLFW_PRESS;
 	};
 
-	const auto hasWindowParam = [=](int param) -> bool {
-		return ::glfwGetWindowParam(m_pWindow, param);
+	const auto shouldClose = [=]() -> bool {
+		return ::glfwWindowShouldClose(m_pWindow);
 	};
 
 	const auto togglePlayStop = [&]() -> bool {
@@ -322,7 +322,7 @@ void DukeMainWindow::run() {
 		m_KeyStrokes.clear();
 
 		// check stop
-		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC)));
+		running = !(shouldClose() || (keyPressed(GLFW_KEY_ESC)));
 
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
