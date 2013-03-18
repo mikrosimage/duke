@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef TIMELINE_H_
-#define TIMELINE_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -101,5 +100,3 @@ template<typename C> typename C::const_iterator findLess(const C& container, con
 }
 
 }  // namespace duke
-
-#endif /* TIMELINE_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GLAPP_H_
-#define GLAPP_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 
@@ -52,4 +51,3 @@ struct DukeGLFWApplication: public noncopyable {
 };
 
 } /* namespace duke */
-#endif /* GLAPP_H_ */

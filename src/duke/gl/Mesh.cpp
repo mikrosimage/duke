@@ -4,7 +4,7 @@
  *  Created on: Nov 29, 2012
  *      Author: Guillaume Chatelet
  */
-#include "Mesh.hpp"
+#include "Mesh.h"
 
 #include <stdexcept>
 

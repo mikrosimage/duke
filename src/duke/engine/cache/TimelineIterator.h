@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef TIMELINEITERATOR_H_
-#define TIMELINEITERATOR_H_
+#pragma once
 
 #include <duke/engine/Timeline.h>
 
@@ -70,4 +69,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* TIMELINEITERATOR_H_ */

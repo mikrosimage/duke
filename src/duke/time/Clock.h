@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef CLOCK_H_
-#define CLOCK_H_
+#pragma once
 
 #include <chrono>
 #include <deque>
@@ -62,5 +61,3 @@ private:
 	StopWatch m_StopWatch;
 	double m_Min, m_Max, m_Mean, m_StdDev;
 };
-
-#endif /* CLOCK_H_ */

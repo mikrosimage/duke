@@ -5,9 +5,6 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef STRINGUTILS_H_
-#define STRINGUTILS_H_
+#pragma once
 
 bool streq(const char* first, const char* second);
-
-#endif /* STRINGUTILS_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef COLORSPACE_H_
-#define COLORSPACE_H_
+#pragma once
 
 namespace duke {
 
@@ -16,4 +15,3 @@ enum class ColorSpace
 };
 
 } /* namespace duke */
-#endif /* COLORSPACE_H_ */

@@ -12,8 +12,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#ifndef BOOST_MATH_COMMON_FACTOR_RT_HPP
-#define BOOST_MATH_COMMON_FACTOR_RT_HPP
+#pragma once
 
 #include <limits>           // for CHAR_MIN
 
@@ -514,5 +513,3 @@ lcm
 #ifdef BOOST_MSVC
 #pragma warning(pop)
 #endif
-
-#endif  // BOOST_MATH_COMMON_FACTOR_RT_HPP

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PACKEDFRAME_H_
-#define PACKEDFRAME_H_
+#pragma once
 
 #include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
 #include <memory>
@@ -18,4 +17,3 @@ struct RawPackedFrame: public PackedFrameDescriptionAndAttributes {
 };
 
 } /* namespace duke */
-#endif /* PACKEDFRAME_H_ */

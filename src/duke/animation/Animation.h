@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ANIMATION_H_
-#define ANIMATION_H_
+#pragma once
 
 #include <cstdint>
 
@@ -57,4 +56,3 @@ T interpolateValue(const AnimationData& data, T startValue, T endValue, int64_t 
 }
 
 } /* namespace duke */
-#endif /* ANIMATION_H_ */

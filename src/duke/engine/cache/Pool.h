@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef POOL_H_
-#define POOL_H_
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -55,5 +54,3 @@ private:
 };
 
 }  // namespace pool
-
-#endif /* POOL_H_ */

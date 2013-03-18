@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef MESH_HPP_
-#define MESH_HPP_
+#pragma once
 
 #include <duke/gl/GlObjects.h>
 #include <duke/gl/GLUtils.h>
@@ -61,5 +60,3 @@ SharedMesh createSquare();
 SharedMesh createLine();
 
 }  // namespace duke
-
-#endif /* MESH_HPP_ */

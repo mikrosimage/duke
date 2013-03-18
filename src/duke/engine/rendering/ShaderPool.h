@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef SHADERPOOL_H_
-#define SHADERPOOL_H_
+#pragma once
 
 #include <duke/engine/rendering/ShaderFactory.h>
 #include <map>
@@ -25,5 +24,3 @@ private:
 };
 
 }  // namespace duke
-
-#endif /* SHADERPOOL_H_ */

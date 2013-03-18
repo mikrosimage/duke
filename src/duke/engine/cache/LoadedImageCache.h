@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IMAGECACHE_H_
-#define IMAGECACHE_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <duke/engine/cache/TimelineIterator.h>
@@ -54,4 +53,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* IMAGECACHE_H_ */

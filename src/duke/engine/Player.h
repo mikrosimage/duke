@@ -1,5 +1,4 @@
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#pragma once
 
 #include <duke/engine/cache/LoadedTextureCache.h>
 #include <duke/engine/Timeline.h>
@@ -56,5 +55,3 @@ private:
 };
 
 }  // namespace duke
-
-#endif /* PLAYER_H_ */

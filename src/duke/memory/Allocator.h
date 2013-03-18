@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ALLOCATOR_H_
-#define ALLOCATOR_H_
+#pragma once
 
 #include <duke/memory/PageSize.h>
 #include <duke/NonCopyable.h>
@@ -159,5 +158,3 @@ struct Virtual : public Allocator {
 	}
 };
 #endif
-
-#endif /* ALLOCATOR_H_ */

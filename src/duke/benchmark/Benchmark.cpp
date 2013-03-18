@@ -10,7 +10,7 @@
 #include <duke/gl/GlFwApp.h>
 #include <duke/gl/GL.h>
 #include <duke/gl/GLUtils.h>
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 #include <duke/gl/GlObjects.h>
 #include <duke/gl/Textures.h>
 #include <duke/engine/rendering/ShaderFactory.h>

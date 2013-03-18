@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEIO_H_
-#define DUKEIO_H_
+#pragma once
 
 #include <duke/imageio/RawPackedFrame.h>
 #include <duke/NonCopyable.h>
@@ -109,5 +108,3 @@ public:
 };
 
 }  // namespace duke
-
-#endif /* DUKEIO_H_ */

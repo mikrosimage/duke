@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef VIEWPORT_H_
-#define VIEWPORT_H_
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -23,5 +22,3 @@ struct Viewport {
 };
 
 }  // namespace duke
-
-#endif /* VIEWPORT_H_ */

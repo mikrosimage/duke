@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef TEXTUREPOOL_H_
-#define TEXTUREPOOL_H_
+#pragma once
 
 #include <duke/imageio/PackedFrameDescription.h>
 #include <duke/gl/GLUtils.h>
@@ -35,5 +34,3 @@ public:
 typedef pool::Pool<TexturePoolPolicy> TexturePool;
 
 }  // namespace duke
-
-#endif /* TEXTUREPOOL_H_ */

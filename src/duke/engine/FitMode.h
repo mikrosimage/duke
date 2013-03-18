@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef FITMODE_H_
-#define FITMODE_H_
+#pragma once
 
 namespace duke {
 
@@ -15,5 +14,3 @@ enum class FitMode {
 };
 
 }  // namespace duke
-
-#endif /* FITMODE_H_ */

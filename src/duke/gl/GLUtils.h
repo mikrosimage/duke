@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GLUTILS_H_
-#define GLUTILS_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,5 +32,3 @@ void checkProgramError(unsigned int programId);
 
 std::string slurpFile(const char* pFilename);
 std::vector<unsigned char> slurpBinaryFile(const char* pFilename);
-
-#endif /* GLUTILS_H_ */

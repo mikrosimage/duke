@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PACKEDFRAMEDESCRIPTIONANDATTRIBUTES_H_
-#define PACKEDFRAMEDESCRIPTIONANDATTRIBUTES_H_
+#pragma once
 
 #include <duke/imageio/PackedFrameDescription.h>
 #include <duke/attributes/Attributes.h>
@@ -19,5 +18,3 @@ struct PackedFrameDescriptionAndAttributes {
 };
 
 } /* namespace duke */
-
-#endif /* PACKEDFRAMEDESCRIPTIONANDATTRIBUTES_H_ */

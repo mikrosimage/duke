@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef MEDIASTREAM_H_
-#define MEDIASTREAM_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 
@@ -21,5 +20,3 @@ public:
 };
 
 } /* namespace duke */
-
-#endif /* MEDIASTREAM_H_ */

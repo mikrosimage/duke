@@ -1,5 +1,4 @@
-#ifndef FRAMEUTILS_H_
-#define FRAMEUTILS_H_
+#pragma once
 
 #include <duke/math/Rational.hpp>
 
@@ -59,5 +58,3 @@ struct FrameDuration: public BaseRational {
 
 Time frameToTime(const uint32_t frame, const FrameDuration &period);
 FrameIndex timeToFrame(Time time, const FrameDuration &period);
-
-#endif /* FRAMEUTILS_H_ */

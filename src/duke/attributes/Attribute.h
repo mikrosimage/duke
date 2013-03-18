@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ATTRIBUTE_H_
-#define ATTRIBUTE_H_
+#pragma once
 
 #include <vector>
 #include <ostream>
@@ -144,5 +143,3 @@ public:
 
 std::ostream& operator<<(std::ostream&stream, PrimitiveType type);
 std::ostream& operator<<(std::ostream&, const Attribute&);
-
-#endif /* ATTRIBUTE_H_ */

@@ -4,6 +4,7 @@
  *  Created on: Feb 19, 2013
  *      Author: Guillaume Chatelet
  */
+
 #pragma once
 
 #include "IOverlay.h"

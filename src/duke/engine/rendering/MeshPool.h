@@ -5,10 +5,9 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef MESHPOOL_H_
-#define MESHPOOL_H_
+#pragma once
 
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 
 namespace duke {
 
@@ -29,5 +28,3 @@ private:
 };
 
 }  // namespace duke
-
-#endif /* MESHPOOL_H_ */

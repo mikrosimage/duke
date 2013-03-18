@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GLOBJECTS_H_
-#define GLOBJECTS_H_
+#pragma once
 
 #include <memory>
 #include <duke/NonCopyable.h>
@@ -93,5 +92,3 @@ struct GlStaticUploadPbo: public GlBufferObject {
 
 } /* namespace gl */
 } /* namespace duke */
-
-#endif /* GLOBJECTS_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEAPPLICATION_H_
-#define DUKEAPPLICATION_H_
+#pragma once
 
 #include <duke/engine/DukeMainWindow.h>
 #include <duke/gl/GlFwApp.h>
@@ -24,4 +23,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* DUKEAPPLICATION_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef CMDLINEPARAMETERS_H_
-#define CMDLINEPARAMETERS_H_
+#pragma once
 
 #include <vector>
 #include <string>
@@ -42,5 +41,3 @@ struct CmdLineParameters {
 };
 
 }  // namespace duke
-
-#endif /* CMDLINEPARAMETERS_H_ */

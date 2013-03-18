@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ATTRIBUTEKEYS_H_
-#define ATTRIBUTEKEYS_H_
+#pragma once
 
 namespace attribute {
 
@@ -18,4 +17,3 @@ extern const char * const pOiioGammaKey;
 extern const char * const pOrientationKey;
 
 } /* namespace attribute */
-#endif /* ATTRIBUTEKEYS_H_ */

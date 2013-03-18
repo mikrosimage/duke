@@ -5,10 +5,9 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef SHADERFACTORY_H_
-#define SHADERFACTORY_H_
+#pragma once
 
-#include <duke/gl/Shader.hpp>
+#include <duke/gl/Shader.h>
 #include <duke/engine/ColorSpace.h>
 
 namespace duke {
@@ -37,4 +36,3 @@ std::string buildVertexShaderSource(const ShaderDescription &description);
 SharedProgram buildProgram(const ShaderDescription &description);
 
 } /* namespace duke */
-#endif /* SHADERFACTORY_H_ */

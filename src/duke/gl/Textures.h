@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef TEXTURES_H_
-#define TEXTURES_H_
+#pragma once
 
 #include <duke/gl/GlObjects.h>
 #include <duke/imageio/PackedFrameDescription.h>
@@ -22,5 +21,3 @@ struct Texture: public gl::GlTextureRectangle {
 };
 
 } // namespace duke
-
-#endif /* TEXTURES_H_ */

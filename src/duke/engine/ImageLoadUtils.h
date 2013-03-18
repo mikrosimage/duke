@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IMAGELOADUTILS_H_
-#define IMAGELOADUTILS_H_
+#pragma once
 
 #include <string>
 #include <functional>
@@ -26,5 +25,3 @@ struct Texture;
 bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error);
 
 } /* namespace duke */
-
-#endif /* IMAGELOADUTILS_H_ */

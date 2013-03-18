@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef CONTEXT_H_
-#define CONTEXT_H_
+#pragma once
 
 #include <duke/engine/FitMode.h>
 #include <duke/engine/ColorSpace.h>
@@ -49,4 +48,3 @@ struct Context {
 };
 
 } /* namespace duke */
-#endif /* CONTEXT_H_ */

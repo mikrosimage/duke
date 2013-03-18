@@ -13,7 +13,7 @@
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/ShaderFactory.h>
 #include <duke/engine/rendering/ShaderPool.h>
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 #include <duke/gl/Textures.h>
 
 namespace duke {

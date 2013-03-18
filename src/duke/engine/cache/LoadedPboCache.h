@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PBOCACHE_H_
-#define PBOCACHE_H_
+#pragma once
 
 #include <duke/engine/cache/PboPackedFrame.h>
 #include <duke/engine/cache/TimelineIterator.h>
@@ -32,4 +31,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* PBOCACHE_H_ */

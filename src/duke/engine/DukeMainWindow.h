@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEMAINWINDOW_H_
-#define DUKEMAINWINDOW_H_
+#pragma once
 
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Player.h>
@@ -55,4 +54,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* DUKEMAINWINDOW_H_ */

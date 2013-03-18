@@ -1,5 +1,4 @@
-#ifndef RATIONAL_HPP_
-#define RATIONAL_HPP_
+#pragma once
 
 //  Boost rational.hpp header file  ------------------------------------------//
 
@@ -639,6 +638,3 @@ inline rational<IntType> abs(const rational<IntType>& r)
 }
 
 } // namespace boost
-
-
-#endif /* RATIONAL_HPP_ */
