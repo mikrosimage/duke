@@ -10,8 +10,6 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <algorithm>
-#include <thread>
 
 #include <duke/time/FrameUtils.h>
 
@@ -29,15 +27,18 @@ enum class ApplicationMode {
 
 struct CmdLineParameters {
 	CmdLineParameters(int argc, char**argv);
-	const char* getHelpMessage() const;
+	void printHelpMessage() const;
 	unsigned swapBufferInterval = 1;
 	bool fullscreen = false;
 	bool unlimitedFPS = false;
-	unsigned workerThreadDefault = std::max(1u, std::min(4u, std::thread::hardware_concurrency() - 2));
-	size_t imageCacheSizeDefault = 500 * 1024 * 1024; // 500MiB
+	unsigned workerThreadDefault = getDefaultConsurrency();
+	size_t imageCacheSizeDefault = getDefaultCacheSize();
 	ApplicationMode mode = ApplicationMode::DUKE;
 	FrameDuration defaultFrameRate = FrameDuration::PAL;
 	std::vector<std::string> additionnalOptions;
+
+	static unsigned getDefaultConsurrency();
+	static size_t getDefaultCacheSize();
 };
 
 }  // namespace duke
