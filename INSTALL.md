@@ -23,6 +23,8 @@ If you want OpenImageIO's support you'll have to compile the library and set the
 environment variable to the directory containing the `include`, `lib` and `bin` folders.
 > export OPENIMAGEIO_ROOT_DIR=path/to/oiio/build/folder
 
+If your Linux distribution has an openimageio-dev package, just install it and CMake should autodetect it.
+
 
 ####Tests
 If you want the test suite to be run right after Duke's compilation just retrieve
