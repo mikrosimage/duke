@@ -74,3 +74,9 @@ Credits
 Duke has been initiated by HD3D² R&D project, sustained by Cap Digital, the French business cluster for digital content and services.
 
 The project is maintained as an open source project by [Mikros Image](http://www.mikrosimage.eu).
+
+Duke uses
+* [GLFW](https://github.com/elmindreda/glfw)
+* [GLM](https://github.com/Groovounet/glm)
+* [concurrent_utils](https://github.com/mikrosimage/concurrent_utils)
+* [light_sequence_parser](https://github.com/gchatelet/light_sequence_parser)
