@@ -32,7 +32,7 @@ static bool matches(const string option, const string shortOption, const string 
 
 namespace duke {
 
-unsigned CmdLineParameters::getDefaultConsurrency() {
+unsigned CmdLineParameters::getDefaultConcurrency() {
     return max(1u, min(4u, thread::hardware_concurrency() - 2));
 }
 
@@ -66,6 +66,8 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
             mode = ApplicationMode::HELP;
         else if (matches(pOption, "-v", "--version"))
             mode = ApplicationMode::VERSION;
+        else if (matches(pOption, "-l", "--list"))
+            mode = ApplicationMode::LIST_SUPPORTED_FORMAT;
         else if (*pOption != '-')
             additionnalOptions.push_back(pOption);
         else
@@ -75,23 +77,24 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
 
 void CmdLineParameters::printHelpMessage() const {
     printf(R"(Usage: duke [OPTION]... [FILE/FOLDER]...
-  -h, --help                 displays this message
-  -v, --version              displays revision version
+  -h, --help                 display this help and exit
+  -v, --version              output version information and exit
+      --benchmark            tests current machine's performance.
+      --swapinterval SIZE    specifies SIZE mandatory count of wait for
+                             vblank before displaying a frame, default is 1.
 
       --pal                  sets framerate to 25 fps (default)
       --film                 sets framerate to 24 fps
       --ntsc                 sets framerate to 29.97 fps
       --unlimited            unlimited framerate, benchmarking purpose
 
-      --swapinterval         specifies n as the mandatory count of wait for
-                             vblank before displaying a frame, default is 1.
-  -t, --threads              specify the number of decoding threads,
-                             defaults to %u for this machine.
-  -s, --cache-size           size of the in-memory cache system in MiB,
-                             default is %lu.
   -f, --fullscreen           switch to fullscreen mode.
-      --benchmark            tests current machine's performance.
-)", getDefaultConsurrency(), getDefaultCacheSize() / (1024 * 1024));
+  -l, --list-formats         output supported formats and exit
+  -s, --cache-size SIZE      size of the in-memory cache system in MiB,
+                             default is %lu.
+  -t, --threads SIZE         specify the number of decoding threads,
+                             defaults to %u for this machine.
+)", getDefaultCacheSize() / (1024 * 1024), getDefaultConcurrency());
 }
 
 }  // namespace duke

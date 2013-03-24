@@ -1,3 +1,10 @@
 static const unsigned DUKE_VERSION_MAJOR=@DUKE_VERSION_MAJOR@;
 static const unsigned DUKE_VERSION_MINOR=@DUKE_VERSION_MINOR@;
-const char DUKE_GIT_SHA1[]="@DUKE_GIT_SHA1@"; 
+static const unsigned DUKE_VERSION_HOTFIX=@DUKE_VERSION_HOTFIX@;
+const char DUKE_GIT_SHA1[]="@DUKE_GIT_SHA1@";
+
+#ifdef NDEBUG
+static const bool DUKE_RELEASE = true;
+#else
+static const bool DUKE_RELEASE = false;
+#endif
