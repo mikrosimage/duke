@@ -6,20 +6,30 @@
  */
 
 #include "Player.h"
+#include <duke/cmdline/CmdLineParameters.h>
 
 namespace duke {
 
+Player::Player(const CmdLineParameters &parameters) :
+		m_TextureCache(parameters) {
+}
+
 void Player::load(const Timeline& timeline, const FrameDuration &duration) {
-	m_Timeline = timeline;
+	m_TextureCache.load(timeline);
 	m_TimelineRange = timeline.getRange();
+	setFrameDuration(duration);
+	cue(m_TimelineRange == Range::EMPTY ? 0 : m_TimelineRange.first);
+}
+
+void Player::setFrameDuration(const FrameDuration &duration) {
+	m_FrameDuration = duration;
 	if (m_TimelineRange == Range::EMPTY) {
 		m_FirstFrameTime = m_LastFrameTime = 0;
 	} else {
 		m_FirstFrameTime = frameToTime(m_TimelineRange.first, getFrameDuration());
 		m_LastFrameTime = frameToTime(m_TimelineRange.last, getFrameDuration());
+		m_EndFrameTime = frameToTime(m_TimelineRange.last + 1, getFrameDuration());
 	}
-	m_FrameDuration = duration;
-	cue(m_Timeline.empty() ? 0 : m_Timeline.getRange().first);
 }
 
 void Player::setPlaybackTime(const Time time) {
@@ -27,7 +37,7 @@ void Player::setPlaybackTime(const Time time) {
 }
 
 void Player::offsetPlaybackTime(const Time time) {
-	const Time offset = time * m_PlaybackSpeed;
+	const auto offset = time * m_PlaybackSpeed;
 	if (m_PlaybackMode == CONTINUE) {
 		m_PlaybackTime += offset;
 		return;
@@ -35,8 +45,10 @@ void Player::offsetPlaybackTime(const Time time) {
 	if (m_TimelineRange == Range::EMPTY || offset == 0)
 		return;
 	const bool forward = offset > 0;
-	auto overshoot = forward ? (m_PlaybackTime + offset) - m_LastFrameTime : m_FirstFrameTime - (m_PlaybackTime + offset);
-	if (overshoot <= 0) {
+	const auto newTime = m_PlaybackTime + offset;
+	const auto overshoot = forward ? newTime - m_EndFrameTime : m_FirstFrameTime - newTime;
+	const bool overshooting = forward ? overshoot < 0 : overshoot <= 0;
+	if (overshooting) {
 		m_PlaybackTime += offset;
 		return;
 	}
@@ -46,10 +58,9 @@ void Player::offsetPlaybackTime(const Time time) {
 		m_PlaybackSpeed = 0;
 		break;
 	case LOOP:
-		overshoot -= getFrameDuration();
-		if (overshoot > (m_LastFrameTime - m_FirstFrameTime))
+		if (overshoot > (m_EndFrameTime - m_FirstFrameTime))
 			return;
-		m_PlaybackTime = forward ? m_FirstFrameTime + overshoot : m_LastFrameTime - overshoot;
+		m_PlaybackTime = forward ? m_FirstFrameTime + overshoot : m_EndFrameTime - overshoot;
 		break;
 	default:
 		throw std::logic_error("Not yet implemented");
@@ -70,6 +81,12 @@ void Player::stop() {
 
 void Player::cue(uint32_t frame) {
 	m_PlaybackTime = m_FrameDuration * frame;
+	stop();
+}
+
+void Player::cueRelative(int32_t frame) {
+	setPlaybackSpeed(1);
+	offsetPlaybackTime(m_FrameDuration * frame);
 	stop();
 }
 
@@ -94,7 +111,11 @@ Player::Mode Player::getPlaybackMode() const {
 }
 
 const Timeline& Player::getTimeline() const {
-	return m_Timeline;
+	return m_TextureCache.getTimeline();
+}
+
+LoadedTextureCache& Player::getTextureCache() {
+	return m_TextureCache;
 }
 
 }  // namespace duke

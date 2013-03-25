@@ -1,31 +1,39 @@
 #include <gtest/gtest.h>
 
 #include <duke/engine/Timeline.h>
+#include <duke/engine/streams/IMediaStream.h>
 
 #include <stdexcept>
 #include <set>
 
 using namespace std;
+using namespace duke;
+
+class DummyMediaStream: public IMediaStream {
+public:
+	virtual void generateFilePath(string &path, size_t atFrame) const {
+	}
+};
 
 TEST(Track,findClip) {
+	auto pStream1 = make_shared<DummyMediaStream>();
+	auto pStream2 = make_shared<DummyMediaStream>();
+	auto pStream3 = make_shared<DummyMediaStream>();
 	Track track;
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(0));
-	track.add(0, Clip { 1 });
-	const auto pFirst = &(track.begin())->second;
-	EXPECT_EQ(MediaFrameReference(pFirst,0), track.getClipFrame(0));
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(1));
-	track.add(10, Clip { 1 });
-	const auto pLast = &(track.rbegin())->second;
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(9));
-	EXPECT_EQ(MediaFrameReference(pLast,0), track.getClipFrame(10));
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(11));
-	track.add(5, Clip { 3 });
-	const auto pMiddle = &(++track.begin())->second;
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(4));
-	EXPECT_EQ(MediaFrameReference(pMiddle,0), track.getClipFrame(5));
-	EXPECT_EQ(MediaFrameReference(pMiddle,1), track.getClipFrame(6));
-	EXPECT_EQ(MediaFrameReference(pMiddle,2), track.getClipFrame(7));
-	EXPECT_EQ(MediaFrameReference(), track.getClipFrame(8));
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(0));
+	track.add(0, Clip { 1, pStream1 });
+	EXPECT_EQ(MediaFrameReference(pStream1.get(),0), track.getMediaFrameReferenceAt(0));
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(1));
+	track.add(10, Clip { 1, pStream2 });
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(9));
+	EXPECT_EQ(MediaFrameReference(pStream2.get(),0), track.getMediaFrameReferenceAt(10));
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(11));
+	track.add(5, Clip { 3, pStream3 });
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(4));
+	EXPECT_EQ(MediaFrameReference(pStream3.get(),0), track.getMediaFrameReferenceAt(5));
+	EXPECT_EQ(MediaFrameReference(pStream3.get(),1), track.getMediaFrameReferenceAt(6));
+	EXPECT_EQ(MediaFrameReference(pStream3.get(),2), track.getMediaFrameReferenceAt(7));
+	EXPECT_EQ(MediaFrameReference(), track.getMediaFrameReferenceAt(8));
 }
 
 TEST(Track,range) {
@@ -73,10 +81,10 @@ TEST(Track,findclips) {
 TEST(Timeline,findClips) {
 //setup
 	Track track1;
-	track1.insert(make_pair(5, Clip { 1 }));
-	track1.insert(make_pair(7, Clip { 1 }));
+	track1.insert(make_pair(5, Clip { 1, make_shared<DummyMediaStream>() }));
+	track1.insert(make_pair(7, Clip { 1, make_shared<DummyMediaStream>() }));
 	Track track2;
-	track2.insert(make_pair(4, Clip { 5 }));
+	track2.insert(make_pair(4, Clip { 5, make_shared<DummyMediaStream>() }));
 	Track track3;
 	Timeline timeline;
 	timeline.push_back(track1);
@@ -134,7 +142,7 @@ TEST(Timeline,range) {
 	EXPECT_EQ(Range(10,20), timeline.getRange());
 }
 
-TEST(Timeline, iterators) {
+TEST(Timeline, skip) {
 	set<std::size_t> s;
 	EXPECT_EQ(s.end(), findLess(s,1));
 	EXPECT_EQ(s.end(), findLessOrEquals(s,1));

@@ -7,13 +7,13 @@
 
 #include "ImageLoadUtils.h"
 #include <duke/imageio/DukeIO.h>
-#include <duke/imageio/Attributes.h>
-#include <duke/imageio/ImageDescription.h>
-#include <duke/imageio/AttributeKeys.h>
+#include <duke/attributes/Attributes.h>
+#include <duke/attributes/AttributeKeys.h>
+#include <duke/imageio/PackedFrameDescription.h>
 #include <duke/gl/Textures.h>
 #include <duke/filesystem/MemoryMappedFile.h>
-#include <duke/memory/alloc/Allocator.h>
-#include <cstring>
+#include <duke/filesystem/FsUtils.h>
+#include <duke/memory/Allocator.h>
 #include <sstream>
 
 namespace duke {
@@ -26,17 +26,16 @@ static std::string loadImage(IImageReader *pRawReader, const LoadCallback& callb
 		return "bad state : IImageReader==nullptr";
 	if (pReader->hasError())
 		return pReader->getError();
-	const auto &description = pReader->getDescription();
-	const auto &attributes = pReader->getAttributes();
+	RawPackedFrame packedFrame = pReader->getRawPackedFrame();
 	const void* pMapped = pReader->getMappedImageData();
 	if (pMapped == nullptr) {
-		const auto pData = make_shared_memory<char>(description.dataSize, alignedMalloc);
-		pReader->readImageDataTo(pData.get());
+		packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
+		pReader->readImageDataTo(packedFrame.pData.get());
 		if (pReader->hasError())
 			return pReader->getError();
-		callback(description, attributes, pData.get());
+		callback(std::move(packedFrame), packedFrame.pData.get());
 	} else {
-		callback(description, attributes, pMapped);
+		callback(std::move(packedFrame), pMapped);
 	}
 	return std::string();
 }
@@ -56,33 +55,33 @@ static std::string load(const char* pFilename, const char *pExtension, const Loa
 	const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
 	if (descriptors.empty())
 		return "no reader available";
+	std::string error;
 	for (const IIODescriptor *pDescriptor : descriptors) {
-		std::string error = tryReader(pFilename, pDescriptor, callback);
+		error = tryReader(pFilename, pDescriptor, callback);
 		if (error.empty())
 			return std::string();
 	}
-	return "no reader succeeded in reading the file";
+	return "no reader succeeded, last message was : " + error;
 }
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error) {
 	error = load(pFilename, pExtension, callback);
 	if (error.empty())
 		return true;
-	printf("error while reading %s : %s\n", pFilename, error.c_str());
 	return false;
 }
 
-bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error) {
-	const char* pDot = strrchr(pFilename, '.');
-	if (!pDot)
+bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error) {
+	const char* pExtension = fileExtension(pFilename);
+	if (!pExtension)
 		return "no extension for file";
-	const char* pExtension = ++pDot;
-	return load(pFilename, pExtension, [&](const PackedFrameDescription &description, const Attributes &_attributes, const void* pData) {
-		attributes= _attributes;
+	const LoadCallback fCallback = [&](RawPackedFrame&& packedFrame, const void* pVolatileData) {
+		attributes= std::move(packedFrame.attributes);
 		attributes.emplace_back(attribute::pDukeFileExtensionKey,pExtension);
-		const auto bound = scope_bind(texture);
-		texture.initialize(description,pData);
-	}, error);
+		const auto bound = texture.scope_bind_texture();
+		texture.initialize(packedFrame.description,pVolatileData);
+	};
+	return load(pFilename, pExtension, fCallback, error);
 }
 
 } /* namespace duke */

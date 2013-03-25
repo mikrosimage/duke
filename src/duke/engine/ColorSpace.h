@@ -5,15 +5,13 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef COLORSPACE_H_
-#define COLORSPACE_H_
+#pragma once
 
 namespace duke {
 
 enum class ColorSpace
 	: unsigned char {
-		Source, Linear, sRGB, GammaCorrected, AdobeRGB, Rec709, KodakLog
+		Auto, Linear, sRGB, GammaCorrected, AdobeRGB, Rec709, KodakLog, _END
 };
 
 } /* namespace duke */
-#endif /* COLORSPACE_H_ */

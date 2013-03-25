@@ -9,6 +9,7 @@
 
 #include <numeric>
 #include <algorithm>
+#include <cmath>
 
 Metronom::Metronom(size_t values) :
 		m_Size(values), m_Min(0), m_Max(0), m_Mean(0), m_StdDev(0) {
@@ -18,7 +19,8 @@ std::chrono::microseconds Metronom::tick() {
 	if (m_Durations.size() >= m_Size)
 		m_Durations.pop_front();
 	const auto elapsedMicroSeconds = m_StopWatch.elapsedMicroSeconds();
-	m_Durations.push_back(elapsedMicroSeconds.count() / 1000.);
+	const double elapsedMilliSeconds = elapsedMicroSeconds.count() / 1000.;
+	m_Durations.push_back(elapsedMilliSeconds);
 	return elapsedMicroSeconds;
 }
 

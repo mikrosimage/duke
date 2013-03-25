@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/imageio/Attribute.h>
-#include <duke/imageio/Attributes.h>
+#include <duke/attributes/Attributes.h>
 #include <glm/glm.hpp>
 
 using namespace std;

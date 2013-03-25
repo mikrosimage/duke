@@ -1,11 +1,10 @@
-#ifndef FRAMEUTILS_H_
-#define FRAMEUTILS_H_
+#pragma once
 
-#include <duke/Rational.h>
+#include <duke/math/Rational.hpp>
 
 #include <chrono>
 
-typedef rational<int64_t> BaseRational;
+typedef boost::rational<int64_t> BaseRational;
 
 struct FrameIndex: public BaseRational {
 	FrameIndex() :
@@ -14,16 +13,16 @@ struct FrameIndex: public BaseRational {
 	FrameIndex(const BaseRational rational) :
 			BaseRational(rational) {
 	}
-	value_type round() const {
-		return value_type((double(numerator()) / denominator()) + .5);
+	int_type round() const {
+		return int_type((double(numerator()) / denominator()));
 	}
-	friend std::ostream& operator<<(std::ostream& stream, const FrameIndex &r){
+	friend std::ostream& operator<<(std::ostream& stream, const FrameIndex &r) {
 		return stream << static_cast<const BaseRational>(r);
 	}
 };
 
 struct Time: public BaseRational {
-	Time(const value_type num = 0, const value_type den = 1) :
+	Time(const int_type num = 0, const int_type den = 1) :
 			BaseRational(num, den) {
 	}
 	Time(const BaseRational rational) :
@@ -32,14 +31,22 @@ struct Time: public BaseRational {
 	Time(const std::chrono::microseconds value) :
 			BaseRational(value.count(), std::micro::den) {
 	}
-	std::chrono::microseconds asMicroseconds() const {
-		const value_type approx = value_type((double(numerator()) / denominator() * std::micro::den) + .5);
-		return std::chrono::microseconds(approx);
+	int_type asMilliseconds() const {
+		return int_type((double(numerator()) / denominator() * std::milli::den) + .5);
+	}
+	int_type asMicroseconds() const {
+		return int_type((double(numerator()) / denominator() * std::micro::den) + .5);
+	}
+	double asDouble() const {
+		return double(numerator()) / denominator();
+	}
+	friend std::ostream& operator<<(std::ostream& stream, const Time &r) {
+		return stream << static_cast<const BaseRational>(r);
 	}
 };
 
 struct FrameDuration: public BaseRational {
-	FrameDuration(value_type num, value_type den = 1) :
+	FrameDuration(int_type num, int_type den = 1) :
 			BaseRational(num, den) {
 		if (num == 0)
 			throw std::domain_error("can't have a frame lasting zero seconds");
@@ -51,5 +58,3 @@ struct FrameDuration: public BaseRational {
 
 Time frameToTime(const uint32_t frame, const FrameDuration &period);
 FrameIndex timeToFrame(Time time, const FrameDuration &period);
-
-#endif /* FRAMEUTILS_H_ */

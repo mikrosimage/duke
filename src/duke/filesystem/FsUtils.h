@@ -5,8 +5,9 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef FSUTILS_H_
-#define FSUTILS_H_
+#pragma once
+
+#include <string>
 
 namespace duke {
 
@@ -16,5 +17,12 @@ enum class FileStatus {
 
 FileStatus getFileStatus(const char* filename);
 
+const char* fileExtension(const char* pFilename);
+
+std::string getAbsoluteFilename(const char* pFilename);
+
+std::string getExePath();
+
+std::string getDirname(const std::string &file);
+
 } /* namespace duke */
-#endif /* FSUTILS_H_ */

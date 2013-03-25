@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Player.h>
 
 static const size_t startFrame = 90000;
 
-using duke::Player;
+using namespace duke;
+
+const CmdLineParameters gDefault(0, nullptr);
 
 Timeline getTimeline() {
 	Track track;
@@ -16,7 +19,7 @@ Timeline getTimeline() {
 }
 
 TEST(Player,time) {
-	Player player;
+	Player player(gDefault);
 	EXPECT_EQ(FrameIndex(), player.getCurrentFrame());
 	player.setPlaybackTime(10); // go to ten seconds
 	EXPECT_EQ(FrameIndex(25*10), player.getCurrentFrame());
@@ -29,7 +32,7 @@ TEST(Player,time) {
 }
 
 TEST(Player,playback) {
-	Player player;
+	Player player(gDefault);
 	player.load(getTimeline(), FrameDuration::PAL);
 	player.setPlaybackMode(Player::CONTINUE);
 	// playing
@@ -55,7 +58,7 @@ TEST(Player,playback) {
 }
 
 TEST(Player,stopping) {
-	Player player;
+	Player player(gDefault);
 	player.setPlaybackMode(Player::STOP);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
@@ -74,7 +77,7 @@ TEST(Player,stopping) {
 }
 
 TEST(Player,looping) {
-	Player player;
+	Player player(gDefault);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
 	player.load(timeline, FrameDuration::PAL);
@@ -97,7 +100,7 @@ TEST(Player,looping) {
 }
 
 TEST(Player,looping2) {
-	Player player;
+	Player player(gDefault);
 	Track track;
 	track.add(0, Clip { 1 });
 	track.add(1, Clip { 1 });
@@ -105,30 +108,81 @@ TEST(Player,looping2) {
 	track.add(3, Clip { 1 });
 	const auto timeline = Timeline { track };
 	const auto range = timeline.getRange();
-	auto advance = [&]() {player.offsetPlaybackTime(player.getFrameDuration());};
+	auto step = [&]() {player.offsetPlaybackTime(player.getFrameDuration());};
 	EXPECT_EQ(range, Range (0,3));
 	player.load(timeline, FrameDuration::PAL);
 	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
 	// moving one frame
 	player.setPlaybackSpeed(-1);
-	advance(); // reverse should go last frame
+	step(); // reverse should go last frame
 	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
 	player.setPlaybackSpeed(1);
-	advance(); // forward should go first frame
+	step(); // forward should go first frame
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(2), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(3), player.getCurrentFrame());
-	advance();
+	step();
 	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
+}
+
+TEST(Player,looping3) {
+	Player player(gDefault);
+	Track track;
+	track.add(0, Clip { 2 });
+	const auto timeline = Timeline { track };
+	const auto range = timeline.getRange();
+	EXPECT_EQ(range, Range (0,1));
+	player.load(timeline, FrameDuration(1));
+	EXPECT_EQ(Player::LOOP, player.getPlaybackMode());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame());
+	player.setPlaybackSpeed(1);
+	player.offsetPlaybackTime(Time(1)); // 1s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 1.333s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 1.666s
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(1, 3)); // 2s => looping
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
+	// backward
+	player.cue(0);
+	player.setPlaybackSpeed(1);
+	EXPECT_EQ(Time(0), player.getPlaybackTime());
+	player.offsetPlaybackTime(Time(-1, 3)); // looping 1.666s
+	EXPECT_EQ(Time(5,3), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(-2, 3)); // 1s
+	EXPECT_EQ(Time(1), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(1), player.getCurrentFrame().round());
+	player.offsetPlaybackTime(Time(-1, 1000)); // 0.999s
+	EXPECT_EQ(Time(999,1000), player.getPlaybackTime());
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
+}
+
+TEST(Player,forwardThenBackToStart) {
+	Player player(gDefault);
+	Track track;
+	track.add(0, Clip { 200 });
+	const auto timeline = Timeline { track };
+	player.load(timeline, FrameDuration::PAL);
+	player.setPlaybackSpeed(1);
+	for (size_t i = 0; i < 4; ++i)
+		player.offsetPlaybackTime(FrameDuration::PAL);
+	EXPECT_EQ(FrameIndex(4), player.getCurrentFrame().round());
+	player.setPlaybackSpeed(-1);
+	for (size_t i = 0; i < 3; ++i)
+		player.offsetPlaybackTime(FrameDuration::PAL);
+	player.offsetPlaybackTime(FrameDuration::PAL);
+	EXPECT_EQ(FrameIndex(0), player.getCurrentFrame().round());
 }
 
 TEST(Player,loopingWithHugeStep) {
 	// if in looping mode with offset greater than timeline period, just doing nothing
-	Player player;
+	Player player(gDefault);
 	const auto timeline = getTimeline();
 	const auto range = timeline.getRange();
 	player.load(timeline, FrameDuration::PAL);

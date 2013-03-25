@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IMAGELOADUTILS_H_
-#define IMAGELOADUTILS_H_
+#pragma once
 
 #include <string>
 #include <functional>
@@ -16,12 +15,13 @@ struct Attributes;
 
 namespace duke {
 
-typedef std::function<void(const PackedFrameDescription& description, const Attributes &attributes, const void* pData)> LoadCallback;
+struct RawPackedFrame;
+
+typedef std::function<void(RawPackedFrame&& packedFrame, const void* pVolatileData)> LoadCallback;
 
 bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
 
-class ITexture;
-bool load(const char* pFilename, ITexture& texture, Attributes &attributes, std::string &error);
+struct Texture;
+bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error);
 
 } /* namespace duke */
-#endif /* IMAGELOADUTILS_H_ */

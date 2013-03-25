@@ -5,28 +5,31 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEIO_H_
-#define DUKEIO_H_
+#pragma once
 
-#include "Attributes.h"
-#include <duke/imageio/ImageDescription.h>
+#include <duke/imageio/RawPackedFrame.h>
 #include <duke/NonCopyable.h>
 
 #include <cstddef>
 #include <string>
 #include <map>
 
+namespace duke {
+
 class IIODescriptor;
 
 class IImageReader: public noncopyable {
+private:
+	RawPackedFrame m_PackedFrame;
 protected:
 	const IIODescriptor * const m_pDescriptor;
-	PackedFrameDescription m_Description;
+	PackedFrameDescription &m_Description;
+	Attributes &m_Attributes;
+	Attributes m_ReaderAttributes;
 	std::string m_Error;
-	Attributes m_Attributes;
 public:
 	IImageReader(const IIODescriptor * pDescriptor) :
-			m_pDescriptor(pDescriptor) {
+			m_pDescriptor(pDescriptor), m_Description(m_PackedFrame.description), m_Attributes(m_PackedFrame.attributes) {
 	}
 	virtual ~IImageReader() {
 	}
@@ -36,14 +39,14 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline const PackedFrameDescription& getDescription() const {
-		return m_Description;
+	inline Attributes& getReaderAttributes() {
+		return m_ReaderAttributes;
+	}
+	inline const RawPackedFrame& getRawPackedFrame() const {
+		return m_PackedFrame;
 	}
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;
-	}
-	inline const Attributes& getAttributes() const {
-		return m_Attributes;
 	}
 	virtual const void* getMappedImageData() const {
 		return nullptr;
@@ -59,7 +62,12 @@ public:
 	}
 };
 
+}  // namespace duke
+
 #include <vector>
+
+namespace duke {
+
 class IIODescriptor: public noncopyable {
 public:
 	enum class Capability {
@@ -81,17 +89,25 @@ public:
 	}
 };
 
+}  // namespace duke
+
 #include <memory>
 #include <map>
 #include <deque>
+
+namespace duke {
+
 class IODescriptors: public noncopyable {
 	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
 	std::map<std::string, std::deque<IIODescriptor*> > m_ExtensionToDescriptors;
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
 	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
+	inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const {
+		return m_Descriptors;
+	}
 
 	static IODescriptors& instance();
 };
 
-#endif /* DUKEIO_H_ */
+}  // namespace duke

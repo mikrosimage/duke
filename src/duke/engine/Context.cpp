@@ -8,5 +8,6 @@
 #include "Context.h"
 
 namespace duke {
+}
 
-} /* namespace duke */
+/* namespace duke */

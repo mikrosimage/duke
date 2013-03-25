@@ -5,18 +5,14 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IMAGERENDERE_H_
-#define IMAGERENDERE_H_
-
-struct Attributes;
+#pragma once
 
 namespace duke {
 
-class ITexture;
 class Mesh;
 struct Context;
+struct ShaderPool;
 
-void render(const Mesh *pMesh,const ITexture& texture, const Attributes &attributes, const Context &context);
+void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context);
 
 } /* namespace duke */
-#endif /* IMAGERENDERE_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef MEMORYMAPPEDFILE_H_
-#define MEMORYMAPPEDFILE_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <cstddef>
@@ -22,5 +21,3 @@ struct MemoryMappedFile: public noncopyable {
 private:
 	bool m_Error;
 };
-
-#endif /* MEMORYMAPPEDFILE_H_ */

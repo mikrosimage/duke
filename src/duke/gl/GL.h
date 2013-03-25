@@ -5,9 +5,10 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GL_H_
-#define GL_H_
+#pragma once
 
-#include <GL/glfw.h>
+#ifndef GL_RGB10_A2UI
+#define GL_RGB10_A2UI                       0x906F
+#endif
 
-#endif /* GL_H_ */
+#include <GL/glfw3.h>

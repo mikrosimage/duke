@@ -12,6 +12,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 const char* getInternalFormatString(GLint internalFormat) {
 	switch (internalFormat) {
@@ -257,23 +258,42 @@ const char* getPixelTypeString(unsigned int pixelType) {
 	return "Unknown";
 }
 
-void glCheckError() {
-	switch (glGetError()) {
+#ifndef NDEBUG
+static const char* getErrorString(unsigned error) {
+	switch (error) {
 	case GL_INVALID_ENUM:
-		throw std::runtime_error("OpenGL : Invalid enum");
+		return "Invalid enum";
 	case GL_INVALID_VALUE:
-		throw std::runtime_error("OpenGL : Invalid value");
+		return "Invalid value";
 	case GL_INVALID_OPERATION:
-		throw std::runtime_error("OpenGL : Invalid operation");
+		return "Invalid operation";
 	case GL_INVALID_FRAMEBUFFER_OPERATION:
-		throw std::runtime_error("OpenGL : Invalid framebuffer operation");
+		return "Invalid framebuffer operation";
 	case GL_OUT_OF_MEMORY:
-		throw std::runtime_error("OpenGL : Out of memory");
-	case GL_STACK_UNDERFLOW:
-		throw std::runtime_error("OpenGL : Stack underflow");
-	case GL_STACK_OVERFLOW:
-		throw std::runtime_error("OpenGL : Stack overflow");
+		return "Out of memory";
+		//case GL_STACK_UNDERFLOW:
+		//	throw std::runtime_error("OpenGL : Stack underflow");
+		//case GL_STACK_OVERFLOW:
+		//	throw std::runtime_error("OpenGL : Stack overflow");
 	}
+	return "Unknown error";
+}
+#endif
+
+void glCheckError() {
+#ifndef NDEBUG
+	std::vector<unsigned> errors;
+	unsigned error = GL_NO_ERROR;
+	for (; (error = glGetError()) != GL_NO_ERROR;)
+		errors.push_back(error);
+	if (errors.empty())
+		return;
+	std::ostringstream oss;
+	oss << "OpenGL errors :\n";
+	for (const unsigned error : errors)
+		oss << " - " << getErrorString(error) << '\n';
+	throw std::runtime_error(oss.str());
+#endif
 }
 
 static GLuint getBindParameter(GLuint targetType) {
@@ -327,14 +347,16 @@ void checkProgramError(unsigned int programId) {
 
 GLenum getPixelFormat(GLint internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
+		return GL_RED;
 	case GL_RGB8:
-		return GL_BGR;
+	case GL_RGB16F:
+		return GL_RGB;
 	case GL_RGBA8:
-		return GL_BGRA;
-	case GL_RGB10_A2UI:
-		return GL_BGRA_INTEGER;
 	case GL_RGBA16F:
-		return GL_BGRA;
+		return GL_RGBA;
+	case GL_RGB10_A2UI:
+		return GL_RGBA_INTEGER;
 	default:
 		std::ostringstream oss;
 		oss << "Don't know how to convert internal image format ";
@@ -345,13 +367,15 @@ GLenum getPixelFormat(GLint internalFormat) {
 
 bool isInternalOptimizedFormatRedBlueSwapped(int internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
 	case GL_RGB8:
 	case GL_RGBA8:
 	case GL_RGB10_A2UI:
+	case GL_RGB16F:
 	case GL_RGBA16F:
-		return true;
-	default:
 		return false;
+	default:
+		return true;
 	}
 }
 
@@ -361,12 +385,14 @@ GLint getAdaptedInternalFormat(GLint internalFormat) {
 
 GLenum getPixelType(GLint internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
 	case GL_RGB8:
 		return GL_UNSIGNED_BYTE;
 	case GL_RGB10_A2UI:
 	case GL_RGBA8:
 		return GL_UNSIGNED_INT_8_8_8_8_REV;
 	case GL_RGBA16F:
+	case GL_RGB16F:
 		return GL_HALF_FLOAT;
 	default:
 		std::ostringstream oss;
@@ -376,6 +402,42 @@ GLenum getPixelType(GLint internalFormat) {
 	}
 }
 
+size_t getChannelCount(GLenum pixel_format) {
+	switch (pixel_format) {
+	case GL_RGBA:
+	case GL_BGRA:
+		return 4;
+	case GL_RGB:
+	case GL_BGR:
+		return 3;
+	case GL_RED:
+		return 3;
+	default:
+		throw std::runtime_error("channel count not implemented");
+	}
+}
+
+size_t getBytePerChannel(GLenum pixel_type) {
+	switch (pixel_type) {
+	case GL_UNSIGNED_INT_8_8_8_8:
+	case GL_UNSIGNED_INT_8_8_8_8_REV:
+	case GL_UNSIGNED_BYTE:
+		return 1;
+	case GL_UNSIGNED_SHORT:
+	case GL_HALF_FLOAT:
+		return 2;
+	case GL_FLOAT:
+	case GL_INT:
+		return 4;
+	default:
+		throw std::runtime_error("byte per channel not implemented");
+	}
+}
+
+size_t getBytePerPixels(GLenum pixel_format, GLenum pixel_type) {
+	return getChannelCount(pixel_format) * getBytePerChannel(pixel_type);
+}
+
 std::string slurpFile(const char* pFilename) {
 	std::ifstream in(pFilename);
 	if (!in)
@@ -383,6 +445,18 @@ std::string slurpFile(const char* pFilename) {
 	std::stringstream sstr;
 	sstr << in.rdbuf();
 	return sstr.str();
+}
+
+std::vector<unsigned char> slurpBinaryFile(const char* pFilename) {
+	std::ifstream in(pFilename, std::ios::in | std::ios::binary | std::ios::ate);
+	if (!in)
+		throw std::ios_base::failure(std::string("unable to load file : ") + pFilename);
+	const size_t fileSize = in.tellg();
+	std::vector<unsigned char> result;
+	result.resize(fileSize);
+	in.seekg(0, std::ios::beg);
+	in.read(reinterpret_cast<char*>(result.data()), fileSize);
+	return result;
 }
 
 void setTextureDimensions(GLuint dimensionUniformParameter, size_t uwidth, size_t uheight, int orientation) {

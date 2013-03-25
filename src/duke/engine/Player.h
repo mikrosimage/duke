@@ -1,22 +1,29 @@
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#pragma once
 
+#include <duke/engine/cache/LoadedTextureCache.h>
 #include <duke/engine/Timeline.h>
 #include <duke/time/FrameUtils.h>
 #include <duke/NonCopyable.h>
 
 namespace duke {
 
+struct CmdLineParameters;
+
 struct Player: public noncopyable {
+	Player(const CmdLineParameters &parameters);
+
 	enum Mode {
 		CONTINUE, LOOP, STOP
 	};
 
+	// setup
 	void load(const Timeline& timeline, const FrameDuration &duration);
+	void setFrameDuration(const FrameDuration &duration);
 
 	// frame based
 	void stop();
 	void cue(uint32_t frame);
+	void cueRelative(int32_t frame);
 
 	// time based
 	void setPlaybackSpeed(int speed);
@@ -30,14 +37,17 @@ struct Player: public noncopyable {
 	FrameDuration getFrameDuration() const;
 	int getPlaybackSpeed() const;
 	Mode getPlaybackMode() const;
+
+	// subobjects
 	const Timeline& getTimeline() const;
+	LoadedTextureCache& getTextureCache();
 
 private:
-	friend class Duke;
-	Timeline m_Timeline;
+	LoadedTextureCache m_TextureCache;
 	Range m_TimelineRange = Range::EMPTY;
 	Time m_FirstFrameTime;
 	Time m_LastFrameTime;
+	Time m_EndFrameTime;
 	Time m_PlaybackTime;
 	FrameDuration m_FrameDuration = FrameDuration::PAL;
 	int m_PlaybackSpeed = 0;
@@ -45,5 +55,3 @@ private:
 };
 
 }  // namespace duke
-
-#endif /* PLAYER_H_ */

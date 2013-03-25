@@ -9,10 +9,44 @@
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
+#include <tuple>
 
 using namespace std;
 
 namespace duke {
+ShaderDescription::ShaderDescription() {
+}
+
+static inline std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+	return std::make_tuple(sd.grayscale, sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+}
+bool ShaderDescription::operator<(const ShaderDescription &other) const {
+	return asTuple(*this) < asTuple(other);
+}
+
+ShaderDescription ShaderDescription::createUvDesc() {
+	ShaderDescription description;
+	description.sampleTexture = false;
+	description.displayUv = true;
+	return description;
+}
+
+ShaderDescription ShaderDescription::createSolidDesc() {
+	ShaderDescription description;
+	description.sampleTexture = false;
+	return description;
+}
+
+ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
+	ShaderDescription description;
+	description.grayscale = grayscale;
+	description.sampleTexture = true;
+	description.swapEndianness = swapEndianness;
+	description.swapRedAndBlue = swapRedAndBlue;
+	description.tenBitUnpack = tenBitUnpack;
+	description.colorspace = colorspace;
+	return description;
+}
 
 static const char * const pColorSpaceConversions =
 		R"(
@@ -56,7 +90,7 @@ vec4 sample() {
 }
 )";
 
-static const char* const pMain =
+static const char* const pTexturedMain =
 		R"(
 out vec4 vFragColor;
 uniform bvec4 gShowChannel;
@@ -72,13 +106,33 @@ void main(void)
 		sampled = vec4(sampled.aaa,1);
 	sampled.rgb = sampled.rgb * gExposure;
 	sampled.rgb = pow(sampled.rgb,vec3(gGamma));
-	sampled.rgb = lintosrgb(sampled.rgb);
+	sampled.rgb = toScreen(sampled.rgb);
 	vFragColor = sampled;
 }
 )";
 
-static const char* chooseColorspace(const ColorSpace colospace) {
-	switch (colospace) {
+static const char* const pSolidMain = R"(
+out vec4 vFragColor;
+uniform vec4 gSolidColor;
+
+void main(void)
+{
+	vFragColor = gSolidColor;
+}
+)";
+
+static const char* const pUvMain = R"(
+out vec4 vFragColor;
+smooth in vec2 vVaryingTexCoord;
+
+void main(void)
+{
+	vFragColor = vec4(vVaryingTexCoord,0,1);
+}
+)";
+
+static const char* getToLinearFunction(const ColorSpace fromColorspace) {
+	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
 		return "cineontolin";
 	case ColorSpace::Linear:
@@ -86,43 +140,64 @@ static const char* chooseColorspace(const ColorSpace colospace) {
 	case ColorSpace::sRGB:
 	case ColorSpace::GammaCorrected:
 		return "srgbtolin";
-	case ColorSpace::Source:
+	case ColorSpace::Auto:
 	default:
 		throw std::runtime_error("ColorSpace must be resolved at this point");
 	}
 }
-static void appendColorspace(ostream&stream, const ColorSpace colorspace) {
-	stream << pColorSpaceConversions << endl;
-	stream << R"(
-vec3 toLinear(vec3 sample){
-	return )" << chooseColorspace(colorspace) << R"((sample);
+
+static const char* getToScreenFunction(const ColorSpace fromColorspace) {
+	switch (fromColorspace) {
+	case ColorSpace::KodakLog:
+	case ColorSpace::Linear:
+		return "lintolin";
+	case ColorSpace::sRGB:
+	case ColorSpace::GammaCorrected:
+		return "lintosrgb";
+	case ColorSpace::Auto:
+	default:
+		throw std::runtime_error("ColorSpace must be resolved at this point");
+	}
 }
-)";
+
+static void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
+	stream << endl << "vec3 toLinear(vec3 sample){return " << getToLinearFunction(colorspace) << "(sample);}" << endl;
 }
+
+static void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
+	stream << endl << "vec3 toScreen(vec3 sample){return " << getToScreenFunction(colorspace) << "(sample);}" << endl;
+}
+
 static void appendSampler(ostream&stream, const ShaderDescription &description) {
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
 }
+
 static void appendSwizzle(ostream&stream, const ShaderDescription &description) {
 	const char* type = description.tenBitUnpack ? "uvec4" : "vec4";
-	string swizzling = "rgba";
+	string swizzling = description.grayscale ? "rrra" : "rgba";
 	if (description.swapRedAndBlue)
 		std::swap(swizzling[0], swizzling[2]);
 	if (description.swapEndianness)
 		std::reverse(swizzling.begin(), swizzling.end());
-	stream << type << " swizzle(" << type << R"( sample){
-	return sample.)" << swizzling << R"(;
-}
-)";
+	stream << type << " swizzle(" << type << " sample){return sample." << swizzling << ";}";
 }
 
 std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	ostringstream oss;
 	oss << "#version 330" << endl;
-	appendColorspace(oss, description.colorspace);
-	appendSwizzle(oss, description);
-	appendSampler(oss, description);
-	oss << pMain;
-	printf("Dumping shader:\n%s\n", oss.str().c_str());
+	if (description.sampleTexture) {
+		oss << pColorSpaceConversions << endl;
+		appendToLinearFunction(oss, description.colorspace);
+		appendToScreenFunction(oss, description.colorspace);
+		appendSwizzle(oss, description);
+		appendSampler(oss, description);
+		oss << pTexturedMain;
+	} else {
+		if (description.displayUv)
+			oss << pUvMain;
+		else
+			oss << pSolidMain;
+	}
 	return oss.str();
 }
 
@@ -136,12 +211,12 @@ std::string buildVertexShaderSource(const ShaderDescription &description) {
 	uniform ivec2 gViewport;
 	uniform ivec2 gImage;
 	uniform ivec2 gPan;
-	uniform int gZoom;
+	uniform float gZoom;
 
 	out vec2 vVaryingTexCoord; 
 
 	mat4 ortho(int left, int right, int bottom, int top) {
-		mat4 Result;
+		mat4 Result = mat4(1);
 		Result[0][0] = float(2) / (right - left);
 		Result[1][1] = float(2) / (top - bottom);
 		Result[2][2] = - float(1);
@@ -174,7 +249,7 @@ std::string buildVertexShaderSource(const ShaderDescription &description) {
 		vec2 scaling = vec2(1);
 		scaling /= 2; // bringing square from [-1,1] to [-.5,.5]
 		scaling *= gImage; // to pixel dimension
-		scaling *= (1 + (0.1 * gZoom)); // zoom
+		scaling *= gZoom; // zoom
 		mat4 world = mat4(1);
 		world = translate(world, vec3(translating, 0)); // move to center
 		world = scale(world, vec3(scaling, 1));

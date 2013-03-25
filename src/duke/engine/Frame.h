@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef FRAME_H_
-#define FRAME_H_
+#pragma once
 
 #include <duke/imageio/ImageDescription.h>
 #include <duke/imageio/Attributes.h>
@@ -22,4 +21,3 @@ struct Frame {
 };
 
 } /* namespace duke */
-#endif /* FRAME_H_ */

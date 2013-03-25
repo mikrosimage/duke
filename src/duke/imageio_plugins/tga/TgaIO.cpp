@@ -1,9 +1,4 @@
-/*
- * TgaIO.cpp
- *
- *  Created on: Dec 15, 2012
- *      Author: Guillaume Chatelet
- */
+#ifdef DUKE_TGA
 
 #include <duke/imageio/DukeIO.h>
 
@@ -30,6 +25,8 @@ typedef struct {
 } TGAHEADER;
 #pragma pack(8)
 
+namespace duke {
+
 class TGAImageReader: public IImageReader {
 	FILE *m_pFile;
 	TGAHEADER m_Header;
@@ -44,16 +41,7 @@ public:
 			m_Error = "Unable to read header";
 			return;
 		}
-		// Do byte swap for big vs little endian
-#ifdef __APPLE__
-		bswap_16(&m_Header.colorMapStart);
-		bswap_16(&m_Header.colorMapLength);
-		bswap_16(&m_Header.xstart);
-		bswap_16(&m_Header.ystart);
-		bswap_16(&m_Header.width);
-		bswap_16(&m_Header.height);
-#endif
-
+		
 		switch (m_Header.bits) {
 		case 24:     // Most likely case
 			m_Description.glPackFormat = GL_RGB8;
@@ -107,3 +95,7 @@ class TGADescriptor: public IIODescriptor {
 namespace {
 bool registrar = IODescriptors::instance().registerDescriptor(new TGADescriptor());
 }  // namespace
+
+}  // namespace duke
+
+#endif // DUKE_TGA
