@@ -62,8 +62,10 @@ void StatisticsOverlay::render(const Context& context) const {
 	oss << std::fixed;
 	oss.width(5);
 	oss.precision(2);
-	oss << frameMetronom.getFPS() << "  FPS" << '\n';
-	oss << vBlankMetronom.getFPS() << " VBPS";
+	oss << frameMetronom.getFPS() << "  FPS";
+#ifndef NDEBUG // adding vblank in case in debug mode
+	oss << '\n' << vBlankMetronom.getFPS() << " VBPS";
+#endif
 	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 5, height + 10, 1.f, 1.f);
 }
 
