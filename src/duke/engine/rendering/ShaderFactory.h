@@ -18,6 +18,7 @@ struct ShaderDescription {
 	bool sampleTexture = true;
 	bool displayUv = false;
 	// texture
+	bool grayscale = false;
 	bool swapEndianness = false;
 	bool swapRedAndBlue = false;
 	bool tenBitUnpack = false;
@@ -26,7 +27,7 @@ struct ShaderDescription {
 	ShaderDescription();
 	bool operator<(const ShaderDescription &other) const;
 
-	static ShaderDescription createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
+	static ShaderDescription createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
 	static ShaderDescription createSolidDesc();
 	static ShaderDescription createUvDesc();
 };

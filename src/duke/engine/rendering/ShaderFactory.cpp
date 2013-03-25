@@ -17,8 +17,8 @@ namespace duke {
 ShaderDescription::ShaderDescription() {
 }
 
-static inline std::tuple<bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
-	return std::make_tuple(sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+static inline std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+	return std::make_tuple(sd.grayscale, sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
 }
 bool ShaderDescription::operator<(const ShaderDescription &other) const {
 	return asTuple(*this) < asTuple(other);
@@ -37,8 +37,9 @@ ShaderDescription ShaderDescription::createSolidDesc() {
 	return description;
 }
 
-ShaderDescription ShaderDescription::createTextureDesc(bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
+ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
 	ShaderDescription description;
+	description.grayscale = grayscale;
 	description.sampleTexture = true;
 	description.swapEndianness = swapEndianness;
 	description.swapRedAndBlue = swapRedAndBlue;
@@ -173,7 +174,7 @@ static void appendSampler(ostream&stream, const ShaderDescription &description) 
 
 static void appendSwizzle(ostream&stream, const ShaderDescription &description) {
 	const char* type = description.tenBitUnpack ? "uvec4" : "vec4";
-	string swizzling = "rgba";
+	string swizzling = description.grayscale ? "rrra" : "rgba";
 	if (description.swapRedAndBlue)
 		std::swap(swizzling[0], swizzling[2]);
 	if (description.swapEndianness)
