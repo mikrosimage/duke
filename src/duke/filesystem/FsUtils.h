@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef FSUTILS_H_
-#define FSUTILS_H_
+#pragma once
 
 #include <string>
 
@@ -27,4 +26,3 @@ std::string getExePath();
 std::string getDirname(const std::string &file);
 
 } /* namespace duke */
-#endif /* FSUTILS_H_ */

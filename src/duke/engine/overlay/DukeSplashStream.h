@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKESPLASHSTREAM_H_
-#define DUKESPLASHSTREAM_H_
+#pragma once
 
 #include "IOverlay.h"
 #include <duke/engine/rendering/GlyphRenderer.h>
@@ -26,4 +25,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* DUKESPLASHSTREAM_H_ */

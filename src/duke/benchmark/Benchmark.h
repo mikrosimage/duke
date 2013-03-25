@@ -5,12 +5,10 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef BENCHMARK_H_
-#define BENCHMARK_H_
+#pragma once
 
 namespace duke {
 
 void benchmark();
 
 } /* namespace duke */
-#endif /* BENCHMARK_H_ */

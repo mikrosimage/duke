@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef LOADEDTEXTURECACHE_H_
-#define LOADEDTEXTURECACHE_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <duke/engine/cache/LoadedImageCache.h>
@@ -43,4 +42,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* LOADEDTEXTURECACHE_H_ */

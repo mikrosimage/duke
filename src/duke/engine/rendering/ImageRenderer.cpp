@@ -13,7 +13,7 @@
 #include <duke/engine/Context.h>
 #include <duke/engine/rendering/ShaderFactory.h>
 #include <duke/engine/rendering/ShaderPool.h>
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 #include <duke/gl/Textures.h>
 
 namespace duke {
@@ -88,12 +88,28 @@ static float getZoomValue(const Context &context) {
 	}
 }
 
+static bool isGreyscale(size_t glPackFormat) {
+	switch (glPackFormat) {
+	case GL_R8:
+	case GL_R16:
+	case GL_R32UI:
+	case GL_R32I:
+	case GL_R16F:
+	case GL_R32F:
+		return true;
+	default:
+		return false;
+	}
+}
+
 void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context) {
 	const auto &description = context.pCurrentImage->description;
 	bool redBlueSwapped = description.swapRedAndBlue;
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
 		redBlueSwapped = !redBlueSwapped;
-	const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc(description.swapEndianness, //
+	const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc( //
+			isGreyscale(description.glPackFormat), //
+			description.swapEndianness, //
 			redBlueSwapped, //
 			description.glPackFormat == GL_RGB10_A2UI, //
 			resolve(context.pCurrentImage->attributes, context.colorSpace));

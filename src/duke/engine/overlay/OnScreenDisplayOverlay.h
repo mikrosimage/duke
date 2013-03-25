@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef STATUSOVERLAY_H_
-#define STATUSOVERLAY_H_
+#pragma once
 
 #include "IOverlay.h"
 #include <duke/time/FrameUtils.h>
@@ -19,9 +18,9 @@ namespace duke {
 struct Context;
 struct GlyphRenderer;
 
-class StatusOverlay: public duke::IOverlay {
+class OnScreenDisplayOverlay: public duke::IOverlay {
 public:
-	StatusOverlay(const GlyphRenderer&);
+	OnScreenDisplayOverlay(const GlyphRenderer&);
 
 	void setString(const Time& time, const std::string&msg);
 
@@ -34,4 +33,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* STATUSOVERLAY_H_ */

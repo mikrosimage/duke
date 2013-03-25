@@ -1,0 +1,8 @@
+const char DUKE_GIT_SHA1[]="@DUKE_GIT_SHA1@";
+const char DUKE_VERSION[]="@DUKE_VERSION@";
+
+#ifdef NDEBUG
+static const bool DUKE_RELEASE = true;
+#else
+static const bool DUKE_RELEASE = false;
+#endif

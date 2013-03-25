@@ -7,8 +7,8 @@
 
 #include "DukeMainWindow.h"
 
-#include <duke/engine/overlay/CacheOverlay.h>
-#include <duke/engine/overlay/StatusOverlay.h>
+#include <duke/engine/overlay/StatisticsOverlay.h>
+#include <duke/engine/overlay/OnScreenDisplayOverlay.h>
 #include <duke/engine/overlay/AttributesOverlay.h>
 #include <duke/engine/rendering/ImageRenderer.h>
 #include <duke/time/Clock.h>
@@ -31,6 +31,7 @@ DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &par
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	using std::bind;
 	using std::placeholders::_1;
@@ -57,7 +58,7 @@ void DukeMainWindow::onKey(int key, int action) {
 		m_KeyStrokes.push_back(key);
 }
 
-void DukeMainWindow::onChar(int unicodeCodePoint) {
+void DukeMainWindow::onChar(unsigned int unicodeCodePoint) {
 	m_CharStrokes.push_back(unicodeCodePoint);
 }
 
@@ -134,16 +135,13 @@ static const char* getFitModeString(FitMode &mode) {
 }
 
 void DukeMainWindow::run() {
-	std::map<const IMediaStream*, std::vector<Range> > cacheStateTmp;
-
 	AttributesOverlay attributesOverlay(m_GlyphRenderer);
-	StatusOverlay statusOverlay(m_GlyphRenderer);
-	CacheOverlay cacheOverlay(m_GlyphRenderer, cacheStateTmp, m_Player.getTimeline());
+	OnScreenDisplayOverlay statusOverlay(m_GlyphRenderer);
+	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
 	bool showAttributesOverlay = false;
+	bool showStatisticOverlay = true;
 
 	SharedMesh pSquare = createSquare();
-	Metronom vBlankMetronom(100);
-	Metronom frameMetronom(30);
 
 	size_t lastFrame = 0;
 	auto milestone = duke_clock::now();
@@ -153,8 +151,8 @@ void DukeMainWindow::run() {
 		return ::glfwGetKey(m_pWindow, key) == GLFW_PRESS;
 	};
 
-	const auto hasWindowParam = [=](int param) -> bool {
-		return ::glfwGetWindowParam(m_pWindow, param);
+	const auto shouldClose = [=]() -> bool {
+		return ::glfwWindowShouldClose(m_pWindow);
 	};
 
 	const auto togglePlayStop = [&]() -> bool {
@@ -238,19 +236,20 @@ void DukeMainWindow::run() {
 				attributesOverlay.render(m_Context);
 		}
 		statusOverlay.render(m_Context);
-		cacheOverlay.render(m_Context);
+		if (showStatisticOverlay)
+			statisticOverlay.render(m_Context);
 
 		// displaying
 		::glfwSwapBuffers(m_pWindow);
 
 		// updating time
-		const auto elapsedMicroSeconds = vBlankMetronom.tick();
+		const auto elapsedMicroSeconds = statisticOverlay.vBlankMetronom.tick();
 		const Time offset = m_CmdLine.unlimitedFPS ? m_Player.getFrameDuration() : Time(elapsedMicroSeconds);
 		m_Player.offsetPlaybackTime(offset);
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
 		if (frame != lastFrame) {
-			frameMetronom.tick();
+			statisticOverlay.frameMetronom.tick();
 			lastFrame = frame;
 		}
 
@@ -289,6 +288,9 @@ void DukeMainWindow::run() {
 			case 'o':
 				showAttributesOverlay = !showAttributesOverlay;
 				break;
+			case 's':
+				showStatisticOverlay = !showStatisticOverlay;
+				break;
 			case 'f':
 				setNextMode(m_Context.fitMode);
 				m_Context.pan = m_Pan = glm::ivec2();
@@ -321,14 +323,14 @@ void DukeMainWindow::run() {
 		m_KeyStrokes.clear();
 
 		// check stop
-		running = !(hasWindowParam(GLFW_SHOULD_CLOSE) || (keyPressed(GLFW_KEY_ESC)));
+		running = !(shouldClose() || (keyPressed(GLFW_KEY_ESC)));
 
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();
 		if ((now - milestone) > std::chrono::milliseconds(100)) {
-			textureCache.getImageCache().dumpState(cacheStateTmp);
-			// vBlankMetronom.dump();
-			// frameMetronom.dump();
+			textureCache.getImageCache().dumpState(statisticOverlay.cacheState);
+			statisticOverlay.vBlankMetronom.compute();
+			statisticOverlay.frameMetronom.compute();
 			milestone = now;
 		}
 	}

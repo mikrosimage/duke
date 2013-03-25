@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PACKEDFRAMEESCRIPTION_H_
-#define PACKEDFRAMEESCRIPTION_H_
+#pragma once
 
 #include <cstddef>
 #include <tuple>
@@ -28,5 +27,3 @@ struct PackedFrameDescription {
 		return asTuple() < other.asTuple();
 	}
 };
-
-#endif /* PACKEDFRAMEESCRIPTION_H_ */

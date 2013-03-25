@@ -5,14 +5,11 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef CMDLINEPARAMETERS_H_
-#define CMDLINEPARAMETERS_H_
+#pragma once
 
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <algorithm>
-#include <thread>
 
 #include <duke/time/FrameUtils.h>
 
@@ -25,22 +22,23 @@ struct commandline_error: std::runtime_error {
 };
 
 enum class ApplicationMode {
-	DUKE, BENCHMARK, HELP
+	DUKE, BENCHMARK, HELP, VERSION, LIST_SUPPORTED_FORMAT
 };
 
 struct CmdLineParameters {
 	CmdLineParameters(int argc, char**argv);
-	const char* getHelpMessage() const;
+	void printHelpMessage() const;
 	unsigned swapBufferInterval = 1;
 	bool fullscreen = false;
 	bool unlimitedFPS = false;
-	unsigned workerThreadDefault = std::max(1u, std::min(4u, std::thread::hardware_concurrency() - 2));
-	size_t imageCacheSizeDefault = 500 * 1024 * 1024; // 500MiB
+	unsigned workerThreadDefault = getDefaultConcurrency();
+	size_t imageCacheSizeDefault = getDefaultCacheSize();
 	ApplicationMode mode = ApplicationMode::DUKE;
 	FrameDuration defaultFrameRate = FrameDuration::PAL;
 	std::vector<std::string> additionnalOptions;
+
+	static unsigned getDefaultConcurrency();
+	static size_t getDefaultCacheSize();
 };
 
 }  // namespace duke
-
-#endif /* CMDLINEPARAMETERS_H_ */

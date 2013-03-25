@@ -347,6 +347,8 @@ void checkProgramError(unsigned int programId) {
 
 GLenum getPixelFormat(GLint internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
+		return GL_RED;
 	case GL_RGB8:
 	case GL_RGB16F:
 		return GL_RGB;
@@ -365,6 +367,7 @@ GLenum getPixelFormat(GLint internalFormat) {
 
 bool isInternalOptimizedFormatRedBlueSwapped(int internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
 	case GL_RGB8:
 	case GL_RGBA8:
 	case GL_RGB10_A2UI:
@@ -382,6 +385,7 @@ GLint getAdaptedInternalFormat(GLint internalFormat) {
 
 GLenum getPixelType(GLint internalFormat) {
 	switch (internalFormat) {
+	case GL_R8:
 	case GL_RGB8:
 		return GL_UNSIGNED_BYTE;
 	case GL_RGB10_A2UI:
@@ -405,6 +409,8 @@ size_t getChannelCount(GLenum pixel_format) {
 		return 4;
 	case GL_RGB:
 	case GL_BGR:
+		return 3;
+	case GL_RED:
 		return 3;
 	default:
 		throw std::runtime_error("channel count not implemented");

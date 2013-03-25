@@ -5,7 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#include "Shader.hpp"
+#include "Shader.h"
 #include <stdexcept>
 
 Program::Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader) :

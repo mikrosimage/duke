@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DISKMEDIASTREAM_H_
-#define DISKMEDIASTREAM_H_
+#pragma once
 
 #include "IMediaStream.h"
 #include <sequence/Item.hpp>
@@ -28,4 +27,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* DISKMEDIASTREAM_H_ */

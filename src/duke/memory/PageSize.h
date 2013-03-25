@@ -1,5 +1,4 @@
-#ifndef PAGESIZE_H_
-#define PAGESIZE_H_
+#pragma once
 
 /**
  * Usually page size is 4096 so you can safely use
@@ -16,5 +15,3 @@
  * getPageSize below.
  */
 unsigned long getPageSize();
-
-#endif /* PAGESIZE_H_ */

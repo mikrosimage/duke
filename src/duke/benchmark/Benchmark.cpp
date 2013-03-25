@@ -10,7 +10,7 @@
 #include <duke/gl/GlFwApp.h>
 #include <duke/gl/GL.h>
 #include <duke/gl/GLUtils.h>
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 #include <duke/gl/GlObjects.h>
 #include <duke/gl/Textures.h>
 #include <duke/engine/rendering/ShaderFactory.h>
@@ -135,7 +135,7 @@ void benchmark() {
 	glfwSwapInterval(0); // ensuring no vsync
 
 	SharedMesh pMesh = createSquare();
-	const ShaderDescription description = ShaderDescription::createTextureDesc(false, false, false, ColorSpace::Linear);
+	const ShaderDescription description = ShaderDescription::createTextureDesc(false, false, false, false, ColorSpace::Linear);
 	Program program(makeVertexShader(buildVertexShaderSource(description).c_str()), //
 			makeFragmentShader(
 					R"(

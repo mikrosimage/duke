@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(duke)
-
 # add specific modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
+
+# defining build 
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC DUKE_GIT_SHA1)
+git_describe(DUKE_VERSION --all)
 
 #
 find_package(Threads)

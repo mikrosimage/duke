@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEMAINWINDOW_H_
-#define DUKEMAINWINDOW_H_
+#pragma once
 
 #include <duke/cmdline/CmdLineParameters.h>
 #include <duke/engine/Player.h>
@@ -27,7 +26,7 @@ public:
 	void run();
 private:
 	void onKey(int key, int action);
-	void onChar(int unicodeCodePoint);
+	void onChar(unsigned int unicodeCodePoint);
 	void onWindowResize(int width, int height);
 	void onMouseMove(int x, int y);
 	void onMouseDrag(int dx, int dy);
@@ -39,7 +38,7 @@ private:
 	glm::ivec2 m_MousePos;
 	glm::ivec2 m_WindowDim;
 	glm::ivec2 m_WindowPos;
-	std::vector<int> m_CharStrokes;
+	std::vector<unsigned int> m_CharStrokes;
 	std::vector<int> m_KeyStrokes;
 	bool m_MouseLeftDown = false;
 
@@ -55,4 +54,3 @@ private:
 };
 
 } /* namespace duke */
-#endif /* DUKEMAINWINDOW_H_ */

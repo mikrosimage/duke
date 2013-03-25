@@ -6,7 +6,7 @@
  */
 
 #include "GeometryRenderer.h"
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Mesh.h>
 #include <duke/engine/Context.h>
 
 namespace duke {

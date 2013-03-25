@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef SHADER_HPP_
-#define SHADER_HPP_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <duke/gl/GLUtils.h>
@@ -65,5 +64,3 @@ private:
 };
 
 typedef std::shared_ptr<Program> SharedProgram;
-
-#endif /* SHADER_HPP_ */

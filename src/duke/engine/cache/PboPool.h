@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PBOPOOL_H_
-#define PBOPOOL_H_
+#pragma once
 
 #include <duke/engine/cache/Pool.h>
 #include <duke/gl/GlObjects.h>
@@ -42,4 +41,3 @@ typedef pool::Pool<PboPoolPolicy> PboPool;
 typedef PboPool::DataPtr SharedPbo;
 
 } /* namespace duke */
-#endif /* PBOPOOL_H_ */

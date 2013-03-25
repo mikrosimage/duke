@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef DUKEIO_H_
-#define DUKEIO_H_
+#pragma once
 
 #include <duke/imageio/RawPackedFrame.h>
 #include <duke/NonCopyable.h>
@@ -104,10 +103,11 @@ class IODescriptors: public noncopyable {
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
 	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
+	inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const {
+		return m_Descriptors;
+	}
 
 	static IODescriptors& instance();
 };
 
 }  // namespace duke
-
-#endif /* DUKEIO_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef IOVERLAY_H_
-#define IOVERLAY_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 
@@ -20,4 +19,3 @@ public:
 };
 
 } /* namespace duke */
-#endif /* IOVERLAY_H_ */

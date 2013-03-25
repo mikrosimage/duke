@@ -5,13 +5,12 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GLYPHRENDERER_H_
-#define GLYPHRENDERER_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <duke/gl/Textures.h>
-#include <duke/gl/Shader.hpp>
-#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Shader.h>
+#include <duke/gl/Mesh.h>
 #include <duke/attributes/Attributes.h>
 
 namespace duke {
@@ -49,4 +48,3 @@ private:
 void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1);
 
 } /* namespace duke */
-#endif /* GLYPHRENDERER_H_ */

@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef CLOCK_H_
-#define CLOCK_H_
+#pragma once
 
 #include <chrono>
 #include <deque>
@@ -37,7 +36,9 @@ private:
 struct Metronom {
 	Metronom(std::size_t bufferSize);
 	std::chrono::microseconds tick();
+
 	void compute();
+
 	double getMin() const {
 		return m_Min;
 	}
@@ -60,5 +61,3 @@ private:
 	StopWatch m_StopWatch;
 	double m_Min, m_Max, m_Mean, m_StdDev;
 };
-
-#endif /* CLOCK_H_ */

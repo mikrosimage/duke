@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef ATTRIBUTES_H_
-#define ATTRIBUTES_H_
+#pragma once
 
 #include "Attribute.h"
 #include <stdexcept>
@@ -52,5 +51,3 @@ struct Attributes: public std::vector<Attribute> {
 		return stream;
 	}
 };
-
-#endif /* ATTRIBUTES_H_ */

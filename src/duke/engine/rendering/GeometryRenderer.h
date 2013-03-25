@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GEOMETRYRENDERER_H_
-#define GEOMETRYRENDERER_H_
+#pragma once
 
 #include <duke/NonCopyable.h>
 #include <duke/engine/rendering/MeshPool.h>
@@ -24,4 +23,3 @@ struct GeometryRenderer: public noncopyable {
 };
 
 } /* namespace duke */
-#endif /* GEOMETRYRENDERER_H_ */

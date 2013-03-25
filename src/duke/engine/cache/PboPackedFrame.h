@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef PBOPACKEDFRAME_H_
-#define PBOPACKEDFRAME_H_
+#pragma once
 
 #include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
 #include <duke/gl/GlObjects.h>
@@ -17,11 +16,9 @@ namespace duke {
 struct PboPackedFrame: public PackedFrameDescriptionAndAttributes {
 	PboPackedFrame() = default;
 	PboPackedFrame(const PackedFrameDescriptionAndAttributes &other) :
-			PackedFrameDescriptionAndAttributes(other) {
+	PackedFrameDescriptionAndAttributes(other) {
 	}
 	std::shared_ptr<gl::GlStreamUploadPbo> pPbo;
 };
 
 } /* namespace duke */
-
-#endif /* PBOPACKEDFRAME_H_ */

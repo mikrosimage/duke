@@ -5,8 +5,7 @@
  *      Author: Guillaume Chatelet
  */
 
-#ifndef GLOBJECTSDETAILS_H_
-#define GLOBJECTSDETAILS_H_
+#pragma once
 
 namespace duke {
 namespace gl {
@@ -29,5 +28,3 @@ struct Binder: public _PTR<GLOBJECT> {
 
 } /* namespace gl */
 } /* namespace duke */
-
-#endif /* GLOBJECTSDETAILS_H_ */
