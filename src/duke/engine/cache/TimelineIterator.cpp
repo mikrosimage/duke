@@ -1,11 +1,4 @@
-/*
- * TimelineIterator.cpp
- *
- *  Created on: Feb 5, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "TimelineIterator.h"
+#include "TimelineIterator.hpp"
 #include <queue>
 #include <algorithm>
 #include <cassert>

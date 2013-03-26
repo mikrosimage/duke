@@ -1,20 +1,13 @@
-/*
- * Benchmark.cpp
- *
- *  Created on: Jan 28, 2013
- *      Author: Guillaume Chatelet
- */
+#include "Benchmark.hpp"
 
-#include "Benchmark.h"
-
-#include <duke/gl/GlFwApp.h>
-#include <duke/gl/GL.h>
-#include <duke/gl/GLUtils.h>
-#include <duke/gl/Mesh.h>
-#include <duke/gl/GlObjects.h>
-#include <duke/gl/Textures.h>
-#include <duke/engine/rendering/ShaderFactory.h>
-#include <duke/memory/Allocator.h>
+#include <duke/gl/GlFwApp.hpp>
+#include <duke/gl/GL.hpp>
+#include <duke/gl/GLUtils.hpp>
+#include <duke/gl/Mesh.hpp>
+#include <duke/gl/GlObjects.hpp>
+#include <duke/gl/Textures.hpp>
+#include <duke/engine/rendering/ShaderFactory.hpp>
+#include <duke/memory/Allocator.hpp>
 
 #include <glm/glm.hpp>
 

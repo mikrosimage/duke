@@ -1,17 +1,10 @@
-/*
- * DukeApplication.cpp
- *
- *  Created on: Mar 3, 2013
- *      Author: Guillaume Chatelet
- */
+#include "DukeApplication.hpp"
 
-#include "DukeApplication.h"
-
-#include <duke/engine/streams/DiskMediaStream.h>
-#include <duke/engine/overlay/DukeSplashStream.h>
-#include <duke/cmdline/CmdLineParameters.h>
-#include <duke/filesystem/FsUtils.h>
-#include <duke/gl/GL.h>
+#include <duke/engine/streams/DiskMediaStream.hpp>
+#include <duke/engine/overlay/DukeSplashStream.hpp>
+#include <duke/cmdline/CmdLineParameters.hpp>
+#include <duke/filesystem/FsUtils.hpp>
+#include <duke/gl/GL.hpp>
 
 #include <sequence/Parser.hpp>
 

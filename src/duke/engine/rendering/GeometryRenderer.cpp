@@ -1,13 +1,6 @@
-/*
- * GeometryRenderer.cpp
- *
- *  Created on: Feb 23, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "GeometryRenderer.h"
-#include <duke/gl/Mesh.h>
-#include <duke/engine/Context.h>
+#include "GeometryRenderer.hpp"
+#include <duke/gl/Mesh.hpp>
+#include <duke/engine/Context.hpp>
 
 namespace duke {
 

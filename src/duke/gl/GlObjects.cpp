@@ -1,13 +1,6 @@
-/*
- * GlObjects.cpp
- *
- *  Created on: Feb 14, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "GlObjects.h"
-#include <duke/gl/GL.h>
-#include <duke/gl/GLUtils.h>
+#include "GlObjects.hpp"
+#include <duke/gl/GL.hpp>
+#include <duke/gl/GLUtils.hpp>
 
 namespace duke {
 namespace gl {

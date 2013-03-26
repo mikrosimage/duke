@@ -1,18 +1,11 @@
-/*
- * DukeMainWindow.cpp
- *
- *  Created on: Mar 3, 2013
- *      Author: Guillaume Chatelet
- */
+#include "DukeMainWindow.hpp"
 
-#include "DukeMainWindow.h"
-
-#include <duke/engine/overlay/StatisticsOverlay.h>
-#include <duke/engine/overlay/OnScreenDisplayOverlay.h>
-#include <duke/engine/overlay/AttributesOverlay.h>
-#include <duke/engine/rendering/ImageRenderer.h>
-#include <duke/time/Clock.h>
-#include <duke/gl/GL.h>
+#include <duke/engine/overlay/StatisticsOverlay.hpp>
+#include <duke/engine/overlay/OnScreenDisplayOverlay.hpp>
+#include <duke/engine/overlay/AttributesOverlay.hpp>
+#include <duke/engine/rendering/ImageRenderer.hpp>
+#include <duke/time/Clock.hpp>
+#include <duke/gl/GL.hpp>
 
 #include <string>
 #include <sstream>

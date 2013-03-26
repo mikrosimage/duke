@@ -1,14 +1,7 @@
-/*
- * CacheOverlay.cpp
- *
- *  Created on: Feb 21, 2013
- *      Author: Nicolas Rondaud
- */
-
-#include "StatisticsOverlay.h"
-#include <duke/engine/Context.h>
-#include <duke/engine/rendering/GlyphRenderer.h>
-#include <duke/engine/rendering/GeometryRenderer.h>
+#include "StatisticsOverlay.hpp"
+#include <duke/engine/Context.hpp>
+#include <duke/engine/rendering/GlyphRenderer.hpp>
+#include <duke/engine/rendering/GeometryRenderer.hpp>
 #include <sstream>
 
 namespace duke {

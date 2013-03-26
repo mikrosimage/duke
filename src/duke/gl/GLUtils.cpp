@@ -1,13 +1,6 @@
-/*
- * GLUtils.cpp
- *
- *  Created on: Nov 28, 2012
- *      Author: Guillaume Chatelet
- */
+#include "GLUtils.hpp"
 
-#include "GLUtils.h"
-
-#include <duke/gl/GL.h>
+#include <duke/gl/GL.hpp>
 #include <stdexcept>
 
 #include <fstream>

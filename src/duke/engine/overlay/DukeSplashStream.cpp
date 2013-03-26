@@ -1,13 +1,6 @@
-/*
- * DukeSplashStream.cpp
- *
- *  Created on: Jan 24, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "DukeSplashStream.h"
-#include <duke/engine/Context.h>
-#include <duke/animation/Animation.h>
+#include "DukeSplashStream.hpp"
+#include <duke/engine/Context.hpp>
+#include <duke/animation/Animation.hpp>
 #include <glm/glm.hpp>
 
 using namespace glm;

@@ -1,14 +1,14 @@
 #ifdef DUKE_FAST_DPX
 
-#include <duke/gl/GL.h>
-#include <duke/ByteSwap.h>              // for bswap_32
-#include <duke/imageio/DukeIO.h>        // for IIODescriptor::Capability, etc
-#include <stddef.h>                     // for size_t
-#include <stdint.h>                     // for int32_t
-#include <string>                       // for string
-#include <vector>                       // for vector
-#include "duke/attributes/Attributes.h"  // for Attributes
-#include "duke/imageio/PackedFrameDescription.h"
+#include <duke/gl/GL.hpp>
+#include <duke/ByteSwap.hpp>              // for bswap_32
+#include <duke/imageio/DukeIO.hpp>        // for IIODescriptor::Capability, etc
+#include <duke/attributes/Attributes.hpp> // for Attributes
+#include <duke/imageio/PackedFrameDescription.hpp>
+#include <stddef.h>                       // for size_t
+#include <stdint.h>                       // for int32_t
+#include <string>                         // for string
+#include <vector>                         // for vector
 
 #define DPX_MAGIC           0x53445058
 #define DPX_MAGIC_SWAP      0x58504453

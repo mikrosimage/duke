@@ -1,11 +1,4 @@
-/*
- * FsUtils.cpp
- *
- *  Created on: Jan 6, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "FsUtils.h"
+#include "FsUtils.hpp"
 
 #include <dirent.h>
 #include <sys/stat.h>

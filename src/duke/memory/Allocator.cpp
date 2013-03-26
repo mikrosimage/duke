@@ -1,4 +1,4 @@
-#include <duke/memory/Allocator.h>
+#include <duke/memory/Allocator.hpp>
 
 #include <cassert> // assert
 #include <cstring> // memset

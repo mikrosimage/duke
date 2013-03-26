@@ -1,9 +1,9 @@
 #ifdef DUKE_TGA
 
-#include <duke/imageio/DukeIO.h>
+#include <duke/imageio/DukeIO.hpp>
 
-#include <duke/gl/GL.h>
-#include <duke/ByteSwap.h>
+#include <duke/gl/GL.hpp>
+#include <duke/ByteSwap.hpp>
 
 #include <cstdio>
 

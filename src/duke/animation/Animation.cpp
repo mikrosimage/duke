@@ -1,11 +1,4 @@
-/*
- * Animation.cpp
- *
- *  Created on: Jan 25, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "Animation.h"
+#include "Animation.hpp"
 
 #include <cmath>
 #include <stdexcept>

@@ -1,19 +1,12 @@
-/*
- * ImageLoadUtils.cpp
- *
- *  Created on: Jan 19, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "ImageLoadUtils.h"
-#include <duke/imageio/DukeIO.h>
-#include <duke/attributes/Attributes.h>
-#include <duke/attributes/AttributeKeys.h>
-#include <duke/imageio/PackedFrameDescription.h>
-#include <duke/gl/Textures.h>
-#include <duke/filesystem/MemoryMappedFile.h>
-#include <duke/filesystem/FsUtils.h>
-#include <duke/memory/Allocator.h>
+#include "ImageLoadUtils.hpp"
+#include <duke/imageio/DukeIO.hpp>
+#include <duke/attributes/Attributes.hpp>
+#include <duke/attributes/AttributeKeys.hpp>
+#include <duke/imageio/PackedFrameDescription.hpp>
+#include <duke/gl/Textures.hpp>
+#include <duke/filesystem/MemoryMappedFile.hpp>
+#include <duke/filesystem/FsUtils.hpp>
+#include <duke/memory/Allocator.hpp>
 #include <sstream>
 
 namespace duke {

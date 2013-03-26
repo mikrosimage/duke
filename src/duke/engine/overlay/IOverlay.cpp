@@ -1,11 +1,4 @@
-/*
- * IOverlay.cpp
- *
- *  Created on: Feb 3, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "IOverlay.h"
+#include "IOverlay.hpp"
 
 namespace duke {
 

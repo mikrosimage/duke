@@ -1,11 +1,4 @@
-/*
- * CmdLineParameters.cpp
- *
- *  Created on: Dec 2, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "CmdLineParameters.h"
+#include "CmdLineParameters.hpp"
 
 #include <stdexcept>
 #include <sstream>

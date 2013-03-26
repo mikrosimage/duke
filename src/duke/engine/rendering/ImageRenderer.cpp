@@ -1,20 +1,13 @@
-/*
- * ImageRendere.cpp
- *
- *  Created on: Jan 20, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "ImageRenderer.h"
-#include <duke/StringUtils.h>
-#include <duke/imageio/DukeIO.h>
-#include <duke/attributes/Attributes.h>
-#include <duke/attributes/AttributeKeys.h>
-#include <duke/engine/Context.h>
-#include <duke/engine/rendering/ShaderFactory.h>
-#include <duke/engine/rendering/ShaderPool.h>
-#include <duke/gl/Mesh.h>
-#include <duke/gl/Textures.h>
+#include "ImageRenderer.hpp"
+#include <duke/StringUtils.hpp>
+#include <duke/imageio/DukeIO.hpp>
+#include <duke/attributes/Attributes.hpp>
+#include <duke/attributes/AttributeKeys.hpp>
+#include <duke/engine/Context.hpp>
+#include <duke/engine/rendering/ShaderFactory.hpp>
+#include <duke/engine/rendering/ShaderPool.hpp>
+#include <duke/gl/Mesh.hpp>
+#include <duke/gl/Textures.hpp>
 
 namespace duke {
 

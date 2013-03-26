@@ -1,16 +1,9 @@
-/*
- * ImageCache.cpp
- *
- *  Created on: Feb 3, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "LoadedImageCache.h"
-#include <duke/attributes/AttributeKeys.h>
-#include <duke/engine/streams/IMediaStream.h>
-#include <duke/engine/ImageLoadUtils.h>
-#include <duke/memory/Allocator.h>
-#include <duke/filesystem/FsUtils.h>
+#include "LoadedImageCache.hpp"
+#include <duke/attributes/AttributeKeys.hpp>
+#include <duke/engine/streams/IMediaStream.hpp>
+#include <duke/engine/ImageLoadUtils.hpp>
+#include <duke/memory/Allocator.hpp>
+#include <duke/filesystem/FsUtils.hpp>
 
 namespace duke {
 

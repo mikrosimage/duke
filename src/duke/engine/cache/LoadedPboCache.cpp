@@ -1,12 +1,5 @@
-/*
- * PboCache.cpp
- *
- *  Created on: Feb 11, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "LoadedPboCache.h"
-#include <duke/engine/cache/LoadedImageCache.h>
+#include "LoadedPboCache.hpp"
+#include <duke/engine/cache/LoadedImageCache.hpp>
 
 namespace duke {
 

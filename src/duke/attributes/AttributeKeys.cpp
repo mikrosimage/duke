@@ -1,11 +1,4 @@
-/*
- * AttributeKeys.cpp
- *
- *  Created on: Jan 20, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "AttributeKeys.h"
+#include "AttributeKeys.hpp"
 
 namespace attribute {
 

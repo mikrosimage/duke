@@ -1,10 +1,4 @@
-/*
- * Mesh.cpp
- *
- *  Created on: Nov 29, 2012
- *      Author: Guillaume Chatelet
- */
-#include "Mesh.h"
+#include "Mesh.hpp"
 
 #include <stdexcept>
 

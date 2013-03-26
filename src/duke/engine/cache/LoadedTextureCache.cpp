@@ -1,12 +1,5 @@
-/*
- * TextureCache.cpp
- *
- *  Created on: Feb 11, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "LoadedTextureCache.h"
-#include <duke/cmdline/CmdLineParameters.h>
+#include "LoadedTextureCache.hpp"
+#include <duke/cmdline/CmdLineParameters.hpp>
 #include <algorithm>
 
 namespace duke {

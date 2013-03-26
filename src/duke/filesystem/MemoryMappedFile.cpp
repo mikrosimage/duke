@@ -1,11 +1,4 @@
-/*
- * MemoryMappedFile.cpp
- *
- *  Created on: Dec 16, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "MemoryMappedFile.h"
+#include "MemoryMappedFile.hpp"
 
 #include <stdio.h>
 #include <sys/types.h>

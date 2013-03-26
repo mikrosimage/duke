@@ -1,11 +1,4 @@
-/*
- * Timeline.cpp
- *
- *  Created on: Dec 22, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "Timeline.h"
+#include "Timeline.hpp"
 #include <algorithm>
 #include <limits>
 #include <stdexcept>

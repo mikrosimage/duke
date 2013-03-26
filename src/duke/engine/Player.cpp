@@ -1,12 +1,5 @@
-/*
- * Player.cpp
- *
- *  Created on: Dec 27, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "Player.h"
-#include <duke/cmdline/CmdLineParameters.h>
+#include "Player.hpp"
+#include <duke/cmdline/CmdLineParameters.hpp>
 
 namespace duke {
 

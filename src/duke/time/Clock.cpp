@@ -1,11 +1,4 @@
-/*
- * Clock.cpp
- *
- *  Created on: Nov 25, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "Clock.h"
+#include "Clock.hpp"
 
 #include <numeric>
 #include <algorithm>

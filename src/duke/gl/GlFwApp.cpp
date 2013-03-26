@@ -1,13 +1,6 @@
-/*
- * GlApp.cpp
- *
- *  Created on: Nov 25, 2012
- *      Author: Guillaume Chatelet
- */
+#include "GlFwApp.hpp"
 
-#include "GlFwApp.h"
-
-#include <duke/gl/GL.h>
+#include <duke/gl/GL.hpp>
 
 #include <stdexcept>
 #include <cassert>

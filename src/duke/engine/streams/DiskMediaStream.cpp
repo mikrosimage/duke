@@ -1,11 +1,4 @@
-/*
- * DiskMediaStream.cpp
- *
- *  Created on: Feb 3, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "DiskMediaStream.h"
+#include "DiskMediaStream.hpp"
 #include <algorithm>
 
 namespace duke {

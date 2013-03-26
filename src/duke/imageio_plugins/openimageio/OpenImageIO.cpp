@@ -1,10 +1,9 @@
 #ifdef DUKE_OIIO
 
-#include <duke/imageio/DukeIO.h>
+#include <duke/imageio/DukeIO.hpp>
+#include <duke/gl/GL.hpp>
 
 #include <OpenImageIO/imageio.h>
-
-#include <duke/gl/GL.h>
 
 #include <algorithm>
 #include <iterator>

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <duke/cmdline/CmdLineParameters.h>
-#include <duke/engine/Player.h>
+#include <duke/cmdline/CmdLineParameters.hpp>
+#include <duke/engine/Player.hpp>
 
 static const size_t startFrame = 90000;
 

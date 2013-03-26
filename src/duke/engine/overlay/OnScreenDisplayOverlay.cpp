@@ -1,14 +1,7 @@
-/*
- * StatusOverlay.cpp
- *
- *  Created on: Feb 19, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "OnScreenDisplayOverlay.h"
-#include <duke/engine/rendering/GlyphRenderer.h>
-#include <duke/engine/Context.h>
-#include <duke/animation/Animation.h>
+#include "OnScreenDisplayOverlay.hpp"
+#include <duke/engine/rendering/GlyphRenderer.hpp>
+#include <duke/engine/Context.hpp>
+#include <duke/animation/Animation.hpp>
 #include <algorithm>
 
 namespace duke {

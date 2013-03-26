@@ -1,11 +1,4 @@
-/*
- * DukeIO.cpp
- *
- *  Created on: Dec 15, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "DukeIO.h"
+#include "DukeIO.hpp"
 #include <cassert>
 #include <stdexcept>
 

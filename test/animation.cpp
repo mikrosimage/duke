@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/animation/Animation.h>
+#include <duke/animation/Animation.hpp>
 
 using namespace duke;
 

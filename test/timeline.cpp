@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <duke/engine/Timeline.h>
-#include <duke/engine/streams/IMediaStream.h>
+#include <duke/engine/Timeline.hpp>
+#include <duke/engine/streams/IMediaStream.hpp>
 
 #include <stdexcept>
 #include <set>

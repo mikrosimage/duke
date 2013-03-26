@@ -1,15 +1,8 @@
-/*
- * GlyphRenderer.cpp
- *
- *  Created on: Jan 24, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "GlyphRenderer.h"
-#include <duke/engine/Viewport.h>
-#include <duke/engine/ImageLoadUtils.h>
-#include <duke/engine/rendering/GeometryRenderer.h>
-#include <duke/engine/rendering/MeshPool.h>
+#include "GlyphRenderer.hpp"
+#include <duke/engine/Viewport.hpp>
+#include <duke/engine/ImageLoadUtils.hpp>
+#include <duke/engine/rendering/GeometryRenderer.hpp>
+#include <duke/engine/rendering/MeshPool.hpp>
 
 namespace duke {
 

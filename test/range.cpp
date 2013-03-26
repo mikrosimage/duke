@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/engine/Timeline.h>
+#include <duke/engine/Timeline.hpp>
 
 using namespace std;
 using namespace duke;

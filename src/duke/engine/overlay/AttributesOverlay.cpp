@@ -1,14 +1,7 @@
-/*
- * AttributesOverlay.cpp
- *
- *  Created on: Feb 16, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "AttributesOverlay.h"
-#include <duke/engine/Context.h>
-#include <duke/engine/rendering/GlyphRenderer.h>
-#include <duke/imageio/PackedFrameDescriptionAndAttributes.h>
+#include "AttributesOverlay.hpp"
+#include <duke/engine/Context.hpp>
+#include <duke/engine/rendering/GlyphRenderer.hpp>
+#include <duke/imageio/PackedFrameDescriptionAndAttributes.hpp>
 #include <sstream>
 #include <algorithm>
 

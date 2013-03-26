@@ -1,12 +1,5 @@
-/*
- * AsciiFont.cpp
- *
- *  Created on: Jan 12, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include <duke/imageio/DukeIO.h>
-#include <duke/gl/GL.h>
+#include <duke/imageio/DukeIO.hpp>
+#include <duke/gl/GL.hpp>
 #include <bitset>
 #include <cstring>
 

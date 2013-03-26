@@ -1,11 +1,4 @@
-/*
- * Shader.cpp
- *
- *  Created on: Nov 28, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "Shader.h"
+#include "Shader.hpp"
 #include <stdexcept>
 
 Program::Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader) :

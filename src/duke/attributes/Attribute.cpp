@@ -1,11 +1,4 @@
-/*
- * Attribute.cpp
- *
- *  Created on: Dec 22, 2012
- *      Author: Guillaume Chatelet
- */
-
-#include "Attribute.h"
+#include "Attribute.hpp"
 
 const char * getTypeName(PrimitiveType type) {
 	switch (type) {

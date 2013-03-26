@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/time/FrameUtils.h>
+#include <duke/time/FrameUtils.hpp>
 #include <chrono>
 #include <stdexcept>
 

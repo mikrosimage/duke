@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/attributes/Attributes.h>
+#include <duke/attributes/Attributes.hpp>
 #include <glm/glm.hpp>
 
 using namespace std;

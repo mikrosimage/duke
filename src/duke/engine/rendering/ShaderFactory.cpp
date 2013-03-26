@@ -1,11 +1,4 @@
-/*
- * ShaderFactory.cpp
- *
- *  Created on: Jan 20, 2013
- *      Author: Guillaume Chatelet
- */
-
-#include "ShaderFactory.h"
+#include "ShaderFactory.hpp"
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>

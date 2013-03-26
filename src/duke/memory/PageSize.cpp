@@ -1,4 +1,4 @@
-#include "PageSize.h"
+#include "PageSize.hpp"
 
 #include <cstdio>
 
