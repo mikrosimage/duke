@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-void setTextureDimensions(unsigned int dimensionUniformParameter, size_t uwidth, size_t uheight, int orientation = 1);
+std::pair<int, int> getTextureDimensions(size_t uwidth, size_t uheight, int orientation = 1);
 
 int getAdaptedInternalFormat(int internalFormat);
 unsigned int getPixelFormat(int internalFormat);

@@ -44,16 +44,3 @@ SharedVertexShader makeVertexShader(const char* pSource);
 
 SharedFragmentShader loadFragmentShaderFile(const char* pFilename);
 SharedVertexShader loadVertexShaderFile(const char* pFilename);
-
-struct Program: public noncopyable {
-	Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader);
-	~Program();
-	void use() const;
-	GLuint getUniformLocation(const char* pUniformName) const;
-private:
-	const GLuint programId;
-	const SharedVertexShader pVertexShader;
-	const SharedFragmentShader pFragmentShader;
-};
-
-typedef std::shared_ptr<Program> SharedProgram;

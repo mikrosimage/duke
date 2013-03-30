@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/gl/Shader.hpp>
+#include <duke/gl/Program.hpp>
 #include <duke/engine/ColorSpace.hpp>
 
 namespace duke {

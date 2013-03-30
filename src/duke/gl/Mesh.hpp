@@ -21,10 +21,15 @@ struct VertexPosUv0 {
 	}
 };
 
-class Mesh: public noncopyable {
+class Mesh: public gl::IBindable {
 public:
 	Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount);
 	virtual ~Mesh();
+
+	gl::Binder<Mesh> scope_bind() const { return {this}; }
+
+	virtual void bind() const;
+	virtual void unbind() const;
 
 	void draw() const;
 protected:
@@ -39,6 +44,10 @@ private:
 class IndexedMesh: public Mesh {
 public:
 	IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount, const GLuint *pIBegin, const size_t indexCount);
+
+	virtual void bind() const;
+	virtual void unbind() const;
+
 protected:
 	virtual void callDraw() const;
 private:
