@@ -14,6 +14,10 @@ public:
 	}
 	virtual void bind() const=0;
 	virtual void unbind() const=0;
+private:
+	template<class GLOBJECT> friend struct Binder;
+	template<class GLOBJECT> friend struct _Unbinder;
+	mutable int bind_count = 0;
 };
 
 class GlObject: public IBindable {

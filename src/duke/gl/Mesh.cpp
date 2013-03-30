@@ -40,14 +40,21 @@ Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t verte
 Mesh::~Mesh() {
 }
 
+void Mesh::bind() const {
+	vao.bind();
+}
+
 void Mesh::draw() const {
-	auto vaoBound = vao.scope_bind();
-	glCheckError();
 	callDraw();
 	glCheckError();
 }
 
+void Mesh::unbind() const {
+	vao.unbind();
+}
+
 void Mesh::callDraw() const {
+	auto bound = scope_bind();
 	glDrawArrays(primitiveType, 0, vertexCount);
 }
 
@@ -58,9 +65,19 @@ IndexedMesh::IndexedMesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, cons
 	glCheckError();
 }
 
+void IndexedMesh::bind() const {
+	Mesh::bind();
+	ivbo.bind();
+}
+
 void IndexedMesh::callDraw() const {
-	auto ivboBound = ivbo.scope_bind_buffer();
+	auto bound = scope_bind();
 	glDrawElements(primitiveType, indexCount, GL_UNSIGNED_INT, 0);
+}
+
+void IndexedMesh::unbind() const {
+	ivbo.unbind();
+	Mesh::unbind();
 }
 
 SharedMesh createSquare() {

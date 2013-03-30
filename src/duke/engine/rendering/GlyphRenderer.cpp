@@ -157,10 +157,13 @@ void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, cons
 	if (pText == nullptr || *pText == '\0')
 		return;
 
+	const auto& geometryRenderer = glyphRenderer.getGeometryRenderer();
+
+	auto boundSquare = geometryRenderer.meshPool.getSquare()->scope_bind();
 	const glm::ivec2 glyphDim = glm::ivec2(zoom * 8);
 	const glm::ivec2 rectDim = textDimensions(pText, glyphDim);
 	const glm::ivec2 viewportDim(viewport.dimension);
-	glyphRenderer.getGeometryRenderer().drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
+	geometryRenderer.drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
 
 	const int xOrigin = x;
 	const auto bound = glyphRenderer.begin(viewport);
