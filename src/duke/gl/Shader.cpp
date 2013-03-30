@@ -1,35 +1,4 @@
 #include "Shader.hpp"
-#include <stdexcept>
-
-Program::Program(const SharedVertexShader &vertexShader, const SharedFragmentShader &fragmentShader) :
-		programId(glCreateProgram()), pVertexShader(vertexShader), pFragmentShader(fragmentShader) {
-	glAttachShader(programId, pVertexShader->getId());
-	glAttachShader(programId, pFragmentShader->getId());
-	glLinkProgram(programId);
-	checkProgramError(programId);
-}
-
-Program::~Program() {
-	glDetachShader(programId, pVertexShader->getId());
-	glDetachShader(programId, pFragmentShader->getId());
-	glDeleteProgram(programId);
-}
-
-void Program::use() const {
-	glValidateProgram(programId);
-	glCheckError();
-	glUseProgram(programId);
-	glCheckError();
-}
-
-GLuint Program::getUniformLocation(const char* pUniformName) const {
-	const GLuint uniformId = glGetUniformLocation(programId, pUniformName);
-	if (uniformId != GLuint(-1))
-		return uniformId;
-	char error[1024];
-	snprintf(error, sizeof(error), "OpenGL : no uniform named '%s'", pUniformName);
-	throw std::runtime_error(error);
-}
 
 SharedFragmentShader makeFragmentShader(const char* pSource) {
 	return std::make_shared<FragmentShader>(pSource);

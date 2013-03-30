@@ -452,7 +452,7 @@ std::vector<unsigned char> slurpBinaryFile(const char* pFilename) {
 	return result;
 }
 
-void setTextureDimensions(GLuint dimensionUniformParameter, size_t uwidth, size_t uheight, int orientation) {
+std::pair<int, int> getTextureDimensions(size_t uwidth, size_t uheight, int orientation) {
 	float width = uwidth;
 	float height = uheight;
 	switch (orientation) {
@@ -470,5 +470,5 @@ void setTextureDimensions(GLuint dimensionUniformParameter, size_t uwidth, size_
 	case 8: //rotated 90◦ counter-clockwise (left to right, bottom to top)
 		throw std::runtime_error("unsupported orientation");
 	}
-	glUniform2i(dimensionUniformParameter, width, height);
+	return std::make_pair(width, height);
 }

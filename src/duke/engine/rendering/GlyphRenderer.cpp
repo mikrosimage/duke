@@ -3,6 +3,7 @@
 #include <duke/engine/ImageLoadUtils.hpp>
 #include <duke/engine/rendering/GeometryRenderer.hpp>
 #include <duke/engine/rendering/MeshPool.hpp>
+#include <duke/engine/rendering/ShaderConstants.hpp>
 
 namespace duke {
 
@@ -15,9 +16,8 @@ layout (location = 1) in vec2 UV;
 
 uniform ivec2 gViewport;
 uniform ivec2 gImage;
-uniform ivec2 gPan;
+uniform ivec3 gPanAndChar;
 uniform float gZoom;
-uniform int gChar;
 
 out vec2 vVaryingTexCoord; 
 
@@ -51,6 +51,7 @@ void main() {
     const ivec2 tiles = ivec2(16);
     ivec2 translating = ivec2(0); // translation must be integer to prevent aliasing
     translating /= 2; // moving to center
+    ivec2 gPan = gPanAndChar.xy;
     translating += gPan; // moving to center
     vec2 scaling = vec2(1);
     scaling /= 2; // bringing square from [-1,1] to [-.5,.5]
@@ -64,6 +65,7 @@ void main() {
     mat4 worldViewProj = proj * world;
     gl_Position = worldViewProj * vec4(Position, 1.0);
     ivec2 charDim = abs(gImage) / tiles;
+    int gChar = gPanAndChar.z;
     ivec2 charPos = ivec2(gChar%tiles.x, gChar/tiles.y);
     vVaryingTexCoord = charDim*(UV+charPos);
 })";
@@ -72,28 +74,20 @@ static const char * const pTextFragmentShader =
 		R"(#version 330
 
 out vec4 vFragColor;
-uniform sampler2DRect rectangleImageSampler;
+uniform sampler2DRect gTextureSampler;
 uniform float gAlpha;
 smooth in vec2 vVaryingTexCoord;
 
 void main(void)
 {
-    vec4 sample = texture(rectangleImageSampler, vVaryingTexCoord);
+    vec4 sample = texture(gTextureSampler, vVaryingTexCoord);
     sample.a *= gAlpha;
     vFragColor = sample;
 })";
 
 GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename) :
 		m_GeometryRenderer(renderer), //
-		m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)), //
-		gTextureSampler(m_Program.getUniformLocation("rectangleImageSampler")), //
-		gViewport(m_Program.getUniformLocation("gViewport")), //
-		gImage(m_Program.getUniformLocation("gImage")), //
-		gPan(m_Program.getUniformLocation("gPan")), //
-		gChar(m_Program.getUniformLocation("gChar")), //
-		gZoom(m_Program.getUniformLocation("gZoom")), //
-		gAlpha(m_Program.getUniformLocation("gAlpha")) //
-{
+		m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)) {
 	std::string error;
 	if (!load(glyphsFilename, m_GlyphsTexture, m_Attributes, error))
 		throw std::runtime_error("unable to load glyphs texture");
@@ -101,29 +95,26 @@ GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyph
 
 GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const {
 	m_Program.use();
-	glUniform2i(gViewport, viewport.dimension.x, viewport.dimension.y);
-	glUniform1i(gTextureSampler, 0);
+	m_Program.glUniform2i(shader::gViewport, viewport.dimension.x, viewport.dimension.y);
+	m_Program.glUniform1i(shader::gTextureSampler, 0);
 	auto scopeBinded = m_GlyphsTexture.scope_bind_texture();
 	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	setTextureDimensions(gImage, m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
+	auto pair = getTextureDimensions(m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
+	m_Program.glUniform2i(shader::gImage, pair.first, pair.second);
 	return std::move(scopeBinded);
 }
 
 void GlyphRenderer::setAlpha(float alpha) const {
-	glUniform1f(gAlpha, alpha);
+	m_Program.glUniform1f(shader::gAlpha, alpha);
 }
 
 void GlyphRenderer::setZoom(float zoom) const {
-	glUniform1f(gZoom, zoom);
+	m_Program.glUniform1f(shader::gZoom, zoom);
 }
 
-void GlyphRenderer::setPosition(int x, int y) const {
-	glUniform2i(gPan, x, y);
-}
-
-void GlyphRenderer::draw(const char glyph) const {
-	glUniform1i(gChar, glyph);
+void GlyphRenderer::draw(int x, int y, const char glyph) const {
+	m_Program.glUniform3i(shader::gPanAndChar, x, y, glyph);
 	m_GeometryRenderer.meshPool.getSquare()->draw();
 }
 
@@ -176,8 +167,7 @@ void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, cons
 			y += 8 * zoom;
 			continue;
 		}
-		glyphRenderer.setPosition(x, y);
-		glyphRenderer.draw(c);
+		glyphRenderer.draw(x, y, c);
 		x += 8 * zoom;
 	}
 }

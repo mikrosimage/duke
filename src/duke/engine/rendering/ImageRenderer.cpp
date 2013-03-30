@@ -6,6 +6,7 @@
 #include <duke/engine/Context.hpp>
 #include <duke/engine/rendering/ShaderFactory.hpp>
 #include <duke/engine/rendering/ShaderPool.hpp>
+#include <duke/engine/rendering/ShaderConstants.hpp>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.hpp>
 
@@ -107,16 +108,17 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 			description.glPackFormat == GL_RGB10_A2UI, //
 			resolve(context.pCurrentImage->attributes, context.colorSpace));
 	const auto pProgram = shaderPool.get(shaderDesc);
+	const auto pair = getTextureDimensions(description.width, description.height, context.pCurrentImage->attributes.getOrientation());
 	pProgram->use();
-	setTextureDimensions(pProgram->getUniformLocation("gImage"), description.width, description.height, context.pCurrentImage->attributes.getOrientation());
-	glUniform2i(pProgram->getUniformLocation("gViewport"), context.viewport.dimension.x, context.viewport.dimension.y);
-	glUniform1i(pProgram->getUniformLocation("gTextureSampler"), 0);
-	glUniform2i(pProgram->getUniformLocation("gPan"), context.pan.x, context.pan.y);
-	glUniform1f(pProgram->getUniformLocation("gExposure"), context.exposure);
-	glUniform1f(pProgram->getUniformLocation("gGamma"), context.gamma);
-	glUniform4i(pProgram->getUniformLocation("gShowChannel"), context.channels.x, context.channels.y, context.channels.z, context.channels.w);
+	pProgram->glUniform2i(shader::gImage, pair.first, pair.second);
+	pProgram->glUniform2i(shader::gViewport, context.viewport.dimension.x, context.viewport.dimension.y);
+	pProgram->glUniform1i(shader::gTextureSampler, 0);
+	pProgram->glUniform2i(shader::gPan, context.pan.x, context.pan.y);
+	pProgram->glUniform1f(shader::gExposure, context.exposure);
+	pProgram->glUniform1f(shader::gGamma, context.gamma);
+	pProgram->glUniform4i(shader::gShowChannel, context.channels.x, context.channels.y, context.channels.z, context.channels.w);
 
-	glUniform1f(pProgram->getUniformLocation("gZoom"), getZoomValue(context));
+	pProgram->glUniform1f(shader::gZoom, getZoomValue(context));
 	pMesh->draw();
 	glCheckError();
 }

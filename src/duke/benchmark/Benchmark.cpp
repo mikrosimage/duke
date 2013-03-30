@@ -155,7 +155,8 @@ void main() {
 				{
 					auto textureBound = pTester->initializeAndBind(conf, textureSize);
 					program.use();
-					setTextureDimensions(program.getUniformLocation("gImage"), textureSize.x, textureSize.y, 0);
+					auto pair = getTextureDimensions(textureSize.x, textureSize.y, 0);
+					glUniform2i(program.getUniformLocation("gImage"), pair.first, pair.second);
 					glUniform2i(program.getUniformLocation("gViewport"), viewportWidth, viewportHeight);
 					glUniform1i(program.getUniformLocation("gTextureSampler"), 0);
 					glUniform2i(program.getUniformLocation("gPan"), 0, 0);

@@ -2,7 +2,7 @@
 
 #include <duke/NonCopyable.hpp>
 #include <duke/gl/Textures.hpp>
-#include <duke/gl/Shader.hpp>
+#include <duke/gl/Program.hpp>
 #include <duke/gl/Mesh.hpp>
 #include <duke/attributes/Attributes.hpp>
 
@@ -17,21 +17,13 @@ struct GlyphRenderer: public noncopyable {
 	GlyphBinder begin(const Viewport &viewport) const;
 	void setAlpha(float alpha) const;
 	void setZoom(float zoom) const;
-	void setPosition(int x, int y) const;
-	void draw(const char glyph) const;
+	void draw(int x, int y, const char glyph) const;
 
 	const GeometryRenderer &getGeometryRenderer() const;
 
 private:
 	const GeometryRenderer &m_GeometryRenderer;
-	const Program m_Program;
-	const GLuint gTextureSampler;
-	const GLuint gViewport;
-	const GLuint gImage;
-	const GLuint gPan;
-	const GLuint gChar;
-	const GLuint gZoom;
-	const GLuint gAlpha;
+	mutable Program m_Program;
 	Attributes m_Attributes;
 	Texture m_GlyphsTexture;
 

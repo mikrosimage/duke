@@ -26,10 +26,9 @@ DukeSplashStream::~DukeSplashStream() {
 }
 
 static void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float alpha, ivec2 position) {
-	renderer.setPosition(position.x, position.y);
 	renderer.setAlpha(alpha);
 	renderer.setZoom(zoom);
-	renderer.draw(c);
+	renderer.draw(position.x, position.y, c);
 }
 
 void DukeSplashStream::render(const Context& context) const {
