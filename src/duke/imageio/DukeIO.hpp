@@ -2,6 +2,7 @@
 
 #include <duke/imageio/RawPackedFrame.hpp>
 #include <duke/NonCopyable.hpp>
+#include <duke/StringUtils.hpp>
 
 #include <cstddef>
 #include <string>
@@ -92,7 +93,7 @@ namespace duke {
 
 class IODescriptors: public noncopyable {
 	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
-	std::map<std::string, std::deque<IIODescriptor*> > m_ExtensionToDescriptors;
+	std::map<std::string, std::deque<IIODescriptor*>, ci_less > m_ExtensionToDescriptors;
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
 	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
