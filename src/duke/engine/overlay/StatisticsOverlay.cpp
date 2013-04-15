@@ -48,14 +48,15 @@ void StatisticsOverlay::render(const Context& context) const {
 	glm::ivec2(frameLength * context.currentFrame.round() + frameLength / 2.f + xOffset, yOffset), //pan
 	glm::vec4(1, 1, 1, 1)); //color
 
-	//  draw current frame
+	//  draw infos
 	std::ostringstream oss;
 
 	oss << context.currentFrame.round() << '\n';
 	oss << std::fixed;
 	oss.width(5);
 	oss.precision(2);
-	oss << frameMetronom.getFPS() << "  FPS";
+	oss << frameMetronom.getFPS() << "  FPS" << '\n';
+	oss << "zoom " << context.zoom << "x";
 #ifndef NDEBUG // adding vblank in case in debug mode
 	oss << '\n' << vBlankMetronom.getFPS() << " VBPS";
 #endif

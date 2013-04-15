@@ -52,7 +52,7 @@ static inline float getAspectRatio(glm::vec2 dim) {
 	return dim.x / dim.y;
 }
 
-static float getZoomValue(const Context &context) {
+float getZoomValue(const Context &context) {
 	switch (context.fitMode) {
 	case FitMode::ACTUAL:
 		return 1;
@@ -118,7 +118,7 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 	pProgram->glUniform1f(shader::gGamma, context.gamma);
 	pProgram->glUniform4i(shader::gShowChannel, context.channels.x, context.channels.y, context.channels.z, context.channels.w);
 
-	pProgram->glUniform1f(shader::gZoom, getZoomValue(context));
+	pProgram->glUniform1f(shader::gZoom, context.zoom);
 	pMesh->draw();
 	glCheckError();
 }

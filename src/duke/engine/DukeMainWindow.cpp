@@ -13,7 +13,7 @@
 namespace duke {
 
 DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &parameters) :
-		DukeGLFWWindow(pWindow), m_CmdLine(parameters), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer), m_Pan(m_Context.pan), m_Zoom(m_Context.zoom) {
+		DukeGLFWWindow(pWindow), m_CmdLine(parameters), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer) {
 	m_Context.pGlyphRenderer = &m_GlyphRenderer;
 	m_Context.pGeometryRenderer = &m_GeometryRenderer;
 
@@ -76,12 +76,15 @@ void DukeMainWindow::onMouseClick(int buttonId, int buttonState) {
 }
 
 void DukeMainWindow::onScroll(double x, double y) {
-	m_Zoom += y;
+	auto &zoom = m_Context.zoom;
+	zoom = logf(zoom);
+	zoom += y / 8;
+	zoom = expf(zoom);
 }
 
 void DukeMainWindow::onMouseDrag(int dx, int dy) {
-	m_Pan.x += dx;
-	m_Pan.y -= dy;
+	m_Context.pan.x += dx;
+	m_Context.pan.y -= dy;
 }
 
 namespace { // defining channel mask constants
@@ -133,6 +136,7 @@ void DukeMainWindow::run() {
 	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
 	bool showMetadataOverlay = false;
 	bool showStatisticOverlay = true;
+	bool doSetupZoom = false;
 
 	SharedMesh pSquare = createSquare();
 
@@ -165,27 +169,22 @@ void DukeMainWindow::run() {
 		display(oss.str());
 	};
 
+	const auto setupZoom = [&]() {
+		if(m_Context.fitMode == FitMode::FREE||!doSetupZoom)
+		return;
+		m_Context.zoom = getZoomValue(m_Context);
+		m_Context.pan= glm::ivec2();
+		doSetupZoom = false;
+	};
+
 	while (running) {
 		// fetching user inputs
 		::glfwPollEvents();
-
-		// checking pan position or zoom changed
-		const bool notFreeMode = m_Context.fitMode != FitMode::FREE;
-		const bool panChanged = m_Context.pan != m_Pan;
-		const bool zoomChanged = m_Context.zoom != m_Zoom;
-		const bool switchToFreeFitMode = notFreeMode && (panChanged || zoomChanged);
-		if (switchToFreeFitMode) {
-			m_Context.fitMode = FitMode::FREE;
-			m_Pan = glm::ivec2();
-			m_Zoom = 0;
-		}
 
 		// setting up context
 		m_Context.viewport = Viewport(glm::ivec2(), m_WindowDim);
 		m_Context.currentFrame = m_Player.getCurrentFrame();
 		m_Context.playbackTime = m_Player.getPlaybackTime();
-		m_Context.pan = m_Pan;
-		m_Context.zoom = m_Zoom;
 
 		// current frame
 		const size_t frame = m_Context.currentFrame.round();
@@ -213,6 +212,7 @@ void DukeMainWindow::run() {
 				auto pLoadedTexture = textureCache.getLoadedTexture(mfr);
 				if (pLoadedTexture) {
 					m_Context.pCurrentImage = pLoadedTexture;
+					setupZoom();
 					auto &texture = *pLoadedTexture->pTexture;
 					auto boundTexture = texture.scope_bind_texture();
 					glTexParameteri(texture.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -228,9 +228,9 @@ void DukeMainWindow::run() {
 			if (showMetadataOverlay)
 				metadataOverlay.render(m_Context);
 		}
-		statusOverlay.render(m_Context);
 		if (showStatisticOverlay)
 			statisticOverlay.render(m_Context);
+		statusOverlay.render(m_Context);
 
 		// displaying
 		::glfwSwapBuffers(m_pWindow);
@@ -286,8 +286,7 @@ void DukeMainWindow::run() {
 				break;
 			case 'f':
 				setNextMode(m_Context.fitMode);
-				m_Context.pan = m_Pan = glm::ivec2();
-				m_Context.zoom = m_Zoom = 0;
+				doSetupZoom = true;
 				display(getFitModeString(m_Context.fitMode));
 				break;
 			}

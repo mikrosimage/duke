@@ -41,9 +41,6 @@ private:
 	GeometryRenderer m_GeometryRenderer;
 	GlyphRenderer m_GlyphRenderer;
 	Context m_Context;
-
-	glm::ivec2 m_Pan;
-	double m_Zoom;
 };
 
 } /* namespace duke */

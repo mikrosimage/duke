@@ -8,4 +8,6 @@ struct ShaderPool;
 
 void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context);
 
+float getZoomValue(const Context &context);
+
 } /* namespace duke */
