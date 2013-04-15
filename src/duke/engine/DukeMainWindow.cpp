@@ -128,10 +128,10 @@ static const char* getFitModeString(FitMode &mode) {
 }
 
 void DukeMainWindow::run() {
-	AttributesOverlay attributesOverlay(m_GlyphRenderer);
+	AttributesOverlay metadataOverlay(m_GlyphRenderer);
 	OnScreenDisplayOverlay statusOverlay(m_GlyphRenderer);
 	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
-	bool showAttributesOverlay = false;
+	bool showMetadataOverlay = false;
 	bool showStatisticOverlay = true;
 
 	SharedMesh pSquare = createSquare();
@@ -225,8 +225,8 @@ void DukeMainWindow::run() {
 			const auto& pOverlayTrack = pTrackItr->second.pOverlay;
 			if (pOverlayTrack)
 				pOverlayTrack->render(m_Context);
-			if (showAttributesOverlay)
-				attributesOverlay.render(m_Context);
+			if (showMetadataOverlay)
+				metadataOverlay.render(m_Context);
 		}
 		statusOverlay.render(m_Context);
 		if (showStatisticOverlay)
@@ -278,8 +278,8 @@ void DukeMainWindow::run() {
 				m_Context.exposure /= 1.2;
 				displayExposure();
 				break;
-			case 'o':
-				showAttributesOverlay = !showAttributesOverlay;
+			case 'm':
+				showMetadataOverlay = !showMetadataOverlay;
 				break;
 			case 's':
 				showStatisticOverlay = !showStatisticOverlay;
