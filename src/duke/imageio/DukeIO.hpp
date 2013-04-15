@@ -96,7 +96,11 @@ class IODescriptors: public noncopyable {
 	std::map<std::string, std::deque<IIODescriptor*>, ci_less > m_ExtensionToDescriptors;
 public:
 	bool registerDescriptor(IIODescriptor* pDescriptor);
+
 	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
+
+	bool isSupported(const char* extension) const;
+
 	inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const {
 		return m_Descriptors;
 	}

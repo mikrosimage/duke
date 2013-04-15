@@ -26,6 +26,10 @@ const deque<IIODescriptor*>& IODescriptors::findDescriptor(const char* extension
 	return EmptyVector;
 }
 
+bool IODescriptors::isSupported(const char* extension) const {
+	return m_ExtensionToDescriptors.find(extension) != m_ExtensionToDescriptors.end();
+}
+
 IODescriptors& IODescriptors::instance() {
 	static IODescriptors descriptors;
 	return descriptors;

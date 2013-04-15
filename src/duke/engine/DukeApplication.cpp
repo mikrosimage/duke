@@ -3,6 +3,7 @@
 #include <duke/engine/streams/DiskMediaStream.hpp>
 #include <duke/engine/overlay/DukeSplashStream.hpp>
 #include <duke/cmdline/CmdLineParameters.hpp>
+#include <duke/imageio/DukeIO.hpp>
 #include <duke/filesystem/FsUtils.hpp>
 #include <duke/gl/GL.hpp>
 
@@ -23,6 +24,17 @@ static sequence::Configuration getParserConf() {
 	return conf;
 }
 
+static bool isValid(const std::string& filename) {
+	if (!filename.empty() && filename[0] == '.')
+		return false;
+	const char* pExtension = fileExtension(filename.c_str());
+	if (!pExtension)
+		return false;
+	if (!IODescriptors::instance().isSupported(pExtension))
+		return false;
+	return true;
+}
+
 Timeline buildTimeline(const std::vector<std::string> &paths) {
 	using sequence::Item;
 	Track track;
@@ -41,7 +53,7 @@ Timeline buildTimeline(const std::vector<std::string> &paths) {
 				const auto type = item.getType();
 				if (type == Item::INVALID)
 					throw commandline_error("invalid item while parsing directory");
-				if (!item.filename.empty() && item.filename[0] == '.')
+				if (!isValid(item.filename))
 					continue; // escaping hidden file
 				item.filename = absolutePath + '/' + item.filename;
 				switch (type) {
