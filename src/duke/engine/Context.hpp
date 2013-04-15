@@ -26,7 +26,7 @@ struct Context {
 	size_t clipFrame = 0;
 	// geometry
 	Viewport viewport;
-	FitMode fitMode = FitMode::INNER;
+	FitMode fitMode = FitMode::FREE;
 	float zoom = 1;
 	glm::ivec2 pan;
 	// grading

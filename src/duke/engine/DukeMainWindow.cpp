@@ -136,7 +136,7 @@ void DukeMainWindow::run() {
 	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
 	bool showMetadataOverlay = false;
 	bool showStatisticOverlay = true;
-	bool doSetupZoom = false;
+	bool doSetupZoom = true;
 
 	SharedMesh pSquare = createSquare();
 

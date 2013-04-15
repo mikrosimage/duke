@@ -114,7 +114,7 @@ DukeApplication::DukeApplication(const CmdLineParameters &parameters) :
 
 	auto timeline = buildTimeline(parameters.additionnalOptions);
 	auto frameDuration = parameters.defaultFrameRate;
-	auto fitMode = FitMode::ACTUAL;
+	auto fitMode = FitMode::INNER;
 	auto speed = 0;
 	const bool demoMode = timeline.empty();
 	if (demoMode) {
