@@ -137,6 +137,7 @@ public:
 		}
 		m_Description.width = m_Spec.width;
 		m_Description.height = m_Spec.height;
+
 		if (m_Spec.channelnames != RGB && m_Spec.channelnames != RGBA && m_Spec.channelnames != A) {
 			m_Error = "Can only handle RGB, RGBA and A images for now, was '";
 			for (const auto& string : m_Spec.channelnames)
