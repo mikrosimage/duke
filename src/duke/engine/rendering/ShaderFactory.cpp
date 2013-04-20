@@ -69,8 +69,8 @@ vec4 unpack(uvec4 sample) {
 }
 smooth in vec2 vVaryingTexCoord;
 uniform usampler2DRect gTextureSampler;
-vec4 sample() {
-	return unpack(swizzle(texture(gTextureSampler, vVaryingTexCoord)));
+vec4 sample(vec2 offset) {
+	return unpack(swizzle(texture(gTextureSampler, vVaryingTexCoord+offset)));
 }
 )";
 
@@ -78,8 +78,8 @@ static const char * const pSampleRegular =
 		R"(
 smooth in vec2 vVaryingTexCoord;
 uniform sampler2DRect gTextureSampler;
-vec4 sample() {
-	return swizzle(texture(gTextureSampler, vVaryingTexCoord));
+vec4 sample(vec2 offset) {
+	return swizzle(texture(gTextureSampler, vVaryingTexCoord+offset));
 }
 )";
 
@@ -89,18 +89,71 @@ out vec4 vFragColor;
 uniform bvec4 gShowChannel;
 uniform float gExposure;
 uniform float gGamma;
+uniform float gZoom;
+
+float random(vec3 scale, float seed) {
+    /* use the fragment position for a different seed per-pixel */
+    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
+}
+
+vec4 sampleToLinear(vec2 offset) {
+    vec4 sampled = sample(offset);
+    sampled.rgb = toLinear(sampled.rgb);
+    // sampled.a=1;
+    return sampled;
+}
+
 void main(void)
 {
-	vec4 sampled = sample();
-	sampled.rgb = toLinear(sampled.rgb);
-	if(any(gShowChannel.xyz))
-		sampled *= vec4(gShowChannel.xyz,1);
-	if(gShowChannel.w)
-		sampled = vec4(sampled.aaa,1);
-	sampled.rgb = sampled.rgb * gExposure;
-	sampled.rgb = pow(sampled.rgb,vec3(gGamma));
-	sampled.rgb = toScreen(sampled.rgb);
-	vFragColor = sampled;
+    vec4 color = vec4(0,0,0,0);
+
+    if(gZoom<1) {
+        float span = 1/gZoom;
+        float total = 0.0;
+
+        /* randomize the lookup values to hide the fixed number of samples */
+        float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);
+
+		const float sigma = 0.8;
+		const float sigmaSquared = sigma*sigma;
+		const float pi = 3.14159265359;
+        const float A = 1 / sqrt(2*pi*sigmaSquared);
+        float samples = min(8,max(2,span));
+
+        for (float x = -samples; x <= samples; x++) {
+            for (float y = -samples; y <= samples; y++) {
+                vec2 percent = (vec2(x,y) + offset - 0.5) / samples;
+				vec4 sample = sampleToLinear(percent*span);
+				
+				/* switch to pre-multiplied alpha to correctly blur transparent images */
+				sample.rgb *= sample.a;
+
+                vec2 squared = percent * percent;
+				float weight = A*exp(-(squared.x+squared.y)/(2*sigmaSquared));
+				color += sample * weight;
+				total += weight;
+            }
+		}
+
+        color /= total;
+        /* switch back from pre-multiplied alpha */
+        color.rgb /= color.a + 0.0000001;
+    } else {
+        color = sampleToLinear(vec2(0));
+    }
+
+    if(any(gShowChannel.xyz))
+        color *= vec4(gShowChannel.xyz,1);
+
+    if(gShowChannel.w)
+        color = vec4(color.aaa,1);
+
+    color.rgb = color.rgb * gExposure;
+    color.rgb = pow(color.rgb,vec3(gGamma));
+
+    color.rgb = toScreen(color.rgb);
+
+    vFragColor = color;
 }
 )";
 
@@ -110,7 +163,7 @@ uniform vec4 gSolidColor;
 
 void main(void)
 {
-	vFragColor = gSolidColor;
+    vFragColor = gSolidColor;
 }
 )";
 
@@ -120,7 +173,7 @@ smooth in vec2 vVaryingTexCoord;
 
 void main(void)
 {
-	vFragColor = vec4(vVaryingTexCoord,0,1);
+    vFragColor = vec4(vVaryingTexCoord,0,1);
 }
 )";
 
