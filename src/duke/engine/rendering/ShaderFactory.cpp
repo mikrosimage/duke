@@ -103,6 +103,20 @@ vec4 sampleToLinear(vec2 offset) {
     return sampled;
 }
 
+float gaussian(vec2 offset){
+	const float sigma = 0.5;
+	const float sigmaSquared = sigma*sigma;
+	const float pi = 3.14159265359;
+	const float A = 1 / sqrt(2*pi*sigmaSquared);
+    vec2 squared = offset * offset;
+    return A*exp(-(squared.x+squared.y)/(2*sigmaSquared));
+}
+
+float triangle(vec2 offset){
+    vec2 absolute = abs(offset);
+    return mix(1-absolute,vec2(0), greaterThan(absolute, vec2(1)));
+}
+
 void main(void)
 {
     vec4 color = vec4(0,0,0,0);
@@ -111,25 +125,17 @@ void main(void)
         float span = 1/gZoom;
         float total = 0.0;
 
-        /* randomize the lookup values to hide the fixed number of samples */
-        float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);
-
-		const float sigma = 0.8;
-		const float sigmaSquared = sigma*sigma;
-		const float pi = 3.14159265359;
-        const float A = 1 / sqrt(2*pi*sigmaSquared);
-        float samples = min(8,max(2,span));
+        const int samples = 4;
 
         for (float x = -samples; x <= samples; x++) {
             for (float y = -samples; y <= samples; y++) {
-                vec2 percent = (vec2(x,y) + offset - 0.5) / samples;
+                vec2 percent = vec2(x,y) / samples;
 				vec4 sample = sampleToLinear(percent*span);
 				
 				/* switch to pre-multiplied alpha to correctly blur transparent images */
 				sample.rgb *= sample.a;
 
-                vec2 squared = percent * percent;
-				float weight = A*exp(-(squared.x+squared.y)/(2*sigmaSquared));
+				float weight = gaussian(percent);
 				color += sample * weight;
 				total += weight;
             }
