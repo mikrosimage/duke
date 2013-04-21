@@ -1,6 +1,8 @@
 #pragma once
 
 #include <duke/cmdline/CmdLineParameters.hpp>
+#include <duke/commands/Commands.hpp>
+#include <duke/engine/parameters/Parameters.hpp>
 #include <duke/engine/Player.hpp>
 #include <duke/engine/Context.hpp>
 #include <duke/engine/rendering/ShaderPool.hpp>
@@ -35,12 +37,14 @@ private:
 	std::vector<int> m_KeyStrokes;
 	bool m_MouseLeftDown = false;
 
-
 	const CmdLineParameters &m_CmdLine;
 	Player m_Player;
 	GeometryRenderer m_GeometryRenderer;
 	GlyphRenderer m_GlyphRenderer;
 	Context m_Context;
+
+	cmd::Commands m_Commands;
+	Parameters m_Parameters;
 };
 
 } /* namespace duke */

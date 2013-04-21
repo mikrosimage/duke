@@ -3,7 +3,9 @@
 #include <duke/engine/overlay/StatisticsOverlay.hpp>
 #include <duke/engine/overlay/OnScreenDisplayOverlay.hpp>
 #include <duke/engine/overlay/AttributesOverlay.hpp>
+#include <duke/engine/ConsoleIO.hpp>
 #include <duke/engine/rendering/ImageRenderer.hpp>
+#include <duke/engine/commands/Commands.hpp>
 #include <duke/time/Clock.hpp>
 #include <duke/gl/GL.hpp>
 
@@ -38,6 +40,21 @@ DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &par
 	keyCallback = bind(&DukeMainWindow::onKey, this, _1, _2);
 	registerCallbacks();
 
+	// registering commands
+	using namespace cmd;
+	m_Commands.addAndBind<ArgsCmd>( { "args", "display the command's arguments", { cmd::cmd } }, std::cref(m_Commands));
+	m_Commands.addAndBind<ManCmd>( { "man", "display the command's help", { cmd::cmd } }, std::cref(m_Commands));
+	m_Commands.addAndBind<SuggestCmd>( { "cmds", "suggest a list of commands", { value } }, std::cref(m_Commands));
+	m_Commands.addAndBind<SuggestParam>( { "params", "suggest a list of parameters", { value } }, std::cref(m_Parameters));
+	m_Commands.addAndBind<FunctionCmd>( { "play", "play the current playlist" }, [&]() {m_Player.setPlaybackSpeed(1);});
+	m_Commands.addAndBind<FunctionCmd>( { "stop", "stop playback" }, [&]() {m_Player.setPlaybackSpeed(0);});
+	m_Commands.addAndBind<FunctionCmd>( { "begin", "move to the first frame" }, [&]() {m_Player.cue(m_Player.getTimeline().getRange().first);});
+	m_Commands.addAndBind<FunctionCmd>( { "end", "move to the last frame" }, [&]() {m_Player.cue(m_Player.getTimeline().getRange().last);});
+	m_Commands.addAndBind<FunctionCmd>( { "quit", "quit the application" }, [&]() {glfwSetWindowShouldClose(getHandle(),true);});
+//	m_Commands.addAndBind<LsCmd>( { "ls", "list the current directory", { path } });
+//	m_Commands.addAndBind<NoOpCmd>( { "next", "move to next clip" });
+//	m_Commands.addAndBind<NoOpCmd>( { "previous", "move to previous clip" });
+	std::cout << "Type 'cmds' to list available commands" << std::endl;
 }
 
 void DukeMainWindow::load(const Timeline& timeline, const FrameDuration& frameDuration, const FitMode fitMode, int speed) {
@@ -131,6 +148,8 @@ static const char* getFitModeString(FitMode &mode) {
 }
 
 void DukeMainWindow::run() {
+	ConsoleIO console;
+	std::vector<std::string> commands;
 	AttributesOverlay metadataOverlay(m_GlyphRenderer);
 	OnScreenDisplayOverlay statusOverlay(m_GlyphRenderer);
 	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
@@ -299,10 +318,10 @@ void DukeMainWindow::run() {
 		for (const int key : m_KeyStrokes) {
 			switch (key) {
 			case GLFW_KEY_HOME:
-				m_Player.cue(m_Player.getTimeline().getRange().first);
+				commands.emplace_back("begin");
 				break;
 			case GLFW_KEY_END:
-				m_Player.cue(m_Player.getTimeline().getRange().last);
+				commands.emplace_back("end");
 				break;
 			case GLFW_KEY_LEFT:
 				m_Player.cueRelative(ctrlModifier ? -25 : -1);
@@ -313,6 +332,15 @@ void DukeMainWindow::run() {
 			}
 		}
 		m_KeyStrokes.clear();
+
+		// checking incoming commands
+		console.poll(commands);
+		for (const auto& cmd : commands) {
+			auto result = m_Commands.execute(cmd);
+			if (!result.empty())
+				std::cout << result << std::endl;
+		}
+		commands.clear();
 
 		// check stop
 		running = !(shouldClose() || (keyPressed(GLFW_KEY_ESC)));
