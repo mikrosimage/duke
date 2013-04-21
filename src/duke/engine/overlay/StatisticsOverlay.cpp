@@ -11,9 +11,6 @@ StatisticsOverlay::StatisticsOverlay(const GlyphRenderer & glyphRenderer, const 
 }
 
 void StatisticsOverlay::render(const Context& context) const {
-	if (!context.pCurrentImage)
-		return;
-
 	const size_t frameCount = m_Timeline.getRange().last - m_Timeline.getRange().first + 1;
 	const float frameLength = context.viewport.dimension.x / (float) frameCount;
 	const glm::ivec2 halfViewportDim = context.viewport.dimension / 2;

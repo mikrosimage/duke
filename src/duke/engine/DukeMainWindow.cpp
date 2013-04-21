@@ -242,7 +242,7 @@ void DukeMainWindow::run() {
 					setupZoom();
 					auto &texture = *pLoadedTexture->pTexture;
 					auto boundTexture = texture.scope_bind_texture();
-					glTexParameteri(texture.target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(texture.target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 					glTexParameteri(texture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 					renderWithBoundTexture(m_GlyphRenderer.getGeometryRenderer().shaderPool, pSquare.get(), m_Context);
 				} else {
