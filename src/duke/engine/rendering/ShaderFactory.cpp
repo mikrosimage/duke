@@ -91,9 +91,10 @@ uniform float gExposure;
 uniform float gGamma;
 uniform float gZoom;
 
-float random(vec3 scale, float seed) {
+vec2 random(vec2 seed) {
     /* use the fragment position for a different seed per-pixel */
-    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
+    const vec2 scale = vec2(12.9898, 12.9899);
+    return (fract(sin(dot(gl_FragCoord.xy + seed, scale)) * 43758.5453 + seed) *2) -1;
 }
 
 vec4 sampleToLinear(vec2 offset) {
@@ -129,21 +130,22 @@ void main(void)
 
         for (float x = -samples; x <= samples; x++) {
             for (float y = -samples; y <= samples; y++) {
-                vec2 percent = vec2(x,y) / samples;
+                vec2 percent = (vec2(x,y) + random(vec2(0,.1))) / (samples+1); // discarding extreme values where weight = 0
 				vec4 sample = sampleToLinear(percent*span);
 				
 				/* switch to pre-multiplied alpha to correctly blur transparent images */
 				sample.rgb *= sample.a;
 
-				float weight = gaussian(percent);
+				float weight = triangle(percent);
 				color += sample * weight;
 				total += weight;
             }
 		}
 
         color /= total;
-        /* switch back from pre-multiplied alpha */
-        color.rgb /= color.a + 0.0000001;
+        
+        if(color.a>0) // switch back from pre-multiplied alpha
+            color.rgb /= color.a;
     } else {
         color = sampleToLinear(vec2(0));
     }
