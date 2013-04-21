@@ -93,10 +93,18 @@ void DukeMainWindow::onMouseClick(int buttonId, int buttonState) {
 }
 
 void DukeMainWindow::onScroll(double x, double y) {
-	auto &zoom = m_Context.zoom;
-	zoom = logf(zoom);
-	zoom += y / 8;
-	zoom = expf(zoom);
+	const auto oldZoom = m_Context.zoom;
+	auto newZoom = oldZoom;
+	newZoom = logf(newZoom);
+	newZoom += y / 8;
+	newZoom = expf(newZoom);
+	m_Context.zoom = newZoom;
+
+	// computing mouse position in image space
+	glm::vec2 mousePos = glm::vec2(m_MousePos.x, m_Context.viewport.dimension.y - m_MousePos.y - 1);
+	mousePos -= m_Context.viewport.dimension / 2;
+	mousePos -= m_Context.pan;
+	m_Context.pan -= glm::ivec2(mousePos * ((newZoom / oldZoom) - 1));
 }
 
 void DukeMainWindow::onMouseDrag(int dx, int dy) {
