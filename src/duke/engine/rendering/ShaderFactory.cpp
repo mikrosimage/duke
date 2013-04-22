@@ -114,8 +114,8 @@ float gaussian(vec2 offset){
 }
 
 float triangle(vec2 offset){
-    vec2 absolute = abs(offset);
-    return mix(1-absolute,vec2(0), greaterThan(absolute, vec2(1)));
+    float absolute = abs(offset.x*offset.y);
+    return mix(1.f-absolute,0.f, absolute>1.f);
 }
 
 void main(void)
