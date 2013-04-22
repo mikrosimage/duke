@@ -349,7 +349,9 @@ GLenum getPixelFormat(GLint internalFormat) {
 	case GL_RGB16:
 		return GL_RGB;
 	case GL_RGBA8:
+	case GL_RGBA16:
 	case GL_RGBA16F:
+	case GL_RGBA32F:
 		return GL_RGBA;
 	case GL_RGB10_A2UI:
 		return GL_RGBA_INTEGER;
@@ -372,6 +374,8 @@ bool isInternalOptimizedFormatRedBlueSwapped(int internalFormat) {
 	case GL_RGB16F:
 	case GL_RGB32F:
 	case GL_RGBA16F:
+	case GL_RGBA16:
+	case GL_RGBA32F:
 		return false;
 	default:
 		return true;
@@ -388,6 +392,7 @@ GLenum getPixelType(GLint internalFormat) {
 	case GL_RGB8:
 		return GL_UNSIGNED_BYTE;
 	case GL_RGB16:
+	case GL_RGBA16:
 		return GL_UNSIGNED_SHORT;
 	case GL_RGB10_A2UI:
 	case GL_RGBA8:
@@ -397,6 +402,7 @@ GLenum getPixelType(GLint internalFormat) {
 		return GL_HALF_FLOAT;
 	case GL_R32F:
 	case GL_RGB32F:
+	case GL_RGBA32F:
 		return GL_FLOAT;
 	default:
 		std::ostringstream oss;
