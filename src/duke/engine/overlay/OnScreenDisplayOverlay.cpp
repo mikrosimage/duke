@@ -28,7 +28,8 @@ void OnScreenDisplayOverlay::render(const Context& context) const {
 				m_Message.c_str(), //
 				100, 100, //
 				alpha, //
-				3);
+				3,
+				context.isPlaying);
 }
 
 } /* namespace duke */

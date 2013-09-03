@@ -46,14 +46,18 @@ static const char * const pColorSpaceConversions =
 vec3 lintolin(vec3 sample) {
 	return sample;
 }
+
+vec3 alexatolin(vec3 sample) {
+	return mix(pow(vec3(10.0),((sample-0.385537)/0.247190)-0.052272)/5.555556 , (sample-0.092809)/5.367655, lessThan(sample, vec3(0.149658)));
+}
 vec3 cineontolin(vec3 sample) {
 	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
 }
 vec3 srgbtolin(vec3 sample) {
-	return mix(sample/12.92, pow((sample+0.055)/1.055,vec3(2.4)), lessThan(sample, vec3(0.04045)));
+	return mix(pow((sample+0.055)/1.055,vec3(2.4)), sample/12.92, lessThan(sample, vec3(0.04045)));
 }
 vec3 lintosrgb(vec3 sample) {
-	sample = mix(12.92*sample, (1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), lessThan(sample, vec3(0.0031308)));
+	sample = mix((1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), 12.92*sample, lessThan(sample, vec3(0.0031308)));
 	return clamp(sample, vec3(0), vec3(1));
 }
 )";
@@ -90,6 +94,7 @@ uniform bvec4 gShowChannel;
 uniform float gExposure;
 uniform float gGamma;
 uniform float gZoom;
+uniform int gIsPlaying;
 
 vec2 random(vec2 seed) {
     /* use the fragment position for a different seed per-pixel */
@@ -122,7 +127,7 @@ void main(void)
 {
     vec4 color = vec4(0,0,0,0);
 
-    if(gZoom<1) {
+    if(gZoom<1 && gIsPlaying!=1) {
         float span = 1/gZoom;
         float total = 0.0;
 
@@ -187,6 +192,8 @@ void main(void)
 
 static const char* getToLinearFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
+	case ColorSpace::AlexaLogC:
+		return "alexatolin";
 	case ColorSpace::KodakLog:
 		return "cineontolin";
 	case ColorSpace::Linear:
@@ -204,7 +211,6 @@ static const char* getToScreenFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
 	case ColorSpace::Linear:
-		return "lintolin";
 	case ColorSpace::sRGB:
 	case ColorSpace::GammaCorrected:
 		return "lintosrgb";

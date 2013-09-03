@@ -24,6 +24,7 @@ struct Context {
 	Time playbackTime;
 	FrameIndex currentFrame;
 	size_t clipFrame = 0;
+	bool isPlaying;
 	// geometry
 	Viewport viewport;
 	FitMode fitMode = FitMode::FREE;

@@ -14,6 +14,7 @@ const char* const gExposure = "gExposure";
 const char* const gGamma = "gGamma";
 const char* const gShowChannel = "gShowChannel";
 const char* const gSolidColor = "gSolidColor";
+const char* const gIsPlaying = "gIsPlaying";
 
 } /* namespace shader */
 } /* namespace duke */
