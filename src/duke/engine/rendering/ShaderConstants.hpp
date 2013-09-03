@@ -14,6 +14,7 @@ extern const char* const gExposure;
 extern const char* const gGamma;
 extern const char* const gShowChannel;
 extern const char* const gSolidColor;
+extern const char* const gIsPlaying;
 
 } /* namespace shader */
 } /* namespace duke */

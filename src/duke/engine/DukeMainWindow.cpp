@@ -18,6 +18,7 @@ DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &par
 		DukeGLFWWindow(pWindow), m_CmdLine(parameters), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer) {
 	m_Context.pGlyphRenderer = &m_GlyphRenderer;
 	m_Context.pGeometryRenderer = &m_GeometryRenderer;
+	m_Context.isPlaying = false;
 
 	::glfwMakeContextCurrent(m_pWindow);
 	::glfwGetWindowSize(m_pWindow, &m_WindowDim.x, &m_WindowDim.y);
@@ -182,6 +183,7 @@ void DukeMainWindow::run() {
 	const auto togglePlayStop = [&]() -> bool {
 		const int speed = m_Player.getPlaybackSpeed() == 0 ? 1 : 0;
 		m_Player.setPlaybackSpeed(speed);
+		m_Context.isPlaying = speed ? true : false;
 		return speed != 0;
 	};
 
