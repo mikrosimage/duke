@@ -53,7 +53,7 @@ vec3 srgbtolin(vec3 sample) {
 	return mix(sample/12.92, pow((sample+0.055)/1.055,vec3(2.4)), lessThan(sample, vec3(0.04045)));
 }
 vec3 lintosrgb(vec3 sample) {
-	sample = mix(12.92*sample, (1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), lessThan(sample, vec3(0.0031308)));
+	sample = mix((1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), 12.92*sample, lessThan(sample, vec3(0.0031308)));
 	return clamp(sample, vec3(0), vec3(1));
 }
 )";
@@ -205,7 +205,6 @@ static const char* getToScreenFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
 	case ColorSpace::Linear:
-		return "lintolin";
 	case ColorSpace::sRGB:
 	case ColorSpace::GammaCorrected:
 		return "lintosrgb";
