@@ -46,11 +46,15 @@ static const char * const pColorSpaceConversions =
 vec3 lintolin(vec3 sample) {
 	return sample;
 }
+
+vec3 alexatolin(vec3 sample) {
+	return mix(pow(vec3(10.0),((sample-0.385537)/0.247190)-0.052272)/5.555556 , (sample-0.092809)/5.367655, lessThan(sample, vec3(0.149658)));
+}
 vec3 cineontolin(vec3 sample) {
 	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
 }
 vec3 srgbtolin(vec3 sample) {
-	return mix(sample/12.92, pow((sample+0.055)/1.055,vec3(2.4)), lessThan(sample, vec3(0.04045)));
+	return mix(pow((sample+0.055)/1.055,vec3(2.4)), sample/12.92, lessThan(sample, vec3(0.04045)));
 }
 vec3 lintosrgb(vec3 sample) {
 	sample = mix((1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), 12.92*sample, lessThan(sample, vec3(0.0031308)));
@@ -188,6 +192,8 @@ void main(void)
 
 static const char* getToLinearFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
+	case ColorSpace::AlexaLogC:
+		return "alexatolin";
 	case ColorSpace::KodakLog:
 		return "cineontolin";
 	case ColorSpace::Linear:
