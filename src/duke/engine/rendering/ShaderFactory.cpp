@@ -47,6 +47,9 @@ static const char * const pColorSpaceConversions =
 vec3 lintolin(vec3 sample) {
 	return sample;
 }
+vec3 alexatolin(vec3 sample) {
+    return mix(pow(vec3(10.0),((sample-0.385537)/0.247190)-0.052272)/5.555556 , (sample-0.092809)/5.367655, lessThan(sample, vec3(0.149658)));
+}
 vec3 cineontolin(vec3 sample) {
 	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
 }
@@ -186,31 +189,34 @@ void main(void)
 )";
 
 static const char* getToLinearFunction(const ColorSpace fromColorspace) {
-	switch (fromColorspace) {
-	case ColorSpace::KodakLog:
-		return "cineontolin";
-	case ColorSpace::Linear:
-		return "lintolin";
-	case ColorSpace::sRGB:
-	case ColorSpace::GammaCorrected:
-		return "srgbtolin";
-	case ColorSpace::Auto:
-	default:
-		throw std::runtime_error("ColorSpace must be resolved at this point");
-	}
+    switch (fromColorspace) {
+        case ColorSpace::AlexaLogC:
+            return "alexatolin";
+        case ColorSpace::KodakLog:
+            return "cineontolin";
+        case ColorSpace::Linear:
+            return "lintolin";
+        case ColorSpace::sRGB:
+        case ColorSpace::GammaCorrected:
+            return "srgbtolin";
+        case ColorSpace::Auto:
+        default:
+            throw std::runtime_error("ColorSpace must be resolved at this point");
+    }
 }
 
 static const char* getToScreenFunction(const ColorSpace fromColorspace) {
-	switch (fromColorspace) {
-	case ColorSpace::KodakLog:
-	case ColorSpace::Linear:
-	case ColorSpace::sRGB:
-	case ColorSpace::GammaCorrected:
-		return "lintosrgb";
-	case ColorSpace::Auto:
-	default:
-		throw std::runtime_error("ColorSpace must be resolved at this point");
-	}
+    switch (fromColorspace) {
+        case ColorSpace::AlexaLogC:
+        case ColorSpace::KodakLog:
+        case ColorSpace::Linear:
+        case ColorSpace::sRGB:
+        case ColorSpace::GammaCorrected:
+            return "lintosrgb";
+        case ColorSpace::Auto:
+        default:
+            throw std::runtime_error("ColorSpace must be resolved at this point");
+    }
 }
 
 static void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
