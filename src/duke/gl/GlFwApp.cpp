@@ -8,65 +8,74 @@
 
 namespace duke {
 
-static void onGlfwError(int, const char* pMessage) {
+namespace  {
+
+void onGlfwError(int, const char* pMessage) {
 #ifndef NDEBUG
 	printf("An error occurred within Glfw : %s\n", pMessage);
 #endif
 }
+std::map<GLFWwindow*, DukeGLFWWindow*>& getGlfwToDukeWindowMap() {
+    static std::map<GLFWwindow*, DukeGLFWWindow*> glfwToDukeWindowMap;
+    return glfwToDukeWindowMap;
+}
+DukeGLFWWindow* safeGetDukeWindow(GLFWwindow *pWindow) {
+    const auto& glfwToDukeWindowMap = getGlfwToDukeWindowMap();
+    auto pFound = glfwToDukeWindowMap.find(pWindow);
+    if (pFound == glfwToDukeWindowMap.end())
+        throw std::runtime_error("Trying to reach an inexistent window");
+    return pFound->second;
+}
+void onWindowCloseFun(GLFWwindow *pWindow) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->windowCloseCallback)
+        pDukeWindow->windowCloseCallback();
+}
+void onWindowFocusFun(GLFWwindow *pWindow, int focus) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->windowFocusCallback)
+        pDukeWindow->windowFocusCallback(focus);
+}
+void onWindowResizeFun(GLFWwindow *pWindow, int width, int height) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->windowResizeCallback)
+        pDukeWindow->windowResizeCallback(width, height);
+}
+void onWindowRefreshFun(GLFWwindow *pWindow) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->windowRefreshFunCallback)
+        pDukeWindow->windowRefreshFunCallback();
+}
+void onMouseButtonFun(GLFWwindow *pWindow, int buttonId, int buttonState) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->mouseButtonCallback)
+        pDukeWindow->mouseButtonCallback(buttonId, buttonState);
+}
+void onMousePosFun(GLFWwindow *pWindow, int x, int y) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->mousePosCallback)
+        pDukeWindow->mousePosCallback(x, y);
+}
+void onMouseWheelFun(GLFWwindow *pWindow, double x, double y) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->scrollCallback)
+        pDukeWindow->scrollCallback(x, y);
+}
+void onKeyFun(GLFWwindow *pWindow, int keyId, int keyState) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->keyCallback)
+        pDukeWindow->keyCallback(keyId, keyState);
+}
+void onCharFun(GLFWwindow *pWindow, unsigned int unicodeCodePoint) {
+    auto pDukeWindow = safeGetDukeWindow(pWindow);
+    if (pDukeWindow->charCallback)
+        pDukeWindow->charCallback(unicodeCodePoint);
+}
 
-static std::map<GLFWwindow*, DukeGLFWWindow*> g_GlfwToDukeWindowMap;
+}  // namespace
 
-static DukeGLFWWindow* safeGetDukeWindow(GLFWwindow *pWindow) {
-	auto pFound = g_GlfwToDukeWindowMap.find(pWindow);
-	if (pFound == g_GlfwToDukeWindowMap.end())
-		throw std::runtime_error("Trying to reach an inexistent window");
-	return pFound->second;
-}
-static void onWindowCloseFun(GLFWwindow *pWindow) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->windowCloseCallback)
-		pDukeWindow->windowCloseCallback();
-}
-static void onWindowFocusFun(GLFWwindow *pWindow, int focus) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->windowFocusCallback)
-		pDukeWindow->windowFocusCallback(focus);
-}
-static void onWindowResizeFun(GLFWwindow *pWindow, int width, int height) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->windowResizeCallback)
-		pDukeWindow->windowResizeCallback(width, height);
-}
-static void onWindowRefreshFun(GLFWwindow *pWindow) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->windowRefreshFunCallback)
-		pDukeWindow->windowRefreshFunCallback();
-}
-static void onMouseButtonFun(GLFWwindow *pWindow, int buttonId, int buttonState) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->mouseButtonCallback)
-		pDukeWindow->mouseButtonCallback(buttonId, buttonState);
-}
-static void onMousePosFun(GLFWwindow *pWindow, int x, int y) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->mousePosCallback)
-		pDukeWindow->mousePosCallback(x, y);
-}
-static void onMouseWheelFun(GLFWwindow *pWindow, double x, double y) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->scrollCallback)
-		pDukeWindow->scrollCallback(x, y);
-}
-static void onKeyFun(GLFWwindow *pWindow, int keyId, int keyState) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->keyCallback)
-		pDukeWindow->keyCallback(keyId, keyState);
-}
-static void onCharFun(GLFWwindow *pWindow, unsigned int unicodeCodePoint) {
-	auto pDukeWindow = safeGetDukeWindow(pWindow);
-	if (pDukeWindow->charCallback)
-		pDukeWindow->charCallback(unicodeCodePoint);
-}
+
+
 
 DukeGLFWApplication::DukeGLFWApplication() {
 	if (!glfwInit())
@@ -93,14 +102,14 @@ DukeGLFWWindow::DukeGLFWWindow(GLFWwindow *pWindow) :
 		m_pWindow(pWindow) {
 	if (!m_pWindow)
 		throw std::runtime_error("Illegal creation of nullptr Window");
-	g_GlfwToDukeWindowMap[m_pWindow] = this;
+	getGlfwToDukeWindowMap()[m_pWindow] = this;
 	glfwMakeContextCurrent(m_pWindow);
 
 }
 
 DukeGLFWWindow::~DukeGLFWWindow() {
 	glfwDestroyWindow(m_pWindow); // all callbacks disabled
-	g_GlfwToDukeWindowMap.erase(m_pWindow);
+	getGlfwToDukeWindowMap().erase(m_pWindow);
 }
 
 void DukeGLFWWindow::registerCallbacks() {

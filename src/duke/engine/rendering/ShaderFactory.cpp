@@ -7,12 +7,14 @@
 using namespace std;
 
 namespace duke {
-ShaderDescription::ShaderDescription() {
-}
 
-static inline std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
+namespace  {
+
+std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
 	return std::make_tuple(sd.grayscale, sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
 }
+
+}  // namespace
 
 bool ShaderDescription::operator<(const ShaderDescription &other) const {
 	return asTuple(*this) < asTuple(other);
@@ -42,7 +44,9 @@ ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swap
 	return description;
 }
 
-static const char pColorSpaceConversions[] =
+namespace {
+
+const char pColorSpaceConversions[] =
 		R"(
 vec3 lintolin(vec3 sample) {
 	return sample;
@@ -61,7 +65,7 @@ vec3 lintosrgb(vec3 sample) {
     return clamp(sample, vec3(0), vec3(1));
 })";
 
-static const char pSampleTenbitsUnpack[] =
+const char pSampleTenbitsUnpack[] =
 		R"(
 vec4 unpack(uvec4 sample) {
 	uint red   = (sample.a << 2u) | (sample.b >> 6u);
@@ -77,7 +81,7 @@ vec4 sample(vec2 offset) {
 }
 )";
 
-static const char pSampleRegular[] =
+const char pSampleRegular[] =
 		R"(
 smooth in vec2 vVaryingTexCoord;
 uniform sampler2DRect gTextureSampler;
@@ -86,7 +90,7 @@ vec4 sample(vec2 offset) {
 }
 )";
 
-static const char pTexturedMain[] =
+const char pTexturedMain[] =
 		R"(
 out vec4 vFragColor;
 uniform bvec4 gShowChannel;
@@ -168,7 +172,7 @@ void main(void)
 }
 )";
 
-static const char pSolidMain[] = R"(
+const char pSolidMain[] = R"(
 out vec4 vFragColor;
 uniform vec4 gSolidColor;
 
@@ -178,7 +182,7 @@ void main(void)
 }
 )";
 
-static const char pUvMain[] = R"(
+const char pUvMain[] = R"(
 out vec4 vFragColor;
 smooth in vec2 vVaryingTexCoord;
 
@@ -188,7 +192,7 @@ void main(void)
 }
 )";
 
-static const char* getToLinearFunction(const ColorSpace fromColorspace) {
+const char* getToLinearFunction(const ColorSpace fromColorspace) {
     switch (fromColorspace) {
         case ColorSpace::AlexaLogC:
             return "alexatolin";
@@ -205,7 +209,7 @@ static const char* getToLinearFunction(const ColorSpace fromColorspace) {
     }
 }
 
-static const char* getToScreenFunction(const ColorSpace fromColorspace) {
+const char* getToScreenFunction(const ColorSpace fromColorspace) {
     switch (fromColorspace) {
         case ColorSpace::AlexaLogC:
         case ColorSpace::KodakLog:
@@ -219,19 +223,19 @@ static const char* getToScreenFunction(const ColorSpace fromColorspace) {
     }
 }
 
-static void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
+void appendToLinearFunction(ostream&stream, const ColorSpace colorspace) {
 	stream << endl << "vec3 toLinear(vec3 sample){return " << getToLinearFunction(colorspace) << "(sample);}" << endl;
 }
 
-static void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
+void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
 	stream << endl << "vec3 toScreen(vec3 sample){return " << getToScreenFunction(colorspace) << "(sample);}" << endl;
 }
 
-static void appendSampler(ostream&stream, const ShaderDescription &description) {
+void appendSampler(ostream&stream, const ShaderDescription &description) {
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
 }
 
-static void appendSwizzle(ostream&stream, const ShaderDescription &description) {
+void appendSwizzle(ostream&stream, const ShaderDescription &description) {
 	const char* type = description.tenBitUnpack ? "uvec4" : "vec4";
 	string swizzling = description.grayscale ? "rrra" : "rgba";
 	if (description.swapRedAndBlue)
@@ -240,6 +244,8 @@ static void appendSwizzle(ostream&stream, const ShaderDescription &description) 
 		std::reverse(swizzling.begin(), swizzling.end());
 	stream << type << " swizzle(" << type << " sample){return sample." << swizzling << ";}";
 }
+
+}  // namespace
 
 std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	ostringstream oss;

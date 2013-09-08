@@ -120,8 +120,12 @@ void LoadedImageCache::workerFunction() {
 	}
 }
 
-static AlignedMalloc gAlignedMallocator;
-static BigAlignedBlock gBigAlignedMallocator;
+namespace {
+
+AlignedMalloc gAlignedMallocator;
+BigAlignedBlock gBigAlignedMallocator;
+
+}  // namespace
 
 std::string& LoadedImageCache::workerStep(MediaFrameReference &mfr, std::string& path, std::string& error) {
 	error.clear();

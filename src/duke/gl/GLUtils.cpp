@@ -251,8 +251,10 @@ const char* getPixelTypeString(unsigned int pixelType) {
 	return "Unknown";
 }
 
+namespace  {
+
 #ifndef NDEBUG
-static const char* getErrorString(unsigned error) {
+const char* getErrorString(unsigned error) {
 	switch (error) {
 	case GL_INVALID_ENUM:
 		return "Invalid enum";
@@ -273,6 +275,8 @@ static const char* getErrorString(unsigned error) {
 }
 #endif
 
+}  // namespace
+
 void glCheckError() {
 #ifndef NDEBUG
 	std::vector<unsigned> errors;
@@ -289,7 +293,9 @@ void glCheckError() {
 #endif
 }
 
-static GLuint getBindParameter(GLuint targetType) {
+namespace  {
+
+GLuint getBindParameter(GLuint targetType) {
 	switch (targetType) {
 	case GL_TEXTURE_2D:
 		return GL_TEXTURE_BINDING_2D;
@@ -306,6 +312,8 @@ static GLuint getBindParameter(GLuint targetType) {
 	};
 	throw std::runtime_error("unsupported targetType");
 }
+
+}  // namespace
 
 void glCheckBound(GLuint targetType, GLuint id) {
 	GLint current;

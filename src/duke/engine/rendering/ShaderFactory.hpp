@@ -17,7 +17,7 @@ struct ShaderDescription {
 	bool tenBitUnpack = false;
 	ColorSpace colorspace = ColorSpace::Auto;
 
-	ShaderDescription();
+	ShaderDescription() = default;
 	bool operator<(const ShaderDescription &other) const;
 
 	static ShaderDescription createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);

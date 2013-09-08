@@ -14,35 +14,39 @@ struct Sentinel {
 	ChunkAllocator* pAllocator;
 };
 
-inline static Sentinel* getSentinelFromBlockStart(void* pBlockStart) {
+namespace {
+
+Sentinel* getSentinelFromBlockStart(void* pBlockStart) {
 	return reinterpret_cast<Sentinel*>(pBlockStart) - 1;
 }
 
 // boundary helpers
-inline static size_t lowerPage(size_t ptr) {
+size_t lowerPage(size_t ptr) {
 	return (ptr >> PAGE_SIZE_BITS) << PAGE_SIZE_BITS;
 }
 
-inline static size_t upperPage(size_t ptr) {
+size_t upperPage(size_t ptr) {
 	return ((ptr >> PAGE_SIZE_BITS) + 1) << PAGE_SIZE_BITS;
 }
 
-inline static bool alignedToPage(size_t ptr) {
+bool alignedToPage(size_t ptr) {
 	return ptr == lowerPage(ptr);
 }
 
 // size helpers
-inline static size_t getChunkSize(size_t chunkSize) {
+size_t getChunkSize(size_t chunkSize) {
 	// each chunk as a sentinel
 	const size_t realChunkSize = chunkSize + sizeof(Sentinel);
 	return alignedToPage(realChunkSize) ? realChunkSize : upperPage(realChunkSize);
 }
 
-inline static size_t getAllocationSize(size_t chunkSize) {
+size_t getAllocationSize(size_t chunkSize) {
 	const size_t allAlignedChunkSize = getChunkSize(chunkSize) * ChunkAllocatorBlocks;
 	// adding one PAGE_SIZE to ensure we can offset and give aligned data
 	return allAlignedChunkSize + PAGE_SIZE;
 }
+
+}  // namespace
 
 /**
  * Reserve CHUNK blocks of contiguous memory aligned on PAGE_SIZE

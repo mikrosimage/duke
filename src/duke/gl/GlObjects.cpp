@@ -9,11 +9,15 @@ GlObject::GlObject(GLuint id) :
 		id(id) {
 }
 
-inline static GLuint allocateVertexArrayObject() {
+namespace {
+
+GLuint allocateVertexArrayObject() {
 	GLuint id;
 	glGenVertexArrays(1, &id);
 	return id;
 }
+
+}  // namespace
 
 GlVertexArrayObject::GlVertexArrayObject() :
 		GlObject(allocateVertexArrayObject()) {
@@ -28,11 +32,15 @@ void GlVertexArrayObject::unbind() const {
 	glBindVertexArray(0);
 }
 
-inline static GLuint allocateTextureObject() {
+namespace {
+
+GLuint allocateTextureObject() {
 	GLuint id;
 	glGenTextures(1, &id);
 	return id;
 }
+
+}  // namespace
 
 GlTextureObject::GlTextureObject(GLenum target) :
 		GlObject(allocateTextureObject()), target(target) {
@@ -55,11 +63,15 @@ GlTextureRectangle::GlTextureRectangle() :
 		GlTextureObject(GL_TEXTURE_RECTANGLE) {
 }
 
-inline static GLuint allocateBufferObject() {
+namespace {
+
+GLuint allocateBufferObject() {
 	GLuint id;
 	glGenBuffers(1, &id);
 	return id;
 }
+
+}  // namespace
 
 GlBufferObject::GlBufferObject(GLenum target, GLenum usage) :
 		GlObject(allocateBufferObject()), target(target), usage(usage) {

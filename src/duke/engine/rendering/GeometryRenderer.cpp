@@ -5,7 +5,9 @@
 
 namespace duke {
 
-static void render(const SharedProgram& pProgram, const SharedMesh &pMesh, const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan,
+namespace {
+
+void render(const SharedProgram& pProgram, const SharedMesh &pMesh, const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan,
 		const glm::vec4 &color) {
 	pProgram->use();
 	pProgram->glUniform2i(shader::gImage, dimensions.x, dimensions.y);
@@ -19,6 +21,8 @@ static void render(const SharedProgram& pProgram, const SharedMesh &pMesh, const
 
 	glCheckError();
 }
+
+}  // namespace
 
 void GeometryRenderer::drawRect(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) const {
 	render(shaderPool.get(ShaderDescription::createSolidDesc()), meshPool.getSquare(), viewport, dimensions, pan, color);

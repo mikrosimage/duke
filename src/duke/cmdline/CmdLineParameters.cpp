@@ -9,8 +9,12 @@
 
 using namespace std;
 
+namespace duke {
+
+namespace {
+
 template<typename T>
-static void getArgs(const int argc, char**argv, int i, T& value) {
+void getArgs(const int argc, char**argv, int i, T& value) {
     if (i >= argc)
         throw logic_error("missing command line value");
     istringstream iss(argv[i]);
@@ -19,11 +23,11 @@ static void getArgs(const int argc, char**argv, int i, T& value) {
         throw logic_error("bad command line argument type");
 }
 
-static bool matches(const string option, const string shortOption, const string longOption) {
+bool matches(const string option, const string shortOption, const string longOption) {
     return option == shortOption || option == longOption;
 }
 
-namespace duke {
+}  // namespace
 
 unsigned CmdLineParameters::getDefaultConcurrency() {
     return max(1u, min(4u, thread::hardware_concurrency() - 2));
