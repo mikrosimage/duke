@@ -3,17 +3,17 @@
 namespace duke {
 namespace shader {
 
-extern const char* const gTextureSampler;
-extern const char* const gViewport;
-extern const char* const gImage;
-extern const char* const gPan;
-extern const char* const gPanAndChar;
-extern const char* const gZoom;
-extern const char* const gAlpha;
-extern const char* const gExposure;
-extern const char* const gGamma;
-extern const char* const gShowChannel;
-extern const char* const gSolidColor;
+extern const char gTextureSampler[];
+extern const char gViewport[];
+extern const char gImage[];
+extern const char gPan[];
+extern const char gPanAndChar[];
+extern const char gZoom[];
+extern const char gAlpha[];
+extern const char gExposure[];
+extern const char gGamma[];
+extern const char gShowChannel[];
+extern const char gSolidColor[];
 
 } /* namespace shader */
 } /* namespace duke */

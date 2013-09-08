@@ -42,7 +42,7 @@ ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swap
 	return description;
 }
 
-static const char * const pColorSpaceConversions =
+static const char pColorSpaceConversions[] =
 		R"(
 vec3 lintolin(vec3 sample) {
 	return sample;
@@ -61,7 +61,7 @@ vec3 lintosrgb(vec3 sample) {
     return clamp(sample, vec3(0), vec3(1));
 })";
 
-static const char * const pSampleTenbitsUnpack =
+static const char pSampleTenbitsUnpack[] =
 		R"(
 vec4 unpack(uvec4 sample) {
 	uint red   = (sample.a << 2u) | (sample.b >> 6u);
@@ -77,7 +77,7 @@ vec4 sample(vec2 offset) {
 }
 )";
 
-static const char * const pSampleRegular =
+static const char pSampleRegular[] =
 		R"(
 smooth in vec2 vVaryingTexCoord;
 uniform sampler2DRect gTextureSampler;
@@ -86,7 +86,7 @@ vec4 sample(vec2 offset) {
 }
 )";
 
-static const char* const pTexturedMain =
+static const char pTexturedMain[] =
 		R"(
 out vec4 vFragColor;
 uniform bvec4 gShowChannel;
@@ -168,7 +168,7 @@ void main(void)
 }
 )";
 
-static const char* const pSolidMain = R"(
+static const char pSolidMain[] = R"(
 out vec4 vFragColor;
 uniform vec4 gSolidColor;
 
@@ -178,7 +178,7 @@ void main(void)
 }
 )";
 
-static const char* const pUvMain = R"(
+static const char pUvMain[] = R"(
 out vec4 vFragColor;
 smooth in vec2 vVaryingTexCoord;
 
