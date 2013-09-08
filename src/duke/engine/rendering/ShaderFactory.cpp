@@ -13,6 +13,7 @@ ShaderDescription::ShaderDescription() {
 static inline std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
 	return std::make_tuple(sd.grayscale, sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
 }
+
 bool ShaderDescription::operator<(const ShaderDescription &other) const {
 	return asTuple(*this) < asTuple(other);
 }
@@ -50,13 +51,12 @@ vec3 cineontolin(vec3 sample) {
 	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
 }
 vec3 srgbtolin(vec3 sample) {
-	return mix(sample/12.92, pow((sample+0.055)/1.055,vec3(2.4)), lessThan(sample, vec3(0.04045)));
+    return mix(pow((sample+0.055)/1.055,vec3(2.4)), sample/12.92, lessThan(sample, vec3(0.04045)));
 }
 vec3 lintosrgb(vec3 sample) {
-	sample = mix(12.92*sample, (1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), lessThan(sample, vec3(0.0031308)));
-	return clamp(sample, vec3(0), vec3(1));
-}
-)";
+    sample = mix((1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), 12.92*sample, lessThan(sample, vec3(0.0031308)));
+    return clamp(sample, vec3(0), vec3(1));
+})";
 
 static const char * const pSampleTenbitsUnpack =
 		R"(
@@ -204,7 +204,6 @@ static const char* getToScreenFunction(const ColorSpace fromColorspace) {
 	switch (fromColorspace) {
 	case ColorSpace::KodakLog:
 	case ColorSpace::Linear:
-		return "lintolin";
 	case ColorSpace::sRGB:
 	case ColorSpace::GammaCorrected:
 		return "lintosrgb";
