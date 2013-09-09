@@ -42,14 +42,18 @@ Program::CacheEntry& Program::getOrCreate(const char* pUniformName) {
 	return pFound->second;
 }
 
+namespace  {
+
 template<typename T>
-static bool update(char* cached, const T &newValue) {
+bool update(char* cached, const T &newValue) {
 	if (memcmp(cached, &newValue, sizeof(newValue)) != 0) {
 		memcpy(cached, &newValue, sizeof(newValue));
 		return true;
 	}
 	return false;
 }
+
+}  // namespace
 
 void Program::glUniform1f(const char* pUniformName, GLfloat v0) {
 	CacheEntry& entry = getOrCreate(pUniformName);

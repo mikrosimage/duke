@@ -2,11 +2,11 @@
 
 namespace attribute {
 
-extern const char * const pDukeFileExtensionKey;
-extern const char * const pDukeFilePathKey;
-extern const char * const pDukeFileNameKey;
-extern const char * const pOiioColospaceKey;
-extern const char * const pOiioGammaKey;
-extern const char * const pOrientationKey;
+extern const char pDukeFileExtensionKey[];
+extern const char pDukeFilePathKey[];
+extern const char pDukeFileNameKey[];
+extern const char pOiioColospaceKey[];
+extern const char pOiioGammaKey[];
+extern const char pOrientationKey[];
 
 } /* namespace attribute */

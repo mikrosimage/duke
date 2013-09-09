@@ -7,8 +7,10 @@
 
 namespace duke {
 
-static const char * const pTextVertexShader =
-		R"(
+namespace {
+
+const char pTextVertexShader[] =
+        R"(
 #version 330
 
 layout (location = 0) in vec3 Position;
@@ -71,8 +73,8 @@ void main() {
     vVaryingTexCoord = charDim*(UV+charPos);
 })";
 
-static const char * const pTextFragmentShader =
-		R"(#version 330
+const char pTextFragmentShader[] =
+        R"(#version 330
 
 out vec4 vFragColor;
 uniform sampler2DRect gTextureSampler;
@@ -85,6 +87,8 @@ void main(void)
     sample.a *= gAlpha;
     vFragColor = sample;
 })";
+
+}  // namespace
 
 GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename) :
 		m_GeometryRenderer(renderer), //
@@ -123,29 +127,33 @@ const GeometryRenderer &GlyphRenderer::getGeometryRenderer() const {
 	return m_GeometryRenderer;
 }
 
-static glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
-	int lines = 0;
-	int maxChars = 0;
-	int currentLineChars = 0;
-	const auto setMax = [&]() {
-		if (maxChars < currentLineChars)
-		maxChars = currentLineChars;
-	};
-	for (; pMsg && *pMsg != '\0'; ++pMsg) {
-		const char c = *pMsg;
-		if (c == '\n') {
-			setMax();
-			++lines;
-			currentLineChars = 0;
-		} else
-			++currentLineChars;
-	}
-	setMax();
-	const glm::ivec2 textDim(maxChars, lines + 1);
-	return (textDim++) * glyphDim;
+namespace {
+
+glm::ivec2 textDimensions(const char* pMsg, glm::ivec2 glyphDim) {
+    int lines = 0;
+    int maxChars = 0;
+    int currentLineChars = 0;
+    const auto setMax = [&]() {
+        if (maxChars < currentLineChars)
+        maxChars = currentLineChars;
+    };
+    for (; pMsg && *pMsg != '\0'; ++pMsg) {
+        const char c = *pMsg;
+        if (c == '\n') {
+            setMax();
+            ++lines;
+            currentLineChars = 0;
+        } else
+            ++currentLineChars;
+    }
+    setMax();
+    const glm::ivec2 textDim(maxChars, lines + 1);
+    return (textDim++) * glyphDim;
 }
 
-void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom, bool isPlaying) {
+}  // namespace
+
+void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, const char* pText, int x, int y, float alpha, float zoom) {
 	if (pText == nullptr || *pText == '\0')
 		return;
 

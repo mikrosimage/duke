@@ -116,15 +116,13 @@ void DukeMainWindow::onMouseDrag(int dx, int dy) {
 namespace { // defining channel mask constants
 
 using glm::bvec4;
-static const auto r = bvec4(true, false, false, false);
-static const auto g = bvec4(false, true, false, false);
-static const auto b = bvec4(false, false, true, false);
-static const auto a = bvec4(false, false, false, true);
-static const auto all = bvec4(false);
+const auto r = bvec4(true, false, false, false);
+const auto g = bvec4(false, true, false, false);
+const auto b = bvec4(false, false, true, false);
+const auto a = bvec4(false, false, false, true);
+const auto all = bvec4(false);
 
-}  // namespace
-
-static bool setNextMode(FitMode &mode) {
+bool setNextMode(FitMode &mode) {
 	switch (mode) {
 	case FitMode::FREE:
 		mode = FitMode::INNER;
@@ -142,7 +140,7 @@ static bool setNextMode(FitMode &mode) {
 	throw std::runtime_error("unknown fitmode");
 }
 
-static const char* getFitModeString(FitMode &mode) {
+const char* getFitModeString(FitMode &mode) {
 	switch (mode) {
 	case FitMode::ACTUAL:
 		return "Actual pixel";
@@ -155,6 +153,8 @@ static const char* getFitModeString(FitMode &mode) {
 	}
 	throw std::runtime_error("unknown fitmode");
 }
+
+}  // namespace
 
 void DukeMainWindow::run() {
 	ConsoleIO console;

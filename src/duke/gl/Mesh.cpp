@@ -2,7 +2,11 @@
 
 #include <stdexcept>
 
-static inline GLuint checkType(GLuint primitiveType) {
+namespace duke {
+
+namespace  {
+
+GLuint checkType(GLuint primitiveType) {
 	switch (primitiveType) {
 	case GL_POINTS:
 	case GL_LINES:
@@ -22,7 +26,7 @@ static inline GLuint checkType(GLuint primitiveType) {
 	}
 }
 
-namespace duke {
+}  // namespace
 
 Mesh::Mesh(GLuint primitiveType, const VertexPosUv0 *pVBegin, const size_t vertexCount) :
 		primitiveType(checkType(primitiveType)), vertexCount(vertexCount), vao(), vbo() {

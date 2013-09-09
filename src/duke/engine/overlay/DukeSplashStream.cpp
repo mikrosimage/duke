@@ -25,11 +25,15 @@ DukeSplashStream::DukeSplashStream() {
 DukeSplashStream::~DukeSplashStream() {
 }
 
-static void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float alpha, ivec2 position) {
+namespace {
+
+void drawLetter(const GlyphRenderer& renderer, char c, float zoom, float alpha, ivec2 position) {
 	renderer.setAlpha(alpha);
 	renderer.setZoom(zoom);
 	renderer.draw(position.x, position.y, c);
 }
+
+}  // namespace
 
 void DukeSplashStream::render(const Context& context) const {
 	const size_t zoom = 2;

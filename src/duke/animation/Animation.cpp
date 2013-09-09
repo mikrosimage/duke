@@ -5,9 +5,13 @@
 
 namespace duke {
 
-static bool isOdd(int64_t count) {
+namespace {
+
+bool isOdd(int64_t count) {
 	return (count & 0x01) > 0;
 }
+
+}  // namespace
 
 double getCycleValue(const AnimationData& data, int64_t time) {
 	const int64_t elapsed = time - data.startTime;

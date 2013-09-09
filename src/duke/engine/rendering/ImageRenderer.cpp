@@ -12,7 +12,9 @@
 
 namespace duke {
 
-static ColorSpace resolveFromMetadata(const char* pColorspace) {
+namespace {
+
+ColorSpace resolveFromMetadata(const char* pColorspace) {
 	if (pColorspace) {
 		if (streq(pColorspace, "Linear"))
 			return ColorSpace::Linear;
@@ -28,7 +30,7 @@ static ColorSpace resolveFromMetadata(const char* pColorspace) {
 	return ColorSpace::Auto;
 }
 
-static ColorSpace resolveFromExtension(const char* pFileExtension) {
+ColorSpace resolveFromExtension(const char* pFileExtension) {
 	if (pFileExtension) {
 		if (streq(pFileExtension, "dpx"))
 			return ColorSpace::KodakLog;
@@ -39,7 +41,7 @@ static ColorSpace resolveFromExtension(const char* pFileExtension) {
 	return ColorSpace::sRGB;
 }
 
-static ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
+ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	if (original != ColorSpace::Auto)
 		return original;
 	original = resolveFromMetadata(attributes.findString(attribute::pOiioColospaceKey));
@@ -48,9 +50,11 @@ static ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
 }
 
-static inline float getAspectRatio(glm::vec2 dim) {
+inline float getAspectRatio(glm::vec2 dim) {
 	return dim.x / dim.y;
 }
+
+}  // namespace
 
 float getZoomValue(const Context &context) {
 	switch (context.fitMode) {
@@ -82,7 +86,9 @@ float getZoomValue(const Context &context) {
 	}
 }
 
-static bool isGreyscale(size_t glPackFormat) {
+namespace {
+
+bool isGreyscale(size_t glPackFormat) {
 	switch (glPackFormat) {
 	case GL_R8:
 	case GL_R16:
@@ -95,6 +101,8 @@ static bool isGreyscale(size_t glPackFormat) {
 		return false;
 	}
 }
+
+}  // namespace
 
 void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context) {
 	const auto &description = context.pCurrentImage->description;
