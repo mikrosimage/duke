@@ -1,5 +1,4 @@
 #include "ImageRenderer.hpp"
-#include <duke/StringUtils.hpp>
 #include <duke/imageio/DukeIO.hpp>
 #include <duke/attributes/Attributes.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
@@ -9,46 +8,16 @@
 #include <duke/engine/rendering/ShaderConstants.hpp>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.hpp>
+#include <duke/engine/ColorSpace.hpp>
 
 namespace duke {
 
 namespace {
 
-ColorSpace resolveFromMetadata(const char* pColorspace) {
-	if (pColorspace) {
-		if (streq(pColorspace, "Linear"))
-			return ColorSpace::Linear;
-		if (streq(pColorspace, "sRGB") || streq(pColorspace, "GammaCorrected"))
-			return ColorSpace::sRGB;
-		if (streq(pColorspace, "KodakLog"))
-			return ColorSpace::KodakLog;
-		if (streq(pColorspace, "Rec709"))
-			return ColorSpace::Rec709;
-		if (streq(pColorspace, "AdobeRGB"))
-			return ColorSpace::AdobeRGB;
-	}
-	return ColorSpace::Auto;
-}
-
-ColorSpace resolveFromExtension(const char* pFileExtension) {
-	if (pFileExtension) {
-		if (streq(pFileExtension, "dpx"))
-			return ColorSpace::KodakLog;
-		if (streq(pFileExtension, "exr"))
-			return ColorSpace::Linear;
-		if (streq(pFileExtension, "jpg"))
-			return ColorSpace::sRGB;
-		if (streq(pFileExtension, "png"))
-			return ColorSpace::sRGB;
-	}
-	printf("Unable to find default ColorSpace for extension '%s' assuming sRGB\n", pFileExtension);
-	return ColorSpace::sRGB;
-}
-
 ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	if (original != ColorSpace::Auto)
 		return original;
-	original = resolveFromMetadata(attributes.findString(attribute::pOiioColospaceKey));
+	original = resolveFromName(attributes.findString(attribute::pOiioColospaceKey));
 	if (original != ColorSpace::Auto)
 		return original;
 	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
