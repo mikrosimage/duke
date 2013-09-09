@@ -30,6 +30,6 @@ private:
 	GlyphBinder m_pTextureBind;
 };
 
-void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1, bool isPlaying = false);
+void drawText(const GlyphRenderer &renderer, const Viewport &viewport, const char* pText, int x, int y, float alpha = 1, float zoom = 1);
 
 } /* namespace duke */

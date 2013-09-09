@@ -125,7 +125,6 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 	pProgram->glUniform1f(shader::gExposure, context.exposure);
 	pProgram->glUniform1f(shader::gGamma, context.gamma);
 	pProgram->glUniform4i(shader::gShowChannel, context.channels.x, context.channels.y, context.channels.z, context.channels.w);
-	pProgram->glUniform1i(shader::gIsPlaying, context.isPlaying);
 
 	pProgram->glUniform1f(shader::gZoom, context.zoom);
 	pMesh->draw();

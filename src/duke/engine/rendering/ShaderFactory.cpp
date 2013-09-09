@@ -97,7 +97,6 @@ uniform bvec4 gShowChannel;
 uniform float gExposure;
 uniform float gGamma;
 uniform float gZoom;
-uniform int gIsPlaying;
 
 vec2 random(vec2 seed) {
     /* use the fragment position for a different seed per-pixel */
@@ -130,7 +129,7 @@ void main(void)
 {
     vec4 color = vec4(0,0,0,0);
 
-    if(gZoom<1 && gIsPlaying!=1) {
+    if(gZoom<1 && false) {
         float span = 1/gZoom;
         float total = 0.0;
 

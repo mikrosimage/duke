@@ -22,8 +22,7 @@ void StatisticsOverlay::render(const Context& context) const {
 	const auto& geometryRenderer = m_GlyphRenderer.getGeometryRenderer();
 	geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2(context.viewport.dimension.x, height), //size
 	glm::ivec2(0, yOffset), //pan
-	glm::vec4(1, 1, 1, 0.2),//color
-	context.isPlaying);
+	glm::vec4(1, 1, 1, 0.2)); //color
 
 	// draw cache state
 	for (const Track &track : m_Timeline) {
@@ -35,8 +34,7 @@ void StatisticsOverlay::render(const Context& context) const {
 						size_t rangeLength = frameLength * (range.last - range.first + 1);
 						geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2(rangeLength, height), //size
 						glm::ivec2(frameLength * (clip.first + range.first) + rangeLength / 2.f + xOffset, yOffset), //pan
-						glm::vec4(1, 1, 1, 0.4), //color
-						context.isPlaying); 
+						glm::vec4(1, 1, 1, 0.4));//color 
 					}
 			}
 		}
@@ -45,8 +43,7 @@ void StatisticsOverlay::render(const Context& context) const {
 	// draw cursor
 	geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2((frameLength < 1.0) ? 1.0 : frameLength, height), //size
 	glm::ivec2(frameLength * context.currentFrame.round() + frameLength / 2.f + xOffset, yOffset), //pan
-	glm::vec4(1, 1, 1, 1),//color
-	context.isPlaying); 
+	glm::vec4(1, 1, 1, 1)); // color 
 
 	//  draw infos
 	std::ostringstream oss;
@@ -60,7 +57,7 @@ void StatisticsOverlay::render(const Context& context) const {
 #ifndef NDEBUG // adding vblank in case in debug mode
 	oss << '\n' << vBlankMetronom.getFPS() << " VBPS";
 #endif
-	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 5, height + 10, 1.f, 1.f, context.isPlaying);
+	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 5, height + 10, 1.f, 1.f);
 }
 
 } /* namespace duke */

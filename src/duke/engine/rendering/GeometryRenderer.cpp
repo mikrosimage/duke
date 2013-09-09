@@ -28,8 +28,8 @@ void GeometryRenderer::drawRect(const glm::ivec2 &viewport, const glm::ivec2 &di
 	render(shaderPool.get(ShaderDescription::createSolidDesc()), meshPool.getSquare(), viewport, dimensions, pan, color);
 }
 
-void GeometryRenderer::drawLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color, bool isPlaying) const {
-	render(shaderPool.get(ShaderDescription::createSolidDesc()), meshPool.getLine(), viewport, dimensions, pan, color, isPlaying);
+void GeometryRenderer::drawLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) const {
+	render(shaderPool.get(ShaderDescription::createSolidDesc()), meshPool.getLine(), viewport, dimensions, pan, color);
 }
 }
 /* namespace duke */

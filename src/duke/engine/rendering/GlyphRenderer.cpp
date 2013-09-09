@@ -20,7 +20,6 @@ uniform ivec2 gViewport;
 uniform ivec2 gImage;
 uniform ivec3 gPanAndChar;
 uniform float gZoom;
-uniform int gIsPlaying;
 
 out vec2 vVaryingTexCoord; 
 
@@ -163,7 +162,7 @@ void drawText(const GlyphRenderer &glyphRenderer, const Viewport &viewport, cons
 	const glm::ivec2 glyphDim = glm::ivec2(zoom * 8);
 	const glm::ivec2 rectDim = textDimensions(pText, glyphDim);
 	const glm::ivec2 viewportDim(viewport.dimension);
-	geometryRenderer.drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8), isPlaying);
+	geometryRenderer.drawRect(viewportDim, rectDim, glm::ivec2(x, y) + (rectDim - viewportDim) / 2 - glyphDim, glm::vec4(0, 0, 0, alpha * .8));
 
 	const int xOrigin = x;
 	const auto bound = glyphRenderer.begin(viewport);
