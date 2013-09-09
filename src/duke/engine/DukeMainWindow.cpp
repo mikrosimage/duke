@@ -246,7 +246,7 @@ void DukeMainWindow::run() {
 					glTexParameteri(texture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 					renderWithBoundTexture(m_GlyphRenderer.getGeometryRenderer().shaderPool, pSquare.get(), m_Context);
 				} else {
-					drawText(m_GlyphRenderer, m_Context.viewport, "missing frame", 100, 100, 1, 3);
+					drawText(m_GlyphRenderer, m_Context.viewport, "caching", 100, 100, 1, 3);
 				}
 			}
 			const auto& pOverlayTrack = pTrackItr->second.pOverlay;
