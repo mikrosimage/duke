@@ -34,6 +34,10 @@ ColorSpace resolveFromExtension(const char* pFileExtension) {
 	if (pFileExtension) {
 		if (streq(pFileExtension, "dpx"))
 			return ColorSpace::KodakLog;
+		if (streq(pFileExtension, "exr"))
+			return ColorSpace::Linear;
+		if (streq(pFileExtension, "jpg"))
+			return ColorSpace::sRGB;
 		if (streq(pFileExtension, "png"))
 			return ColorSpace::sRGB;
 	}
