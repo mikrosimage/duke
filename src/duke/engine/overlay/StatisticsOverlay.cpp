@@ -34,7 +34,7 @@ void StatisticsOverlay::render(const Context& context) const {
 						size_t rangeLength = frameLength * (range.last - range.first + 1);
 						geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2(rangeLength, height), //size
 						glm::ivec2(frameLength * (clip.first + range.first) + rangeLength / 2.f + xOffset, yOffset), //pan
-						glm::vec4(1, 1, 1, 0.4));//color 
+						glm::vec4(1, 1, 1, 0.4)); //color 
 					}
 			}
 		}
@@ -43,7 +43,7 @@ void StatisticsOverlay::render(const Context& context) const {
 	// draw cursor
 	geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2((frameLength < 1.0) ? 1.0 : frameLength, height), //size
 	glm::ivec2(frameLength * context.currentFrame.round() + frameLength / 2.f + xOffset, yOffset), //pan
-	glm::vec4(1, 1, 1, 1)); // color 
+	glm::vec4(1, 1, 1, 1)); //color 
 
 	//  draw infos
 	std::ostringstream oss;
