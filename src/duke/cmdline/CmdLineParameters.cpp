@@ -1,5 +1,7 @@
 #include "CmdLineParameters.hpp"
 
+#include <duke/memory/AvailableMemory.hpp>
+
 #include <stdexcept>
 #include <sstream>
 #include <cstring>
@@ -54,7 +56,9 @@ CmdLineParameters::CmdLineParameters(int argc, char**argv) {
             defaultFrameRate = FrameDuration::NTSC;
         else if (matches(pOption, "", "--pal"))
             defaultFrameRate = FrameDuration::PAL;
-        else if (matches(pOption, "-s", "--cache-size")) {
+        else if (matches(pOption, "", "--max-cache-size")) {
+            imageCacheSizeDefault = getTotalSystemMemory() * 80 / 100;
+        } else if (matches(pOption, "-s", "--cache-size")) {
             getArgs(argc, argv, ++i, imageCacheSizeDefault);
             imageCacheSizeDefault *= 1024 * 1024;
         } else if (matches(pOption, "", "--benchmark"))
@@ -89,6 +93,8 @@ void CmdLineParameters::printHelpMessage() const {
   -l, --list-formats         output supported formats and exit
   -s, --cache-size SIZE      size of the in-memory cache system in MiB,
                              default is %lu.
+      --max-cache-size       size of the in-memory cache system set to 80%%
+                             of machine memory.
   -t, --threads SIZE         specify the number of decoding threads,
                              defaults to %u for this machine.
 )", getDefaultCacheSize() / (1024 * 1024), getDefaultConcurrency());
