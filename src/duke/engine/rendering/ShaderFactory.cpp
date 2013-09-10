@@ -14,8 +14,16 @@ extern const char *pColorSpaceConversions;
 
 namespace  {
 
-std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace> asTuple(const ShaderDescription &sd) {
-	return std::make_tuple(sd.grayscale, sd.sampleTexture, sd.displayUv, sd.swapEndianness, sd.swapRedAndBlue, sd.tenBitUnpack, sd.colorspace);
+std::tuple<bool, bool, bool, bool, bool, bool, ColorSpace, ColorSpace> 
+asTuple(const ShaderDescription &sd) {
+	return std::make_tuple( sd.grayscale, 
+							sd.sampleTexture, 
+							sd.displayUv, 
+							sd.swapEndianness, 
+							sd.swapRedAndBlue, 
+							sd.tenBitUnpack, 
+							sd.fileColorspace,
+							sd.screenColorspace);
 }
 
 }  // namespace
@@ -37,14 +45,15 @@ ShaderDescription ShaderDescription::createSolidDesc() {
 	return description;
 }
 
-ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace) {
+ShaderDescription ShaderDescription::createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace fileColorspace, ColorSpace screenColorspace) {
 	ShaderDescription description;
 	description.grayscale = grayscale;
 	description.sampleTexture = true;
 	description.swapEndianness = swapEndianness;
 	description.swapRedAndBlue = swapRedAndBlue;
 	description.tenBitUnpack = tenBitUnpack;
-	description.colorspace = colorspace;
+	description.fileColorspace = fileColorspace;
+	description.screenColorspace = screenColorspace;
 	return description;
 }
 
@@ -207,8 +216,8 @@ std::string buildFragmentShaderSource(const ShaderDescription &description) {
 	oss << "#version 330" << endl;
 	if (description.sampleTexture) {
 		oss << pColorSpaceConversions << endl;
-		appendToLinearFunction(oss, description.colorspace);
-		appendToScreenFunction(oss, description.colorspace);
+		appendToLinearFunction(oss, description.fileColorspace);
+		appendToScreenFunction(oss, description.screenColorspace);
 		appendSwizzle(oss, description);
 		appendSampler(oss, description);
 		oss << pTexturedMain;

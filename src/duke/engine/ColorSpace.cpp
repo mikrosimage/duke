@@ -78,10 +78,11 @@ const char* getToScreenFunction(const ColorSpace fromColorspace) {
         case ColorSpace::AlexaLogC:
         case ColorSpace::KodakLog:
         case ColorSpace::Linear:
+            return "lintolin";
         case ColorSpace::sRGB:
         case ColorSpace::GammaCorrected:
-            return "lintosrgb";
         case ColorSpace::Auto:
+            return "lintosrgb"; // this is the default screen colorspace though
         default:
             throw std::runtime_error("ColorSpace must be resolved at this point");
     }
