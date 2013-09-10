@@ -1,4 +1,4 @@
-#include "AvailableMemory.h"
+#include "AvailableMemory.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
