@@ -12,12 +12,15 @@
 #include <string>
 #include <sstream>
 
+
 namespace duke {
 
 DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &parameters) :
 		DukeGLFWWindow(pWindow), m_CmdLine(parameters), m_Player(parameters), m_GlyphRenderer(m_GeometryRenderer) {
 	m_Context.pGlyphRenderer = &m_GlyphRenderer;
 	m_Context.pGeometryRenderer = &m_GeometryRenderer;
+	m_Context.fileColorSpace = parameters.inputColorSpace;
+	m_Context.screenColorSpace = parameters.outputColorSpace;
 
 	::glfwMakeContextCurrent(m_pWindow);
 	::glfwGetWindowSize(m_pWindow, &m_WindowDim.x, &m_WindowDim.y);
@@ -235,8 +238,21 @@ void DukeMainWindow::run() {
 			m_Context.pCurrentImage = nullptr;
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(frame);
 			const auto pMediaStream = mfr.first;
+
+
 			if (pMediaStream) {
 				auto pLoadedTexture = textureCache.getLoadedTexture(mfr);
+				// Mode where we force the texture to be ready before displaying something
+				if (m_CmdLine.unlimitedFPS) {
+					int MaxTry = 1000;
+					while (!pLoadedTexture) {
+						// The texture was not ready, re-ask for it
+						textureCache.prepare(frame, mode);
+						pLoadedTexture = textureCache.getLoadedTexture(mfr);
+						if (MaxTry--<=0)
+							continue; 
+					}
+				}
 				if (pLoadedTexture) {
 					m_Context.pCurrentImage = pLoadedTexture;
 					setupZoom();
@@ -266,6 +282,8 @@ void DukeMainWindow::run() {
 		const auto elapsedMicroSeconds = statisticOverlay.vBlankMetronom.tick();
 		const Time offset = m_CmdLine.unlimitedFPS ? m_Player.getFrameDuration() : Time(elapsedMicroSeconds);
 		m_Player.offsetPlaybackTime(offset);
+
+
 		m_Context.liveTime += Time(elapsedMicroSeconds.count(), 1000000);
 
 		if (frame != lastFrame) {
