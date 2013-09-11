@@ -54,7 +54,17 @@ vec3 srgbtolin(vec3 sample) {
 vec3 lintosrgb(vec3 sample) {
     sample = mix((1.055*pow(sample,vec3(1/2.4)))-vec3(0.055), 12.92*sample, lessThan(sample, vec3(0.0031308)));
     return clamp(sample, vec3(0), vec3(1));
-})";
+}
+vec3 rec709tolin(vec3 sample) {
+    return mix(pow((sample+0.099)/1.099,vec3(1/0.45)), sample/4.5, lessThan(sample, vec3(0.018)));
+}
+vec3 lintorec709(vec3 sample) {
+    sample = mix((1.099*pow(sample, vec3(0.45)))-vec3(0.099), 4.5*sample, lessThan(sample, vec3(0.018)));
+    return clamp(sample, vec3(0), vec3(1));
+}
+
+)";
+
 
 const char* getToLinearFunction(const ColorSpace fromColorspace) {
     switch (fromColorspace) {
@@ -67,6 +77,8 @@ const char* getToLinearFunction(const ColorSpace fromColorspace) {
         case ColorSpace::sRGB:
         case ColorSpace::GammaCorrected:
             return "srgbtolin";
+		case ColorSpace::Rec709:
+			return "rec709tolin";
         case ColorSpace::Auto:
         default:
             throw std::runtime_error("ColorSpace must be resolved at this point");
@@ -75,16 +87,16 @@ const char* getToLinearFunction(const ColorSpace fromColorspace) {
 
 const char* getToScreenFunction(const ColorSpace fromColorspace) {
     switch (fromColorspace) {
-        case ColorSpace::AlexaLogC:
-        case ColorSpace::KodakLog:
         case ColorSpace::Linear:
             return "lintolin";
+		case ColorSpace::Rec709:
+			return "lintorec709";
         case ColorSpace::sRGB:
         case ColorSpace::GammaCorrected:
         case ColorSpace::Auto:
             return "lintosrgb"; // this is the default screen colorspace though
         default:
-            throw std::runtime_error("ColorSpace must be resolved at this point");
+            throw std::runtime_error("Screen colorspace not handled");
     }
 }
 
