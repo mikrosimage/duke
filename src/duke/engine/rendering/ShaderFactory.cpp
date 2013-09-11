@@ -61,6 +61,9 @@ namespace {
 
 const char pSampleTenbitsUnpack[] =
 		R"(
+smooth in vec2 vVaryingTexCoord;
+uniform usampler2DRect gTextureSampler;
+
 vec4 unpack(uvec4 sample) {
 	uint red   = (sample.a << 2u) | (sample.b >> 6u);
 	uint green = ((sample.b & 0x3Fu) << 4u) | (sample.g >> 4u);
@@ -68,20 +71,45 @@ vec4 unpack(uvec4 sample) {
 	uint alpha = 1023u;//;((sample.r & 0x03u) << 8u);
 	return vec4(red, green, blue, alpha)/1023.;
 }
-smooth in vec2 vVaryingTexCoord;
-uniform usampler2DRect gTextureSampler;
-vec4 sample(vec2 offset) {
-	return unpack(swizzle(texture(gTextureSampler, vVaryingTexCoord+offset)));
+
+vec4 bilinear(usampler2DRect sampler, vec2 offset) {
+    vec4 tl = unpack(swizzle(texture(sampler, offset)));
+    vec4 tr = unpack(swizzle(texture(sampler, offset + vec2(1, 0))));
+    vec4 bl = unpack(swizzle(texture(sampler, offset + vec2(0, 1))));
+    vec4 br = unpack(swizzle(texture(sampler, offset + vec2(1, 1))));
+    vec2 f = fract(offset.xy);
+    vec4 tA = mix(tl, tr, f.x);
+    vec4 tB = mix(bl, br, f.x);
+	return mix(tA, tB, f.y);
 }
+
+vec4 nearest(usampler2DRect sampler, vec2 offset) {
+	return unpack(swizzle(texture(sampler, offset)));
+}
+
 )";
 
 const char pSampleRegular[] =
 		R"(
 smooth in vec2 vVaryingTexCoord;
 uniform sampler2DRect gTextureSampler;
-vec4 sample(vec2 offset) {
-	return swizzle(texture(gTextureSampler, vVaryingTexCoord+offset));
+
+
+vec4 bilinear(usampler2DRect sampler, vec2 offset) {
+    vec4 tl = swizzle(texture(sampler, offset));
+    vec4 tr = swizzle(texture(sampler, offset + vec2(1, 0)));
+    vec4 bl = swizzle(texture(sampler, offset + vec2(0, 1)));
+    vec4 br = swizzle(texture(sampler, offset + vec2(1, 1)));
+    vec2 f = fract(offset.xy);
+    vec4 tA = mix(tl, tr, f.x);
+    vec4 tB = mix(bl, br, f.x);
+	return mix(tA, tB, f.y);
 }
+
+vec4 nearest(usampler2DRect sampler, vec2 offset) {
+	return swizzle(texture(sampler, offset));
+}
+
 )";
 
 const char pTexturedMain[] =
@@ -196,7 +224,11 @@ void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
 }
 
 void appendSampler(ostream&stream, const ShaderDescription &description) {
+	const bool filtering = true; // Testing
+	const string filter(filtering ? "bilinear" : "nearest");
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
+	stream << "vec4 sample(vec2 offset) {"
+	"  return " << filter << "(gTextureSampler, vVaryingTexCoord+offset); }\n";
 }
 
 void appendSwizzle(ostream&stream, const ShaderDescription &description) {
