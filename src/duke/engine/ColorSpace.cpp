@@ -43,7 +43,7 @@ vec3 lintolin(vec3 sample) {
 	return sample;
 }
 vec3 alexatolin(vec3 sample) {
-    return mix(pow(vec3(10.0),((sample-0.385537)/0.247190)-0.052272)/5.555556 , (sample-0.092809)/5.367655, lessThan(sample, vec3(0.149658)));
+    return mix((pow(vec3(10.0),((sample-0.385537)/0.2471896))-0.052272)/5.555556 , (sample-0.092809)/5.367655, lessThan(sample, vec3(0.1496582)));
 }
 vec3 cineontolin(vec3 sample) {
 	return 1.010915615730753*(pow(vec3(10), (1023*sample-685)/300)-0.010797751623277);
