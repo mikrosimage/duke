@@ -19,7 +19,7 @@ enum class ApplicationMode {
 };
 
 struct CmdLineParameters {
-	CmdLineParameters(int argc, char**argv);
+	CmdLineParameters(int argc, const char* const * argv);
 	void printHelpMessage() const;
 	unsigned swapBufferInterval = 1;
 	bool fullscreen = false;
