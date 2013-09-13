@@ -61,61 +61,75 @@
 #include <cstdlib>               // for std::abs
 #include <limits>                // for std::numeric_limits
 #include <cassert>               // for assert
-
 namespace boost {
 
-class bad_rational : public std::domain_error
-{
+class bad_rational : public std::domain_error {
 public:
-    explicit bad_rational() : std::domain_error("bad rational: zero denominator") {}
+    explicit bad_rational() :
+                    std::domain_error("bad rational: zero denominator") {
+    }
 };
 
-template <typename IntType>
+template<typename IntType>
 class rational;
 
-template <typename IntType>
+template<typename IntType>
 rational<IntType> abs(const rational<IntType>& r);
 
-template <typename IntType>
-class rational
-{
+template<typename IntType>
+class rational {
     // Class-wide pre-conditions
     static_assert( ::std::numeric_limits<IntType>::is_specialized , "not specialized");
 
     // Helper types
     typedef IntType param_type;
 
-    struct helper { IntType parts[2]; };
-    typedef IntType (helper::* bool_type)[2];
+    struct helper {
+        IntType parts[2];
+    };
+    typedef IntType (helper::*bool_type)[2];
 
 public:
     typedef IntType int_type;
-    rational() : num(0), den(1) {}
-    rational(param_type n) : num(n), den(1) {}
-    rational(param_type n, param_type d) : num(n), den(d) { normalize(); }
+    rational() :
+                    num(0), den(1) {
+    }
+    rational(param_type n) :
+                    num(n), den(1) {
+    }
+    rational(param_type n, param_type d) :
+                    num(n), den(d) {
+        normalize();
+    }
 
     // Default copy constructor and assignment are fine
 
     // Add assignment from IntType
-    rational& operator=(param_type n) { return assign(n, 1); }
+    rational& operator=(param_type n) {
+        return assign(n, 1);
+    }
 
     // Assign in place
     rational& assign(param_type n, param_type d);
 
     // Access to representation
-    IntType numerator() const { return num; }
-    IntType denominator() const { return den; }
+    IntType numerator() const {
+        return num;
+    }
+    IntType denominator() const {
+        return den;
+    }
 
     // Arithmetic assignment operators
-    rational& operator+= (const rational& r);
-    rational& operator-= (const rational& r);
-    rational& operator*= (const rational& r);
-    rational& operator/= (const rational& r);
+    rational& operator+=(const rational& r);
+    rational& operator-=(const rational& r);
+    rational& operator*=(const rational& r);
+    rational& operator/=(const rational& r);
 
-    rational& operator+= (param_type i);
-    rational& operator-= (param_type i);
-    rational& operator*= (param_type i);
-    rational& operator/= (param_type i);
+    rational& operator+=(param_type i);
+    rational& operator-=(param_type i);
+    rational& operator*=(param_type i);
+    rational& operator/=(param_type i);
 
     // Arithmetic
     rational operator*(const rational& r) const;
@@ -133,23 +147,27 @@ public:
     const rational& operator--();
 
     // Operator not
-    bool operator!() const { return !num; }
+    bool operator!() const {
+        return !num;
+    }
 
     // Boolean conversion
 
-    operator bool_type() const { return operator !() ? 0 : &helper::parts; }
+    operator bool_type() const {
+        return operator !() ? 0 : &helper::parts;
+    }
 
     // Comparison operators
-    bool operator< (const rational& r) const;
-    bool operator> (const rational& r) const;
-    bool operator<= (const rational& r) const;
-    bool operator>= (const rational& r) const;
-    bool operator== (const rational& r) const;
-    bool operator!= (const rational& r) const;
+    bool operator<(const rational& r) const;
+    bool operator>(const rational& r) const;
+    bool operator<=(const rational& r) const;
+    bool operator>=(const rational& r) const;
+    bool operator==(const rational& r) const;
+    bool operator!=(const rational& r) const;
 
-    bool operator< (param_type i) const;
-    bool operator> (param_type i) const;
-    bool operator== (param_type i) const;
+    bool operator<(param_type i) const;
+    bool operator>(param_type i) const;
+    bool operator==(param_type i) const;
 
 private:
     // Implementation - numerator and denominator (normalized).
@@ -166,9 +184,8 @@ private:
 };
 
 // Assign in place
-template <typename IntType>
-inline rational<IntType>& rational<IntType>::assign(param_type n, param_type d)
-{
+template<typename IntType>
+inline rational<IntType>& rational<IntType>::assign(param_type n, param_type d) {
     num = n;
     den = d;
     normalize();
@@ -176,22 +193,19 @@ inline rational<IntType>& rational<IntType>::assign(param_type n, param_type d)
 }
 
 // Unary plus and minus
-template <typename IntType>
-inline rational<IntType> operator+ (const rational<IntType>& r)
-{
+template<typename IntType>
+inline rational<IntType> operator+(const rational<IntType>& r) {
     return r;
 }
 
-template <typename IntType>
-inline rational<IntType> operator- (const rational<IntType>& r)
-{
+template<typename IntType>
+inline rational<IntType> operator-(const rational<IntType>& r) {
     return rational<IntType>(-r.numerator(), r.denominator());
 }
 
 // Arithmetic assignment operators
-template <typename IntType>
-rational<IntType>& rational<IntType>::operator+= (const rational<IntType>& r)
-{
+template<typename IntType>
+rational<IntType>& rational<IntType>::operator+=(const rational<IntType>& r) {
     // This calculation avoids overflow, and minimises the number of expensive
     // calculations. Thanks to Nickolay Mladenov for this algorithm.
     //
@@ -219,14 +233,13 @@ rational<IntType>& rational<IntType>::operator+= (const rational<IntType>& r)
     num = num * (r_den / g) + r_num * den;
     g = math::gcd(num, g);
     num /= g;
-    den *= r_den/g;
+    den *= r_den / g;
 
     return *this;
 }
 
-template <typename IntType>
-rational<IntType>& rational<IntType>::operator-= (const rational<IntType>& r)
-{
+template<typename IntType>
+rational<IntType>& rational<IntType>::operator-=(const rational<IntType>& r) {
     // Protect against self-modification
     IntType r_num = r.num;
     IntType r_den = r.den;
@@ -238,14 +251,13 @@ rational<IntType>& rational<IntType>::operator-= (const rational<IntType>& r)
     num = num * (r_den / g) - r_num * den;
     g = math::gcd(num, g);
     num /= g;
-    den *= r_den/g;
+    den *= r_den / g;
 
     return *this;
 }
 
-template <typename IntType>
-rational<IntType>& rational<IntType>::operator*= (const rational<IntType>& r)
-{
+template<typename IntType>
+rational<IntType>& rational<IntType>::operator*=(const rational<IntType>& r) {
     // Protect against self-modification
     IntType r_num = r.num;
     IntType r_den = r.den;
@@ -253,14 +265,13 @@ rational<IntType>& rational<IntType>::operator*= (const rational<IntType>& r)
     // Avoid overflow and preserve normalization
     IntType gcd1 = math::gcd(num, r_den);
     IntType gcd2 = math::gcd(r_num, den);
-    num = (num/gcd1) * (r_num/gcd2);
-    den = (den/gcd2) * (r_den/gcd1);
+    num = (num / gcd1) * (r_num / gcd2);
+    den = (den / gcd2) * (r_den / gcd1);
     return *this;
 }
 
-template <typename IntType>
-rational<IntType>& rational<IntType>::operator/= (const rational<IntType>& r)
-{
+template<typename IntType>
+rational<IntType>& rational<IntType>::operator/=(const rational<IntType>& r) {
     // Protect against self-modification
     IntType r_num = r.num;
     IntType r_den = r.den;
@@ -269,16 +280,14 @@ rational<IntType>& rational<IntType>::operator/= (const rational<IntType>& r)
     IntType zero(0);
 
     // Trap division by zero
-    if (r_num == zero)
-        throw bad_rational();
-    if (num == zero)
-        return *this;
+    if (r_num == zero) throw bad_rational();
+    if (num == zero) return *this;
 
     // Avoid overflow and preserve normalization
     IntType gcd1 = math::gcd(num, r_num);
     IntType gcd2 = math::gcd(r_den, den);
-    num = (num/gcd1) * (r_den/gcd2);
-    den = (den/gcd2) * (r_num/gcd1);
+    num = (num / gcd1) * (r_den / gcd2);
+    den = (den / gcd2) * (r_num / gcd1);
 
     if (den < zero) {
         num = -num;
@@ -287,149 +296,134 @@ rational<IntType>& rational<IntType>::operator/= (const rational<IntType>& r)
     return *this;
 }
 
-template <typename IntType>
-rational<IntType> rational<IntType>::operator* (const rational<IntType>& r) const
-{
-	rational<IntType> copy(*this);
-	copy *= r;
-	return copy;
+template<typename IntType>
+rational<IntType> rational<IntType>::operator*(const rational<IntType>& r) const {
+    rational<IntType> copy(*this);
+    copy *= r;
+    return copy;
 }
 
-template <typename IntType>
-rational<IntType> rational<IntType>::operator/ (const rational<IntType>& r) const
-{
-	rational<IntType> copy(*this);
-	copy /= r;
-	return copy;
+template<typename IntType>
+rational<IntType> rational<IntType>::operator/(const rational<IntType>& r) const {
+    rational<IntType> copy(*this);
+    copy /= r;
+    return copy;
 }
 
-template <typename IntType>
-rational<IntType> rational<IntType>::operator+ (const rational<IntType>& r) const
-{
-	rational<IntType> copy(*this);
-	copy += r;
-	return copy;
+template<typename IntType>
+rational<IntType> rational<IntType>::operator+(const rational<IntType>& r) const {
+    rational<IntType> copy(*this);
+    copy += r;
+    return copy;
 }
 
-template <typename IntType>
-rational<IntType> rational<IntType>::operator- (const rational<IntType>& r) const
-{
-	rational<IntType> copy(*this);
-	copy -= r;
-	return copy;
+template<typename IntType>
+rational<IntType> rational<IntType>::operator-(const rational<IntType>& r) const {
+    rational<IntType> copy(*this);
+    copy -= r;
+    return copy;
 }
 
 // Mixed-mode operators
-template <typename IntType>
+template<typename IntType>
 inline rational<IntType>&
-rational<IntType>::operator+= (param_type i)
-{
-    return operator+= (rational<IntType>(i));
+rational<IntType>::operator+=(param_type i) {
+    return operator+=(rational<IntType>(i));
 }
 
-template <typename IntType>
+template<typename IntType>
 inline rational<IntType>&
-rational<IntType>::operator-= (param_type i)
-{
-    return operator-= (rational<IntType>(i));
+rational<IntType>::operator-=(param_type i) {
+    return operator-=(rational<IntType>(i));
 }
 
-template <typename IntType>
+template<typename IntType>
 inline rational<IntType>&
-rational<IntType>::operator*= (param_type i)
-{
-    return operator*= (rational<IntType>(i));
+rational<IntType>::operator*=(param_type i) {
+    return operator*=(rational<IntType>(i));
 }
 
-template <typename IntType>
+template<typename IntType>
 inline rational<IntType>&
-rational<IntType>::operator/= (param_type i)
-{
-    return operator/= (rational<IntType>(i));
+rational<IntType>::operator/=(param_type i) {
+    return operator/=(rational<IntType>(i));
 }
 
-template <typename IntType>
-inline rational<IntType>
-rational<IntType>::operator* (param_type i) const
-{
-    return operator* (rational<IntType>(i));
+template<typename IntType>
+inline rational<IntType> rational<IntType>::operator*(param_type i) const {
+    return operator*(rational<IntType>(i));
 }
 
-template <typename IntType>
-inline rational<IntType>
-rational<IntType>::operator/ (param_type i) const
-{
-    return operator/ (rational<IntType>(i));
+template<typename IntType>
+inline rational<IntType> rational<IntType>::operator/(param_type i) const {
+    return operator/(rational<IntType>(i));
 }
 
-template <typename IntType>
-inline rational<IntType>
-rational<IntType>::operator+ (param_type i) const
-{
-    return operator+ (rational<IntType>(i));
+template<typename IntType>
+inline rational<IntType> rational<IntType>::operator+(param_type i) const {
+    return operator+(rational<IntType>(i));
 }
 
-template <typename IntType>
-inline rational<IntType>
-rational<IntType>::operator- (param_type i) const
-{
-    return operator- (rational<IntType>(i));
+template<typename IntType>
+inline rational<IntType> rational<IntType>::operator-(param_type i) const {
+    return operator-(rational<IntType>(i));
 }
 
 // Increment and decrement
-template <typename IntType>
-inline const rational<IntType>& rational<IntType>::operator++()
-{
+template<typename IntType>
+inline const rational<IntType>& rational<IntType>::operator++() {
     // This can never denormalise the fraction
     num += den;
     return *this;
 }
 
-template <typename IntType>
-inline const rational<IntType>& rational<IntType>::operator--()
-{
+template<typename IntType>
+inline const rational<IntType>& rational<IntType>::operator--() {
     // This can never denormalise the fraction
     num -= den;
     return *this;
 }
 
 // Comparison operators
-template <typename IntType>
-bool rational<IntType>::operator< (const rational<IntType>& r) const
-{
+template<typename IntType>
+bool rational<IntType>::operator<(const rational<IntType>& r) const {
     // Avoid repeated construction
-    int_type const  zero( 0 );
+    int_type const zero(0);
 
     // This should really be a class-wide invariant.  The reason for these
     // checks is that for 2's complement systems, INT_MIN has no corresponding
     // positive, so negating it during normalization keeps it INT_MIN, which
     // is bad for later calculations that assume a positive denominator.
-    assert( this->den > zero );
-    assert( r.den > zero );
+    assert(this->den > zero);
+    assert(r.den > zero);
 
     // Determine relative order by expanding each value to its simple continued
     // fraction representation using the Euclidian GCD algorithm.
-    struct { int_type  n, d, q, r; }  ts = { this->num, this->den, this->num /
-     this->den, this->num % this->den }, rs = { r.num, r.den, r.num / r.den,
-     r.num % r.den };
-    unsigned  reverse = 0u;
+    struct {
+        int_type n, d, q, r;
+    } ts = { this->num, this->den, this->num / this->den, this->num % this->den }, rs = { r.num, r.den, r.num / r.den, r.num % r.den };
+    unsigned reverse = 0u;
 
     // Normalize negative moduli by repeatedly adding the (positive) denominator
     // and decrementing the quotient.  Later cycles should have all positive
     // values, so this only has to be done for the first cycle.  (The rules of
     // C++ require a nonnegative quotient & remainder for a nonnegative dividend
     // & positive divisor.)
-    while ( ts.r < zero )  { ts.r += ts.d; --ts.q; }
-    while ( rs.r < zero )  { rs.r += rs.d; --rs.q; }
+    while (ts.r < zero) {
+        ts.r += ts.d;
+        --ts.q;
+    }
+    while (rs.r < zero) {
+        rs.r += rs.d;
+        --rs.q;
+    }
 
     // Loop through and compare each variable's continued-fraction components
-    while ( true )
-    {
+    while (true) {
         // The quotients of the current cycle are the continued-fraction
         // components.  Comparing two c.f. is comparing their sequences,
         // stopping at the first difference.
-        if ( ts.q != rs.q )
-        {
+        if (ts.q != rs.q) {
             // Since reciprocation changes the relative order of two variables,
             // and c.f. use reciprocals, the less/greater-than test reverses
             // after each index.  (Start w/ non-reversed @ whole-number place.)
@@ -439,28 +433,28 @@ bool rational<IntType>::operator< (const rational<IntType>& r) const
         // Prepare the next cycle
         reverse ^= 1u;
 
-        if ( (ts.r == zero) || (rs.r == zero) )
-        {
+        if ((ts.r == zero) || (rs.r == zero)) {
             // At least one variable's c.f. expansion has ended
             break;
         }
 
-        ts.n = ts.d;         ts.d = ts.r;
-        ts.q = ts.n / ts.d;  ts.r = ts.n % ts.d;
-        rs.n = rs.d;         rs.d = rs.r;
-        rs.q = rs.n / rs.d;  rs.r = rs.n % rs.d;
+        ts.n = ts.d;
+        ts.d = ts.r;
+        ts.q = ts.n / ts.d;
+        ts.r = ts.n % ts.d;
+        rs.n = rs.d;
+        rs.d = rs.r;
+        rs.q = rs.n / rs.d;
+        rs.r = rs.n % rs.d;
     }
 
     // Compare infinity-valued components for otherwise equal sequences
-    if ( ts.r == rs.r )
-    {
+    if (ts.r == rs.r) {
         // Both remainders are zero, so the next (and subsequent) c.f.
         // components for both sequences are infinity.  Therefore, the sequences
         // and their corresponding values are equal.
         return false;
-    }
-    else
-    {
+    } else {
 #ifdef BOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4800)
@@ -469,23 +463,25 @@ bool rational<IntType>::operator< (const rational<IntType>& r) const
         // components of that variable are infinity, while the other variable
         // has a finite next c.f. component.  So that other variable has the
         // lesser value (modulo the reversal flag!).
-        return ( ts.r != zero ) != static_cast<bool>( reverse );
+        return (ts.r != zero) != static_cast<bool>(reverse);
 #ifdef BOOST_MSVC
 #pragma warning(pop)
 #endif
     }
 }
 
-template <typename IntType>
-bool rational<IntType>::operator< (param_type i) const
-{
+template<typename IntType>
+bool rational<IntType>::operator<(param_type i) const {
     // Avoid repeated construction
-    int_type const  zero( 0 );
+    int_type const zero(0);
 
     // Break value into mixed-fraction form, w/ always-nonnegative remainder
-    assert( this->den > zero );
-    int_type  q = this->num / this->den, r = this->num % this->den;
-    while ( r < zero )  { r += this->den; --q; }
+    assert(this->den > zero);
+    int_type q = this->num / this->den, r = this->num % this->den;
+    while (r < zero) {
+        r += this->den;
+        --q;
+    }
 
     // Compare with just the quotient, since the remainder always bumps the
     // value up.  [Since q = floor(n/d), and if n/d < i then q < i, if n/d == i
@@ -494,68 +490,58 @@ bool rational<IntType>::operator< (param_type i) const
     return q < i;
 }
 
-
-template <typename IntType>
-bool rational<IntType>::operator> (const rational<IntType>& r) const{
-	return !operator==(r) && !operator<(r);
+template<typename IntType>
+bool rational<IntType>::operator>(const rational<IntType>& r) const {
+    return !operator==(r) && !operator<(r);
 }
 
-template <typename IntType>
-bool rational<IntType>::operator> (param_type i) const
-{
+template<typename IntType>
+bool rational<IntType>::operator>(param_type i) const {
     // Trap equality first
-    if (num == i && den == IntType(1))
-        return false;
+    if (num == i && den == IntType(1)) return false;
 
     // Otherwise, we can use operator<
     return !operator<(i);
 }
 
-template <typename IntType>
-inline bool rational<IntType>::operator== (const rational<IntType>& r) const
-{
+template<typename IntType>
+inline bool rational<IntType>::operator==(const rational<IntType>& r) const {
     return ((num == r.num) && (den == r.den));
 }
 
-template <typename IntType>
-inline bool rational<IntType>::operator!= (const rational<IntType>& r) const
-{
+template<typename IntType>
+inline bool rational<IntType>::operator!=(const rational<IntType>& r) const {
     return !operator==(r);
 }
 
-template <typename IntType>
-inline bool rational<IntType>::operator== (param_type i) const
-{
+template<typename IntType>
+inline bool rational<IntType>::operator==(param_type i) const {
     return ((den == IntType(1)) && (num == i));
 }
 
-template <typename IntType>
-bool rational<IntType>::operator<= (const rational<IntType>& r) const {
-	return operator==(r) || operator<(r);
+template<typename IntType>
+bool rational<IntType>::operator<=(const rational<IntType>& r) const {
+    return operator==(r) || operator<(r);
 }
 
-template <typename IntType>
-bool rational<IntType>::operator>= (const rational<IntType>& r) const {
-	return operator==(r) || !operator<(r);
+template<typename IntType>
+bool rational<IntType>::operator>=(const rational<IntType>& r) const {
+    return operator==(r) || !operator<(r);
 }
 
 // Invariant check
-template <typename IntType>
-inline bool rational<IntType>::test_invariant() const
-{
-    return ( this->den > int_type(0) ) && ( math::gcd(this->num, this->den) ==
-     int_type(1) );
+template<typename IntType>
+inline bool rational<IntType>::test_invariant() const {
+    return (this->den > int_type(0)) && (math::gcd(this->num, this->den) == int_type(1));
 }
 
 // Normalisation
-template <typename IntType>
-void rational<IntType>::normalize()
-{
+template<typename IntType>
+void rational<IntType>::normalize() {
     // Avoid repeated construction
     IntType zero(0);
 
-    if (den == zero)
-        throw bad_rational();
+    if (den == zero) throw bad_rational();
 
     // Handle the case of zero separately, to avoid division by zero
     if (num == zero) {
@@ -574,53 +560,57 @@ void rational<IntType>::normalize()
         den = -den;
     }
 
-    assert( this->test_invariant() );
+    assert(this->test_invariant());
 }
 
 namespace detail {
 
-    // A utility class to reset the format flags for an istream at end
-    // of scope, even in case of exceptions
-    struct resetter {
-        resetter(std::istream& is) : is_(is), f_(is.flags()) {}
-        ~resetter() { is_.flags(f_); }
-        std::istream& is_;
-        std::istream::fmtflags f_;      // old GNU c++ lib has no ios_base
-    };
+// A utility class to reset the format flags for an istream at end
+// of scope, even in case of exceptions
+struct resetter {
+    resetter(std::istream& is) :
+                    is_(is), f_(is.flags()) {
+    }
+    ~resetter() {
+        is_.flags(f_);
+    }
+    std::istream& is_;
+    std::istream::fmtflags f_;      // old GNU c++ lib has no ios_base
+};
 
 }
 
 // Input and output
-template <typename IntType>
-std::istream& operator>> (std::istream& is, rational<IntType>& r)
-{
-    IntType n = IntType(0), d = IntType(1);
-    char c = 0;
+template<typename IntType>
+std::istream& operator>>(std::istream& is, rational<IntType>& r) {
     detail::resetter sentry(is);
 
-    is >> n;
-    c = is.get();
+    std::string entry;
+    is >> entry;
 
-    if (c != '/')
-        is.clear(std::istream::badbit);  // old GNU c++ lib has no ios_base
+    if (!is) return is;
 
-#if !defined(__GNUC__) || (defined(__GNUC__) && (__GNUC__ >= 3)) || defined __SGI_STL_PORT
-    is >> std::noskipws;
-#else
-    is.unsetf(ios::skipws); // compiles, but seems to have no effect.
-#endif
-    is >> d;
+    IntType n = IntType(0), d = IntType(1);
+    char* pEnd;
+    n = strtoll(entry.c_str(), &pEnd, 10);
 
-    if (is)
-        r.assign(n, d);
-
+    if (*pEnd == '/')
+        d = strtoll(pEnd + 1, &pEnd, 10);
+    else if (*pEnd == '.') {
+        const IntType frac = strtoll(pEnd + 1, &pEnd, 10);
+        for (IntType tmp = frac; tmp != 0; tmp /= 10) {
+            n *= 10;
+            d *= 10;
+        }
+        n += frac;
+    }
+    if (*pEnd == '\0') r.assign(n, d);
     return is;
 }
 
 // Add manipulators for output format?
-template <typename IntType>
-std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
-{
+template<typename IntType>
+std::ostream& operator<<(std::ostream& os, const rational<IntType>& r) {
     os << r.numerator() << '/' << r.denominator();
     return os;
 }
@@ -628,11 +618,9 @@ std::ostream& operator<< (std::ostream& os, const rational<IntType>& r)
 // Do not use any abs() defined on IntType - it isn't worth it, given the
 // difficulties involved (Koenig lookup required, there may not *be* an abs()
 // defined, etc etc).
-template <typename IntType>
-inline rational<IntType> abs(const rational<IntType>& r)
-{
-    if (r.numerator() >= IntType(0))
-        return r;
+template<typename IntType>
+inline rational<IntType> abs(const rational<IntType>& r) {
+    if (r.numerator() >= IntType(0)) return r;
 
     return rational<IntType>(-r.numerator(), r.denominator());
 }
