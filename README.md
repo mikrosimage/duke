@@ -1,8 +1,7 @@
-Duke version 2.0
+Duke version 2.0 [![Build Status](http://www.bbteam.fr:8090/buildStatus/icon?job=duke-develop)](http://www.bbteam.fr:8090/job/duke-develop/)
 ================
 
 Duke is an **opensource high resolution image and sequence viewer** dedicated to visual effect and post production companies.
-
 
 Current features
 ----------------
