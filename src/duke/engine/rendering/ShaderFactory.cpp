@@ -95,7 +95,7 @@ smooth in vec2 vVaryingTexCoord;
 uniform sampler2DRect gTextureSampler;
 
 
-vec4 bilinear(usampler2DRect sampler, vec2 offset) {
+vec4 bilinear(sampler2DRect sampler, vec2 offset) {
     vec4 tl = swizzle(texture(sampler, offset));
     vec4 tr = swizzle(texture(sampler, offset + vec2(1, 0)));
     vec4 bl = swizzle(texture(sampler, offset + vec2(0, 1)));
@@ -106,7 +106,7 @@ vec4 bilinear(usampler2DRect sampler, vec2 offset) {
 	return mix(tA, tB, f.y);
 }
 
-vec4 nearest(usampler2DRect sampler, vec2 offset) {
+vec4 nearest(sampler2DRect sampler, vec2 offset) {
 	return swizzle(texture(sampler, offset));
 }
 
@@ -151,7 +151,7 @@ void main(void)
 {
     vec4 color = vec4(0,0,0,0);
 
-    if(gZoom<1) {
+    if(gZoom<1 && false) {
         float span = 1/gZoom;
         float total = 0.0;
 
@@ -224,7 +224,11 @@ void appendToScreenFunction(ostream&stream, const ColorSpace colorspace) {
 }
 
 void appendSampler(ostream&stream, const ShaderDescription &description) {
+<<<<<<< HEAD
 	const bool filtering = true; // Testing
+=======
+	const bool filtering = false; // Testing
+>>>>>>> hot-fix
 	const string filter(filtering ? "bilinear" : "nearest");
 	stream << (description.tenBitUnpack ? pSampleTenbitsUnpack : pSampleRegular);
 	stream << "vec4 sample(vec2 offset) {"
