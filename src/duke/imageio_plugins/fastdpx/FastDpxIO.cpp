@@ -56,6 +56,21 @@ typedef struct _image_information {
 	} image_element[8]; /* NOTE THERE ARE EIGHT OF THESE */
 
 	unsigned char reserved[52]; /* reserved for future use (padding) */
+    unsigned int x_offset;                    
+    unsigned int y_offset;                    
+    float x_center;                    
+    float y_center;                    
+    unsigned int x_originalSize;              
+    unsigned int y_originalSize;              
+    char src_image_name[100];  
+    char src_time_date[24];   
+    char input_device[32];
+    char input_device_serial[32];
+    unsigned short border[4];
+    unsigned int aspect_ratio[2];
+
+
+
 } Image_Information;
 
 namespace duke {
@@ -91,6 +106,8 @@ public:
 
 		// metadata
 		m_Attributes.emplace_back("Orientation", (int) pImageInformation->orientation);
+		if (pImageInformation->aspect_ratio[1])
+			m_Attributes.emplace_back("PixelRatio", ((float) pImageInformation->aspect_ratio[0]) / ((float) pImageInformation->aspect_ratio[1])); 
 	}
 	virtual const void* getMappedImageData() const {
 		return m_pData;
