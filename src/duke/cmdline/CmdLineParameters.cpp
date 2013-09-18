@@ -112,6 +112,13 @@ void CmdLineParameters::printHelpMessage() const {
                                floating point (29.97)
                                rational number (30000/1001)
 
+      --inputspace           force the file colorspace, 
+                             [Linear, sRGB, Rec709, AlexaV3LogC, KodakLog]
+
+      --outputspace          force the display colorspace to one of 
+                             the following:
+                             [Linear, sRGB, Rec709]
+
   -f, --fullscreen           switch to fullscreen mode.
   -l, --list-formats         output supported formats and exit
   -s, --cache-size SIZE      size of the in-memory cache system in MiB,
