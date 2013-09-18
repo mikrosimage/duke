@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include <duke/time/FrameUtils.hpp>
+#include <duke/engine/ColorSpace.hpp>
 
 namespace duke {
 
@@ -29,6 +30,8 @@ struct CmdLineParameters {
 	ApplicationMode mode = ApplicationMode::DUKE;
 	FrameDuration defaultFrameRate = FrameDuration::PAL;
 	std::vector<std::string> additionnalOptions;
+	ColorSpace inputColorSpace = ColorSpace::Auto;
+	ColorSpace outputColorSpace = ColorSpace::Auto;
 
 	static unsigned getDefaultConcurrency();
 	static size_t getDefaultCacheSize();

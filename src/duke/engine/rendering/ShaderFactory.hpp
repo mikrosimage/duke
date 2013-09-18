@@ -15,12 +15,12 @@ struct ShaderDescription {
 	bool swapEndianness = false;
 	bool swapRedAndBlue = false;
 	bool tenBitUnpack = false;
-	ColorSpace colorspace = ColorSpace::Auto;
-
+	ColorSpace fileColorspace = ColorSpace::Auto;	// aka input colorspace
+	ColorSpace screenColorspace = ColorSpace::Auto; // aka output colorspace 
 	ShaderDescription() = default;
 	bool operator<(const ShaderDescription &other) const;
 
-	static ShaderDescription createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace colorspace);
+	static ShaderDescription createTextureDesc(bool grayscale, bool swapEndianness, bool swapRedAndBlue, bool tenBitUnpack, ColorSpace fileColorspace, ColorSpace screenColorspace);
 	static ShaderDescription createSolidDesc();
 	static ShaderDescription createUvDesc();
 };
