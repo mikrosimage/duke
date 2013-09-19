@@ -81,6 +81,16 @@ CmdLineParameters::CmdLineParameters(int argc, const char* const * argv) {
             mode = ApplicationMode::VERSION;
         else if (matches(pOption, "--list", "-l"))
             mode = ApplicationMode::LIST_SUPPORTED_FORMAT;
+        else if (matches(pOption, "", "--inputspace")) {
+			std::string colorSpaceString;
+			getArgs(argc, argv, ++i, colorSpaceString);
+			inputColorSpace = resolveFromName(colorSpaceString.c_str());
+		}
+        else if (matches(pOption, "", "--outputspace")) {
+			std::string colorSpaceString;
+			getArgs(argc, argv, ++i, colorSpaceString);
+			outputColorSpace = resolveFromName(colorSpaceString.c_str());
+		}
         else if (*pOption != '-')
             additionnalOptions.push_back(pOption);
         else
@@ -101,6 +111,13 @@ void CmdLineParameters::printHelpMessage() const {
                                integer (25),
                                floating point (29.97)
                                rational number (30000/1001)
+
+      --inputspace           force the file colorspace, 
+                             [Linear, sRGB, Rec709, AlexaV3LogC, KodakLog]
+
+      --outputspace          force the display colorspace to one of 
+                             the following:
+                             [Linear, sRGB, Rec709]
 
   -f, --fullscreen           switch to fullscreen mode.
   -l, --list-formats         output supported formats and exit
