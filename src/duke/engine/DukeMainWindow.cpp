@@ -369,7 +369,7 @@ void DukeMainWindow::run() {
 		commands.clear();
 
 		// check stop
-		running = !(shouldClose() || (keyPressed(GLFW_KEY_ESC)));
+		running = !(shouldClose() || (keyPressed(GLFW_KEY_ESCAPE)));
 
 		// dumping cache state every 200 ms
 		const auto now = duke_clock::now();

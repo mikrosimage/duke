@@ -109,8 +109,8 @@ GLFWwindow * initializeMainWindow(DukeGLFWApplication *pApplication, const CmdLi
 			throw std::runtime_error("No monitor detected");
 		pPrimaryMonitor = pMonitors[0];
 	}
-	GLFWvidmode desktopDefinition = glfwGetVideoMode(pPrimaryMonitor);
-	auto windowDefinition = glm::ivec2(desktopDefinition.width, desktopDefinition.height);
+	const GLFWvidmode* desktopDefinition = glfwGetVideoMode(pPrimaryMonitor);
+	auto windowDefinition = glm::ivec2(desktopDefinition->width, desktopDefinition->height);
 	if (!fullscreen)
 		windowDefinition /= 2;
 	return pApplication->createRawWindow(windowDefinition.x, windowDefinition.y, "", fullscreen ? pPrimaryMonitor : nullptr, nullptr);

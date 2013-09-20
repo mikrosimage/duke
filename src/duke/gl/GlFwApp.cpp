@@ -46,12 +46,12 @@ void onWindowRefreshFun(GLFWwindow *pWindow) {
     if (pDukeWindow->windowRefreshFunCallback)
         pDukeWindow->windowRefreshFunCallback();
 }
-void onMouseButtonFun(GLFWwindow *pWindow, int buttonId, int buttonState) {
+void onMouseButtonFun(GLFWwindow *pWindow, int buttonId, int buttonState, int modifier) {
     auto pDukeWindow = safeGetDukeWindow(pWindow);
     if (pDukeWindow->mouseButtonCallback)
         pDukeWindow->mouseButtonCallback(buttonId, buttonState);
 }
-void onMousePosFun(GLFWwindow *pWindow, int x, int y) {
+void onMousePosFun(GLFWwindow *pWindow, double x, double y) {
     auto pDukeWindow = safeGetDukeWindow(pWindow);
     if (pDukeWindow->mousePosCallback)
         pDukeWindow->mousePosCallback(x, y);
@@ -61,7 +61,7 @@ void onMouseWheelFun(GLFWwindow *pWindow, double x, double y) {
     if (pDukeWindow->scrollCallback)
         pDukeWindow->scrollCallback(x, y);
 }
-void onKeyFun(GLFWwindow *pWindow, int keyId, int keyState) {
+void onKeyFun(GLFWwindow *pWindow, int keyId, int scancode, int keyState, int modifier) {
     auto pDukeWindow = safeGetDukeWindow(pWindow);
     if (pDukeWindow->keyCallback)
         pDukeWindow->keyCallback(keyId, keyState);

@@ -22,7 +22,7 @@ public:
 	std::function<void(int width, int height)> windowResizeCallback;
 	std::function<void()> windowRefreshFunCallback;
 	std::function<void(int buttonId, int buttonState)> mouseButtonCallback;
-	std::function<void(int x, int y)> mousePosCallback;
+	std::function<void(double x, double y)> mousePosCallback;
 	std::function<void(double x, double y)> scrollCallback;
 	std::function<void(int key, int action)> keyCallback;
 	std::function<void(unsigned unicodeCodePoint)> charCallback;
