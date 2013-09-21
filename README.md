@@ -8,15 +8,15 @@ Binaries
 
 ### Stable v2.0
 
-* [![Build Status](http://www.bbteam.fr:8090/buildStatus/icon?job=duke-master/compiler=gcc)](http://www.bbteam.fr:8090/job/duke-master/compiler=gcc/) [Linux 64 / g++ 4.8](http://www.bbteam.fr:8090/job/duke-master/compiler=gcc/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
-* [![Build Status](http://www.bbteam.fr:8090/buildStatus/icon?job=duke-master/compiler=clang)](http://www.bbteam.fr:8090/job/duke-master/compiler=clang/) [Linux 64 / clang 3.3](http://www.bbteam.fr:8090/job/duke-master/compiler=clang/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
+* [![Build Status](https://www.bbteam.fr:8443/buildStatus/icon?job=duke-master/compiler=gcc)](https://www.bbteam.fr:8443/job/duke-master/compiler=gcc/) [Linux 64 / g++ 4.8](https://www.bbteam.fr:8443/job/duke-master/compiler=gcc/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
+* [![Build Status](https://www.bbteam.fr:8443/buildStatus/icon?job=duke-master/compiler=clang)](https://www.bbteam.fr:8443/job/duke-master/compiler=clang/) [Linux 64 / clang 3.3](https://www.bbteam.fr:8443/job/duke-master/compiler=clang/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
 * no Windows nor MacOsX binaries for now...
 
 
 ### Develop
 
-* [![Build Status](http://www.bbteam.fr:8090/buildStatus/icon?job=duke-develop/compiler=gcc)](http://www.bbteam.fr:8090/job/duke-develop/compiler=gcc/) [Linux 64 / g++ 4.8](http://www.bbteam.fr:8090/job/duke-develop/compiler=gcc/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
-* [![Build Status](http://www.bbteam.fr:8090/buildStatus/icon?job=duke-develop/compiler=clang)](http://www.bbteam.fr:8090/job/duke-develop/compiler=clang/) [Linux 64 / clang 3.3](http://www.bbteam.fr:8090/job/duke-develop/compiler=clang/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
+* [![Build Status](https://www.bbteam.fr:8443/buildStatus/icon?job=duke-develop/compiler=gcc)](https://www.bbteam.fr:8443/job/duke-develop/compiler=gcc/) [Linux 64 / g++ 4.8](https://www.bbteam.fr:8443/job/duke-develop/compiler=gcc/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
+* [![Build Status](https://www.bbteam.fr:8443/buildStatus/icon?job=duke-develop/compiler=clang)](https://www.bbteam.fr:8443/job/duke-develop/compiler=clang/) [Linux 64 / clang 3.3](https://www.bbteam.fr:8443/job/duke-develop/compiler=clang/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
 
 Current features
 ----------------
