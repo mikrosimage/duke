@@ -18,6 +18,8 @@ std::chrono::microseconds Metronom::tick() {
 }
 
 void Metronom::compute() {
+	if(m_Durations.empty())
+		return;
 	const auto min_max = std::minmax_element(m_Durations.begin(), m_Durations.end());
 	m_Min = *min_max.first;
 	m_Max = *min_max.second;
