@@ -1,5 +1,7 @@
-#include "duke/StringUtils.hpp"
 #include "duke/engine/ColorSpace.hpp"
+#include "duke/StringUtils.hpp"
+
+#include <stdexcept>
 
 namespace duke {
 
