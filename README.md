@@ -57,6 +57,12 @@ Compilation
 * Compilation
 
     see INSTALL file
+    
+**Known issues**
+
+GCC 4.7 is not supported due to an issue with `std::chrono`, you will need GCC 4.8.
+If you use Clang and don't use [Clang's standard library](http://libcxx.llvm.org/) then you will also need to rely on GCC 4.8 standard library.
+
 
 More informations 
 -----------------
