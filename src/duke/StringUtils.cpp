@@ -1,8 +1,8 @@
 #include "StringUtils.hpp"
 
 bool streq(const char* first, const char* second) {
-	if (first == nullptr || second == nullptr)
-		return false;
+    if (first == second)
+        return first; // same pointer or both nullptr
 	for (;; ++first, ++second) {
 		if (*first != *second)
 			return false;
