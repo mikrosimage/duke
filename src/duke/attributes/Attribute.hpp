@@ -37,22 +37,23 @@ public:
 	Attribute() : m_Name(nullptr), m_SmallData(0), m_Type(PrimitiveType::UNKNOWN),m_Size(0) {}
 
 	template<typename T, class = typename std::enable_if<std::is_fundamental<T>::value>::type>
-	Attribute(const char* name, T value) :
+	explicit Attribute(const char* name, T value) :
 			Attribute(name, reinterpret_cast<const char*>(&value), sizeof(T), ptraits<T>::value,0) {
 	}
 
 	template<typename T, class = typename std::enable_if<std::is_fundamental<T>::value>::type>
-	Attribute(const char* name, const std::vector<T> &v) :
+	explicit Attribute(const char* name, const std::vector<T> &v) :
 			Attribute(name, reinterpret_cast<const char*>(v.data()), v.size() * sizeof(T), ptraits<T>::value, v.size()) {
 	}
 
-	Attribute(const char* name, const char* pData) :
+	explicit Attribute(const char* name, const char* pData) :
 			Attribute(name, pData, strlen(pData)) {
 	}
 
-	Attribute(const char* name, const std::string &str) :
+	explicit Attribute(const char* name, const std::string &str) :
 			Attribute(name, str.c_str(), str.size()) {
 	}
+
 	explicit Attribute(const char* name, const char* pData, const size_t dataSize, PrimitiveType type, size_t len) :
 			m_Name(name), m_SmallData(0), m_Type(type), m_Size(len) {
 		const bool isSmall = dataSize <= sizeof(m_SmallData);
