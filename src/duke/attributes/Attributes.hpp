@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Attribute.hpp"
+
+#include <duke/StringUtils.hpp>
+
 #include <stdexcept>
 
 struct Attributes: public std::vector<Attribute> {
@@ -29,7 +32,7 @@ struct Attributes: public std::vector<Attribute> {
 	}
 	const Attribute* find(const char* name, PrimitiveType type, bool isVector = false) const {
 		for (const Attribute &attr : *this)
-			if (attr.type() == type && attr.name() == name && attr.isVector() == isVector)
+			if (streq(attr.name(), name) && attr.type() == type && attr.isVector() == isVector)
 				return &attr;
 		return nullptr;
 	}
