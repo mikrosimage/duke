@@ -8,7 +8,7 @@ using namespace std;
 TEST(Attribute,defaultCtor) {
 	Attribute attr;
 	EXPECT_EQ(nullptr, attr.data());
-	EXPECT_TRUE(attr.name().empty());
+	EXPECT_EQ(nullptr, attr.name());
 	EXPECT_EQ(0, attr.size());
 }
 TEST(Attribute,intValue) {
@@ -52,7 +52,7 @@ TEST(Attribute,badDereferencing) {
 TEST(Attribute,move) {
 	Attribute original("name", 100);
 	Attribute copy(std::move(original));
-	EXPECT_STREQ("name", copy.name().c_str());
+	EXPECT_STREQ("name", copy.name());
 	EXPECT_EQ(100, original.getScalar<int>());
 }
 TEST(Attribute,copy) {

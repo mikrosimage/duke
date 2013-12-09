@@ -28,13 +28,13 @@ private:
 			Attribute(name, pString, len + 1, PrimitiveType::CHAR,len) {
 	}
 private:
-	std::string m_Name;
+    const char* m_Name;
 	std::vector<char> m_ExternalData;
 	size_t m_SmallData;
 	PrimitiveType m_Type;
 	size_t m_Size;
 public:
-	Attribute() :  m_SmallData(0), m_Type(PrimitiveType::UNKNOWN),m_Size(0) {}
+	Attribute() : m_Name(nullptr), m_SmallData(0), m_Type(PrimitiveType::UNKNOWN),m_Size(0) {}
 
 	template<typename T, class = typename std::enable_if<std::is_fundamental<T>::value>::type>
 	Attribute(const char* name, T value) :
@@ -62,7 +62,7 @@ public:
 		memcpy(pDst, pData, dataSize);
 	}
 
-	const std::string& name() const {
+	const char* name() const {
 		return m_Name;
 	}
 
