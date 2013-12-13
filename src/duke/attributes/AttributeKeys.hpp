@@ -2,6 +2,7 @@
 
 namespace attribute {
 
+extern const char pDukeError[];
 extern const char pDukeFileExtensionKey[];
 extern const char pDukeFilePathKey[];
 extern const char pDukeFileNameKey[];
