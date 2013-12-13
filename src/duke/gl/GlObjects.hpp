@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 #include <duke/gl/GL.hpp>
 #include <duke/gl/GlObjectsDetails.hpp>
 

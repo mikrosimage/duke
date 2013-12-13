@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 #include <duke/engine/cache/LoadedImageCache.hpp>
 #include <duke/engine/cache/LoadedPboCache.hpp>
 #include <duke/engine/cache/TexturePackedFrame.hpp>

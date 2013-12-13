@@ -1,7 +1,7 @@
 #ifdef DUKE_FAST_DPX
 
 #include <duke/gl/GL.hpp>
-#include <duke/ByteSwap.hpp>              // for bswap_32
+#include <duke/base/ByteSwap.hpp>         // for bswap_32
 #include <duke/imageio/DukeIO.hpp>        // for IIODescriptor::Capability, etc
 #include <duke/attributes/Attributes.hpp> // for Attributes
 #include <duke/imageio/PackedFrameDescription.hpp>

@@ -1,5 +1,5 @@
 #include "duke/engine/ColorSpace.hpp"
-#include "duke/StringUtils.hpp"
+#include "duke/base/StringUtils.hpp"
 
 #include <stdexcept>
 

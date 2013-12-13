@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 
 #include <functional>
 

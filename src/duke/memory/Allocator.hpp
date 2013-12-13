@@ -1,7 +1,7 @@
 #pragma once
 
 #include <duke/memory/PageSize.hpp>
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 
 #include <cstddef> // size_t
 #include <cstdlib>

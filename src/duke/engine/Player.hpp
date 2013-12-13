@@ -3,7 +3,7 @@
 #include <duke/engine/cache/LoadedTextureCache.hpp>
 #include <duke/engine/Timeline.hpp>
 #include <duke/time/FrameUtils.hpp>
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 
 namespace duke {
 

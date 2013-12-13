@@ -2,7 +2,7 @@
 
 #include "Attribute.hpp"
 
-#include <duke/StringUtils.hpp>
+#include <duke/base/StringUtils.hpp>
 
 #include <stdexcept>
 

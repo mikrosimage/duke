@@ -35,8 +35,8 @@
 #pragma once
 
 #include <duke/imageio/RawPackedFrame.hpp>
-#include <duke/NonCopyable.hpp>
-#include <duke/StringUtils.hpp>
+#include <duke/base/NonCopyable.hpp>
+#include <duke/base/StringUtils.hpp>
 
 #include <cstddef>
 #include <string>

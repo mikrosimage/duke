@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 #include <duke/engine/rendering/MeshPool.hpp>
 #include <duke/engine/rendering/ShaderPool.hpp>
 #include <glm/glm.hpp>

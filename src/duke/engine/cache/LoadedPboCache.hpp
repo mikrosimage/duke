@@ -4,7 +4,7 @@
 #include <duke/engine/cache/TimelineIterator.hpp>
 #include <duke/gl/GlObjects.hpp>
 #include <duke/engine/cache/PboPool.hpp>
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 
 namespace duke {
 
