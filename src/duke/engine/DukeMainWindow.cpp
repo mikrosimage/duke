@@ -237,7 +237,7 @@ void DukeMainWindow::run() {
 
 			m_Context.pCurrentImage = nullptr;
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(frame);
-			const auto pMediaStream = mfr.first;
+			const auto pMediaStream = mfr.pStream;
 
 
 			if (pMediaStream) {

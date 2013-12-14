@@ -35,6 +35,7 @@
 #pragma once
 
 #include <duke/imageio/RawPackedFrame.hpp>
+#include <duke/base/Check.hpp>
 #include <duke/base/NonCopyable.hpp>
 #include <duke/base/StringUtils.hpp>
 
@@ -47,17 +48,14 @@ namespace duke {
 class IIODescriptor;
 
 class IImageReader: public noncopyable {
-private:
-	RawPackedFrame m_PackedFrame;
 protected:
+    virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) = 0;
 	const IIODescriptor * const m_pDescriptor;
-	PackedFrameDescription &m_Description;
-	Attributes &m_Attributes;
 	Attributes m_ReaderAttributes;
 	std::string m_Error;
+
 public:
-	IImageReader(const IIODescriptor * pDescriptor) :
-			m_pDescriptor(pDescriptor), m_Description(m_PackedFrame.description), m_Attributes(m_PackedFrame.attributes) {
+	IImageReader(const IIODescriptor * pDescriptor) : m_pDescriptor(pDescriptor) {
 	}
 	virtual ~IImageReader() {}
 	inline bool hasError() const {
@@ -69,14 +67,11 @@ public:
 	inline Attributes& getAttributes() {
 		return m_ReaderAttributes;
 	}
-	inline const RawPackedFrame& getRawPackedFrame() const {
-		return m_PackedFrame;
-	}
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;
 	}
-    virtual bool setup(const Attributes &input) {
-        return false;
+    bool setup(const Attributes& readerOptions, RawPackedFrame& packedFrame) {
+        return doSetup(readerOptions, packedFrame.description, packedFrame.attributes);
     }
 	virtual const void* getMappedImageData() const {
 		return nullptr;

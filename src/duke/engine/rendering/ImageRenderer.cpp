@@ -6,6 +6,7 @@
 #include <duke/engine/rendering/ShaderFactory.hpp>
 #include <duke/engine/rendering/ShaderPool.hpp>
 #include <duke/engine/rendering/ShaderConstants.hpp>
+#include <duke/filesystem/FsUtils.hpp>
 #include <duke/gl/Mesh.hpp>
 #include <duke/gl/Textures.hpp>
 #include <duke/engine/ColorSpace.hpp>
@@ -20,7 +21,7 @@ ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	original = resolveFromName(attributes.findString(attribute::pOiioColospaceKey));
 	if (original != ColorSpace::Auto)
 		return original;
-	return resolveFromExtension(attributes.findString(attribute::pDukeFileExtensionKey));
+    return resolveFromExtension(fileExtension(attributes.findString(attribute::pDukeFilePathKey)));
 }
 
 inline float getAspectRatio(glm::vec2 dim) {

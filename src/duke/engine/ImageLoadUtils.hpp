@@ -2,6 +2,7 @@
 
 #include <string>
 #include <functional>
+#include <duke/engine/streams/IIOOperation.hpp>
 
 struct PackedFrameDescription;
 struct Attributes;
@@ -10,11 +11,13 @@ namespace duke {
 
 struct RawPackedFrame;
 
-typedef std::function<void(RawPackedFrame&& packedFrame, const void* pVolatileData)> LoadCallback;
+typedef std::function<void(RawPackedFrame& packedFrame, const void* pVolatileData)> LoadCallback;
 
-bool load(const char* pFilename, const char* pExtension, const LoadCallback& callback, std::string &error);
+InputFrameOperationResult load(const Attributes& readOptions,
+                               const LoadCallback& callback,
+                               InputFrameOperationResult&& result);
 
 struct Texture;
-bool load(const char* pFilename, Texture& texture, Attributes &attributes, std::string &error);
+InputFrameOperationResult load(const char* pFilename, Texture& texture);
 
 } /* namespace duke */

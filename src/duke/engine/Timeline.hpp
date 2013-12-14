@@ -1,5 +1,7 @@
 #pragma once
 
+#include <duke/engine/streams/MediaFrameReference.hpp>
+
 #include <string>
 #include <vector>
 #include <map>
@@ -40,8 +42,6 @@ struct Clip {
 	std::shared_ptr<IMediaStream> pStream;
 	std::shared_ptr<IOverlay> pOverlay;
 };
-
-typedef std::pair<const IMediaStream*, size_t> MediaFrameReference;
 
 struct Track: public std::map<size_t, Clip> {
 	typedef value_type TrackClip;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <duke/NonCopyable.hpp>
+#include <duke/base/NonCopyable.hpp>
 #include <duke/engine/cache/TimelineIterator.hpp>
 #include <duke/engine/Timeline.hpp>
+#include <duke/engine/streams/IMediaStream.hpp>
 #include <duke/imageio/RawPackedFrame.hpp>
 #include <concurrent/cache/lookahead_cache.hpp>
 #include <thread>
@@ -28,7 +29,6 @@ private:
 	void startWorkers();
 	void stopWorkers();
 	void workerFunction();
-	std::string& workerStep(MediaFrameReference&, std::string&, std::string&);
 
 	typedef MediaFrameReference ID_TYPE;
 	typedef uint64_t METRIC_TYPE;

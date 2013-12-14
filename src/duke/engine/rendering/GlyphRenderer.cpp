@@ -92,9 +92,12 @@ void main(void)
 GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename) :
 		m_GeometryRenderer(renderer), //
 		m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)) {
-	std::string error;
-	if (!load(glyphsFilename, m_GlyphsTexture, m_Attributes, error))
-		throw std::runtime_error("unable to load glyphs texture");
+	InputFrameOperationResult result = load(glyphsFilename, m_GlyphsTexture);
+    if (result) {
+        m_Attributes = result.rawPackedFrame.attributes;
+    } else {
+        throw std::runtime_error("unable to load glyphs texture");
+    }
 }
 
 GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const {

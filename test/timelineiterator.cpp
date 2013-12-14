@@ -16,8 +16,11 @@ ostream& operator<<(ostream& stream, const Range &range) {
 
 class DummyMediaStream: public IMediaStream {
 public:
-	virtual void generateFilePath(string &path, size_t atFrame) const {
-	}
+    virtual InputFrameOperationResult process(const MediaFrameReference& mfr) const override {
+        InputFrameOperationResult result;
+        result.status = IOOperationResult::SUCCESS;
+        return result;
+    }
 };
 
 static shared_ptr<IMediaStream> pStream = make_shared<DummyMediaStream>();

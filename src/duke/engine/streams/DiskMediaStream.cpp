@@ -1,7 +1,23 @@
 #include "DiskMediaStream.hpp"
+
+#include <duke/base/Check.hpp>
+#include <duke/attributes/AttributeKeys.hpp>
+#include <duke/memory/Allocator.hpp>
+#include <duke/filesystem/FsUtils.hpp>
+#include <duke/engine/ImageLoadUtils.hpp>
+#include <duke/engine/streams/MediaFrameReference.hpp>
+#include <duke/imageio/DukeIO.hpp>
+
 #include <algorithm>
 
 namespace duke {
+
+namespace {
+
+AlignedMalloc gAlignedMallocator;
+BigAlignedBlock gBigAlignedMallocator;
+
+}  // namespace
 
 DiskMediaStream::DiskMediaStream(const sequence::Item& item) :
 		m_Item(item), m_ItemType(m_Item.getType()) {
@@ -15,23 +31,33 @@ DiskMediaStream::DiskMediaStream(const sequence::Item& item) :
 	}
 }
 
-void DiskMediaStream::generateFilePath(std::string &path, size_t atFrame) const {
+// Several threads will access this function at the same time.
+InputFrameOperationResult DiskMediaStream::process(const MediaFrameReference& mfr) const {
+    InputFrameOperationResult result;
+    result.attributes().emplace_back(attribute::pDukeFilePathKey, generateFilePath(mfr.frame));
+    return duke::load(getAttributes(), [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
+        if(!packedFrame.pData) {
+            const size_t dataSize = packedFrame.description.dataSize;
+            packedFrame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
+            memcpy(packedFrame.pData.get(), pVolatileData, dataSize);
+        }
+    },std::move(result));
+}
+
+std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 	switch (m_ItemType) {
 	case sequence::Item::INVALID:
 	case sequence::Item::INDICED:
-		path.clear();
-		break;
+		return std::string();
 	case sequence::Item::PACKED:
-		writeFilename(path, atFrame + m_Item.start);
-		break;
+		return writeFilename(atFrame + m_Item.start);
 	case sequence::Item::SINGLE:
-		path = m_Item.filename;
-		break;
+		return m_Item.filename;
 	}
 }
 
-void DiskMediaStream::writeFilename(std::string &path, size_t frame) const {
-	path = m_Prefix;
+std::string DiskMediaStream::writeFilename(size_t frame) const {
+	std::string path = m_Prefix;
 	size_t padding = 0;
 	for (; frame != 0; frame /= 10, ++padding)
 		path.push_back('0' + (frame % 10));
@@ -40,6 +66,7 @@ void DiskMediaStream::writeFilename(std::string &path, size_t frame) const {
 			path.push_back('0');
 	std::reverse(path.begin() + path.size() - padding, path.end());
 	path += m_Suffix;
+	return path;
 }
 
 } /* namespace duke */

@@ -11,8 +11,11 @@ using namespace duke;
 
 class DummyMediaStream: public IMediaStream {
 public:
-	virtual void generateFilePath(string &path, size_t atFrame) const {
-	}
+    virtual InputFrameOperationResult process(const MediaFrameReference& mfr) const override {
+        InputFrameOperationResult result;
+        result.status = IOOperationResult::SUCCESS;
+        return result;
+    }
 };
 
 TEST(Track,findClip) {
@@ -98,7 +101,7 @@ TEST(Timeline,findClips) {
 			if(frame<0) {
 				EXPECT_EQ(MediaFrameReference(), actual);
 			} else {
-				EXPECT_EQ(frame, actual.second);
+				EXPECT_EQ(frame, actual.frame);
 			}
 		};
 		checkOne(frameA, refs[0]);

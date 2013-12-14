@@ -140,44 +140,45 @@ public:
 			m_Error = "can't read volume images";
 			return;
 		}
-		m_Description.width = m_Spec.width;
-		m_Description.height = m_Spec.height;
-
-		if (m_Spec.channelnames != RGB && m_Spec.channelnames != RGBA && m_Spec.channelnames != A) {
-			m_Error = "Can only handle RGB, RGBA and A images for now, was '";
-			for (const auto& string : m_Spec.channelnames)
-				m_Error += string;
-			m_Error += "'";
-			return;
-		}
-
-		m_Description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
-		m_Description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
-
-//		m_Attributes.emplace_back("Orientation", 0);
-		for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
-			const TypeDesc& oiio_type = paramvalue.type();
-			const PrimitiveType type = getAttributeType(static_cast<TypeDesc::BASETYPE>(oiio_type.basetype));
-			if (type == PrimitiveType::UNKNOWN)
-				continue;
-			const char* name = paramvalue.name().c_str();
-			if (oiio_type.basetype == TypeDesc::STRING) {
-				const char* pData = *reinterpret_cast<const char* const *>(paramvalue.data());
-				m_Attributes.emplace_back(name, pData);
-			} else {
-				const size_t nvalues = paramvalue.nvalues() * oiio_type.aggregate;
-				const char* pData = reinterpret_cast<const char*>(paramvalue.data());
-				const size_t datasize = paramvalue.datasize();
-				const size_t attr_nvalues = nvalues == 1 ? 0 : nvalues;
-				m_Attributes.emplace_back(name, pData, datasize, type, attr_nvalues);
-			}
-		}
+        if (m_Spec.channelnames != RGB && m_Spec.channelnames != RGBA && m_Spec.channelnames != A) {
+            m_Error = "Can only handle RGB, RGBA and A images for now, was '";
+            for (const auto& string : m_Spec.channelnames)
+                m_Error += string;
+            m_Error += "'";
+            return;
+        }
 	}
 
 	~OpenImageIOReader() {
 		if (m_pImageInput)
 			m_pImageInput->close();
 	}
+
+	virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
+        description.width = m_Spec.width;
+        description.height = m_Spec.height;
+        description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
+        description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
+
+        //      m_Attributes.emplace_back("Orientation", 0);
+        for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
+            const TypeDesc& oiio_type = paramvalue.type();
+            const PrimitiveType type = getAttributeType(static_cast<TypeDesc::BASETYPE>(oiio_type.basetype));
+            if (type == PrimitiveType::UNKNOWN) continue;
+            const char* name = paramvalue.name().c_str();
+            if (oiio_type.basetype == TypeDesc::STRING) {
+                const char* pData = *reinterpret_cast<const char* const *>(paramvalue.data());
+                attributes.emplace_back(name, pData);
+            } else {
+                const size_t nvalues = paramvalue.nvalues() * oiio_type.aggregate;
+                const char* pData = reinterpret_cast<const char*>(paramvalue.data());
+                const size_t datasize = paramvalue.datasize();
+                const size_t attr_nvalues = nvalues == 1 ? 0 : nvalues;
+                attributes.emplace_back(name, pData, datasize, type, attr_nvalues);
+            }
+        }
+        return true;
+    }
 
 	virtual void readImageDataTo(void* pData) {
 		if (!m_pImageInput)
