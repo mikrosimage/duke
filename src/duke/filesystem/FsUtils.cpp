@@ -21,7 +21,7 @@ FileStatus getFileStatus(const char* filename) {
 }
 
 const char* fileExtension(const char* pFilename) {
-	const char* pDot = strrchr(pFilename, '.');
+	const char* pDot = pFilename ? strrchr(pFilename, '.') : nullptr;
 	if (!pDot)
 		return nullptr;
 	return ++pDot;
