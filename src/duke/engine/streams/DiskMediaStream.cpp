@@ -14,7 +14,6 @@ namespace duke {
 
 namespace {
 
-AlignedMalloc gAlignedMallocator;
 BigAlignedBlock gBigAlignedMallocator;
 
 }  // namespace
@@ -48,7 +47,7 @@ std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 	switch (m_ItemType) {
 	case sequence::Item::INVALID:
 	case sequence::Item::INDICED:
-		return std::string();
+		return {};
 	case sequence::Item::PACKED:
 		return writeFilename(atFrame + m_Item.start);
 	case sequence::Item::SINGLE:
