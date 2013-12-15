@@ -19,23 +19,24 @@ AlignedMalloc alignedMalloc;
 
 InputFrameOperationResult error(const std::string& error, InputFrameOperationResult& result) {
     result.error = error;
+    result.status = IOOperationResult::FAILURE;
     return move(result);
 }
 
 InputFrameOperationResult loadImage(IImageReader *pRawReader, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+    CHECK(pRawReader);
     std::unique_ptr<IImageReader> pReader(pRawReader);
-    if (!pReader) return error("bad state : IImageReader==nullptr", result);
     if (pReader->hasError()) return error(pReader->getError(), result);
     RawPackedFrame& packedFrame = result.rawPackedFrame;
     if (!pReader->setup(readOptions, packedFrame)) return error(pReader->getError(), result);
     const void* pMapped = pReader->getMappedImageData();
-    if (pMapped == nullptr) {
+    if (pMapped) {
+        callback(packedFrame, pMapped);
+    } else {
         packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
         pReader->readImageDataTo(packedFrame.pData.get());
         if (pReader->hasError()) return error(pReader->getError(), result);
         callback(packedFrame, packedFrame.pData.get());
-    } else {
-        callback(packedFrame, pMapped);
     }
     result.status = IOOperationResult::SUCCESS;
     return move(result);
