@@ -17,22 +17,22 @@ namespace {
 
 AlignedMalloc alignedMalloc;
 
-InputFrameOperationResult err(const std::string& error, InputFrameOperationResult& result) {
+InputFrameOperationResult error(const std::string& error, InputFrameOperationResult& result) {
     result.error = error;
     return move(result);
 }
 
 InputFrameOperationResult loadImage(IImageReader *pRawReader, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     std::unique_ptr<IImageReader> pReader(pRawReader);
-    if (!pReader) return err("bad state : IImageReader==nullptr", result);
-    if (pReader->hasError()) return err(pReader->getError(), result);
+    if (!pReader) return error("bad state : IImageReader==nullptr", result);
+    if (pReader->hasError()) return error(pReader->getError(), result);
     RawPackedFrame& packedFrame = result.rawPackedFrame;
-    if (!pReader->setup(readOptions, packedFrame)) return err(pReader->getError(), result);
+    if (!pReader->setup(readOptions, packedFrame)) return error(pReader->getError(), result);
     const void* pMapped = pReader->getMappedImageData();
     if (pMapped == nullptr) {
         packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
         pReader->readImageDataTo(packedFrame.pData.get());
-        if (pReader->hasError()) return err(pReader->getError(), result);
+        if (pReader->hasError()) return error(pReader->getError(), result);
         callback(packedFrame, packedFrame.pData.get());
     } else {
         callback(packedFrame, pMapped);
@@ -44,10 +44,7 @@ InputFrameOperationResult loadImage(IImageReader *pRawReader, const Attributes& 
 InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *pDescriptor, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
         MemoryMappedFile file(filename);
-        if (!file) {
-            result.error = "unable to map file to memory";
-            return move(result);
-        }
+        if (!file) return error("unable to map file to memory", result);
         return loadImage(pDescriptor->getReaderFromMemory(file.pFileData, file.fileSize), readOptions, callback, move(result));
     } else {
         return loadImage(pDescriptor->getReaderFromFile(filename), readOptions, callback, move(result));
@@ -56,31 +53,21 @@ InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *p
 
 InputFrameOperationResult load(const char* pFilename, const char *pExtension, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
-    if (descriptors.empty()) {
-        result.error = "no reader available";
-        return move(result);
-    }
+    if (descriptors.empty()) return error("no reader available", result);
     for (const IIODescriptor *pDescriptor : descriptors) {
         result = tryReader(pFilename, pDescriptor, readOptions, callback, move(result));
         if (result) return move(result);
     }
-    result.error = "no reader succeeded, last message was : '" + result.error + "'";
-    return move(result);
+    return error("no reader succeeded, last message was : '" + result.error + "'", result);
 }
 
 }  // namespace
 
 InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     const char* pFilename = result.attributes().findString(attribute::pDukeFilePathKey);
-    if (!pFilename) {
-        result.error = "no filename";
-        return move(result);
-    }
+    if (!pFilename) return error("no filename", result);
     const char* pExtension = fileExtension(pFilename);
-    if (!pExtension) {
-        result.error = "no extension";
-        return move(result);
-    }
+    if (!pExtension) return error("no extension", result);
     return load(pFilename, pExtension, readOptions, callback, move(result));
 }
 
