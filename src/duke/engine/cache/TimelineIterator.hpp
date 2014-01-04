@@ -4,6 +4,9 @@
 
 namespace duke {
 
+/**
+ * Return all the clip's ranges sorted by start time
+ */
 Ranges getMediaRanges(const Timeline &timeline);
 bool contains(const Ranges &range, size_t frame);
 
