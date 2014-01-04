@@ -1,6 +1,7 @@
 #include "DiskMediaStream.hpp"
 
 #include <duke/base/Check.hpp>
+#include <duke/base/StringUtils.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/memory/Allocator.hpp>
 #include <duke/filesystem/FsUtils.hpp>
@@ -56,16 +57,14 @@ std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 }
 
 std::string DiskMediaStream::writeFilename(size_t frame) const {
-	std::string path = m_Prefix;
-	size_t padding = 0;
-	for (; frame != 0; frame /= 10, ++padding)
-		path.push_back('0' + (frame % 10));
-	if (m_Item.padding > 0)
-		for (; padding < (size_t) m_Item.padding; ++padding)
-			path.push_back('0');
-	std::reverse(path.begin() + path.size() - padding, path.end());
-	path += m_Suffix;
-	return path;
+    const size_t paddingSize = m_Item.padding > 0 ? m_Item.padding : digits(frame);
+    const size_t bufferSize = m_Prefix.size() + paddingSize + m_Suffix.size();
+    std::string path;
+    path.reserve(bufferSize);
+    path += m_Prefix;
+    appendPaddedFrameNumber(frame, paddingSize, path);
+    path += m_Suffix;
+    return path;
 }
 
 } /* namespace duke */
