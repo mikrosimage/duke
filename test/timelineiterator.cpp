@@ -231,13 +231,3 @@ TEST(TimelineMediaRange, oneTrack) {
 		EXPECT_EQ(Range(0,2), ranges[0]);
 	}
 }
-
-TEST(TimelineMediaRange, contains) {
-	EXPECT_TRUE(contains(Ranges {Range(0,0)}, 0));
-	EXPECT_FALSE(contains(Ranges {Range(0,0)}, 1));
-	Ranges ranges { Range(0, 0), Range(2, 2) };
-	EXPECT_TRUE(contains(ranges, 0));
-	EXPECT_FALSE(contains(ranges, 1));
-	EXPECT_TRUE(contains(ranges, 2));
-	EXPECT_FALSE(contains(ranges, 3));
-}
