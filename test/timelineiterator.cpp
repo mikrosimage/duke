@@ -65,9 +65,9 @@ TEST(TrackMediaFrameIterator, noMedia) {
 }
 
 TEST(FrameIterator, emptiness) {
-	EXPECT_TRUE(FrameIterator(nullptr,0UL).empty());
-	Ranges ranges;
-	EXPECT_TRUE(FrameIterator(&ranges,0UL).empty());
+    EXPECT_TRUE(FrameIterator(nullptr, 0UL, IterationMode::FORWARD).empty());
+    Ranges ranges;
+    EXPECT_TRUE(FrameIterator(&ranges, 0UL, IterationMode::FORWARD).empty());
 }
 
 static void checkIteration(FrameIterator &&itr, const vector<size_t> &frames) {
@@ -123,13 +123,13 @@ TEST(FrameIterator, limitedIterations) {
 }
 
 TEST(TimelineIterator, emptiness) {
-	EXPECT_TRUE(TimelineIterator().empty());
-	Timeline timeline;
-	Ranges mediaRanges = getMediaRanges(timeline);
-	EXPECT_TRUE(TimelineIterator(&timeline, &mediaRanges,0).empty());
-	timeline.emplace_back(); // adding an empty track
-	mediaRanges = getMediaRanges(timeline);
-	EXPECT_TRUE(TimelineIterator(&timeline, &mediaRanges,0).empty());
+    EXPECT_TRUE(TimelineIterator().empty());
+    Timeline timeline;
+    Ranges mediaRanges = getMediaRanges(timeline);
+    EXPECT_TRUE(TimelineIterator(&timeline, &mediaRanges, 0, IterationMode::FORWARD).empty());
+    timeline.emplace_back(); // adding an empty track
+    mediaRanges = getMediaRanges(timeline);
+    EXPECT_TRUE(TimelineIterator(&timeline, &mediaRanges, 0, IterationMode::FORWARD).empty());
 }
 
 TEST(TimelineIterator, oneFrameStartingFromTheFrame) {
@@ -137,7 +137,7 @@ TEST(TimelineIterator, oneFrameStartingFromTheFrame) {
 	Track &track = timeline.back();
 	track.add(0, Clip { 1, pStream });
 	const Ranges mediaRanges = getMediaRanges(timeline);
-	TimelineIterator itr(&timeline, &mediaRanges, 0);
+	TimelineIterator itr(&timeline, &mediaRanges, 0, IterationMode::FORWARD);
 	EXPECT_FALSE(itr.empty());
 	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
 	EXPECT_TRUE(itr.empty());
@@ -149,7 +149,7 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 	track.add(0, Clip { 1, pStream });
 	const Ranges mediaRanges = getMediaRanges(timeline);
 	EXPECT_FALSE(mediaRanges.empty());
-	TimelineIterator itr(&timeline, &mediaRanges, 100);
+	TimelineIterator itr(&timeline, &mediaRanges, 100, IterationMode::FORWARD);
 	EXPECT_FALSE(itr.empty());
 	EXPECT_EQ(MediaFrameReference(pStream.get(),0), itr.next());
 	EXPECT_TRUE(itr.empty());
@@ -176,7 +176,7 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 	const IMediaStream *pStream4 = track1.rbegin()->second.pStream.get();
 	const Ranges mediaRange = getMediaRanges(timeline);
 	{
-		TimelineIterator itr(&timeline, &mediaRange, 0);
+		TimelineIterator itr(&timeline, &mediaRange, 0, IterationMode::FORWARD);
 		EXPECT_FALSE(itr.empty());
 		EXPECT_EQ(MediaFrameReference(pStream1,0UL), itr.next());
 		EXPECT_EQ(MediaFrameReference(pStream2,0UL), itr.next());
@@ -188,7 +188,7 @@ TEST(TimelineIterator, oneFrameStartingFromElsewhere) {
 		EXPECT_TRUE(itr.empty());
 	}
 	{
-		TimelineIterator itr(&timeline, &mediaRange, 1);
+        TimelineIterator itr(&timeline, &mediaRange, 1, IterationMode::FORWARD);
 		EXPECT_FALSE(itr.empty());
 		EXPECT_EQ(MediaFrameReference(pStream2,0UL), itr.next());
 		EXPECT_EQ(MediaFrameReference(pStream2,1UL), itr.next());

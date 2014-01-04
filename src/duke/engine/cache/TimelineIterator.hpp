@@ -29,7 +29,7 @@ enum class IterationMode
 };
 
 struct FrameIterator {
-	FrameIterator(const Ranges *pMediaRanges, size_t initialFrame, IterationMode mode = IterationMode::FORWARD);
+	FrameIterator(const Ranges *pMediaRanges, size_t initialFrame, IterationMode mode);
 
 	FrameIterator& setMaxIterations(size_t maxIterations);
 
@@ -48,7 +48,7 @@ private:
 
 struct TimelineIterator {
 	TimelineIterator();
-	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode = IterationMode::FORWARD);
+	TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode);
 
 	inline void setMaxFrameIterations(size_t maxIterations) {
 		m_FrameIterator.setMaxIterations(maxIterations);

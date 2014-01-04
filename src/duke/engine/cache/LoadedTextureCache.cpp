@@ -26,7 +26,7 @@ void LoadedTextureCache::prepare(size_t frame, IterationMode mode) {
 		m_LastFrame = frame;
 	}
 	m_FrameMedia.clear();
-	TimelineIterator itr(&m_Timeline, &m_TimelineRanges, frame);
+	TimelineIterator itr(&m_Timeline, &m_TimelineRanges, frame, IterationMode::FORWARD);
 	itr.setMaxFrameIterations(2); // loading this frame and prefetching next one
 	for (; !itr.empty();) {
 		const auto mfr = itr.next();

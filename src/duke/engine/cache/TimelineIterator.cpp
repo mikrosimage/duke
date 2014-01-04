@@ -146,7 +146,7 @@ FrameIterator& FrameIterator::setMaxIterations(size_t maxIterations) {
 }
 
 TimelineIterator::TimelineIterator() :
-		TimelineIterator(nullptr, nullptr, 0) {
+		TimelineIterator(nullptr, nullptr, 0, IterationMode::FORWARD) {
 }
 
 TimelineIterator::TimelineIterator(const Timeline * pTimeline, const Ranges *pMediaRanges, size_t currentFrame, IterationMode mode) :
