@@ -54,6 +54,7 @@ std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 	case sequence::Item::SINGLE:
 		return m_Item.filename;
 	}
+	return {};
 }
 
 std::string DiskMediaStream::writeFilename(size_t frame) const {
