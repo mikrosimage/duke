@@ -91,5 +91,11 @@ TEST(SmallVector, Less) {
 }
 
 TEST(SmallVector, Move) {
-    // TODO
+    CharVector tmp { '1' };
+    EXPECT_EQ(tmp.size(), 1);
+    EXPECT_EQ(*tmp.data(), '1');
+    CharVector moved(std::move(tmp));
+    EXPECT_EQ(tmp.size(), 0);
+    EXPECT_EQ(moved.size(), 1);
+    EXPECT_EQ(*moved.data(), '1');
 }

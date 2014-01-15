@@ -5,24 +5,26 @@
 /**
  * Vector implementation with small data optimization.
  *
- * This vector will not allocate memory is data is less than kSmallSize.
+ * This vector will not allocate memory if data is less than kSmallSize.
+ * Default size ensures sizeof(SmallVector) == 32 and allows good
+ * alignment and cache locality.
  */
-template<typename T>
+template<typename T, int SmallSize = 32 - sizeof(size_t)>
 class SmallVector {
 public:
     SmallVector() {
     }
-    explicit SmallVector(const T* pData, size_t size) {
+    SmallVector(const T* pData, size_t size) {
         allocateAndSet(pData, size);
     }
-    explicit SmallVector(const SmallVector& other) :
+    SmallVector(const SmallVector& other) :
                     SmallVector(other.addressof(), other.m_Size) {
     }
-    explicit SmallVector(SmallVector&& tmp) {
-        std::swap(m_SmallData, tmp.m_SmallData);
-        std::swap(m_Size, tmp.m_Size);
+    SmallVector(SmallVector&& tmp) {
+        memcpy(this, &tmp, sizeof(SmallVector<T>));
+        tmp.m_Size = 0;
     }
-    explicit SmallVector(std::initializer_list<T> il) :
+    SmallVector(std::initializer_list<T> il) :
                     SmallVector(il.begin(), il.size()) {
     }
     ~SmallVector() {
@@ -58,7 +60,7 @@ public:
     const T* end() const {
         return addressof() + m_Size;
     }
-    enum { kSmallSize = 16 };
+    enum { kSmallSize = SmallSize };
 
     size_t elementSize() const { return m_Size * sizeof(T); }
 
