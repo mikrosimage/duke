@@ -1,5 +1,9 @@
 #pragma once
 
+#include <duke/base/Check.hpp>
+
+#include <limits>
+
 #include <cstring>
 
 /**
@@ -9,7 +13,7 @@
  * Default size ensures sizeof(SmallVector) == 32 and allows good
  * alignment and cache locality.
  */
-template<typename T, int SmallSize = 32 - sizeof(size_t)>
+template<typename T, typename SIZE = uint16_t, int SmallSize = 32 - sizeof(SIZE)>
 class SmallVector {
 public:
     SmallVector() {
@@ -68,7 +72,7 @@ public:
 private:
     static_assert(kSmallSize>=sizeof(void*), "Small data should be pointer size at least");
 
-    size_t m_Size = 0;
+    SIZE m_Size = 0;
     union {
         char m_SmallData[kSmallSize];
         T* ptr;
@@ -78,6 +82,7 @@ private:
     T* addressof() { return isAllocated() ? ptr : &m_SmallData[0]; }
 
     void allocateAndSet(const T* pData, size_t size) {
+        CHECK(size <= std::numeric_limits<SIZE>::max());
         deallocateIfNeeded();
         m_Size = size;
         if (isAllocated())
