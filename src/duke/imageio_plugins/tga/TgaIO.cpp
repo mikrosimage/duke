@@ -1,9 +1,10 @@
 #ifdef DUKE_TGA
 
 #include <duke/imageio/DukeIO.hpp>
+#include <duke/attributes/AttributeKeys.hpp>
 
 #include <duke/gl/GL.hpp>
-#include <duke/ByteSwap.hpp>
+#include <duke/base/ByteSwap.hpp>
 
 #include <cstdio>
 
@@ -41,36 +42,42 @@ public:
 			m_Error = "Unable to read header";
 			return;
 		}
-		
+	}
+
+	virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
 		switch (m_Header.bits) {
 		case 24:     // Most likely case
-			m_Description.glPackFormat = GL_RGB8;
+		    description.glPackFormat = GL_RGB8;
 			break;
 		case 32:
-			m_Description.glPackFormat = GL_RGBA8;
+		    description.glPackFormat = GL_RGBA8;
 			break;
 		case 8:
-			m_Description.glPackFormat = GL_R8;
+		    description.glPackFormat = GL_R8;
 			break;
 		default:
 			m_Error = "Unsupported bit depth";
-			return;
+			return false;
 		};
-		m_Description.swapRedAndBlue = true;
-		m_Description.width = m_Header.width;
-		m_Description.height = m_Header.height;
-		m_Description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
-		m_Attributes.push_back(Attribute("Orientation", (int) 4));
+		description.swapRedAndBlue = true;
+		description.width = m_Header.width;
+		description.height = m_Header.height;
+		description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
+		attributes.set<attribute::DpxImageOrientation>(4);
+		return true;
 	}
+
 	~TGAImageReader() {
 		if (m_pFile)
 			fclose(m_pFile);
 	}
+
 	virtual void readImageDataTo(void* pData) {
 		if (hasError() || !pData)
 			return;
-		if (fread(pData, m_Description.dataSize, 1, m_pFile) != 1)
-			m_Error = "Unable to read from file";
+        const size_t dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
+        if (fread(pData, dataSize, 1, m_pFile) != 1)
+            m_Error = "Unable to read from file";
 	}
 };
 

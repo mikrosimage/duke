@@ -15,7 +15,8 @@ void AttributesOverlay::render(const Context &context) const {
 	if (!context.pCurrentImage)
 		return;
 	std::ostringstream oss;
-	oss << context.pCurrentImage->attributes;
+	//oss << context.pCurrentImage->attributes;
+	printf("TODO implement attribute stringification");
 	drawText(m_GlyphRenderer, context.viewport, oss.str().c_str(), 50, 50, 1, 2);
 }
 

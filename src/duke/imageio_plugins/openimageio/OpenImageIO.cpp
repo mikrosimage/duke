@@ -19,29 +19,29 @@ const vector<string> A = { "A" };
 const vector<string> RGB = { "R", "G", "B" };
 const vector<string> RGBA = { "R", "G", "B", "A" };
 
-PrimitiveType getAttributeType(const TypeDesc &typedesc) {
-    switch (typedesc.basetype) {
-    case TypeDesc::UCHAR:
-        return PrimitiveType::UCHAR;
-    case TypeDesc::CHAR:
-    case TypeDesc::STRING:
-        return PrimitiveType::CHAR;
-    case TypeDesc::USHORT:
-        return PrimitiveType::USHORT;
-    case TypeDesc::SHORT:
-        return PrimitiveType::SHORT;
-    case TypeDesc::UINT:
-        return PrimitiveType::UINT;
-    case TypeDesc::INT:
-        return PrimitiveType::INT;
-    case TypeDesc::FLOAT:
-        return PrimitiveType::FLOAT;
-    case TypeDesc::DOUBLE:
-        return PrimitiveType::DOUBLE;
-    default:
-        return PrimitiveType::UNKNOWN;
-    }
-}
+//PrimitiveType getAttributeType(const TypeDesc &typedesc) {
+//    switch (typedesc.basetype) {
+//    case TypeDesc::UCHAR:
+//        return PrimitiveType::UCHAR;
+//    case TypeDesc::CHAR:
+//    case TypeDesc::STRING:
+//        return PrimitiveType::CHAR;
+//    case TypeDesc::USHORT:
+//        return PrimitiveType::USHORT;
+//    case TypeDesc::SHORT:
+//        return PrimitiveType::SHORT;
+//    case TypeDesc::UINT:
+//        return PrimitiveType::UINT;
+//    case TypeDesc::INT:
+//        return PrimitiveType::INT;
+//    case TypeDesc::FLOAT:
+//        return PrimitiveType::FLOAT;
+//    case TypeDesc::DOUBLE:
+//        return PrimitiveType::DOUBLE;
+//    default:
+//        return PrimitiveType::UNKNOWN;
+//    }
+//}
 
 GLuint getGLType(const TypeDesc &typedesc, const vector<string> &channels) {
     if (channels == A) {
@@ -160,23 +160,23 @@ public:
         description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
         description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
 
-        //      m_Attributes.emplace_back("Orientation", 0);
-        for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
-            const TypeDesc& oiio_type = paramvalue.type();
-            const PrimitiveType type = getAttributeType(static_cast<TypeDesc::BASETYPE>(oiio_type.basetype));
-            if (type == PrimitiveType::UNKNOWN) continue;
-            const char* name = paramvalue.name().c_str();
-            if (oiio_type.basetype == TypeDesc::STRING) {
-                const char* pData = *reinterpret_cast<const char* const *>(paramvalue.data());
-                attributes.emplace_back(name, pData);
-            } else {
-                const size_t nvalues = paramvalue.nvalues() * oiio_type.aggregate;
-                const char* pData = reinterpret_cast<const char*>(paramvalue.data());
-                const size_t datasize = paramvalue.datasize();
-                const size_t attr_nvalues = nvalues == 1 ? 0 : nvalues;
-                attributes.emplace_back(name, pData, datasize, type, attr_nvalues);
-            }
-        }
+        printf("TODO implement back untyped attributes");
+//        for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
+//            const TypeDesc& oiio_type = paramvalue.type();
+//            const PrimitiveType type = getAttributeType(static_cast<TypeDesc::BASETYPE>(oiio_type.basetype));
+//            if (type == PrimitiveType::UNKNOWN) continue;
+//            const char* name = paramvalue.name().c_str();
+//            if (oiio_type.basetype == TypeDesc::STRING) {
+//                const char* pData = *reinterpret_cast<const char* const *>(paramvalue.data());
+//                attributes.emplace_back(name, pData);
+//            } else {
+//                const size_t nvalues = paramvalue.nvalues() * oiio_type.aggregate;
+//                const char* pData = reinterpret_cast<const char*>(paramvalue.data());
+//                const size_t datasize = paramvalue.datasize();
+//                const size_t attr_nvalues = nvalues == 1 ? 0 : nvalues;
+//                attributes.emplace_back(name, pData, datasize, type, attr_nvalues);
+//            }
+//        }
         return true;
     }
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <duke/attributes/AttributeKeys.hpp>
-#include <duke/attributes/NewAttributes.hpp>
+#include <duke/attributes/Attributes.hpp>
 #include <glm/glm.hpp>
 
 using namespace std;
@@ -19,6 +19,7 @@ enum Enum { ONE, TWO };
 namespace attribute {
 
 DECLARE_ATTRIBUTE(std::string, StringAttribute);
+DECLARE_ATTRIBUTE(const char*, CStringAttribute);
 DECLARE_ATTRIBUTE(uint64_t, Uint64Attribute);
 DECLARE_ATTRIBUTE(PlainOldData, PODAttribute);
 DECLARE_ATTRIBUTE(Enum, EnumAttribute);
@@ -28,20 +29,40 @@ DECLARE_ATTRIBUTE(Enum, EnumAttribute);
 using namespace attribute;
 
 template<typename T>
+void compare(const T& a, const T& b) {
+    EXPECT_EQ(a, b);
+}
+
+template<>
+void compare(const char* const & a, const char* const & b) {
+    EXPECT_STREQ(a, b);
+}
+
+template<typename T>
 void testSuite(const typename T::value_type& defaultValue, const typename T::value_type& value) {
     Attributes attributes;
     EXPECT_FALSE(attributes.contains<T>());
+    EXPECT_EQ(attributes.size(), 0);
     EXPECT_EQ(attributes.getWithDefault<T>(defaultValue), defaultValue);
     attributes.set<T>(value);
+    EXPECT_EQ(attributes.size(), 1);
+    attributes.set<T>(value);
+    EXPECT_EQ(attributes.size(), 1);
     EXPECT_TRUE(attributes.contains<T>());
-    EXPECT_EQ(attributes.getOrDie<T>(), value);
-    EXPECT_EQ(attributes.getWithDefault<T>(defaultValue), value);
+    compare<typename T::value_type>(attributes.getOrDie<T>(), value);
+    compare<typename T::value_type>(attributes.getWithDefault<T>(defaultValue), value);
     attributes.erase<T>();
+    EXPECT_EQ(attributes.size(), 0);
     EXPECT_FALSE(attributes.contains<T>());
 }
 
 TEST(Attributes, string) {
     testSuite<StringAttribute>("default", "value");
+}
+
+TEST(Attributes, cstring) {
+    testSuite<CStringAttribute>("default", "value");
+    Attributes attributes;
 }
 
 TEST(Attributes, integral) {

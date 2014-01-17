@@ -1,4 +1,5 @@
 #include "GlyphRenderer.hpp"
+#include <duke/attributes/AttributeKeys.hpp>
 #include <duke/engine/Viewport.hpp>
 #include <duke/engine/ImageLoadUtils.hpp>
 #include <duke/engine/rendering/GeometryRenderer.hpp>
@@ -107,7 +108,9 @@ GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const 
 	auto scopeBinded = m_GlyphsTexture.scope_bind_texture();
 	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	auto pair = getTextureDimensions(m_GlyphsTexture.description.width, m_GlyphsTexture.description.height, m_Attributes.getOrientation());
+    auto pair = getTextureDimensions(m_GlyphsTexture.description.width,
+                                     m_GlyphsTexture.description.height,
+                                     m_Attributes.getWithDefault<attribute::DpxImageOrientation>(1));
 	m_Program.glUniform2i(shader::gImage, pair.first, pair.second);
 	return std::move(scopeBinded);
 }

@@ -18,10 +18,10 @@ namespace {
 ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	if (original != ColorSpace::Auto)
 		return original;
-	original = resolveFromName(attributes.findString(attribute::pOiioColospaceKey));
+	original = resolveFromName(attributes.getWithDefault<attribute::OiioColorspace>(nullptr));
 	if (original != ColorSpace::Auto)
 		return original;
-    return resolveFromExtension(fileExtension(attributes.findString(attribute::pDukeFilePathKey)));
+    return resolveFromExtension(fileExtension(attributes.getOrDie<attribute::DukeFilePathKey>()));
 }
 
 inline float getAspectRatio(glm::vec2 dim) {
@@ -84,7 +84,8 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 	if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat))
 		redBlueSwapped = !redBlueSwapped;
 
-	const auto inputColorSpace = resolve(context.pCurrentImage->attributes, context.fileColorSpace);
+	const auto& currentImageAttributes = context.pCurrentImage->attributes;
+	const auto inputColorSpace = resolve(currentImageAttributes, context.fileColorSpace);
 
 	const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc( //
 			isGreyscale(description.glPackFormat), //
@@ -94,7 +95,9 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 			inputColorSpace,
 			context.screenColorSpace);
 	const auto pProgram = shaderPool.get(shaderDesc);
-	const auto pair = getTextureDimensions(description.width, description.height, context.pCurrentImage->attributes.getOrientation());
+    const auto pair = getTextureDimensions(description.width,
+                                           description.height,
+                                           currentImageAttributes.getWithDefault<attribute::DpxImageOrientation>(1));
 	pProgram->use();
 	pProgram->glUniform2i(shader::gImage, pair.first, pair.second);
 	pProgram->glUniform2i(shader::gViewport, context.viewport.dimension.x, context.viewport.dimension.y);

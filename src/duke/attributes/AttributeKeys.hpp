@@ -4,12 +4,6 @@
 
 namespace attribute {
 
-extern const char pDukeError[];
-extern const char pDukeFilePathKey[];
-extern const char pOiioColospaceKey[];
-extern const char pOiioGammaKey[];
-extern const char pOrientationKey[];
-
 struct AttributeKey {
     virtual ~AttributeKey() {}
     virtual const char* name() const = 0;
@@ -21,7 +15,9 @@ struct NAME : public AttributeKey { \
     virtual const char* name() const override { return #NAME; } \
 }
 
-DECLARE_ATTRIBUTE(std::string, DukeError);
-DECLARE_ATTRIBUTE(std::string, DukeFilePathKey);
+DECLARE_ATTRIBUTE(const char*, DukeError);
+DECLARE_ATTRIBUTE(const char*, DukeFilePathKey);
+DECLARE_ATTRIBUTE(uint8_t, DpxImageOrientation);
+DECLARE_ATTRIBUTE(const char*, OiioColorspace);
 
 } /* namespace attribute */

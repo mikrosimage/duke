@@ -16,6 +16,10 @@
 template<typename T, typename SIZE = uint16_t, int SmallSize = 32 - sizeof(SIZE)>
 class SmallVector {
 public:
+    typedef const T* const_iterator;
+    typedef T* iterator;
+    typedef T value_type;
+
     SmallVector() {
     }
     SmallVector(const T* pData, size_t size) {
