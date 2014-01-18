@@ -18,7 +18,7 @@ namespace {
 ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	if (original != ColorSpace::Auto)
 		return original;
-	original = resolveFromName(attributes.getWithDefault<attribute::OiioColorspace>(nullptr));
+	original = resolveFromName(attributes.getOrDefault<attribute::OiioColorspace>());
 	if (original != ColorSpace::Auto)
 		return original;
     return resolveFromExtension(fileExtension(attributes.getOrDie<attribute::DukeFilePathKey>()));
@@ -97,7 +97,7 @@ void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, con
 	const auto pProgram = shaderPool.get(shaderDesc);
     const auto pair = getTextureDimensions(description.width,
                                            description.height,
-                                           currentImageAttributes.getWithDefault<attribute::DpxImageOrientation>(1));
+                                           currentImageAttributes.getOrDefault<attribute::DpxImageOrientation>());
 	pProgram->use();
 	pProgram->glUniform2i(shader::gImage, pair.first, pair.second);
 	pProgram->glUniform2i(shader::gViewport, context.viewport.dimension.x, context.viewport.dimension.y);

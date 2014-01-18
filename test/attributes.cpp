@@ -18,11 +18,11 @@ enum Enum { ONE, TWO };
 
 namespace attribute {
 
-DECLARE_ATTRIBUTE(std::string, StringAttribute);
-DECLARE_ATTRIBUTE(const char*, CStringAttribute);
-DECLARE_ATTRIBUTE(uint64_t, Uint64Attribute);
-DECLARE_ATTRIBUTE(PlainOldData, PODAttribute);
-DECLARE_ATTRIBUTE(Enum, EnumAttribute);
+DECLARE_ATTRIBUTE(std::string, StringAttribute, "");
+DECLARE_ATTRIBUTE(const char*, CStringAttribute, nullptr);
+DECLARE_ATTRIBUTE(uint64_t, Uint64Attribute, 0);
+DECLARE_ATTRIBUTE(PlainOldData, PODAttribute, {});
+DECLARE_ATTRIBUTE(Enum, EnumAttribute, Enum::ONE);
 
 } /* namespace attribute */
 
@@ -43,6 +43,7 @@ void testSuite(const typename T::value_type& defaultValue, const typename T::val
     Attributes attributes;
     EXPECT_FALSE(attributes.contains<T>());
     EXPECT_EQ(attributes.size(), 0);
+    EXPECT_EQ(attributes.getOrDefault<T>(), T::default_value());
     EXPECT_EQ(attributes.getWithDefault<T>(defaultValue), defaultValue);
     attributes.set<T>(value);
     EXPECT_EQ(attributes.size(), 1);
@@ -50,6 +51,7 @@ void testSuite(const typename T::value_type& defaultValue, const typename T::val
     EXPECT_EQ(attributes.size(), 1);
     EXPECT_TRUE(attributes.contains<T>());
     compare<typename T::value_type>(attributes.getOrDie<T>(), value);
+    compare<typename T::value_type>(attributes.getOrDefault<T>(), value);
     compare<typename T::value_type>(attributes.getWithDefault<T>(defaultValue), value);
     attributes.erase<T>();
     EXPECT_EQ(attributes.size(), 0);

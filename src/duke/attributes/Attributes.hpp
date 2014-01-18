@@ -89,6 +89,11 @@ public:
     }
 
     template<typename KEY>
+    inline typename KEY::value_type getOrDefault() const {
+        return getWithDefault<KEY>(KEY::default_value());
+    }
+
+    template<typename KEY>
     void set(const typename KEY::value_type& value) {
         const auto pFound = find<KEY>();
         if (pFound == end())
