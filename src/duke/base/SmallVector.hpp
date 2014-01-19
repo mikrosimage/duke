@@ -22,8 +22,11 @@ public:
 
     SmallVector() {
     }
-    SmallVector(const T* pData, size_t size) {
-        allocateAndSet(pData, size);
+    SmallVector(size_t size) {
+        allocate(size);
+    }
+    SmallVector(const T* pData, size_t size) : SmallVector(size) {
+        set(pData);
     }
     SmallVector(const SmallVector& other) :
                     SmallVector(other.addressof(), other.m_Size) {
@@ -40,14 +43,15 @@ public:
     }
 
     SmallVector& operator=(const SmallVector& other) {
-        allocateAndSet(other.addressof(), other.m_Size);
+        allocate(other.m_Size);
+        set(other.addressof());
         return *this;
     }
 
     bool operator==(const SmallVector& other) const {
         return m_Size == other.m_Size && memcmp(addressof(), other.addressof(), m_Size * sizeof(T)) == 0;
     }
-    bool operator!=(const SmallVector& other) const {
+    inline bool operator!=(const SmallVector& other) const {
         return !operator==(other);
     }
     bool operator<(const SmallVector& other) const {
@@ -56,23 +60,26 @@ public:
         return m_Size < other.m_Size;
     }
 
-    size_t size() const {
+    inline size_t size() const {
         return m_Size;
     }
-    const T* data() const {
+    inline T* data() {
         return addressof();
     }
-    const T* begin() const {
+    inline const T* data() const {
         return addressof();
     }
-    const T* end() const {
+    inline const T* begin() const {
+        return addressof();
+    }
+    inline const T* end() const {
         return addressof() + m_Size;
     }
     enum { kSmallSize = SmallSize };
 
-    size_t elementSize() const { return m_Size * sizeof(T); }
+    inline size_t elementSize() const { return m_Size * sizeof(T); }
 
-    bool isAllocated() const { return elementSize() > kSmallSize; }
+    inline bool isAllocated() const { return elementSize() > kSmallSize; }
 private:
     static_assert(kSmallSize>=sizeof(void*), "Small data should be pointer size at least");
 
@@ -82,15 +89,18 @@ private:
         T* ptr;
     };
 
-    const T* addressof() const { return isAllocated() ? ptr : &m_SmallData[0]; }
-    T* addressof() { return isAllocated() ? ptr : &m_SmallData[0]; }
+    inline const T* addressof() const { return isAllocated() ? ptr : &m_SmallData[0]; }
+    inline T* addressof() { return isAllocated() ? ptr : &m_SmallData[0]; }
 
-    void allocateAndSet(const T* pData, size_t size) {
+    void allocate(size_t size) {
         CHECK(size <= std::numeric_limits<SIZE>::max());
         deallocateIfNeeded();
         m_Size = size;
         if (isAllocated())
             ptr = new T[size];
+    }
+
+    void set(const T* pData) {
         memcpy(addressof(), pData, elementSize());
     }
 
