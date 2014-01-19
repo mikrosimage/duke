@@ -66,7 +66,10 @@ class FastDpxImageReader: public IImageReader {
     const char* pArithmeticPointer;
     const Image_Information* pImageInformation;
     const unsigned int magic;
+    const bool bigEndian;
 
+    template<typename T>
+    inline T swap(T value) const {return ::swap(value, bigEndian); }
 public:
     FastDpxImageReader(const IIODescriptor *pDesc, const void *pData, const size_t dataSize) :
                     IImageReader(pDesc),
@@ -74,23 +77,27 @@ public:
                     pInformation(reinterpret_cast<const FileInformation*>(pData)),
                     pArithmeticPointer(reinterpret_cast<const char*>(pData)),
                     pImageInformation(reinterpret_cast<const Image_Information*>(pArithmeticPointer + sizeof(FileInformation))),
-                    magic(pInformation->magic_num) {
-        if (magic != DPX_MAGIC_SWAP && magic != DPX_MAGIC)
+                    magic(pInformation->magic_num),
+                    bigEndian(magic == DPX_MAGIC_SWAP){
+        if (magic != DPX_MAGIC_SWAP && magic != DPX_MAGIC) {
             m_Error = "invalid magic : not a dpx file";
+            return ;
+        }
+        const auto& image = pImageInformation->image_element[0];
+        const auto bitSize = swap(image.bit_size);
+        const auto componentsFilled = swap(image.packing) == 1;
+        if (bitSize != 10 || !componentsFilled) {
+            m_Error = "Can't use fast dpx";
+            return;
+        }
     }
 
     virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
         m_pData = nullptr;
-        if (magic == DPX_MAGIC_SWAP) {
-            description.height = bswap_32(pImageInformation->lines_per_image_ele);
-            description.width = bswap_32(pImageInformation->pixels_per_line);
-            m_pData = pArithmeticPointer + bswap_32(pInformation->offset);
-            description.swapEndianness = true;
-        } else {
-            description.height = pImageInformation->lines_per_image_ele;
-            description.width = pImageInformation->pixels_per_line;
-            m_pData = pArithmeticPointer + pInformation->offset;
-        }
+        description.height = swap(pImageInformation->lines_per_image_ele);
+        description.width = swap(pImageInformation->pixels_per_line);
+        m_pData = pArithmeticPointer + swap(pInformation->offset);
+        description.swapEndianness = bigEndian;
         description.glPackFormat = GL_RGB10_A2UI;
         description.dataSize = description.height * description.width * sizeof(int32_t);
         attributes.emplace_back("Orientation", (int) pImageInformation->orientation);

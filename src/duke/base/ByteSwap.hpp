@@ -2,12 +2,21 @@
 
 namespace  {
 
-inline unsigned short bswap_16(unsigned short x) {
-    return (x >> 8) | (x << 8);
-}
+template<typename T>
+inline T swap(const T& arg, bool wantBig) {
+#if (BYTE_ORDER == BIG_ENDIAN) == wantBig
+    return arg;           // no byte-swapping needed
+#else                     // swap bytes
+    T ret;
 
-inline unsigned int bswap_32(unsigned int x) {
-    return (bswap_16(x & 0xffff) << 16) | (bswap_16(x >> 16));
+    char* dst = reinterpret_cast<char*>(&ret);
+    const char* src = reinterpret_cast<const char*>(&arg + 1);
+
+    for (size_t i = 0; i < sizeof(T); ++i)
+        *dst++ = *--src;
+
+    return ret;
+#endif
 }
 
 }  // namespace
