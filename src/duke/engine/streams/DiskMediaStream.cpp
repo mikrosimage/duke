@@ -46,13 +46,12 @@ InputFrameOperationResult DiskMediaStream::process(const MediaFrameReference& mf
 
 std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 	switch (m_ItemType) {
-	case sequence::Item::INVALID:
-	case sequence::Item::INDICED:
-		return {};
 	case sequence::Item::PACKED:
 		return writeFilename(atFrame + m_Item.start);
 	case sequence::Item::SINGLE:
 		return m_Item.filename;
+	default:
+		return {};
 	}
 }
 

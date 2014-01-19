@@ -3,15 +3,24 @@
 #include <duke/base/SmallVector.hpp>
 #include <duke/base/Check.hpp>
 #include <duke/base/StringUtils.hpp>
+#include <duke/attributes/AttributeDescriptor.hpp>
 
 #include <vector>
 #include <algorithm>
 
-class AttributeDescriptor;
+typedef SmallVector<char> AttributeData;
+
+struct AttributeEntry {
+    const char* pKey;
+    const AttributeDescriptor* pDescriptor;
+    AttributeData data;
+    AttributeEntry() : AttributeEntry(nullptr, nullptr, { }) { }
+    AttributeEntry(const char* pKey, const AttributeDescriptor* pDescriptor, AttributeData data) :
+                    pKey(pKey), pDescriptor(pDescriptor), data(data) { }
+};
 
 struct Attributes {
 private:
-    typedef SmallVector<char> AttributeData;
     template<class T>
     static inline AttributeData dematerialize(const T& value) {
         static_assert(std::is_pod<T>::value, "Type has to be Plain Old Data");
@@ -24,17 +33,7 @@ private:
         return *reinterpret_cast<const T*>(ptr);
     }
 
-    struct MapEntry {
-        const char* pKey;
-        const AttributeDescriptor* pDescriptor;
-        AttributeData attributeData;
-        MapEntry() : MapEntry(nullptr, nullptr, {}) {}
-        MapEntry(const char* pKey, const AttributeDescriptor* pDescriptor, AttributeData attributeData) :
-                        pKey(pKey), pDescriptor(pDescriptor), attributeData(attributeData) {
-        }
-    };
-
-    typedef std::vector<MapEntry> MapImpl;
+    typedef std::vector<AttributeEntry> MapImpl;
     typedef MapImpl::const_iterator const_iterator;
     typedef MapImpl::iterator iterator;
     typedef MapImpl::value_type value_type;
@@ -42,17 +41,15 @@ private:
     MapImpl m_Map;
 
     inline const_iterator find(const char* pKey) const {
-        return std::find_if(m_Map.begin(), m_Map.end(),
-                            [=](const value_type& a) {return streq(a.pKey, pKey);});
+        return std::find_if(m_Map.begin(), m_Map.end(), [=](const value_type& a) {return streq(a.pKey, pKey);});
     }
 
     inline iterator find(const char* pKey) {
-        return std::find_if(m_Map.begin(), m_Map.end(),
-                            [=](const value_type& a) {return streq(a.pKey, pKey);});
+        return std::find_if(m_Map.begin(), m_Map.end(), [=](const value_type& a) {return streq(a.pKey, pKey);});
     }
 
-    inline static bool isValid(const MapEntry& entry) {
-        return entry.pKey;// && descriptor(entry);
+    inline static bool isValid(const AttributeEntry& entry) {
+        return entry.pKey;
     }
 
     void set(const char* pKey, const AttributeDescriptor *pDescriptor, AttributeData&& data) {
@@ -61,7 +58,7 @@ private:
             m_Map.emplace_back(pKey, pDescriptor, std::move(data));
         else {
             pFound->pDescriptor = pDescriptor;
-            pFound->attributeData = std::move(data);
+            pFound->data = std::move(data);
         }
     }
 public:
@@ -78,33 +75,36 @@ public:
         return contains(KEY().name());
     }
 
-    const MapEntry& get(const char* pKey) const {
-        static const MapEntry empty;
+    const AttributeEntry& get(const char* pKey) const {
+        static const AttributeEntry empty;
         const auto pFound = find(pKey);
         return pFound == m_Map.end() ? empty : *pFound;
     }
 
-    const MapEntry& getOrDie(const char* pKey) const {
-        const MapEntry& entry(get(pKey));
+    const AttributeEntry& getOrDie(const char* pKey) const {
+        const AttributeEntry& entry(get(pKey));
         CHECK(isValid(entry));
         return entry;
     }
 
     template<typename KEY>
+    inline const AttributeEntry& get() const {
+        return get(KEY().name());
+    }
+
+    template<typename KEY>
     typename KEY::value_type getOrDie() const {
-        const MapEntry& entry(get(KEY().name()));
+        const AttributeEntry& entry(get(KEY().name()));
         CHECK(entry.pDescriptor == KEY().descriptor());
-        const AttributeData& attributeData = entry.attributeData;
-        return materialize<typename KEY::value_type>(attributeData.data(), attributeData.size());
+        return materialize<typename KEY::value_type>(entry.data.ptr(), entry.data.size());
     }
 
     template<typename KEY>
     typename KEY::value_type getWithDefault(const typename KEY::value_type& default_value) const {
-        const MapEntry& entry(get(KEY().name()));
+        const AttributeEntry& entry(get(KEY().name()));
         if (!isValid(entry)) return default_value;
         CHECK(entry.pDescriptor == KEY().descriptor());
-        const AttributeData& attributeData = entry.attributeData;
-        return materialize<typename KEY::value_type>(attributeData.data(), attributeData.size());
+        return materialize<typename KEY::value_type>(entry.data.ptr(), entry.data.size());
     }
 
     template<typename KEY>
@@ -142,11 +142,11 @@ public:
 };
 
 template<>
-inline Attributes::AttributeData Attributes::dematerialize<const char*>(const char* const & value) {
+inline AttributeData Attributes::dematerialize<const char*>(const char* const & value) {
     return {value, strlen(value) + 1};
 }
 template<>
-inline Attributes::AttributeData Attributes::dematerialize<std::string>(const std::string& value) {
+inline AttributeData Attributes::dematerialize<std::string>(const std::string& value) {
     return {value.data(), value.size()};
 }
 

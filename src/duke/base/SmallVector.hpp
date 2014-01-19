@@ -63,10 +63,10 @@ public:
     inline size_t size() const {
         return m_Size;
     }
-    inline T* data() {
+    inline T* ptr() {
         return addressof();
     }
-    inline const T* data() const {
+    inline const T* ptr() const {
         return addressof();
     }
     inline const T* begin() const {
@@ -86,18 +86,18 @@ private:
     SIZE m_Size = 0;
     union {
         char m_SmallData[kSmallSize];
-        T* ptr;
+        T* ptr_;
     };
 
-    inline const T* addressof() const { return isAllocated() ? ptr : &m_SmallData[0]; }
-    inline T* addressof() { return isAllocated() ? ptr : &m_SmallData[0]; }
+    inline const T* addressof() const { return isAllocated() ? ptr_ : &m_SmallData[0]; }
+    inline T* addressof() { return isAllocated() ? ptr_ : &m_SmallData[0]; }
 
     void allocate(size_t size) {
         CHECK(size <= std::numeric_limits<SIZE>::max());
         deallocateIfNeeded();
         m_Size = size;
         if (isAllocated())
-            ptr = new T[size];
+            ptr_ = new T[size];
     }
 
     void set(const T* pData) {
@@ -106,6 +106,6 @@ private:
 
     void deallocateIfNeeded() {
         if (isAllocated())
-            delete[] ptr;
+            delete[] ptr_;
     }
 };
