@@ -69,7 +69,7 @@ class FastDpxImageReader: public IImageReader {
     const bool bigEndian;
 
     template<typename T>
-    inline T swap(T value) const {return ::swap(value, bigEndian); }
+    inline T swap(T value) const {return ::swap<T>(value, bigEndian); }
 public:
     FastDpxImageReader(const IIODescriptor *pDesc, const void *pData, const size_t dataSize) :
                     IImageReader(pDesc),

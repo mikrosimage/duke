@@ -1,7 +1,5 @@
 #pragma once
 
-namespace  {
-
 template<typename T>
 inline T swap(const T& arg, bool wantBig) {
 #if (BYTE_ORDER == BIG_ENDIAN) == wantBig
@@ -18,5 +16,3 @@ inline T swap(const T& arg, bool wantBig) {
     return ret;
 #endif
 }
-
-}  // namespace
