@@ -7,6 +7,8 @@
 #include <vector>
 #include <algorithm>
 
+class AttributeDescriptor;
+
 struct Attributes {
 private:
     typedef SmallVector<char> AttributeData;
@@ -24,10 +26,10 @@ private:
 
     struct MapEntry {
         const char* pKey;
-        const void* pDescriptor;
+        const AttributeDescriptor* pDescriptor;
         AttributeData attributeData;
         MapEntry() : MapEntry(nullptr, nullptr, {}) {}
-        MapEntry(const char* pKey, const void* pDescriptor, AttributeData attributeData) :
+        MapEntry(const char* pKey, const AttributeDescriptor* pDescriptor, AttributeData attributeData) :
                         pKey(pKey), pDescriptor(pDescriptor), attributeData(attributeData) {
         }
     };
@@ -53,6 +55,15 @@ private:
         return entry.pKey;// && descriptor(entry);
     }
 
+    void set(const char* pKey, const AttributeDescriptor *pDescriptor, AttributeData&& data) {
+        auto pFound = find(pKey);
+        if (pFound == end())
+            m_Map.emplace_back(pKey, pDescriptor, std::move(data));
+        else {
+            pFound->pDescriptor = pDescriptor;
+            pFound->attributeData = std::move(data);
+        }
+    }
 public:
     Attributes() {
         m_Map.reserve(16);
@@ -101,26 +112,13 @@ public:
         return getWithDefault<KEY>(KEY::default_value());
     }
 
-    void set(const char* pKey, const void *pDescriptor, const char* pData, const size_t size) {
-        auto pFound = find(pKey);
-        if (pFound == end())
-            m_Map.emplace_back(pKey, pDescriptor, AttributeData { pData, size });
-        else {
-            pFound->pDescriptor = pDescriptor;
-            pFound->attributeData = AttributeData { pData, size };
-        }
+    void set(const char* pKey, const AttributeDescriptor *pDescriptor, const char* pData, const size_t size) {
+        set(pKey, pDescriptor, AttributeData { pData, size });
     }
 
     template<typename KEY>
     void set(const typename KEY::value_type& value) {
-        const char* pKey = KEY().name();
-        const auto pFound = find(pKey);
-        if (pFound == end())
-            m_Map.emplace_back(pKey, KEY().descriptor(), dematerialize<typename KEY::value_type>(value));
-        else {
-            pFound->pDescriptor = KEY().descriptor();
-            pFound->attributeData = dematerialize<typename KEY::value_type>(value);
-        }
+        set(KEY().name(), KEY().descriptor(), dematerialize<typename KEY::value_type>(value));
     }
 
     void erase(const char* pKey) {
