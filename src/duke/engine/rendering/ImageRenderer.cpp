@@ -21,7 +21,7 @@ ColorSpace resolve(const Attributes &attributes, ColorSpace original) {
 	original = resolveFromName(attributes.getOrDefault<attribute::OiioColorspace>());
 	if (original != ColorSpace::Auto)
 		return original;
-    return resolveFromExtension(fileExtension(attributes.getOrDie<attribute::DukeFilePathKey>()));
+    return resolveFromExtension(fileExtension(attributes.getOrDie<attribute::File>()));
 }
 
 inline float getAspectRatio(glm::vec2 dim) {

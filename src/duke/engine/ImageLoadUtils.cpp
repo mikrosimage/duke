@@ -65,7 +65,7 @@ InputFrameOperationResult load(const char* pFilename, const char *pExtension, co
 }  // namespace
 
 InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    const char* pFilename = result.attributes().getOrDie<attribute::DukeFilePathKey>();
+    const char* pFilename = result.attributes().getOrDie<attribute::File>();
     if (!pFilename) return error("no filename", result);
     const char* pExtension = fileExtension(pFilename);
     if (!pExtension) return error("no extension", result);
@@ -75,7 +75,7 @@ InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback
 InputFrameOperationResult load(const char* pFilename, Texture& texture) {
     CHECK(pFilename);
     InputFrameOperationResult result;
-    result.attributes().set<attribute::DukeFilePathKey>(pFilename);
+    result.attributes().set<attribute::File>(pFilename);
     return load( { }, [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
         const auto bound = texture.scope_bind_texture();
         texture.initialize(packedFrame.description,pVolatileData);

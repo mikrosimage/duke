@@ -4,8 +4,8 @@
 
 namespace attribute {
 
-DECLARE_ATTRIBUTE(const char*, DukeError, nullptr);
-DECLARE_ATTRIBUTE(const char*, DukeFilePathKey, nullptr);
+DECLARE_ATTRIBUTE(const char*, Error, nullptr);
+DECLARE_ATTRIBUTE(const char*, File, nullptr);
 
 DECLARE_ATTRIBUTE(const char*, OiioColorspace, nullptr);
 
