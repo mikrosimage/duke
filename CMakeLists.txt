@@ -34,8 +34,8 @@ if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" 
 endif()
 
 # clang && debug adds address sanitizer
-if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") AND (CMAKE_BUILD_TYPE MATCHES DEBUG))
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
 # duke
