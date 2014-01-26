@@ -5,6 +5,8 @@
 #include <duke/attributes/AttributeDisplay.hpp>
 #include <glm/glm.hpp>
 
+#include <iostream>
+
 using namespace std;
 
 struct PlainOldData {
@@ -20,9 +22,9 @@ enum Enum {
 };
 
 template<>
-std::string TypedAttributeDescriptor<PlainOldData>::dataToString(const void* pData, size_t size) const {
-    CHECK(sizeof(PlainOldData) == size);
-    const PlainOldData pod = *reinterpret_cast<const PlainOldData*>(pData);
+std::string TypedAttributeDescriptor<PlainOldData>::dataToString(const AttributeEntry& entry) const {
+    CHECK(sizeof(PlainOldData) == entry.data.size());
+    const PlainOldData pod = *reinterpret_cast<const PlainOldData*>(entry.data.data());
     std::string output;
     output += '[';
     output += std::to_string(pod.a);
@@ -33,8 +35,8 @@ std::string TypedAttributeDescriptor<PlainOldData>::dataToString(const void* pDa
 }
 
 template<>
-std::string TypedAttributeDescriptor<Enum>::dataToString(const void* pData, size_t size) const {
-    switch (*reinterpret_cast<const Enum*>(pData)) {
+std::string TypedAttributeDescriptor<Enum>::dataToString(const AttributeEntry& entry) const {
+    switch (*reinterpret_cast<const Enum*>(entry.data.data())) {
         case ONE:
             return "ONE";
         case TWO:
@@ -58,6 +60,11 @@ using namespace attribute;
 template<typename T>
 void compare(const T& a, const T& b) {
     EXPECT_EQ(a, b);
+}
+
+template<>
+void compare(const string& a, const string& b) {
+    EXPECT_STREQ(a.c_str(), b.c_str());
 }
 
 template<>
@@ -145,8 +152,8 @@ TEST(Attributes, RawAtributeData) {
     // fetching raw data
     const auto value = attributes.getOrDie(pKey);
     EXPECT_EQ(value.data.size(), dataSize) << "same size";
-    EXPECT_NE(value.data.ptr(), pData) << "memory should be allocated";
-    EXPECT_EQ(memcmp(value.data.ptr(), pData, dataSize),0) << "memory should compare equal";
+    EXPECT_NE(value.data.data(), pData) << "memory should be allocated";
+    EXPECT_EQ(memcmp(value.data.data(), pData, dataSize),0) << "memory should compare equal";
     // erasing the data
     attributes.erase(pKey);
     EXPECT_EQ(attributes.size(), 0);
@@ -156,5 +163,4 @@ TEST(Attributes, RawAtributeData) {
     EXPECT_EQ(empty.pKey, nullptr);
     EXPECT_EQ(empty.pDescriptor, nullptr);
     EXPECT_EQ(empty.data.size(), 0);
-    EXPECT_NE(empty.data.ptr(), nullptr);
 }

@@ -16,7 +16,7 @@ TEST(SmallVector,DefaultCtor) {
 TEST(SmallVector,NoAllocation) {
     const size_t allocSize = CharVector::kSmallSize;
     const Buffer buffer(allocSize, 'X');
-    CharVector vector(buffer.data(), buffer.size());
+    CharVector vector(buffer.data(), buffer.data() + buffer.size());
     EXPECT_EQ(vector.size(), allocSize);
     EXPECT_EQ(vector.isAllocated(), false);
     EXPECT_TRUE(std::equal(vector.begin(), vector.end(), buffer.begin()));
@@ -25,7 +25,7 @@ TEST(SmallVector,NoAllocation) {
 TEST(SmallVector,Allocation) {
     const size_t allocSize = CharVector::kSmallSize + 1;
     const Buffer buffer(allocSize, 'X');
-    CharVector vector(buffer.data(), buffer.size());
+    CharVector vector(buffer.data(), buffer.data() + buffer.size());
     EXPECT_EQ(vector.size(), allocSize);
     EXPECT_EQ(vector.isAllocated(), true);
     EXPECT_TRUE(std::equal(vector.begin(), vector.end(), buffer.begin()));
@@ -35,30 +35,30 @@ TEST(SmallVector,InitilizationList) {
     CharVector vector { '1' };
     EXPECT_EQ(vector.size(), 1);
     EXPECT_EQ(vector.isAllocated(), false);
-    EXPECT_EQ(*vector.ptr(), '1');
+    EXPECT_EQ(*vector.data(), '1');
 }
 
 TEST(SmallVector,Copy) {
     const CharVector vector { '1' };
     EXPECT_EQ(vector.size(), 1);
     EXPECT_EQ(vector.isAllocated(), false);
-    EXPECT_EQ(vector.ptr()[0], '1');
+    EXPECT_EQ(vector.data()[0], '1');
     CharVector copy(vector);
     EXPECT_EQ(copy.size(), 1);
     EXPECT_EQ(copy.isAllocated(), false);
-    EXPECT_EQ(copy.ptr()[0], '1');
+    EXPECT_EQ(copy.data()[0], '1');
 }
 
 TEST(SmallVector,Assignement) {
     CharVector vector { '1' };
     EXPECT_EQ(vector.size(), 1);
     EXPECT_EQ(vector.isAllocated(), false);
-    EXPECT_EQ(vector.ptr()[0], '1');
+    EXPECT_EQ(vector.data()[0], '1');
     vector = CharVector { '1', '2' };
     EXPECT_EQ(vector.size(), 2);
     EXPECT_EQ(vector.isAllocated(), false);
-    EXPECT_EQ(vector.ptr()[0], '1');
-    EXPECT_EQ(vector.ptr()[1], '2');
+    EXPECT_EQ(vector.data()[0], '1');
+    EXPECT_EQ(vector.data()[1], '2');
 }
 
 TEST(SmallVector,Equals) {
@@ -93,9 +93,9 @@ TEST(SmallVector, Less) {
 TEST(SmallVector, Move) {
     CharVector tmp { '1' };
     EXPECT_EQ(tmp.size(), 1);
-    EXPECT_EQ(*tmp.ptr(), '1');
+    EXPECT_EQ(*tmp.data(), '1');
     CharVector moved(std::move(tmp));
     EXPECT_EQ(tmp.size(), 0);
     EXPECT_EQ(moved.size(), 1);
-    EXPECT_EQ(*moved.ptr(), '1');
+    EXPECT_EQ(*moved.data(), '1');
 }

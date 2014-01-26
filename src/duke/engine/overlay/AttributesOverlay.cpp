@@ -14,6 +14,7 @@ std::string getAttributes(const Attributes& attributes) {
     std::string buffer;
     buffer.reserve(256);
     for (const auto& entry : attributes) {
+        if(!buffer.empty()) buffer += '\n';
         buffer += nameString(entry);
         buffer += ' ';
         buffer += dataString(entry);

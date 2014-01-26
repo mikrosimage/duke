@@ -9,11 +9,11 @@ const char kNotAvailable[] = "N/A";
 }  // namespace
 
 std::string dataString(const AttributeEntry& entry) {
-    return entry.pDescriptor ? entry.pDescriptor->dataToString(entry.data.ptr(), entry.data.size()) : kNotAvailable;
+    return entry.pDescriptor ? entry.pDescriptor->dataToString(entry) : kNotAvailable;
 }
 
 const char* typeString(const AttributeEntry& entry) {
-    return entry.pDescriptor ? entry.pDescriptor->typeToString() : kNotAvailable;
+    return entry.pDescriptor ? entry.pDescriptor->typeToString(entry) : kNotAvailable;
 }
 
 const char* nameString(const AttributeEntry& entry) {

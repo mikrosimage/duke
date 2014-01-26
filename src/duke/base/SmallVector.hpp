@@ -3,7 +3,9 @@
 #include <duke/base/Check.hpp>
 
 #include <limits>
+#include <initializer_list>
 
+#include <cstdint>
 #include <cstring>
 
 /**
@@ -13,7 +15,7 @@
  * Default size ensures sizeof(SmallVector) == 32 and allows good
  * alignment and cache locality.
  */
-template<typename T, typename SIZE = uint16_t, int SmallSize = 32 - sizeof(SIZE)>
+template<typename T, typename SIZE = uint16_t, SIZE SmallSize = 32 - sizeof(SIZE)>
 class SmallVector {
 public:
     typedef const T* const_iterator;
@@ -25,18 +27,19 @@ public:
     SmallVector(size_t size) {
         allocate(size);
     }
-    SmallVector(const T* pData, size_t size) : SmallVector(size) {
-        set(pData);
+    SmallVector(const T* pBegin, const T* pEnd) :
+                    SmallVector(pEnd-pBegin) {
+        set(pBegin);
     }
     SmallVector(const SmallVector& other) :
-                    SmallVector(other.addressof(), other.m_Size) {
+                    SmallVector(other.addressof(), other.addressof() + other.m_Size) {
     }
     SmallVector(SmallVector&& tmp) {
-        memcpy(this, &tmp, sizeof(SmallVector<T>));
+        memcpy(this, &tmp, sizeof(SmallVector<T> ));
         tmp.m_Size = 0;
     }
     SmallVector(std::initializer_list<T> il) :
-                    SmallVector(il.begin(), il.size()) {
+                    SmallVector(il.begin(), il.end()) {
     }
     ~SmallVector() {
         deallocateIfNeeded();
@@ -55,18 +58,17 @@ public:
         return !operator==(other);
     }
     bool operator<(const SmallVector& other) const {
-        if(m_Size == other.m_Size )
-            return memcmp(addressof(), other.addressof(), m_Size * sizeof(T))<0;
+        if (m_Size == other.m_Size) return memcmp(addressof(), other.addressof(), m_Size * sizeof(T)) < 0;
         return m_Size < other.m_Size;
     }
 
     inline size_t size() const {
         return m_Size;
     }
-    inline T* ptr() {
+    inline T* data() {
         return addressof();
     }
-    inline const T* ptr() const {
+    inline const T* data() const {
         return addressof();
     }
     inline const T* begin() const {
@@ -75,11 +77,17 @@ public:
     inline const T* end() const {
         return addressof() + m_Size;
     }
-    enum { kSmallSize = SmallSize };
+    enum {
+        kSmallSize = SmallSize
+    };
 
-    inline size_t elementSize() const { return m_Size * sizeof(T); }
+    inline size_t elementSize() const {
+        return m_Size * sizeof(T);
+    }
 
-    inline bool isAllocated() const { return elementSize() > kSmallSize; }
+    inline bool isAllocated() const {
+        return elementSize() > kSmallSize;
+    }
 private:
     static_assert(kSmallSize>=sizeof(void*), "Small data should be pointer size at least");
 
@@ -89,15 +97,19 @@ private:
         T* ptr_;
     };
 
-    inline const T* addressof() const { return isAllocated() ? ptr_ : &m_SmallData[0]; }
-    inline T* addressof() { return isAllocated() ? ptr_ : &m_SmallData[0]; }
+    inline const T* addressof() const {
+        return isAllocated() ? ptr_ : &m_SmallData[0];
+    }
+    inline T* addressof() {
+        return isAllocated() ? ptr_ : &m_SmallData[0];
+    }
 
     void allocate(size_t size) {
         CHECK(size <= std::numeric_limits<SIZE>::max());
         deallocateIfNeeded();
         m_Size = size;
-        if (isAllocated())
-            ptr_ = new T[size];
+        fprintf(stderr, "%lu %s\n", size, isAllocated() ? "true" : "false");
+        if (isAllocated()) ptr_ = reinterpret_cast<T*>(malloc(size * sizeof(T)));
     }
 
     void set(const T* pData) {
@@ -105,7 +117,7 @@ private:
     }
 
     void deallocateIfNeeded() {
-        if (isAllocated())
-            delete[] ptr_;
+        if (isAllocated()) free(ptr_);
+        ptr_ = nullptr;
     }
 };

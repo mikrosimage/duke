@@ -1,30 +1,21 @@
 #pragma once
 
-#include <duke/base/SmallVector.hpp>
 #include <duke/base/Check.hpp>
 #include <duke/base/StringUtils.hpp>
+#include <duke/attributes/AttributeEntry.hpp>
 #include <duke/attributes/AttributeDescriptor.hpp>
 
 #include <vector>
 #include <algorithm>
-
-typedef SmallVector<char> AttributeData;
-
-struct AttributeEntry {
-    const char* pKey;
-    const AttributeDescriptor* pDescriptor;
-    AttributeData data;
-    AttributeEntry() : AttributeEntry(nullptr, nullptr, { }) { }
-    AttributeEntry(const char* pKey, const AttributeDescriptor* pDescriptor, AttributeData data) :
-                    pKey(pKey), pDescriptor(pDescriptor), data(data) { }
-};
+#include <cstring>
 
 struct Attributes {
 private:
     template<class T>
     static inline AttributeData dematerialize(const T& value) {
         static_assert(std::is_pod<T>::value, "Type has to be Plain Old Data");
-        return {reinterpret_cast<const char*>(&value), sizeof(value)};
+        const char* pBegin = reinterpret_cast<const char*>(&value);
+        return {pBegin, pBegin + sizeof(value)};
     }
 
     template<typename T>
@@ -52,15 +43,6 @@ private:
         return entry.pKey;
     }
 
-    void set(const char* pKey, const AttributeDescriptor *pDescriptor, AttributeData&& data) {
-        auto pFound = find(pKey);
-        if (pFound == end())
-            m_Map.emplace_back(pKey, pDescriptor, std::move(data));
-        else {
-            pFound->pDescriptor = pDescriptor;
-            pFound->data = std::move(data);
-        }
-    }
 public:
     Attributes() {
         m_Map.reserve(16);
@@ -96,7 +78,7 @@ public:
     typename KEY::value_type getOrDie() const {
         const AttributeEntry& entry(get(KEY().name()));
         CHECK(entry.pDescriptor == KEY().descriptor());
-        return materialize<typename KEY::value_type>(entry.data.ptr(), entry.data.size());
+        return materialize<typename KEY::value_type>(entry.data.data(), entry.data.size());
     }
 
     template<typename KEY>
@@ -104,7 +86,7 @@ public:
         const AttributeEntry& entry(get(KEY().name()));
         if (!isValid(entry)) return default_value;
         CHECK(entry.pDescriptor == KEY().descriptor());
-        return materialize<typename KEY::value_type>(entry.data.ptr(), entry.data.size());
+        return materialize<typename KEY::value_type>(entry.data.data(), entry.data.size());
     }
 
     template<typename KEY>
@@ -112,8 +94,18 @@ public:
         return getWithDefault<KEY>(KEY::default_value());
     }
 
+    void set(const char* pKey, const AttributeDescriptor *pDescriptor, AttributeData&& data) {
+        auto pFound = find(pKey);
+        if (pFound == end())
+            m_Map.emplace_back(pKey, pDescriptor, std::move(data));
+        else {
+            pFound->pDescriptor = pDescriptor;
+            pFound->data = std::move(data);
+        }
+    }
+
     void set(const char* pKey, const AttributeDescriptor *pDescriptor, const char* pData, const size_t size) {
-        set(pKey, pDescriptor, AttributeData { pData, size });
+        set(pKey, pDescriptor, AttributeData { pData, pData + size });
     }
 
     template<typename KEY>
@@ -143,11 +135,11 @@ public:
 
 template<>
 inline AttributeData Attributes::dematerialize<const char*>(const char* const & value) {
-    return {value, strlen(value) + 1};
+    return {value, value + strlen(value) + 1};
 }
 template<>
 inline AttributeData Attributes::dematerialize<std::string>(const std::string& value) {
-    return {value.data(), value.size()};
+    return {value.data(), value.data() + value.size() + 1};
 }
 
 template<>
