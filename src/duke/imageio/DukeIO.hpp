@@ -49,14 +49,15 @@ class IIODescriptor;
 
 class IImageReader: public noncopyable {
 protected:
-    virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) = 0;
+    virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) = 0;
 	const IIODescriptor * const m_pDescriptor;
-	Attributes m_ReaderAttributes;
+	const Attributes m_ReaderAttributes;
 	std::string m_Error;
 
 public:
-	IImageReader(const IIODescriptor * pDescriptor) : m_pDescriptor(pDescriptor) {
-	}
+    IImageReader(const Attributes& options, const IIODescriptor * pDescriptor) :
+                    m_pDescriptor(pDescriptor), m_ReaderAttributes(std::move(options)) {
+    }
 	virtual ~IImageReader() {}
 	inline bool hasError() const {
 		return !m_Error.empty();
@@ -64,14 +65,14 @@ public:
 	inline const std::string &getError() const {
 		return m_Error;
 	}
-	inline Attributes& getAttributes() {
+	inline const Attributes& getAttributes() {
 		return m_ReaderAttributes;
 	}
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;
 	}
-    bool setup(const Attributes& readerOptions, RawPackedFrame& packedFrame) {
-        return doSetup(readerOptions, packedFrame.description, packedFrame.attributes);
+    inline bool setup(RawPackedFrame& packedFrame) {
+        return doSetup(packedFrame.description, packedFrame.attributes);
     }
 	virtual const void* getMappedImageData() const {
 		return nullptr;
@@ -114,13 +115,13 @@ public:
 	virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
 	virtual const char* getName() const = 0;
 	virtual bool supports(Capability capability) const = 0;
-	virtual IImageReader* getReaderFromFile(const char *filename) const {
+	virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const {
 		return nullptr;
 	}
-	virtual IImageReader* getReaderFromMemory(const void *pData, const size_t dataSize) const {
+	virtual IImageReader* getReaderFromMemory(const Attributes& options, const void *pData, const size_t dataSize) const {
 		return nullptr;
 	}
-	virtual IImageWriter* getWriterToFile(const char *filename) const {
+	virtual IImageWriter* getWriterToFile(const Attributes& options, const char *filename) const {
 		return nullptr;
 	}
 };

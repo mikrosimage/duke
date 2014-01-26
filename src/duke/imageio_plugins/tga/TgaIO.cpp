@@ -32,8 +32,8 @@ class TGAImageReader: public IImageReader {
 	FILE *m_pFile;
 	TGAHEADER m_Header;
 public:
-	TGAImageReader(const IIODescriptor *pDesc, const char*filename) :
-			IImageReader(pDesc), m_pFile(fopen(filename, "rb")) {
+	TGAImageReader(const Attributes& options, const IIODescriptor *pDesc, const char*filename) :
+			IImageReader(options, pDesc), m_pFile(fopen(filename, "rb")) {
 		if (!m_pFile) {
 			m_Error = "Unable to open";
 			return;
@@ -44,7 +44,7 @@ public:
 		}
 	}
 
-	virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
+	virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
 		switch (m_Header.bits) {
 		case 24:     // Most likely case
 		    description.glPackFormat = GL_RGB8;
@@ -84,18 +84,18 @@ public:
 class TGADescriptor: public IIODescriptor {
 	virtual ~TGADescriptor() {
 	}
-	virtual const std::vector<std::string>& getSupportedExtensions() const {
+	virtual const std::vector<std::string>& getSupportedExtensions() const override {
 		static std::vector<std::string> extensions = { "tga" };
 		return extensions;
 	}
-	virtual bool supports(Capability capability) const {
+	virtual bool supports(Capability capability) const override {
 		return false;
 	}
-	virtual const char* getName() const {
+	virtual const char* getName() const override {
 		return "Targa";
 	}
-	virtual IImageReader* getReaderFromFile(const char *filename) const {
-		return new TGAImageReader(this, filename);
+	virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const override {
+		return new TGAImageReader(options, this, filename);
 	}
 };
 

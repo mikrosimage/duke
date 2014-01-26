@@ -23,12 +23,12 @@ InputFrameOperationResult error(const std::string& error, InputFrameOperationRes
     return move(result);
 }
 
-InputFrameOperationResult loadImage(IImageReader *pRawReader, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+InputFrameOperationResult loadImage(IImageReader *pRawReader, const LoadCallback& callback, InputFrameOperationResult&& result) {
     CHECK(pRawReader);
     std::unique_ptr<IImageReader> pReader(pRawReader);
     if (pReader->hasError()) return error(pReader->getError(), result);
     RawPackedFrame& packedFrame = result.rawPackedFrame;
-    if (!pReader->setup(readOptions, packedFrame)) return error(pReader->getError(), result);
+    if (!pReader->setup(packedFrame)) return error(pReader->getError(), result);
     const void* pMapped = pReader->getMappedImageData();
     if (pMapped) {
         callback(packedFrame, pMapped);
@@ -46,9 +46,9 @@ InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *p
     if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
         MemoryMappedFile file(filename);
         if (!file) return error("unable to map file to memory", result);
-        return loadImage(pDescriptor->getReaderFromMemory(file.pFileData, file.fileSize), readOptions, callback, move(result));
+        return loadImage(pDescriptor->getReaderFromMemory(readOptions, file.pFileData, file.fileSize), callback, move(result));
     } else {
-        return loadImage(pDescriptor->getReaderFromFile(filename), readOptions, callback, move(result));
+        return loadImage(pDescriptor->getReaderFromFile(readOptions, filename), callback, move(result));
     }
 }
 

@@ -196,8 +196,8 @@ class OpenImageIOReader : public IImageReader {
     ImageSpec m_Spec;
 
 public:
-    OpenImageIOReader(const IIODescriptor *pDesc, const char *filename) :
-                    IImageReader(pDesc), m_pImageInput(ImageInput::create(filename)) {
+    OpenImageIOReader(const Attributes& options, const IIODescriptor *pDesc, const char *filename) :
+                    IImageReader(options, pDesc), m_pImageInput(ImageInput::create(filename)) {
         if (!m_pImageInput) {
             m_Error = OpenImageIO::geterror();
             return;
@@ -223,7 +223,7 @@ public:
         if (m_pImageInput) m_pImageInput->close();
     }
 
-    virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
+    virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
         description.width = m_Spec.width;
         description.height = m_Spec.height;
         description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
@@ -277,17 +277,17 @@ public:
         }
         m_Extensions.push_back(current);
     }
-    virtual bool supports(Capability capability) const {
+    virtual bool supports(Capability capability) const override {
         return capability == Capability::READER_GENERAL_PURPOSE;
     }
-    virtual const vector<string>& getSupportedExtensions() const {
+    virtual const vector<string>& getSupportedExtensions() const override {
         return m_Extensions;
     }
-    virtual const char* getName() const {
+    virtual const char* getName() const override {
         return "OpenImageIO";
     }
-    virtual IImageReader* getReaderFromFile(const char *filename) const {
-        return new OpenImageIOReader(this, filename);
+    virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const override {
+        return new OpenImageIOReader(options, this, filename);
     }
 };
 

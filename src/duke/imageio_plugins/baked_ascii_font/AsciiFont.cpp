@@ -41,11 +41,11 @@ const uint64_t raster_data[] = { 0x81c08367e7e00, 0x18fcfc3cf0ff00ff, 0x83e1c7ff
 
 class AsciiFontImageReader: public IImageReader {
 public:
-	AsciiFontImageReader(const IIODescriptor *pDesc) :
-			IImageReader(pDesc) {
+	AsciiFontImageReader(const Attributes& options, const IIODescriptor *pDesc) :
+			IImageReader(options, pDesc) {
 	}
 
-	virtual bool doSetup(const Attributes& readerOptions, PackedFrameDescription& description, Attributes& attributes) override {
+	virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
         description.height = 128;
         description.width = 128;
         description.glPackFormat = GL_RGBA8;
@@ -69,18 +69,18 @@ public:
 };
 
 class AsciiFontDescriptor: public IIODescriptor {
-	virtual bool supports(Capability capability) const {
+	virtual bool supports(Capability capability) const override {
 		return false;
 	}
-	virtual const std::vector<std::string>& getSupportedExtensions() const {
+	virtual const std::vector<std::string>& getSupportedExtensions() const override {
 		static std::vector<std::string> extensions = { "duke_ascii_font" };
 		return extensions;
 	}
-	virtual const char* getName() const {
+	virtual const char* getName() const override {
 		return "Basic font provider";
 	}
-	virtual IImageReader* getReaderFromFile(const char *filename) const {
-		return new AsciiFontImageReader(this);
+	virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const override {
+		return new AsciiFontImageReader(options, this);
 	}
 };
 
