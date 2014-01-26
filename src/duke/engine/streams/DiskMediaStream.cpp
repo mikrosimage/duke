@@ -34,7 +34,7 @@ DiskMediaStream::DiskMediaStream(const sequence::Item& item) :
 // Several threads will access this function at the same time.
 InputFrameOperationResult DiskMediaStream::process(const MediaFrameReference& mfr) const {
     InputFrameOperationResult result;
-    result.attributes().emplace_back(attribute::pDukeFilePathKey, generateFilePath(mfr.frame));
+    result.attributes().set<attribute::File>(generateFilePath(mfr.frame).c_str());
     return duke::load(getAttributes(), [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
         if(!packedFrame.pData) {
             const size_t dataSize = packedFrame.description.dataSize;
@@ -46,13 +46,12 @@ InputFrameOperationResult DiskMediaStream::process(const MediaFrameReference& mf
 
 std::string DiskMediaStream::generateFilePath(size_t atFrame) const {
 	switch (m_ItemType) {
-	case sequence::Item::INVALID:
-	case sequence::Item::INDICED:
-		return {};
 	case sequence::Item::PACKED:
 		return writeFilename(atFrame + m_Item.start);
 	case sequence::Item::SINGLE:
 		return m_Item.filename;
+	default:
+		return {};
 	}
 	return {};
 }

@@ -1,11 +1,14 @@
 #pragma once
 
+#include <duke/attributes/Attribute.hpp>
+
 namespace attribute {
 
-extern const char pDukeError[];
-extern const char pDukeFilePathKey[];
-extern const char pOiioColospaceKey[];
-extern const char pOiioGammaKey[];
-extern const char pOrientationKey[];
+DECLARE_ATTRIBUTE(const char*, Error, nullptr);
+DECLARE_ATTRIBUTE(const char*, File, nullptr);
+
+DECLARE_ATTRIBUTE(const char*, OiioColorspace, nullptr);
+
+DECLARE_ATTRIBUTE(uint8_t, DpxImageOrientation, 1);
 
 } /* namespace attribute */

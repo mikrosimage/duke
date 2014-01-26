@@ -1,84 +1,166 @@
 #include <gtest/gtest.h>
 
+#include <duke/attributes/Attribute.hpp>
 #include <duke/attributes/Attributes.hpp>
+#include <duke/attributes/AttributeDisplay.hpp>
 #include <glm/glm.hpp>
+
+#include <iostream>
 
 using namespace std;
 
-TEST(Attribute,defaultCtor) {
-	Attribute attr;
-	EXPECT_EQ(nullptr, attr.data());
-	EXPECT_EQ(nullptr, attr.name());
-	EXPECT_EQ(0, attr.size());
+struct PlainOldData {
+    double a;
+    int b;
+    bool operator==(const PlainOldData& other) const {
+        return a == other.a && b == other.b;
+    }
+};
+
+enum Enum {
+    ONE, TWO
+};
+
+template<>
+std::string TypedAttributeDescriptor<PlainOldData>::dataToString(const AttributeEntry& entry) const {
+    CHECK(sizeof(PlainOldData) == entry.data.size());
+    const PlainOldData pod = *reinterpret_cast<const PlainOldData*>(entry.data.data());
+    std::string output;
+    output += '[';
+    output += std::to_string(pod.a);
+    output += ',';
+    output += std::to_string(pod.b);
+    output += ']';
+    return output;
 }
-TEST(Attribute,intValue) {
-	Attribute attr("v", 1);
-	EXPECT_EQ("v", attr.name());
-	EXPECT_EQ(1, *(int*)attr.data());
-	EXPECT_EQ(1, attr.getScalar<int>());
-	EXPECT_EQ(0, attr.size());
+
+template<>
+std::string TypedAttributeDescriptor<Enum>::dataToString(const AttributeEntry& entry) const {
+    switch (*reinterpret_cast<const Enum*>(entry.data.data())) {
+        case ONE:
+            return "ONE";
+        case TWO:
+            return "TWO";
+    }
+    return {};
 }
-TEST(Attribute,doubleValue) {
-	Attribute attr("v", 1.);
-	EXPECT_EQ("v", attr.name());
-	EXPECT_EQ(1., *(double*)attr.data());
-	EXPECT_EQ(1., attr.getScalar<double>());
-	EXPECT_EQ(0, attr.size());
+
+namespace attribute {
+
+DECLARE_ATTRIBUTE(std::string, StringAttribute, "");
+DECLARE_ATTRIBUTE(const char*, CStringAttribute, nullptr);
+DECLARE_ATTRIBUTE(uint64_t, Uint64Attribute, 0);
+DECLARE_ATTRIBUTE(PlainOldData, PODAttribute, { });
+DECLARE_ATTRIBUTE(Enum, EnumAttribute, Enum::ONE);
+
+} /* namespace attribute */
+
+using namespace attribute;
+
+template<typename T>
+void compare(const T& a, const T& b) {
+    EXPECT_EQ(a, b);
 }
-TEST(Attribute,stringValue) {
-	Attribute attr("v", "hello");
-	EXPECT_EQ("v", attr.name());
-	EXPECT_STREQ("hello", (const char*)attr.data());
-	EXPECT_STREQ("hello", attr.getString());
-	EXPECT_EQ(5, attr.size());
+
+template<>
+void compare(const string& a, const string& b) {
+    EXPECT_STREQ(a.c_str(), b.c_str());
 }
-TEST(Attribute,vectorValue) {
-	const std::vector<float> floats = { 1.f, 2.f };
-	Attribute attr("v", floats);
-	EXPECT_EQ("v", attr.name());
-	EXPECT_EQ(1.f, *(const float*)attr.data());
-	EXPECT_EQ(1.f, *attr.getVector<float>().begin());
-	EXPECT_EQ(2, attr.size());
-	const auto v = attr.getVector<float>();
-	const std::vector<float> floatsback(v.begin(), v.end());
-	EXPECT_EQ(floatsback, floats);
+
+template<>
+void compare(const char* const & a, const char* const & b) {
+    EXPECT_STREQ(a, b);
 }
-TEST(Attribute,badDereferencing) {
-	EXPECT_THROW(Attribute().getScalar<float>(), std::bad_cast);
-	EXPECT_THROW(Attribute("v", 1).getScalar<float>(), std::bad_cast);
-	EXPECT_THROW(Attribute("", 1).getString(), std::bad_cast);
-	EXPECT_THROW(Attribute("", 1).getVector<int>(), std::bad_cast);
+
+template<typename T>
+void testSuite(const typename T::value_type& defaultValue, const typename T::value_type& value, const string& typeStr, const string& valueStr) {
+    Attributes attributes;
+    // no attributes
+    EXPECT_FALSE(attributes.contains<T>());
+    EXPECT_EQ(attributes.size(), 0);
+    EXPECT_EQ(attributes.getOrDefault<T>(), T::default_value());
+    EXPECT_EQ(attributes.getWithDefault<T>(defaultValue), defaultValue);
+    // setting one attribute
+    attributes.set<T>(value);
+    EXPECT_EQ(attributes.size(), 1);
+    EXPECT_TRUE(attributes.contains<T>());
+    // setting two times will not add another value
+    attributes.set<T>(value);
+    EXPECT_EQ(attributes.size(), 1);
+    // displaying type and value
+    {
+        const auto& entry = attributes.get<T>();
+        EXPECT_EQ(typeString(entry), typeStr);
+        EXPECT_EQ(dataString(entry), valueStr);
+        EXPECT_STREQ(nameString(entry), T().name());
+    }
+    // checking get will lead to correct result
+    compare<typename T::value_type>(attributes.getOrDie<T>(), value);
+    compare<typename T::value_type>(attributes.getOrDefault<T>(), value);
+    compare<typename T::value_type>(attributes.getWithDefault<T>(defaultValue), value);
+    // removing data
+    attributes.erase<T>();
+    EXPECT_EQ(attributes.size(), 0);
+    EXPECT_FALSE(attributes.contains<T>());
+    // displaying empty data
+    {
+        const auto& entry = attributes.get<T>();
+        EXPECT_EQ(dataString(entry), "N/A");
+        EXPECT_STREQ(nameString(entry), "N/A");
+    }
 }
-TEST(Attribute,move) {
-	Attribute original("name", 100);
-	Attribute copy(std::move(original));
-	EXPECT_STREQ("name", copy.name());
-	EXPECT_EQ(100, original.getScalar<int>());
+
+TEST(Attributes, string) {
+    testSuite<StringAttribute>("default", "value", "std::string", "value");
 }
-TEST(Attribute,copy) {
-	Attribute original("name", 100);
-	Attribute copy(original);
-	EXPECT_EQ(copy.name(), original.name());
-	EXPECT_EQ(copy.getScalar<int>(), original.getScalar<int>());
+
+TEST(Attributes, cstring) {
+    testSuite<CStringAttribute>("default", "value", "const char*", "value");
+    Attributes attributes;
 }
-TEST(Attribute,assignement) {
-	Attribute original("name", 100);
-	Attribute copy("something", 1.f);
-	copy = original;
-	EXPECT_EQ(copy.name(), original.name());
-	EXPECT_EQ(copy.getScalar<int>(), original.getScalar<int>());
+
+TEST(Attributes, integral) {
+    testSuite<Uint64Attribute>(0ULL, 123ULL, "uint64_t", "123");
 }
-TEST(Attributes,find) {
-	Attributes attributes;
-	attributes.emplace_back("name", 100);
-	EXPECT_TRUE(attributes.find("name", PrimitiveType::INT));
-	EXPECT_TRUE(attributes.find<int>("name"));
-	EXPECT_FALSE(attributes.find("name", PrimitiveType::FLOAT));
-	EXPECT_FALSE(attributes.find("name_", PrimitiveType::INT));
-	EXPECT_THROW(attributes.findVector<int>("name"),std::runtime_error);
+
+TEST(Attributes, POD) {
+    testSuite<PODAttribute>( { 0.0, 0 }, { 1.0, 1 }, "PlainOldData", "[1.000000,1]");
 }
-TEST(Attributes,findVector) {
-	Attributes attributes;
-	attributes.emplace_back("name", std::vector<float>({1,2,3}));
-	attributes.findVector<float>("name");
+
+TEST(Attributes, enum) {
+    testSuite<EnumAttribute>(Enum::ONE, Enum::TWO, "Enum", "TWO");
+}
+
+TEST(Attributes, RawAtributeData) {
+    const char pKey[] = "hello";
+    Attributes attributes;
+    // empty
+    EXPECT_FALSE(attributes.contains(pKey));
+    EXPECT_EQ(attributes.size(), 0);
+    // set
+    const char pData[] = "rawdata";
+    const size_t dataSize = sizeof(pData);
+    attributes.set(pKey, nullptr, pData, dataSize);
+    // one value
+    EXPECT_EQ(attributes.size(), 1);
+    // accessible by one key
+    EXPECT_TRUE(attributes.contains(pKey));
+    // or with another string but same value
+    const char pAnotherEqualKey[] = "hello";
+    EXPECT_NE(pKey, pAnotherEqualKey) << "keys are not the same";
+    EXPECT_TRUE(attributes.contains(pAnotherEqualKey));
+    // fetching raw data
+    const auto value = attributes.getOrDie(pKey);
+    EXPECT_EQ(value.data.size(), dataSize) << "same size";
+    EXPECT_NE(value.data.data(), pData) << "memory should be allocated";
+    EXPECT_EQ(memcmp(value.data.data(), pData, dataSize),0) << "memory should compare equal";
+    // erasing the data
+    attributes.erase(pKey);
+    EXPECT_EQ(attributes.size(), 0);
+    EXPECT_FALSE(attributes.contains(pKey));
+    // fetching raw data
+    const auto empty = attributes.get(pKey);
+    EXPECT_EQ(empty.pKey, nullptr);
+    EXPECT_EQ(empty.pDescriptor, nullptr);
+    EXPECT_EQ(empty.data.size(), 0);
 }

@@ -3,6 +3,7 @@
 #include <duke/gl/GL.hpp>
 #include <duke/base/ByteSwap.hpp>         // for bswap_32
 #include <duke/imageio/DukeIO.hpp>        // for IIODescriptor::Capability, etc
+#include <duke/attributes/AttributeKeys.hpp> // for DpxImageOrientation
 #include <duke/attributes/Attributes.hpp> // for Attributes
 #include <duke/imageio/PackedFrameDescription.hpp>
 #include <stddef.h>                       // for size_t
@@ -100,7 +101,7 @@ public:
         description.swapEndianness = bigEndian;
         description.glPackFormat = GL_RGB10_A2UI;
         description.dataSize = description.height * description.width * sizeof(int32_t);
-        attributes.emplace_back("Orientation", (int) pImageInformation->orientation);
+        attributes.set<attribute::DpxImageOrientation>(pImageInformation->orientation);
         return true;
     }
 

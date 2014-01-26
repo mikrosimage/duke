@@ -477,7 +477,7 @@ std::vector<unsigned char> slurpBinaryFile(const char* pFilename) {
 	return result;
 }
 
-std::pair<int, int> getTextureDimensions(size_t uwidth, size_t uheight, int orientation) {
+std::pair<int, int> getTextureDimensions(size_t uwidth, size_t uheight, uint8_t orientation) {
 	float width = uwidth;
 	float height = uheight;
 	switch (orientation) {
