@@ -20,9 +20,9 @@
  * functions. If plugin creation succeeded Duke can fetch properties by reading
  * the plugin's attributes.
  *
- * Then the 'setup' plugin function will be called to give it a chance
- * to receive parameters from the user (decoding/encoding options, frame to
- * read, etc...), the plugin can talk back by modifying it's attributes.
+ * Then the 'setup' plugin function will be called to initialize the metadata
+ * - read : frame number to read, frame dimensions, data size, ...
+ * - write: frame to write, open file on disk, ...
  *
  * If 'setup' call fails, user can check the getError() function for more
  * informations. If call succeeds, Duke is allowed to go on with read/write
