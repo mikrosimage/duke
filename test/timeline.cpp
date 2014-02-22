@@ -11,11 +11,12 @@ using namespace duke;
 
 class DummyMediaStream: public IMediaStream {
 public:
-    virtual InputFrameOperationResult process(const MediaFrameReference& mfr) const override {
+    virtual InputFrameOperationResult process(const size_t frame) const override {
         InputFrameOperationResult result;
         result.status = IOOperationResult::SUCCESS;
         return result;
     }
+    virtual bool isFileSequence() const override { return false; }
 };
 
 TEST(Track,findClip) {

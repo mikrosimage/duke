@@ -40,6 +40,7 @@ private:
 	std::vector<std::thread> m_WorkerThreads;
 	Timeline m_Timeline;
 	Ranges m_MediaRanges;
+	bool m_TimelineHasMovie;
 	size_t m_WorkerCount;
 
 	mutable std::vector<MediaFrameReference> m_DumpStateTmp;

@@ -33,7 +33,7 @@ void AttributesOverlay::render(const Context &context) const {
 
     const Attributes& attributes = context.pCurrentImage->attributes;
     const std::string text = getAttributes(attributes);
-    drawText(m_GlyphRenderer, context.viewport, text.c_str(), 50, 50, 1, 2);
+    drawText(m_GlyphRenderer, context.viewport, text.c_str(), 50, 50, 1, 1);
 }
 
 } /* namespace duke */

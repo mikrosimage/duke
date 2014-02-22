@@ -6,19 +6,34 @@
 
 namespace duke {
 
-class DiskMediaStream: public duke::IMediaStream {
+class IMediaStreamDelegate {
 public:
-	DiskMediaStream(const sequence::Item& item);
+    virtual ~IMediaStreamDelegate() {}
 
-	virtual InputFrameOperationResult process(const MediaFrameReference& mfr) const override;
+    virtual InputFrameOperationResult process(const size_t frame) const = 0;
+
+    size_t frameCount = 0;
+};
+
+class DiskMediaStream : public duke::IMediaStream {
+public:
+    DiskMediaStream(const Attributes& readerOptions, const sequence::Item& item);
+
+    virtual InputFrameOperationResult process(const size_t frame) const override {
+        return m_pDelegate->process(frame);
+    }
+
+    virtual bool isFileSequence() const override {
+        return m_IsFileSequence;
+    }
+
+    size_t getFrameCount() const {
+        CHECK(m_pDelegate);
+        return m_pDelegate->frameCount;
+    }
 private:
-	std::string generateFilePath(size_t atFrame) const;
-	std::string writeFilename(size_t frame) const;
-
-	sequence::Item m_Item;
-	sequence::Item::Type m_ItemType;
-	std::string m_Prefix;
-	std::string m_Suffix;
+    std::unique_ptr<IMediaStreamDelegate> m_pDelegate;
+    bool m_IsFileSequence;
 };
 
 } /* namespace duke */

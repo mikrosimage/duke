@@ -51,7 +51,7 @@ class IImageReader: public noncopyable {
 protected:
     virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) = 0;
 	const IIODescriptor * const m_pDescriptor;
-	const Attributes m_ReaderAttributes;
+	Attributes m_ReaderAttributes;
 	std::string m_Error;
 
 public:
@@ -62,8 +62,10 @@ public:
 	inline bool hasError() const {
 		return !m_Error.empty();
 	}
-	inline const std::string &getError() const {
-		return m_Error;
+	inline std::string getError() {
+	    std::string copy(m_Error);
+	    m_Error.clear();
+		return copy;
 	}
 	inline const Attributes& getAttributes() {
 		return m_ReaderAttributes;
@@ -106,11 +108,12 @@ namespace duke {
 
 class IIODescriptor: public noncopyable {
 public:
-	enum class Capability {
-		READER_READ_FROM_MEMORY, // Plugin can decode in-memory buffers
-		READER_GENERAL_PURPOSE,  // Plugin can read several formats
-		READER_PERSISTENT,       // Plugin instance can be reused
-	};
+    enum class Capability {
+        READER_READ_FROM_MEMORY, // Plugin can decode in-memory buffers
+        READER_GENERAL_PURPOSE,  // Plugin can read several formats
+        READER_FILE_SEQUENCE,    // Plugin will be instantiated for each frame
+                                 // read will be parallel and out of order
+    };
 	virtual ~IIODescriptor() {}
 	virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
 	virtual const char* getName() const = 0;

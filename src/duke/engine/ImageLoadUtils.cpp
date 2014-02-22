@@ -23,9 +23,32 @@ InputFrameOperationResult error(const std::string& error, InputFrameOperationRes
     return move(result);
 }
 
-InputFrameOperationResult loadImage(IImageReader *pRawReader, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    CHECK(pRawReader);
-    std::unique_ptr<IImageReader> pReader(pRawReader);
+InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *pDescriptor, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+    std::unique_ptr<IImageReader> pReader;
+    if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
+        MemoryMappedFile file(filename);
+        if (!file) return error("unable to map file to memory", result);
+        pReader.reset(pDescriptor->getReaderFromMemory(readOptions, file.pFileData, file.fileSize));
+    } else {
+        pReader.reset(pDescriptor->getReaderFromFile(readOptions, filename));
+    }
+    return loadImage(pReader.get(), callback, move(result));
+}
+
+InputFrameOperationResult load(const char* pFilename, const char *pExtension, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+    const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
+    if (descriptors.empty()) return error("no reader available", result);
+    for (const IIODescriptor *pDescriptor : descriptors) {
+        result = tryReader(pFilename, pDescriptor, readOptions, callback, move(result));
+        if (result) return move(result);
+    }
+    return error("no reader succeeded, last message was : '" + result.error + "'", result);
+}
+
+}  // namespace
+
+InputFrameOperationResult loadImage(IImageReader *pReader, const LoadCallback& callback, InputFrameOperationResult&& result) {
+    CHECK(pReader);
     if (pReader->hasError()) return error(pReader->getError(), result);
     RawPackedFrame& packedFrame = result.rawPackedFrame;
     if (!pReader->setup(packedFrame)) return error(pReader->getError(), result);
@@ -42,30 +65,8 @@ InputFrameOperationResult loadImage(IImageReader *pRawReader, const LoadCallback
     return move(result);
 }
 
-InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *pDescriptor, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
-        MemoryMappedFile file(filename);
-        if (!file) return error("unable to map file to memory", result);
-        return loadImage(pDescriptor->getReaderFromMemory(readOptions, file.pFileData, file.fileSize), callback, move(result));
-    } else {
-        return loadImage(pDescriptor->getReaderFromFile(readOptions, filename), callback, move(result));
-    }
-}
-
-InputFrameOperationResult load(const char* pFilename, const char *pExtension, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
-    if (descriptors.empty()) return error("no reader available", result);
-    for (const IIODescriptor *pDescriptor : descriptors) {
-        result = tryReader(pFilename, pDescriptor, readOptions, callback, move(result));
-        if (result) return move(result);
-    }
-    return error("no reader succeeded, last message was : '" + result.error + "'", result);
-}
-
-}  // namespace
-
 InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    const char* pFilename = result.attributes().getOrDie<attribute::File>();
+    const char* pFilename = result.attributes().getOrDefault<attribute::File>();
     if (!pFilename) return error("no filename", result);
     const char* pExtension = fileExtension(pFilename);
     if (!pExtension) return error("no extension", result);

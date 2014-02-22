@@ -112,7 +112,7 @@ public:
 
 class FastDpxDescriptor: public IIODescriptor {
 	virtual bool supports(Capability capability) const override {
-		return capability == Capability::READER_READ_FROM_MEMORY;
+	    return capability == Capability::READER_READ_FROM_MEMORY || capability == Capability::READER_FILE_SEQUENCE;
 	}
 	virtual const std::vector<std::string>& getSupportedExtensions() const override {
 		static std::vector<std::string> extensions = { "dpx" };

@@ -13,6 +13,12 @@ struct RawPackedFrame;
 
 typedef std::function<void(RawPackedFrame& packedFrame, const void* pVolatileData)> LoadCallback;
 
+class IImageReader;
+InputFrameOperationResult loadImage(IImageReader *pRawReader,
+                                    const LoadCallback& callback,
+                                    InputFrameOperationResult&& result);
+
+
 InputFrameOperationResult load(const Attributes& readOptions,
                                const LoadCallback& callback,
                                InputFrameOperationResult&& result);

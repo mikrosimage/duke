@@ -11,29 +11,22 @@ namespace duke {
 
 struct MediaFrameReference;
 
-class IMediaStream: public noncopyable {
+class IMediaStream : public noncopyable {
 public:
-	virtual ~IMediaStream() {};
+    virtual ~IMediaStream() {}
 
     // This function can be called from different threads.
-    virtual InputFrameOperationResult process(const MediaFrameReference& mfr) const = 0;
+    virtual InputFrameOperationResult process(const size_t frame) const = 0;
 
-	Attributes getAttributes() const {
-	    std::lock_guard<std::mutex> guard(m_Mutex);
-	    return m_Attributes;
-	}
-	void setAttributes(Attributes&& attributes) {
-	    std::lock_guard<std::mutex> guard(m_Mutex);
-	    m_Attributes = std::move(attributes);
-	}
-	void setAttributes(const Attributes& attributes) {
-	    std::lock_guard<std::mutex> guard(m_Mutex);
-	    m_Attributes = attributes;
-	}
+    // If true the this stream is random access and
+    // can easily seek in the stream.
+    virtual bool isFileSequence() const = 0;
 
-private:
-	mutable std::mutex m_Mutex;
-    Attributes m_Attributes; // be sure to lock all access.
+    const Attributes& getState() const {
+        return m_StreamAttributes;
+    }
+protected:
+    Attributes m_StreamAttributes;
 };
 
 } /* namespace duke */

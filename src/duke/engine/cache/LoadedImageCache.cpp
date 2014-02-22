@@ -6,7 +6,7 @@
 namespace duke {
 
 LoadedImageCache::LoadedImageCache(unsigned workerThreadDefault, size_t maxSizeDefault) :
-                m_MaxWeight(maxSizeDefault), m_Cache(m_MaxWeight), m_WorkerCount(workerThreadDefault) {
+                m_MaxWeight(maxSizeDefault), m_Cache(m_MaxWeight), m_TimelineHasMovie(false), m_WorkerCount(workerThreadDefault) {
 }
 
 LoadedImageCache::~LoadedImageCache() {
@@ -20,13 +20,31 @@ void LoadedImageCache::setWorkerCount(size_t workerCount) {
     startWorkers();
 }
 
+namespace {
+
+bool clipIsFileSequence(const std::pair<size_t, Clip>& pair) {
+    const Clip& clip = pair.second;
+    return clip.pStream && clip.pStream->isFileSequence();
+}
+
+bool trackHasMovie(const Track& track) {
+    return std::none_of(begin(track), end(track), &clipIsFileSequence);
+}
+
+bool timelineHasMovie(const Timeline& timeline) {
+    return std::any_of(begin(timeline), end(timeline), &trackHasMovie);
+}
+
+}  // namespace
+
 void LoadedImageCache::load(const Timeline& timeline) {
     stopWorkers();
     m_Timeline = timeline;
     m_MediaRanges = getMediaRanges(m_Timeline);
+    m_TimelineHasMovie = timelineHasMovie(m_Timeline);
     if (m_MediaRanges.empty()) return;
     startWorkers();
-    cue(m_MediaRanges.begin()->first, IterationMode::PINGPONG);
+    cue(m_MediaRanges.begin()->first, m_TimelineHasMovie ? IterationMode::FORWARD : IterationMode::PINGPONG);
 }
 
 void LoadedImageCache::cue(size_t frame, IterationMode mode) {
@@ -99,7 +117,7 @@ void LoadedImageCache::workerFunction() {
         for (;;) {
             m_Cache.pop(mfr);
             CHECK(mfr.pStream);
-            InputFrameOperationResult result(mfr.pStream->process(mfr));
+            InputFrameOperationResult result(mfr.pStream->process(mfr.frame));
 
             switch (result.status) {
                 case IOOperationResult::FAILURE: {

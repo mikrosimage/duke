@@ -11,4 +11,7 @@ DECLARE_ATTRIBUTE(const char*, OiioColorspace, nullptr);
 
 DECLARE_ATTRIBUTE(uint8_t, DpxImageOrientation, 1);
 
+DECLARE_ATTRIBUTE(uint64_t, MediaFrameCount, 0);
+DECLARE_ATTRIBUTE(uint64_t, MediaFrame, 0);
+
 } /* namespace attribute */

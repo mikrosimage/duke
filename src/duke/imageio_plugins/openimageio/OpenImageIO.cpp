@@ -278,7 +278,7 @@ public:
         m_Extensions.push_back(current);
     }
     virtual bool supports(Capability capability) const override {
-        return capability == Capability::READER_GENERAL_PURPOSE;
+        return capability == Capability::READER_GENERAL_PURPOSE || capability == Capability::READER_FILE_SEQUENCE;
     }
     virtual const vector<string>& getSupportedExtensions() const override {
         return m_Extensions;

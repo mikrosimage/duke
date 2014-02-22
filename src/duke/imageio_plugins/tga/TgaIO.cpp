@@ -89,7 +89,7 @@ class TGADescriptor: public IIODescriptor {
 		return extensions;
 	}
 	virtual bool supports(Capability capability) const override {
-		return false;
+	    return capability == Capability::READER_FILE_SEQUENCE;
 	}
 	virtual const char* getName() const override {
 		return "Targa";

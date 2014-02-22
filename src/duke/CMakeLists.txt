@@ -65,3 +65,8 @@ else(OPENIMAGEIO_FOUND)
   # enabling dumb TGA reader just to have a basic reader
   add_definitions(-DDUKE_TGA)
 endif(OPENIMAGEIO_FOUND)
+
+#
+# LibAv
+#
+target_link_libraries(duke avcodec avformat avutil swscale)

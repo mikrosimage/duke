@@ -340,7 +340,8 @@ void DukeMainWindow::run() {
 
 		// handling input by key
 		const bool ctrlModifier = keyPressed(GLFW_KEY_LEFT_CONTROL) || keyPressed(GLFW_KEY_RIGHT_CONTROL);
-		//		const bool shiftModifier = keyPressed(GLFW_KEY_LEFT_SHIFT) || keyPressed(GLFW_KEY_RIGHT_SHIFT);
+        const bool shiftModifier = keyPressed(GLFW_KEY_LEFT_SHIFT) || keyPressed(GLFW_KEY_RIGHT_SHIFT);
+        const int seekAmount = shiftModifier && ctrlModifier ? 250 : (ctrlModifier ? 25 : 1);
 		for (const int key : m_KeyStrokes) {
 			switch (key) {
 			case GLFW_KEY_HOME:
@@ -350,10 +351,10 @@ void DukeMainWindow::run() {
 				commands.emplace_back("end");
 				break;
 			case GLFW_KEY_LEFT:
-				m_Player.cueRelative(ctrlModifier ? -25 : -1);
+				m_Player.cueRelative(-seekAmount);
 				break;
 			case GLFW_KEY_RIGHT:
-				m_Player.cueRelative(ctrlModifier ? 25 : 1);
+				m_Player.cueRelative(seekAmount);
 				break;
 			}
 		}
