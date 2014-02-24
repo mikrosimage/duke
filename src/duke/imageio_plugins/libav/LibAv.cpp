@@ -286,13 +286,19 @@ struct StreamFrameDecoder {
 
     void decodeNextFrame() {
 //        printf("decoding frame : start\n");
-        check(!m_PacketReader.endOfStream(), "end of stream while decoding image");
         AVFrame* pFrame = m_pFrameHolder.get();
         int gotFrame = 0;
         while (!gotFrame) {
             AVPacket* pPacket = m_PacketReader.getCurrentPacket();
 //            m_PacketReader.printPacket();
             const int decodedBytes = avcodec_decode_video2(m_pCodecCtx, pFrame, &gotFrame, pPacket);
+            if (fail(decodedBytes)) {
+                const bool noMorePackets = m_PacketReader.endOfStream();
+                if (noMorePackets)
+                    throw runtime_error("end of stream while decoding image");
+                else
+                    throw runtime_error("unable to decode image");
+            }
             // the whole packet should be decoded at once
             check(decodedBytes >= 0 && decodedBytes == pPacket->size, "invalid decoded byte count");
             // decoding next packet in any case
