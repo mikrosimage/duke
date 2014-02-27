@@ -80,40 +80,28 @@ public:
         size_t lastKeyFrame = 0;
         for (const AVIndexEntry * end = begin + count; begin != end; ++begin) {
             const bool keyframe = begin->flags > 0;
-            if (keyframe) {
-                lastKeyFrame = m_Index.size();
-                m_KeyframeIndex.push_back(lastKeyFrame);
-            }
+            if (keyframe) lastKeyFrame = m_Index.size();
             m_Index.push_back( { begin->pos, begin->timestamp, lastKeyFrame });
         }
     }
-
     size_t getFrameCount() const {
         return m_Index.size();
     }
-
     const IndexEntry& getEntryAt(size_t frame) const {
         return m_Index.at(frame);
     }
-
-    const std::vector<size_t>& getKeyframes() const {
-        return m_KeyframeIndex;
-    }
-
     const std::vector<IndexEntry>& getEntries() const {
         return m_Index;
     }
-
     size_t getFrameFromTimestamp(int64_t ts) const {
         auto itr = lower_bound(m_Index.begin(), m_Index.end(), IndexEntry(), [=](const IndexEntry& a,const IndexEntry&) {
             return a.timestamp<ts;});
+        if (itr == m_Index.end()) return getFrameCount() - 1;
         const size_t index = distance(m_Index.begin(), itr);
         return getEntryAt(index).timestamp == ts ? index : index - 1;
     }
-
 private:
     std::vector<IndexEntry> m_Index;
-    std::vector<size_t> m_KeyframeIndex;
 };
 
 struct PacketHolder : public noncopyable {
@@ -224,7 +212,8 @@ struct Stream {
                     m_StreamIndex(av_find_default_stream_index(m_Container.getFormatPtr())), //
                     m_pStream(m_Container.getFormatPtr()->streams[m_StreamIndex]), //
                     m_Index(m_pStream->index_entries, m_pStream->nb_index_entries), //
-                    m_StartFrame(m_Index.getFrameFromTimestamp(m_pStream->start_time)) {
+                    m_FirstFrame(m_Index.getFrameFromTimestamp(m_pStream->start_time)), //
+                    m_LastFrame(m_Index.getFrameFromTimestamp(std::numeric_limits<int64_t>::max())) {
 //        printf("\nframe\tpos\tpts\tkeyframe\n");
 //        size_t i = 0;
 //        for (const auto entry : m_Index.getEntries()) {
@@ -248,18 +237,22 @@ struct Stream {
     const Index& getContainerIndex() const {
         return m_Index;
     }
-    size_t getStartFrame() const {
-        return m_StartFrame;
+    size_t getFirstFrame() const {
+        return m_FirstFrame;
+    }
+    size_t getLastFrame() const {
+        return m_LastFrame;
     }
     size_t getFrameFromTimestamp(int64_t ts) const {
-        return m_Index.getFrameFromTimestamp(ts) - m_StartFrame;
+        return m_Index.getFrameFromTimestamp(ts) - m_FirstFrame;
     }
 private:
     const MovieContainer& m_Container;
     const size_t m_StreamIndex;
     const AVStream* m_pStream;
     const Index m_Index;
-    const size_t m_StartFrame;
+    const size_t m_FirstFrame;
+    const size_t m_LastFrame;
 };
 
 struct StreamFrameDecoder {
@@ -287,10 +280,10 @@ struct StreamFrameDecoder {
     void decodeNextFrame() {
 //        printf("decoding frame : start\n");
         AVFrame* pFrame = m_pFrameHolder.get();
-        int gotFrame = 0;
-        while (!gotFrame) {
+        while (true) {
             AVPacket* pPacket = m_PacketReader.getCurrentPacket();
 //            m_PacketReader.printPacket();
+            int gotFrame = 0;
             const int decodedBytes = avcodec_decode_video2(m_pCodecCtx, pFrame, &gotFrame, pPacket);
             if (fail(decodedBytes)) {
                 const bool noMorePackets = m_PacketReader.endOfStream();
@@ -306,6 +299,8 @@ struct StreamFrameDecoder {
             // - image decoded, we prepare for next decode cycle
             m_PacketReader.loadNextPacket();
             if (gotFrame) {
+                const auto ts = m_pFrameHolder->best_effort_timestamp;
+                if (ts == AV_NOPTS_VALUE) throw runtime_error("corrupted frame");
                 m_CurrentFrame = m_Stream.getFrameFromTimestamp(m_pFrameHolder->best_effort_timestamp);
 //                printf("decoding frame : end : frame:%lu\tpts:%ld\tbets:%ld\n", m_CurrentFrame, m_pFrameHolder->pts, m_pFrameHolder->best_effort_timestamp);
                 return;
@@ -319,9 +314,10 @@ struct StreamFrameDecoder {
 
     // frame here should take into account stream startFrame
     // ie. if stream start frame is 2 you must not ask for frame 0 or 1
-    bool decodeFrame(size_t frame) {
-        check(frame >= m_Stream.getStartFrame(), "frame must be greater or equals to stream start frame");
-        if (frame == m_CurrentFrame) return true;
+    void decodeFrame(size_t frame) {
+        check(frame >= m_Stream.getFirstFrame(), "frame must be greater or equals to stream first frame");
+        check(frame <= m_Stream.getLastFrame(), "frame must be less or equals to stream last frame");
+        if (frame == m_CurrentFrame) return;
         const auto getEntry = [&](size_t frame) {
             return m_Stream.getContainerIndex().getEntryAt(frame);
         };
@@ -341,18 +337,18 @@ struct StreamFrameDecoder {
         const bool mustSeek = !fastForward;
 
         if (mustSeek) { // no choice but seeking
-            if (!m_PacketReader.seekToStreamTimestamp(keyframeTs)) return false;
+            if (!m_PacketReader.seekToStreamTimestamp(keyframeTs)) throw runtime_error("can't seek to requested frame");
             // We just sought so we must flush the codec buffers
             avcodec_flush_buffers(m_pCodecCtx);
+            // decoding until getting the correct frame or end of stream
 //            printf("sought to ts %ld, now decoding frame %lu at ts %ld\n", keyframeTs, frame, frameTs);
         }
         // fast forwarding to frame of interest
         for (;;) {
             decodeNextFrame();
-            if (m_CurrentFrame == frame) return true;
-            if (m_CurrentFrame > frame) return false;
+            if (m_CurrentFrame == frame) return;
+            if (m_CurrentFrame > frame) throw runtime_error("requested frame does not exist in stream, movie index looks corrupted");
         }
-        return !endOfStream();
     }
 
     AVCodecContext * getCodecContextPtr() const {
@@ -371,7 +367,7 @@ struct PictureDecoder {
     PictureDecoder(AVCodecContext *pCodecCtx) :
                     width(pCodecCtx->width), height(pCodecCtx->height), m_pSwsCtx(nullptr) {
         // fetching scaling context
-        const int scalingFlags = 0;
+        const int scalingFlags = SWS_POINT;
         SwsFilter * const pSrcFilter = nullptr;
         SwsFilter * const pDstFilter = nullptr;
         const double * const pParams = nullptr;
@@ -464,16 +460,13 @@ public:
     virtual bool doSetup(PackedFrameDescription& description, Attributes& frameAttributes) override {
         try {
             const auto requestedFrame = frameAttributes.getOrDie<attribute::MediaFrame>();
-            if (!m_Decoder.decodeFrame(requestedFrame + m_Stream.getStartFrame())) {
-                m_Error = "unknown error";
-                return false;
-            }
+            m_Decoder.decodeFrame(requestedFrame + m_Stream.getFirstFrame());
             description.width = m_PictureDecoder.width;
             description.height = m_PictureDecoder.height;
             description.dataSize = m_PictureDecoder.width * m_PictureDecoder.height * 3;
             description.glPackFormat = GL_RGB8;
             return true;
-        } catch (const runtime_error &e) {
+        } catch (const exception &e) {
             m_Error = e.what();
             return false;
         }
