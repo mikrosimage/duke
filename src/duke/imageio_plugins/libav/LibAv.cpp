@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 
 #ifdef __cplusplus
@@ -48,6 +49,8 @@ template<> struct default_delete<AVFrame> {
 }
 
 namespace {
+
+std::once_flag gAvCodecInitializer;
 
 bool success(int result) {
     return result >= 0;
@@ -423,21 +426,12 @@ private:
     int lineSizes[AV_NUM_DATA_POINTERS];
 };
 
-std::once_flag gAvCodecInitializer;
-
-struct LibAvInitializer {
-    LibAvInitializer() {
-        std::call_once(gAvCodecInitializer, []() {av_register_all();});
-    }
-};
-
 }  // namespace
 
 namespace duke {
 
 class LibAVIOReader : public IImageReader {
 private:
-    LibAvInitializer m_LibAvInitialization;
     MovieContainer m_Container;
     Stream m_Stream;
     StreamFrameDecoder m_Decoder;
@@ -447,8 +441,8 @@ private:
 public:
     LibAVIOReader(const Attributes& options, const IIODescriptor *pDesc, const char *filename)
     try :
-                    IImageReader(options, pDesc), m_LibAvInitialization(), m_Container(filename), m_Stream(m_Container), m_Decoder(m_Stream), m_PictureDecoder(
-                                    m_Decoder.getCodecContextPtr()), m_FrameCount(m_Stream.getContainerIndex().getFrameCount()) {
+                    IImageReader(options, pDesc), m_Container(filename), m_Stream(m_Container), m_Decoder(m_Stream), m_PictureDecoder(m_Decoder.getCodecContextPtr()), m_FrameCount(
+                                    m_Stream.getContainerIndex().getFrameCount()) {
         printf("found %lu frames...\n", m_FrameCount);
         m_ReaderAttributes.set<attribute::MediaFrameCount>(m_FrameCount);
         m_ReaderAttributes.set<attribute::OiioColorspace>("sRGB");
@@ -479,8 +473,17 @@ public:
 
 class LibAVIODescriptor : public IIODescriptor {
 public:
-    LibAVIODescriptor() :
-                    m_Extensions( { "mov", "mp4", "avi", "mxf", "mkv", "mpg" }) {
+    LibAVIODescriptor() {
+        std::call_once(gAvCodecInitializer, []() {av_register_all();});
+        for (AVOutputFormat * format = av_oformat_next(nullptr); format != nullptr; format = av_oformat_next(format)) {
+            if (format->extensions == nullptr) continue;
+            std::istringstream ss(format->extensions);
+            std::string extension;
+            while (std::getline(ss, extension, ',')) {
+                m_Extensions.push_back(std::move(extension));
+                if (ss.peek() == ',') ss.ignore();
+            }
+        }
     }
     virtual bool supports(Capability capability) const override {
         return capability == Capability::READER_GENERAL_PURPOSE;
@@ -489,13 +492,13 @@ public:
         return m_Extensions;
     }
     virtual const char* getName() const override {
-        return "AVLibIO";
+        return "LibAv";
     }
     virtual IImageReader * getReaderFromFile(const Attributes& options, const char *filename) const override {
         return new LibAVIOReader(options, this, filename);
     }
 private:
-    const vector<string> m_Extensions;
+    vector<string> m_Extensions;
 };
 
 namespace {
