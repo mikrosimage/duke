@@ -477,6 +477,8 @@ public:
         std::call_once(gAvCodecInitializer, []() {av_register_all();});
         for (AVOutputFormat * format = av_oformat_next(nullptr); format != nullptr; format = av_oformat_next(format)) {
             if (format->extensions == nullptr) continue;
+			if (format->video_codec == AV_CODEC_ID_MJPEG) continue;
+			if (format->video_codec == AV_CODEC_ID_NONE) continue;
             std::istringstream ss(format->extensions);
             std::string extension;
             while (std::getline(ss, extension, ',')) {
