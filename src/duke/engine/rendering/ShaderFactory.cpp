@@ -155,7 +155,8 @@ void main(void)
         float span = 1/gZoom;
         float total = 0.0;
 
-        const int samples = 4;
+        // TODO(gchatelet): use precomputed unrolled poisson sampling with gaussian interpolation
+        const int samples = 2; // total samples per pixels (samples*2+1)^2 = 25
 
         for (float x = -samples; x <= samples; x++) {
             for (float y = -samples; y <= samples; y++) {
