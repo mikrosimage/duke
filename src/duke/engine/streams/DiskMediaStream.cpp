@@ -10,6 +10,7 @@
 #include <duke/imageio/DukeIO.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace duke {
 
@@ -30,7 +31,10 @@ std::unique_ptr<IImageReader> getFirstValidReader(const Attributes& options, con
     std::unique_ptr<IImageReader> pCurrent;
     for (const auto* pDescriptor : descriptors) {
         pCurrent.reset(pDescriptor->getReaderFromFile(options, filename));
-        CHECK(pCurrent);
+        if(!pCurrent) {
+        	printf("Discarding '%s' reader, read from memory is not yet implemented\n", pDescriptor->getName());
+        	continue;
+        }
         if (pCurrent->hasError() == false) return pCurrent;
     }
     return pCurrent;
