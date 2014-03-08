@@ -7,6 +7,9 @@ namespace duke {
 
 namespace {
 
+const double k2_Pi = 6.28318530717958647692;
+const double kPi_2 = 1.57079632679489661923;
+
 bool isOdd(int64_t count) {
 	return (count & 0x01) > 0;
 }
@@ -49,7 +52,7 @@ struct quintic {
 };
 struct sine {
 	static inline double apply(double t) {
-		return -::cos(t * M_PI_2) + 1;
+		return -::cos(t * kPi_2) + 1;
 	}
 };
 struct expo {
@@ -75,9 +78,9 @@ struct elastic_reversed {
 			amplitude = 1;
 			s = period / 4.0f;
 		} else {
-			s = period / (2 * M_PI) * ::asin(1 / amplitude);
+			s = period / k2_Pi * ::asin(1 / amplitude);
 		}
-		return (amplitude * ::pow(2.0f, -10 * t) * ::sin((t - s) * (2 * M_PI) / period) + 1);
+		return (amplitude * ::pow(2.0f, -10 * t) * ::sin((t - s) * k2_Pi / period) + 1);
 	}
 };
 
