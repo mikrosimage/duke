@@ -117,15 +117,19 @@ struct PacketHolder : public noncopyable {
     }
 
     ~PacketHolder() {
-        destroy();
+        free();
     }
 
     AVPacket* getPacketPtr() {
         return &pkt;
     }
 
+    void free() {
+    	av_free_packet(&pkt);
+    }
+
     void reset() {
-        destroy();
+    	free();
         init();
     }
 
@@ -138,9 +142,6 @@ struct PacketHolder : public noncopyable {
     }
 
 private:
-    void destroy() {
-        if (pkt.buf) av_free_packet(&pkt);
-    }
 
     void init() {
         av_init_packet(&pkt);
@@ -164,10 +165,12 @@ struct StreamPacketReader {
     }
 
     void loadNextPacket() {
-        AVPacket* pPacket = m_Holder.getPacketPtr();
-        do {
+        for(;;) {
+        	m_Holder.free();
+        	AVPacket* pPacket = m_Holder.getPacketPtr();
             m_EndOfStream = fail(av_read_frame(m_pFormatContext, pPacket));
-        } while (!m_EndOfStream && pPacket->stream_index != m_StreamIndex);
+            if( pPacket->stream_index == m_StreamIndex || m_EndOfStream ) return;
+        }
     }
 
     bool endOfStream() const {
