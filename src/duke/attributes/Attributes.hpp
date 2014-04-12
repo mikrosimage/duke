@@ -1,152 +1,126 @@
 #pragma once
 
+#include <duke/attributes/Attribute.hpp>
 #include <duke/base/Check.hpp>
 #include <duke/base/StringUtils.hpp>
-#include <duke/attributes/AttributeEntry.hpp>
-#include <duke/attributes/AttributeDescriptor.hpp>
 
-#include <vector>
 #include <algorithm>
-#include <cstring>
+#include <vector>
+#include <type_traits>
 
-struct Attributes {
-private:
-    template<class T>
-    static inline AttributeData dematerialize(const T& value) {
-        static_assert(std::is_pod<T>::value, "Type has to be Plain Old Data");
-        const char* pBegin = reinterpret_cast<const char*>(&value);
-        return {pBegin, pBegin + sizeof(value)};
-    }
+struct Attributes : public std::vector<Attribute> {
+ private:
+  inline const_iterator find(const char* pKey) const {
+    return std::find_if(begin(), end(), [=](const value_type& a) {
+      return streq(a.key.name, pKey);
+    });
+  }
 
-    template<typename T>
-    static inline T materialize(const void* ptr, size_t size) {
-        CHECK(sizeof(T) == size);
-        return *reinterpret_cast<const T*>(ptr);
-    }
+  inline iterator find(const char* pKey) {
+    return std::find_if(begin(), end(), [=](const value_type& a) {
+      return streq(a.key.name, pKey);
+    });
+  }
 
-    typedef std::vector<AttributeEntry> MapImpl;
-    typedef MapImpl::const_iterator const_iterator;
-    typedef MapImpl::iterator iterator;
-    typedef MapImpl::value_type value_type;
+  inline static bool isValid(const Attribute& entry) { return entry.key.name; }
 
-    MapImpl m_Map;
+ public:
+  bool contains(const char* pKey) const { return find(pKey) != end(); }
 
-    inline const_iterator find(const char* pKey) const {
-        return std::find_if(m_Map.begin(), m_Map.end(), [=](const value_type& a) {return streq(a.pKey, pKey);});
-    }
+  template <typename PROTOTYPE>
+  inline bool contains() const {
+    return contains(PROTOTYPE::key());
+  }
 
-    inline iterator find(const char* pKey) {
-        return std::find_if(m_Map.begin(), m_Map.end(), [=](const value_type& a) {return streq(a.pKey, pKey);});
-    }
+  const Attribute& get(const char* pKey) const {
+    static const Attribute empty;
+    const auto pFound = find(pKey);
+    return pFound == end() ? empty : *pFound;
+  }
 
-    inline static bool isValid(const AttributeEntry& entry) {
-        return entry.pKey;
-    }
+  const Attribute& getOrDie(const char* pKey) const {
+    const Attribute& entry(get(pKey));
+    CHECK(isValid(entry));
+    return entry;
+  }
 
-public:
-    Attributes() {
-        m_Map.reserve(16);
-    }
+  template <typename PROTOTYPE>
+  inline const Attribute& get() const {
+    return get(PROTOTYPE::key());
+  }
 
-    bool contains(const char* pKey) const {
-        return find(pKey) != end();
-    }
+  template <typename PROTOTYPE>
+  typename PROTOTYPE::value_type getOrDie() const {
+    const Attribute& entry(get(PROTOTYPE::key()));
+    CHECK(streq(entry.key.name, PROTOTYPE::key()));
+    return PROTOTYPE::get(entry);
+  }
 
-    template<typename KEY>
-    inline bool contains() const {
-        return contains(KEY().name());
-    }
+  template <typename PROTOTYPE>
+  typename PROTOTYPE::value_type getWithDefault(
+      const typename PROTOTYPE::value_type& default_value) const {
+    const Attribute& entry(get(PROTOTYPE::key()));
+    if (!isValid(entry)) return default_value;
+    CHECK(streq(entry.key.name, PROTOTYPE::key()));
+    return PROTOTYPE::get(entry);
+  }
 
-    const AttributeEntry& get(const char* pKey) const {
-        static const AttributeEntry empty;
-        const auto pFound = find(pKey);
-        return pFound == m_Map.end() ? empty : *pFound;
-    }
+  template <typename PROTOTYPE>
+  inline typename PROTOTYPE::value_type getOrDefault() const {
+    return getWithDefault<PROTOTYPE>(PROTOTYPE::default_value());
+  }
 
-    const AttributeEntry& getOrDie(const char* pKey) const {
-        const AttributeEntry& entry(get(pKey));
-        CHECK(isValid(entry));
-        return entry;
+  template <typename TYPE>
+  void set(const char* key, TYPE&& data) {
+    auto pFound = find(key);
+    if (pFound == end()) {
+      emplace_back();
+      back().set(key, data);
+    } else {
+      pFound->set(key, data);
     }
+  }
+  template <typename PROTOTYPE, typename TYPE = typename PROTOTYPE::value_type>
+  void set(TYPE&& value) {
+    set(PROTOTYPE::key(), std::forward<TYPE>(value));
+  }
 
-    template<typename KEY>
-    inline const AttributeEntry& get() const {
-        return get(KEY().name());
-    }
+  void erase(const char* pKey) { std::vector<Attribute>::erase(find(pKey)); }
 
-    template<typename KEY>
-    typename KEY::value_type getOrDie() const {
-        const AttributeEntry& entry(get(KEY().name()));
-        CHECK(entry.pDescriptor == KEY().descriptor());
-        return materialize<typename KEY::value_type>(entry.data.data(), entry.data.size());
-    }
-
-    template<typename KEY>
-    typename KEY::value_type getWithDefault(const typename KEY::value_type& default_value) const {
-        const AttributeEntry& entry(get(KEY().name()));
-        if (!isValid(entry)) return default_value;
-        CHECK(entry.pDescriptor == KEY().descriptor());
-        return materialize<typename KEY::value_type>(entry.data.data(), entry.data.size());
-    }
-
-    template<typename KEY>
-    inline typename KEY::value_type getOrDefault() const {
-        return getWithDefault<KEY>(KEY::default_value());
-    }
-
-    void set(const char* pKey, const AttributeDescriptor *pDescriptor, AttributeData&& data) {
-        auto pFound = find(pKey);
-        if (pFound == end())
-            m_Map.emplace_back(pKey, pDescriptor, std::move(data));
-        else {
-            pFound->pDescriptor = pDescriptor;
-            pFound->data = std::move(data);
-        }
-    }
-
-    void set(const char* pKey, const AttributeDescriptor *pDescriptor, const char* pData, const size_t size) {
-        set(pKey, pDescriptor, AttributeData { pData, pData + size });
-    }
-
-    template<typename KEY>
-    void set(const typename KEY::value_type& value) {
-        set(KEY().name(), KEY().descriptor(), dematerialize<typename KEY::value_type>(value));
-    }
-
-    void erase(const char* pKey) {
-        m_Map.erase(find(pKey));
-    }
-
-    template<typename KEY>
-    inline void erase() {
-        erase(KEY().name());
-    }
-
-    inline const const_iterator begin() const {
-        return m_Map.begin();
-    }
-    inline const const_iterator end() const {
-        return m_Map.end();
-    }
-    inline size_t size() const {
-        return m_Map.size();
-    }
+  template <typename PROTOTYPE>
+  inline void erase() {
+    erase(PROTOTYPE::key());
+  }
 };
 
-template<>
-inline AttributeData Attributes::dematerialize<const char*>(const char* const & value) {
-    return {value, value + strlen(value) + 1};
-}
-template<>
-inline AttributeData Attributes::dematerialize<std::string>(const std::string& value) {
-    return {value.data(), value.data() + value.size() + 1};
-}
+#define RegisterValueAttribute(TYPE, NAME, DEFAULT)                  \
+  struct NAME {                                                      \
+    typedef TYPE value_type;                                         \
+    static_assert(std::is_pod<TYPE>::value, "Type should be a pod"); \
+    static constexpr const char* const key() { return #NAME; }       \
+    static constexpr value_type default_value() { return DEFAULT; }  \
+    static value_type get(const Attribute& attribute) {              \
+      return attribute.asValue<value_type>();                        \
+    }                                                                \
+  }
 
-template<>
-inline const char* Attributes::materialize(const void* ptr, size_t size) {
-    return reinterpret_cast<const char*>(ptr);
-}
-template<>
-inline std::string Attributes::materialize<std::string>(const void* ptr, size_t size) {
-    return std::string(reinterpret_cast<const char*>(ptr), size);
-}
+#define RegisterArrayAttribute(TYPE, NAME, DEFAULT)                        \
+  struct NAME {                                                            \
+    typedef Slice<TYPE> value_type;                                        \
+    static_assert(std::is_pod<value_type>::value, "Type should be a pod"); \
+    static constexpr const char* const key() { return #NAME; }             \
+    static constexpr value_type default_value() { return DEFAULT; }        \
+    static value_type get(const Attribute& attribute) {                    \
+      return attribute.asSlice<TYPE>();                                    \
+    }                                                                      \
+  }
+
+#define RegisterStringAttribute(NAME, DEFAULT)                      \
+  struct NAME {                                                     \
+    typedef const char* value_type;                                 \
+    static constexpr const char* const key() { return #NAME; }      \
+    static constexpr value_type default_value() { return DEFAULT; } \
+    static value_type get(const Attribute& attribute) {             \
+      return attribute.asCString();                                 \
+    }                                                               \
+  }

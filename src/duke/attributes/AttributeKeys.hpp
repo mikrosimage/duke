@@ -1,17 +1,18 @@
 #pragma once
 
-#include <duke/attributes/Attribute.hpp>
+#include <duke/attributes/Attributes.hpp>
+#include <cstdint>
 
 namespace attribute {
 
-DECLARE_ATTRIBUTE(const char*, Error, nullptr);
-DECLARE_ATTRIBUTE(const char*, File, nullptr);
+RegisterStringAttribute(Error, nullptr);
+RegisterStringAttribute(File, nullptr);
 
-DECLARE_ATTRIBUTE(const char*, OiioColorspace, nullptr);
+RegisterStringAttribute(OiioColorspace, nullptr);
 
-DECLARE_ATTRIBUTE(uint8_t, DpxImageOrientation, 1);
+RegisterValueAttribute(uint8_t, DpxImageOrientation, 1);
 
-DECLARE_ATTRIBUTE(uint64_t, MediaFrameCount, 0);
-DECLARE_ATTRIBUTE(uint64_t, MediaFrame, 0);
+RegisterValueAttribute(uint64_t, MediaFrameCount, 0LL);
+RegisterValueAttribute(uint64_t, MediaFrame, 0LL);
 
 } /* namespace attribute */

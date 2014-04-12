@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IOverlay.hpp"
+#include <duke/attributes/AttributeDisplay.hpp>
 #include <memory>
 
 namespace duke {
@@ -14,6 +15,7 @@ public:
 	virtual void render(const Context&) const;
 private:
 	const GlyphRenderer &m_GlyphRenderer;
+	AttributeDisplay m_AttributeDisplay;
 };
 
 } /* namespace duke */

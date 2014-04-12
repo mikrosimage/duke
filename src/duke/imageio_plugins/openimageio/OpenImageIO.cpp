@@ -12,99 +12,6 @@
 using namespace std;
 OIIO_NAMESPACE_USING;
 
-struct OiioAttributeEntry {
-    const char* name;
-    TypeDesc type;
-    int values;
-    uint16_t datasize;
-    char data;
-};
-
-template<typename T>
-const char* appendAndAdvance(const char*& ptr, std::string& output) {
-    output += std::to_string(*reinterpret_cast<const T*>(ptr));
-    return ptr + sizeof(T);
-}
-
-const char* appendToString(const int type, const char* ptr, std::string& output) {
-    switch (type) {
-        case TypeDesc::UINT8:
-            return appendAndAdvance<uint8_t>(ptr, output);
-        case TypeDesc::INT8:
-            return appendAndAdvance<int8_t>(ptr, output);
-        case TypeDesc::UINT16:
-            return appendAndAdvance<uint16_t>(ptr, output);
-        case TypeDesc::INT16:
-            return appendAndAdvance<int16_t>(ptr, output);
-        case TypeDesc::UINT32:
-            return appendAndAdvance<uint32_t>(ptr, output);
-        case TypeDesc::INT32:
-            return appendAndAdvance<int32_t>(ptr, output);
-        case TypeDesc::UINT64:
-            return appendAndAdvance<uint64_t>(ptr, output);
-        case TypeDesc::INT64:
-            return appendAndAdvance<int64_t>(ptr, output);
-        case TypeDesc::FLOAT:
-            return appendAndAdvance<float>(ptr, output);
-        case TypeDesc::DOUBLE:
-            return appendAndAdvance<double>(ptr, output);
-        case TypeDesc::HALF:
-        default:
-            return nullptr;
-    }
-}
-
-template<>
-std::string TypedAttributeDescriptor<ParamValue>::dataToString(const AttributeEntry& entry) const {
-    const OiioAttributeEntry& param = *reinterpret_cast<const OiioAttributeEntry*>(entry.data.data());
-    const char* ptr = reinterpret_cast<const char*>(&param.data);
-    string buffer;
-    switch (param.type.basetype) {
-        case TypeDesc::STRING: {
-            buffer += '"';
-            buffer += reinterpret_cast<const char*>(&param.data);
-            buffer += '"';
-            return buffer;
-        }
-        default: {
-            if (param.values == 0) {
-                return "N/A";
-            }
-            if (param.values == 1) {
-                appendToString(param.type.basetype, ptr, buffer);
-                return buffer;
-            }
-            buffer += '[';
-            for (int i = 0; i < param.values; ++i) {
-                if (i != 0) buffer += ',';
-                ptr = appendToString(param.type.basetype, ptr, buffer);
-            }
-            buffer += ']';
-            return buffer;
-        }
-    }
-    return "N/A";
-}
-
-namespace attribute {
-
-struct OiioAttribute : public AttributeKey {
-    typedef ParamValue value_type;
-    inline static ParamValue default_value() {
-        return {};
-    }
-    virtual const char* name() const override {
-        CHECK(!"");
-        return "";
-    }
-    virtual const AttributeDescriptor* descriptor() const override {
-        const static TypedAttributeDescriptor<ParamValue> descriptor(nullptr);
-        return &descriptor;
-    }
-};
-
-} // namespace attribute
-
 namespace duke {
 
 namespace {
@@ -189,6 +96,16 @@ size_t getTypeSize(const TypeDesc &typedesc) {
     }
 }
 
+template<typename T>
+void insert(Attributes& attributes, const char* const key, const void* const ptr, int aggregate) {
+	CHECK(aggregate > 0);
+	const auto* pBegin = reinterpret_cast<const T*>(ptr);
+	if (aggregate == 1)
+		attributes.set(key, *pBegin);
+	else
+		attributes.set(key, Slice<T> { pBegin, pBegin + aggregate });
+}
+
 }  // namespace
 
 class OpenImageIOReader : public IImageReader {
@@ -230,23 +147,56 @@ public:
         description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
 
         for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
+        	// skipping none scalar type for now
+			if (paramvalue.nvalues() != 1) {
+				continue;
+			}
             // For a string only the pointer is stored in the oiio attribute
             // we need to copy the whole data to prevent reading dangling pointers.
-            const bool isString = paramvalue.type() == TypeDesc::STRING;
-            const char* pData = isString ?
-                            *reinterpret_cast<const char* const *>(paramvalue.data()) :
-                            reinterpret_cast<const char*>(paramvalue.data());
-            const size_t oiioDataSize = isString ? strlen(pData) + 1 : paramvalue.datasize();
-            const size_t datasize = sizeof(OiioAttributeEntry) + oiioDataSize;
-            AttributeData data(datasize);
-            OiioAttributeEntry& asEntry = *reinterpret_cast<OiioAttributeEntry*>(data.data());
-            asEntry.name = paramvalue.name().c_str();
-            asEntry.type = paramvalue.type();
-            asEntry.values = paramvalue.nvalues();
-            asEntry.datasize = oiioDataSize;
-            memcpy(&asEntry.data, pData, oiioDataSize);
-            attributes.set(paramvalue.name().c_str(), attribute::OiioAttribute().descriptor(), std::move(data));
+			const char * key = paramvalue.name().c_str();
+			const void * data = paramvalue.data();
+			const auto aggregate = paramvalue.type().aggregate;
+			switch (paramvalue.type().basetype) {
+			case TypeDesc::STRING:
+				attributes.set(key, *reinterpret_cast<const char* const *>(data));
+				break;
+			case TypeDesc::INT8:
+				insert<int8_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::INT16:
+				insert<int16_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::INT32:
+				insert<int32_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::INT64:
+				insert<int64_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::UINT8:
+				insert<uint8_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::UINT16:
+				insert<uint16_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::UINT32:
+				insert<uint32_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::UINT64:
+				insert<uint64_t>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::FLOAT:
+				insert<float>(attributes, key, data, aggregate);
+				break;
+			case TypeDesc::DOUBLE:
+				insert<double>(attributes, key, data, aggregate);
+				break;
+			default:
+				CHECK(false) << "Unhandled type";
+			}
         }
+        sort(attributes.begin(), attributes.end(), [](const Attribute&a, const Attribute&b) {
+        	return strcmp(a.key.name, b.key.name) < 0;
+        });
         return true;
     }
 
