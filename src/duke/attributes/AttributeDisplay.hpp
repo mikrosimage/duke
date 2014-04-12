@@ -1,4 +1,5 @@
 #pragma once
+#pragma GCC diagnostic ignored "-Wformat-security"
 
 #include <duke/attributes/Attribute.hpp>
 #include <duke/base/Check.hpp>
@@ -17,12 +18,13 @@ struct StringAppender {
   }
 
   template <typename... Args>
-  void snprintf(const char* string, Args... args) {
+  inline void snprintf(const char* string, Args... args) {
     if (m_Remaining == 0) return;
     const auto written = ::snprintf(m_pCurrent, m_Remaining, string, args...);
     if (written >= m_Remaining) {
       m_pCurrent += m_Remaining;
       m_Remaining = 0;
+      // Finishing string by an ellipsis '...'
       const auto dotCount = std::min(m_Size, 4LU) - 1;
       memset(m_pCurrent - dotCount - 1, '.', dotCount);
     } else {

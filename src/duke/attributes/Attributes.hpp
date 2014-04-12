@@ -33,7 +33,7 @@ struct Attributes : public std::vector<Attribute> {
   }
 
   const Attribute& get(const char* pKey) const {
-    static const Attribute empty;
+    static const Attribute empty {};
     const auto pFound = find(pKey);
     return pFound == end() ? empty : *pFound;
   }
