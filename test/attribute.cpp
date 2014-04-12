@@ -128,7 +128,7 @@ TEST(AttributeDisplay, ConstCharData) {
   Attribute attribute;
   attribute.set("key", "hello");
   AttributeDisplay display;
-  display.registerType<char>();
+  registerPrimitiveTypes(display);
   char buf[1024];
   display.snprintf(attribute, buf, sizeof(buf));
   EXPECT_STREQ(R"("hello")", buf);
@@ -139,7 +139,7 @@ TEST(AttributeDisplay, IntVector) {
   Attribute attribute;
   attribute.set("key", value);
   AttributeDisplay display;
-  display.registerType<int>();
+  registerPrimitiveTypes(display);
   char buf[1024];
   display.snprintf(attribute, buf, sizeof(buf));
   EXPECT_STREQ("[1,2,3,4]", buf);
@@ -150,7 +150,7 @@ TEST(AttributeDisplay, DoubleVector) {
   Attribute attribute;
   attribute.set("key", value);
   AttributeDisplay display;
-  display.registerType<double>();
+  registerPrimitiveTypes(display);
   char buf[1024];
   display.snprintf(attribute, buf, sizeof(buf));
   EXPECT_STREQ("[1.000000,2.000000,3.000000,4.000000]", buf);
@@ -160,7 +160,7 @@ TEST(AttributeDisplay, DoubleData) {
   Attribute attribute;
   attribute.set("key", 1.);
   AttributeDisplay display;
-  display.registerType<double>();
+  registerPrimitiveTypes(display);
   char buf[1024];
   display.snprintf(attribute, buf, sizeof(buf));
   EXPECT_STREQ("1.000000", buf);
