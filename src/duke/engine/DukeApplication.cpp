@@ -43,7 +43,6 @@ bool isValid(const std::string& filename) {
 void AddItemToTrack(const Attributes& options, const Item& item, Track& track, size_t &offset) {
     auto pMediaStream(std::make_shared<DiskMediaStream>(options, item));
     const auto frameCount = pMediaStream->getFrameCount();
-    printf("FrameCount %lu\n", frameCount);
     track.add(offset, Clip { frameCount, std::move(pMediaStream), nullptr });
     offset += frameCount;
 }
