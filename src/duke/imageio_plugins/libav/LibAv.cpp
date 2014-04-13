@@ -16,6 +16,7 @@
 extern "C" {
 #endif
 
+#include <libavutil/dict.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
@@ -441,6 +442,13 @@ private:
     int lineSizes[AV_NUM_DATA_POINTERS];
 };
 
+void exportMetadata(AVDictionary* pMetadata, Attributes& attributes) {
+	AVDictionaryEntry *pEntry = nullptr;
+	while ((pEntry = av_dict_get(pMetadata, "", pEntry, AV_DICT_IGNORE_SUFFIX)) != nullptr) {
+		attributes.set<const char*>(pEntry->key, pEntry->value);
+	}
+}
+
 }  // namespace
 
 namespace duke {
@@ -476,6 +484,9 @@ public:
             description.height = m_PictureDecoder.height;
             description.dataSize = m_PictureDecoder.width * m_PictureDecoder.height * 3;
             description.glPackFormat = GL_RGB8;
+            // export stream metadata to frame
+            exportMetadata(m_Stream.getFormatPtr()->metadata, frameAttributes);
+            exportMetadata(m_Stream.getStreamPtr()->metadata, frameAttributes);
             return true;
         } catch (const exception &e) {
             m_Error = e.what();
