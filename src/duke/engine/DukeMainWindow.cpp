@@ -79,6 +79,7 @@ void DukeMainWindow::onWindowResize(int width, int height) {
 	::glViewport(0, 0, width, height);
 	m_WindowDim.x = width;
 	m_WindowDim.y = height;
+	m_Context.resetFitMode = true;
 }
 
 void DukeMainWindow::onMouseMove(int x, int y) {
@@ -166,7 +167,6 @@ void DukeMainWindow::run() {
 	StatisticsOverlay statisticOverlay(m_GlyphRenderer, m_Player.getTimeline());
 	bool showMetadataOverlay = false;
 	bool showStatisticOverlay = true;
-	bool doSetupZoom = true;
 
 	SharedMesh pSquare = createSquare();
 
@@ -200,11 +200,11 @@ void DukeMainWindow::run() {
 	};
 
 	const auto setupZoom = [&]() {
-		if(m_Context.fitMode == FitMode::FREE||!doSetupZoom)
+		if(m_Context.fitMode == FitMode::FREE||!m_Context.resetFitMode)
 		return;
 		m_Context.zoom = getZoomValue(m_Context);
 		m_Context.pan= glm::ivec2();
-		doSetupZoom = false;
+		m_Context.resetFitMode = false;
 	};
 
 	while (running) {
@@ -331,7 +331,7 @@ void DukeMainWindow::run() {
 				break;
 			case 'f':
 				setNextMode(m_Context.fitMode);
-				doSetupZoom = true;
+				m_Context.resetFitMode = true;
 				display(getFitModeString(m_Context.fitMode));
 				break;
 			}

@@ -27,6 +27,7 @@ struct Context {
 	// geometry
 	Viewport viewport;
 	FitMode fitMode = FitMode::FREE;
+	bool resetFitMode = true;
 	float zoom = 1;
 	glm::ivec2 pan;
 	// grading
