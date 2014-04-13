@@ -1,4 +1,3 @@
-#define DUKE_LIBAV
 #ifdef DUKE_LIBAV
 
 #include <duke/base/NonCopyable.hpp>
@@ -16,10 +15,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <libavutil/avutil.h>
-#include <libavutil/frame.h>
+
 #include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
 #ifdef __cplusplus
@@ -36,9 +33,12 @@ template<> struct default_delete<AVFormatContext> {
     }
 };
 template<> struct default_delete<AVCodecContext> {
-    void operator()(AVCodecContext *ptr) {
-        if (ptr) avcodec_close(ptr);
-    }
+	void operator()(AVCodecContext *ptr) {
+		if (ptr) {
+			avcodec_close(ptr);
+			av_free(ptr);
+		}
+	}
 };
 template<> struct default_delete<AVFrame> {
     void operator()(AVFrame *ptr) {
@@ -220,16 +220,20 @@ struct Stream {
                     m_Index(m_pStream->index_entries, m_pStream->nb_index_entries), //
                     m_FirstFrame(m_Index.getFrameFromTimestamp(m_pStream->start_time)), //
                     m_LastFrame(m_Index.getFrameFromTimestamp(std::numeric_limits<int64_t>::max())) {
-//        printf("\nframe\tpos\tpts\tkeyframe\n");
-//        size_t i = 0;
-//        for (const auto entry : m_Index.getEntries()) {
-//            printf("%lu\t%ld\t%ld\t%d\n", i, entry.pos, entry.timestamp, entry.keyframeIndex == i);
-//            ++i;
-//        }
+#ifdef DEBUG_LIBAV
+        printf("\nframe\tpos\tpts\tkeyframe\n");
+        size_t i = 0;
+        for (const auto entry : m_Index.getEntries()) {
+            printf("%lu\t%ld\t%ld\t%d\n", i, entry.pos, entry.timestamp, entry.keyframeIndex == i);
+            ++i;
+        }
+#endif
         if (m_Index.getEntries().size() <= 1) {
             throw std::runtime_error("no exploitable index in file");
         }
+#ifdef DEBUG_LIBAV
         printf("Stream starts at ts %ld\n", m_pStream->start_time);
+#endif
     }
     AVFormatContext *getFormatPtr() const {
         return m_Container.getFormatPtr();
@@ -284,11 +288,15 @@ struct StreamFrameDecoder {
     }
 
     void decodeNextFrame() {
-//        printf("decoding frame : start\n");
+#ifdef DEBUG_LIBAV
+        printf("decoding frame : start\n");
+#endif
         AVFrame* pFrame = m_pFrameHolder.get();
         while (true) {
             AVPacket* pPacket = m_PacketReader.getCurrentPacket();
-//            m_PacketReader.printPacket();
+#ifdef DEBUG_LIBAV
+            m_PacketReader.printPacket();
+#endif
             int gotFrame = 0;
             const int decodedBytes = avcodec_decode_video2(m_pCodecCtx, pFrame, &gotFrame, pPacket);
             if (fail(decodedBytes)) {
@@ -305,10 +313,12 @@ struct StreamFrameDecoder {
             // - image decoded, we prepare for next decode cycle
             m_PacketReader.loadNextPacket();
             if (gotFrame) {
-                const auto ts = m_pFrameHolder->best_effort_timestamp;
+                const auto ts = m_pFrameHolder->pkt_pts;
                 if (ts == AV_NOPTS_VALUE) throw runtime_error("corrupted frame");
-                m_CurrentFrame = m_Stream.getFrameFromTimestamp(m_pFrameHolder->best_effort_timestamp);
-//                printf("decoding frame : end : frame:%lu\tpts:%ld\tbets:%ld\n", m_CurrentFrame, m_pFrameHolder->pts, m_pFrameHolder->best_effort_timestamp);
+                m_CurrentFrame = m_Stream.getFrameFromTimestamp(ts);
+#ifdef DEBUG_LIBAV
+                printf("decoding frame : end : frame:%lu\tpts:%ld\tbets:%ld\n", m_CurrentFrame, m_pFrameHolder->pts, m_pFrameHolder->best_effort_timestamp);
+#endif
                 return;
             }
         }
@@ -347,7 +357,9 @@ struct StreamFrameDecoder {
             // We just sought so we must flush the codec buffers
             avcodec_flush_buffers(m_pCodecCtx);
             // decoding until getting the correct frame or end of stream
-//            printf("sought to ts %ld, now decoding frame %lu at ts %ld\n", keyframeTs, frame, frameTs);
+#ifdef DEBUG_LIBAV
+            printf("sought to ts %ld, now decoding frame %lu at ts %ld\n", keyframeTs, frame, frameTs);
+#endif
         }
         // fast forwarding to frame of interest
         for (;;) {
@@ -446,7 +458,9 @@ public:
     try :
                     IImageReader(options, pDesc), m_Container(filename), m_Stream(m_Container), m_Decoder(m_Stream), m_PictureDecoder(m_Decoder.getCodecContextPtr()), m_FrameCount(
                                     m_Stream.getContainerIndex().getFrameCount()) {
+#ifdef DEBUG_LIBAV
         printf("found %lu frames...\n", m_FrameCount);
+#endif
         m_ReaderAttributes.set<attribute::MediaFrameCount>(m_FrameCount);
         m_ReaderAttributes.set<attribute::OiioColorspace>("sRGB");
     }

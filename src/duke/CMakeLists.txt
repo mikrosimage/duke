@@ -63,4 +63,10 @@ endif(OPENIMAGEIO_FOUND)
 #
 # LibAv
 #
-target_link_libraries(duke avcodec avformat avutil swscale)
+find_package(LibAV)
+
+if(${LIBAV_FOUND} AND ${LIBAV_AVCODEC_FOUND} AND ${LIBAV_AVFORMAT_FOUND} AND ${LIBAV_AVUTIL_FOUND} AND ${LIBAV_SWSCALE_FOUND})
+  add_definitions(-DDUKE_LIBAV)
+  include_directories(${LIBAV_INCLUDE_DIRS})
+  target_link_libraries(duke ${LIBAV_AVCODEC_LIBRARIES} ${LIBAV_AVFORMAT_LIBRARIES} ${LIBAV_AVUTIL_LIBRARIES} ${LIBAV_SWSCALE_LIBRARIES} )
+endif()
