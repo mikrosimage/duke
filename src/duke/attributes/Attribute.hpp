@@ -5,6 +5,8 @@
 #include "duke/attributes/AttributeKey.hpp"
 
 #include <algorithm>
+#include <string>
+#include <vector>
 
 /**
  * A small value that can efficiently transport POD (plain old data) or arrays
