@@ -1,13 +1,14 @@
 #pragma once
-
-#include <utility>
-#include <limits>
+#include "duke/base/Slice.hpp"
 #include <algorithm>
+#include <limits>
+#include <utility>
 
-#include <cstring>
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
 
+#define MAY_ALIAS __attribute__((__may_alias__))
 /**
  * A buffer with small size optimization.
  *
@@ -19,20 +20,17 @@
 template <size_t SMALL_SIZE_>
 struct SmallBuffer {
   static constexpr size_t SMALL_SIZE = SMALL_SIZE_;
-  static_assert(SMALL_SIZE >= sizeof(void *),
-                "SmallData should at least be of pointer size, T>=8");
+  static_assert(SMALL_SIZE >= sizeof(void *), "SmallData should at least be of pointer size, T>=8");
 
   SmallBuffer() : _size(0) { allocate(); }
 
   SmallBuffer(size_t size) : _size(size) { allocate(); }
 
-  SmallBuffer(size_t size, const void *ptr) : _size(size) {
-    allocateAndCopy(ptr);
-  }
+  SmallBuffer(const void *ptr, size_t size) : _size(size) { allocateAndCopy(ptr); }
 
-  SmallBuffer(const SmallBuffer &other) : _size(other._size) {
-    allocateAndCopy(other.begin());
-  }
+  SmallBuffer(MemorySlice slice) : SmallBuffer(slice.begin(), slice.size()) {}
+
+  SmallBuffer(const SmallBuffer &other) : _size(other._size) { allocateAndCopy(other.begin()); }
 
   SmallBuffer &operator=(const SmallBuffer &other) {
     if (_size != other._size) {
@@ -43,9 +41,7 @@ struct SmallBuffer {
     return *this;
   }
 
-  SmallBuffer(SmallBuffer &&other) : _size(0) {
-    stealContentFrom(std::move(other));
-  }
+  SmallBuffer(SmallBuffer &&other) : _size(0) { stealContentFrom(std::move(other)); }
 
   SmallBuffer &operator=(SmallBuffer &&other) {
     release();
@@ -67,18 +63,25 @@ struct SmallBuffer {
 
   inline bool empty() const { return _size == 0; }
 
- private:
-  inline void setDynamicPtr(void *ptr) {
-    *reinterpret_cast<void **>(_storage) = ptr;
+  bool operator==(const SmallBuffer &other) const {
+    return size() == other.size() && std::equal(begin(), end(), other.begin());
   }
 
-  inline uint8_t *addressof() {
-    return isAllocated() ? *reinterpret_cast<uint8_t **>(_storage) : _storage;
+ private:
+  template <typename T>
+  T &as(void *ptr) {
+    return *reinterpret_cast<T *>(ptr);
   }
-  inline const uint8_t *addressof() const {
-    return isAllocated() ? *reinterpret_cast<const uint8_t *const *>(_storage)
-                         : _storage;
+  template <typename T>
+  T as(const void *ptr) const {
+    return *reinterpret_cast<const T *>(ptr);
   }
+
+  inline void setDynamicPtr(void *ptr) { as<void *>(_storage) = ptr; }
+
+  inline uint8_t *addressof() { return isAllocated() ? as<uint8_t *>(_storage) : _storage; }
+
+  inline const uint8_t *addressof() const { return isAllocated() ? as<const uint8_t *>(_storage) : _storage; }
 
   inline bool isAllocated() const { return _size > SMALL_SIZE; }
 
@@ -102,6 +105,6 @@ struct SmallBuffer {
     other._size = 0;
   }
 
-  uint8_t _storage[SMALL_SIZE];
   size_t _size;
+  uint8_t _storage[SMALL_SIZE];
 };

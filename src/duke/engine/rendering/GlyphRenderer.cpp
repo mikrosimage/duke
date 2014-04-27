@@ -110,7 +110,7 @@ GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const 
 	glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     auto pair = getTextureDimensions(m_GlyphsTexture.description.width,
                                      m_GlyphsTexture.description.height,
-                                     m_Attributes.getOrDefault<attribute::DpxImageOrientation>());
+                                     attribute::getWithDefault<attribute::DpxImageOrientation>(m_Attributes));
 	m_Program.glUniform2i(shader::gImage, pair.first, pair.second);
 	return std::move(scopeBinded);
 }

@@ -97,13 +97,13 @@ size_t getTypeSize(const TypeDesc &typedesc) {
 }
 
 template<typename T>
-void insert(Attributes& attributes, const char* const key, const void* const ptr, int aggregate) {
+void insert(attribute::Attributes& attributes, const char* const key, const void* const ptr, int aggregate) {
 	CHECK(aggregate > 0);
 	const auto* pBegin = reinterpret_cast<const T*>(ptr);
 	if (aggregate == 1)
-		attributes.set(key, *pBegin);
+	  attribute::set(attributes, key, *pBegin);
 	else
-		attributes.set(key, Slice<T> { pBegin, pBegin + aggregate });
+	  attribute::set(attributes, key, Slice<const T>( pBegin, pBegin + aggregate));
 }
 
 }  // namespace
@@ -113,7 +113,7 @@ class OpenImageIOReader : public IImageReader {
     ImageSpec m_Spec;
 
 public:
-    OpenImageIOReader(const Attributes& options, const IIODescriptor *pDesc, const char *filename) :
+    OpenImageIOReader(const attribute::Attributes& options, const IIODescriptor *pDesc, const char *filename) :
                     IImageReader(options, pDesc), m_pImageInput(ImageInput::create(filename)) {
         if (!m_pImageInput) {
             m_Error = OpenImageIO::geterror();
@@ -140,7 +140,7 @@ public:
         if (m_pImageInput) m_pImageInput->close();
     }
 
-    virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
+    virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
         description.width = m_Spec.width;
         description.height = m_Spec.height;
         description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
@@ -158,7 +158,7 @@ public:
 			const auto aggregate = paramvalue.type().aggregate;
 			switch (paramvalue.type().basetype) {
 			case TypeDesc::STRING:
-				attributes.set(key, *reinterpret_cast<const char* const *>(data));
+				attribute::set(attributes, key, *reinterpret_cast<const char* const *>(data));
 				break;
 			case TypeDesc::INT8:
 				insert<int8_t>(attributes, key, data, aggregate);
@@ -194,9 +194,6 @@ public:
 				CHECK(false) << "Unhandled type";
 			}
         }
-        sort(attributes.begin(), attributes.end(), [](const Attribute&a, const Attribute&b) {
-        	return strcmp(a.key.name, b.key.name) < 0;
-        });
         return true;
     }
 
@@ -236,7 +233,7 @@ public:
     virtual const char* getName() const override {
         return "OpenImageIO";
     }
-    virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const override {
+    virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char *filename) const override {
         return new OpenImageIOReader(options, this, filename);
     }
 };

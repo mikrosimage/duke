@@ -17,7 +17,7 @@ public:
 
 class DiskMediaStream : public duke::IMediaStream {
 public:
-    DiskMediaStream(const Attributes& readerOptions, const sequence::Item& item);
+    DiskMediaStream(const attribute::Attributes& readerOptions, const sequence::Item& item);
 
     virtual InputFrameOperationResult process(const size_t frame) const override {
         return m_pDelegate->process(frame);

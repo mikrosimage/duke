@@ -442,10 +442,10 @@ private:
     int lineSizes[AV_NUM_DATA_POINTERS];
 };
 
-void exportMetadata(AVDictionary* pMetadata, Attributes& attributes) {
+void exportMetadata(AVDictionary* pMetadata, attribute::Attributes& attributes) {
 	AVDictionaryEntry *pEntry = nullptr;
 	while ((pEntry = av_dict_get(pMetadata, "", pEntry, AV_DICT_IGNORE_SUFFIX)) != nullptr) {
-		attributes.set<const char*>(pEntry->key, pEntry->value);
+		attribute::set<const char*>(attributes, pEntry->key, pEntry->value);
 	}
 }
 
@@ -462,23 +462,23 @@ private:
     uint64_t m_FrameCount;
 
 public:
-    LibAVIOReader(const Attributes& options, const IIODescriptor *pDesc, const char *filename)
+    LibAVIOReader(const attribute::Attributes& options, const IIODescriptor *pDesc, const char *filename)
     try :
                     IImageReader(options, pDesc), m_Container(filename), m_Stream(m_Container), m_Decoder(m_Stream), m_PictureDecoder(m_Decoder.getCodecContextPtr()), m_FrameCount(
                                     m_Stream.getContainerIndex().getFrameCount()) {
 #ifdef DEBUG_LIBAV
         printf("found %lu frames...\n", m_FrameCount);
 #endif
-        m_ReaderAttributes.set<attribute::MediaFrameCount>(m_FrameCount);
-        m_ReaderAttributes.set<attribute::OiioColorspace>("sRGB");
+        attribute::set<attribute::MediaFrameCount>(m_ReaderAttributes, m_FrameCount);
+        attribute::set<attribute::OiioColorspace>(m_ReaderAttributes, "sRGB");
     }
     catch (const std::runtime_error &e) {
         m_Error = e.what();
     }
 
-    virtual bool doSetup(PackedFrameDescription& description, Attributes& frameAttributes) override {
+    virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& frameAttributes) override {
         try {
-            const auto requestedFrame = frameAttributes.getOrDie<attribute::MediaFrame>();
+            const auto requestedFrame = attribute::getOrDie<attribute::MediaFrame>(frameAttributes);
             m_Decoder.decodeFrame(requestedFrame + m_Stream.getFirstFrame());
             description.width = m_PictureDecoder.width;
             description.height = m_PictureDecoder.height;
@@ -524,7 +524,7 @@ public:
     virtual const char* getName() const override {
         return "LibAv";
     }
-    virtual IImageReader * getReaderFromFile(const Attributes& options, const char *filename) const override {
+    virtual IImageReader * getReaderFromFile(const attribute::Attributes& options, const char *filename) const override {
         return new LibAVIOReader(options, this, filename);
     }
 private:

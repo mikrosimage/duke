@@ -41,11 +41,11 @@ const uint64_t raster_data[] = { 0x81c08367e7e00, 0x18fcfc3cf0ff00ff, 0x83e1c7ff
 
 class AsciiFontImageReader: public IImageReader {
 public:
-	AsciiFontImageReader(const Attributes& options, const IIODescriptor *pDesc) :
+	AsciiFontImageReader(const attribute::Attributes& options, const IIODescriptor *pDesc) :
 			IImageReader(options, pDesc) {
 	}
 
-	virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
+	virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
         description.height = 128;
         description.width = 128;
         description.glPackFormat = GL_RGBA8;
@@ -79,7 +79,7 @@ class AsciiFontDescriptor: public IIODescriptor {
 	virtual const char* getName() const override {
 		return "Basic font provider";
 	}
-	virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const override {
+	virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char *filename) const override {
 		return new AsciiFontImageReader(options, this);
 	}
 };

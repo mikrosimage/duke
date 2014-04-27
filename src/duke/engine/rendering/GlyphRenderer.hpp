@@ -24,7 +24,7 @@ struct GlyphRenderer: public noncopyable {
 private:
 	const GeometryRenderer &m_GeometryRenderer;
 	mutable Program m_Program;
-	Attributes m_Attributes;
+	attribute::Attributes m_Attributes;
 	Texture m_GlyphsTexture;
 
 	GlyphBinder m_pTextureBind;

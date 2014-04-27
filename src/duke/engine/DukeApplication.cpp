@@ -40,7 +40,7 @@ bool isValid(const std::string& filename) {
 	return true;
 }
 
-void AddItemToTrack(const Attributes& options, const Item& item, Track& track, size_t &offset) {
+void AddItemToTrack(const attribute::Attributes& options, const Item& item, Track& track, size_t &offset) {
     auto pMediaStream(std::make_shared<DiskMediaStream>(options, item));
     const auto frameCount = pMediaStream->getFrameCount();
     track.add(offset, Clip { frameCount, std::move(pMediaStream), nullptr });
@@ -52,7 +52,7 @@ void AddItemToTrack(const Attributes& options, const Item& item, Track& track, s
 Timeline buildTimeline(const std::vector<std::string> &paths) {
 	Track track;
 	size_t offset = 0;
-	Attributes options;
+	attribute::Attributes options;
     for (const std::string &path : paths) {
         const std::string absolutePath = getAbsoluteFilename(path.c_str());
         switch (getFileStatus(absolutePath.c_str())) {

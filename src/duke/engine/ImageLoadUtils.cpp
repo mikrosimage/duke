@@ -23,7 +23,7 @@ InputFrameOperationResult error(const std::string& error, InputFrameOperationRes
     return move(result);
 }
 
-InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *pDescriptor, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *pDescriptor, const attribute::Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     std::unique_ptr<IImageReader> pReader;
     if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
         MemoryMappedFile file(filename);
@@ -35,7 +35,7 @@ InputFrameOperationResult tryReader(const char* filename, const IIODescriptor *p
     return loadImage(pReader.get(), callback, move(result));
 }
 
-InputFrameOperationResult load(const char* pFilename, const char *pExtension, const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+InputFrameOperationResult load(const char* pFilename, const char *pExtension, const attribute::Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
     const auto &descriptors = IODescriptors::instance().findDescriptor(pExtension);
     if (descriptors.empty()) return error("no reader available", result);
     for (const IIODescriptor *pDescriptor : descriptors) {
@@ -65,8 +65,8 @@ InputFrameOperationResult loadImage(IImageReader *pReader, const LoadCallback& c
     return move(result);
 }
 
-InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
-    const char* pFilename = result.attributes().getOrDefault<attribute::File>();
+InputFrameOperationResult load(const attribute::Attributes& readOptions, const LoadCallback& callback, InputFrameOperationResult&& result) {
+    const char* pFilename = attribute::getOrDie<attribute::File>(result.attributes());
     if (!pFilename) return error("no filename", result);
     const char* pExtension = fileExtension(pFilename);
     if (!pExtension) return error("no extension", result);
@@ -76,7 +76,7 @@ InputFrameOperationResult load(const Attributes& readOptions, const LoadCallback
 InputFrameOperationResult load(const char* pFilename, Texture& texture) {
     CHECK(pFilename);
     InputFrameOperationResult result;
-    result.attributes().set<attribute::File>(pFilename);
+    attribute::set<attribute::File>(result.attributes(), pFilename);
     return load( { }, [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
         const auto bound = texture.scope_bind_texture();
         texture.initialize(packedFrame.description,pVolatileData);

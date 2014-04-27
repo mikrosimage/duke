@@ -72,7 +72,7 @@ class FastDpxImageReader: public IImageReader {
     template<typename T>
     inline T swap(T value) const {return ::swap<T>(value, bigEndian); }
 public:
-    FastDpxImageReader(const Attributes& options, const IIODescriptor *pDesc, const void *pData, const size_t dataSize) :
+    FastDpxImageReader(const attribute::Attributes& options, const IIODescriptor *pDesc, const void *pData, const size_t dataSize) :
                     IImageReader(options, pDesc),
                     m_pData(nullptr),
                     pInformation(reinterpret_cast<const FileInformation*>(pData)),
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
+    virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
         m_pData = nullptr;
         description.height = swap(pImageInformation->lines_per_image_ele);
         description.width = swap(pImageInformation->pixels_per_line);
@@ -101,7 +101,7 @@ public:
         description.swapEndianness = bigEndian;
         description.glPackFormat = GL_RGB10_A2UI;
         description.dataSize = description.height * description.width * sizeof(int32_t);
-        attributes.set<attribute::DpxImageOrientation>(pImageInformation->orientation);
+        attribute::set<attribute::DpxImageOrientation>(attributes, pImageInformation->orientation);
         return true;
     }
 
@@ -121,7 +121,7 @@ class FastDpxDescriptor: public IIODescriptor {
 	virtual const char* getName() const override {
 		return "FastDpx";
 	}
-	virtual IImageReader* getReaderFromMemory(const Attributes& options, const void *pData, const size_t dataSize) const override {
+	virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void *pData, const size_t dataSize) const override {
 		return new FastDpxImageReader(options, this, pData, dataSize);
 	}
 };

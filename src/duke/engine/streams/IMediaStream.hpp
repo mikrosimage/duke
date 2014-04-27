@@ -22,11 +22,11 @@ public:
     // can easily seek in the stream.
     virtual bool isFileSequence() const = 0;
 
-    const Attributes& getState() const {
+    const attribute::Attributes& getState() const {
         return m_StreamAttributes;
     }
 protected:
-    Attributes m_StreamAttributes;
+    attribute::Attributes m_StreamAttributes;
 };
 
 } /* namespace duke */

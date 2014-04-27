@@ -121,7 +121,7 @@ void LoadedImageCache::workerFunction() {
 
             switch (result.status) {
                 case IOOperationResult::FAILURE: {
-                    printf("error while reading %s : %s\n", result.attributes().getOrDie<attribute::File>(), result.error.c_str());
+                    printf("error while reading %s : %s\n", attribute::getOrDie<attribute::File>(result.attributes()), result.error.c_str());
                     m_Cache.push(mfr, 1UL, RawPackedFrame());
                     break;
                 }

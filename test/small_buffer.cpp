@@ -22,18 +22,18 @@ TEST(SmallBuffer, Invariants) {
 
 void fill(SmallData8& data) {
   uint8_t counter = 0;
-  for (auto I = data.begin(), E = data.end(); I != E; ++I, ++counter)
-    *I = counter;
+  for (auto I = data.begin(), E = data.end(); I != E; ++I, ++counter) *I = counter;
 }
+
 SmallData8 getSmallData(size_t size) {
   SmallData8 data(size);
   fill(data);
   return data;
 }
+
 SmallData8 getSmallData() { return getSmallData(SmallData8::SMALL_SIZE); }
-SmallData8 getExceededSmallData() {
-  return getSmallData(SmallData8::SMALL_SIZE + 1);
-}
+
+SmallData8 getExceededSmallData() { return getSmallData(SmallData8::SMALL_SIZE + 1); }
 
 bool ptrIsInsideObject(const SmallData8& object, const void* ptr) {
   return ptr >= reinterpret_cast<const void*>(&object) &&
@@ -45,13 +45,9 @@ void checkPtrAllocation(const SmallData8& data, const bool expectedInside) {
   ASSERT_EQ(ptrIsInsideObject(data, data.end()), expectedInside);
 }
 
-TEST(SmallBuffer, SmallIsInsideObject) {
-  checkPtrAllocation(getSmallData(), true);
-}
+TEST(SmallBuffer, SmallIsInsideObject) { checkPtrAllocation(getSmallData(), true); }
 
-TEST(SmallBuffer, BigIsOutsideObject) {
-  checkPtrAllocation(getExceededSmallData(), false);
-}
+TEST(SmallBuffer, BigIsOutsideObject) { checkPtrAllocation(getExceededSmallData(), false); }
 
 bool isFilled(const SmallData8& data) {
   uint8_t counter = 0;

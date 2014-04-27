@@ -1,4 +1,6 @@
 #include "AttributesOverlay.hpp"
+#include <duke/attributes/AttributeDisplay.hpp>
+#include <duke/attributes/AttributesView.hpp>
 #include <duke/engine/Context.hpp>
 #include <duke/engine/rendering/GlyphRenderer.hpp>
 #include <duke/imageio/PackedFrameDescriptionAndAttributes.hpp>
@@ -8,31 +10,31 @@ namespace duke {
 
 AttributesOverlay::AttributesOverlay(const GlyphRenderer &glyphRenderer) :
                 m_GlyphRenderer(glyphRenderer) {
-	registerPrimitiveTypes(m_AttributeDisplay);
 }
 
 void AttributesOverlay::render(const Context &context) const {
     if (!context.pCurrentImage) return;
 
-    const Attributes& attributes = context.pCurrentImage->attributes;
+    attribute::AttributesView attributeView;
+    attributeView.merge(context.pCurrentImage->attributes);
+    attributeView.sort();
 
     size_t maxKeyCharacters = 0;
-    for (const auto& entry : attributes) {
-    	maxKeyCharacters = std::max(maxKeyCharacters, strlen(entry.key.name));
+    for (const auto& entry : attributeView) {
+    	maxKeyCharacters = std::max(maxKeyCharacters, strlen(entry.name));
     }
-    char formatString[32];
-    snprintf(formatString, sizeof(formatString), "%%-%zus ", maxKeyCharacters);
 
     bool first = true;
-    char buffer[2048];
-    StringAppender appender(buffer, sizeof(buffer));
-    for (const auto& entry : attributes) {
-            if(!first) appender.snprintf("\n");
+    BufferStringAppender<2048> buffer;
+    for (const auto& entry : attributeView) {
+            if(!first) buffer.append('\n');
             first = false;
-            appender.snprintf(formatString, entry.key.name);
-            m_AttributeDisplay.snprintf(entry, appender);
+            buffer.append(entry.name);
+            const size_t left = maxKeyCharacters - strlen(entry.name) + 1;
+            for (size_t i = 0; i < left; ++i) buffer.append(' ');
+            attribute::append(entry, buffer);
     }
-    drawText(m_GlyphRenderer, context.viewport, buffer, 50, 50, 1, 1);
+    drawText(m_GlyphRenderer, context.viewport, buffer.c_str(), 50, 50, 1, 1);
 }
 
 } /* namespace duke */

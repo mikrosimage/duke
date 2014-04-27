@@ -1,11 +1,12 @@
 #pragma once
 
-#include <string>
-#include <functional>
+#include <duke/attributes/Attributes.hpp>
 #include <duke/engine/streams/IIOOperation.hpp>
 
+#include <string>
+#include <functional>
+
 struct PackedFrameDescription;
-struct Attributes;
 
 namespace duke {
 
@@ -19,7 +20,7 @@ InputFrameOperationResult loadImage(IImageReader *pRawReader,
                                     InputFrameOperationResult&& result);
 
 
-InputFrameOperationResult load(const Attributes& readOptions,
+InputFrameOperationResult load(const attribute::Attributes& readOptions,
                                const LoadCallback& callback,
                                InputFrameOperationResult&& result);
 

@@ -49,13 +49,13 @@ class IIODescriptor;
 
 class IImageReader: public noncopyable {
 protected:
-    virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) = 0;
+    virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) = 0;
 	const IIODescriptor * const m_pDescriptor;
-	Attributes m_ReaderAttributes;
+	attribute::Attributes m_ReaderAttributes;
 	std::string m_Error;
 
 public:
-    IImageReader(const Attributes& options, const IIODescriptor * pDescriptor) :
+    IImageReader(const attribute::Attributes& options, const IIODescriptor * pDescriptor) :
                     m_pDescriptor(pDescriptor), m_ReaderAttributes(std::move(options)) {
     }
 	virtual ~IImageReader() {}
@@ -67,7 +67,7 @@ public:
 	    m_Error.clear();
 		return copy;
 	}
-	inline const Attributes& getAttributes() {
+	inline const attribute::Attributes& getAttributes() {
 		return m_ReaderAttributes;
 	}
 	inline const IIODescriptor * getDescriptor() const {
@@ -85,17 +85,17 @@ public:
 };
 
 class IImageWriter: public noncopyable {
-    Attributes m_WriterAttributes;
+    attribute::Attributes m_WriterAttributes;
     std::string m_Error;
 public:
 	virtual ~IImageWriter() {}
     inline const std::string &getError() const {
         return m_Error;
     }
-    inline Attributes& getAttributes() {
+    inline attribute::Attributes& getAttributes() {
         return m_WriterAttributes;
     }
-    virtual bool setup(const Attributes &input) {
+    virtual bool setup(const attribute::Attributes &input) {
         return false;
     }
 };
@@ -118,13 +118,13 @@ public:
 	virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
 	virtual const char* getName() const = 0;
 	virtual bool supports(Capability capability) const = 0;
-	virtual IImageReader* getReaderFromFile(const Attributes& options, const char *filename) const {
+	virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char *filename) const {
 		return nullptr;
 	}
-	virtual IImageReader* getReaderFromMemory(const Attributes& options, const void *pData, const size_t dataSize) const {
+	virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void *pData, const size_t dataSize) const {
 		return nullptr;
 	}
-	virtual IImageWriter* getWriterToFile(const Attributes& options, const char *filename) const {
+	virtual IImageWriter* getWriterToFile(const attribute::Attributes& options, const char *filename) const {
 		return nullptr;
 	}
 };

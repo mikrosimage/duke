@@ -27,7 +27,7 @@ bool isFileSequenceReader(const IIODescriptor* pDescriptor){
     return pDescriptor->supports(IIODescriptor::Capability::READER_FILE_SEQUENCE);
 }
 
-std::unique_ptr<IImageReader> getFirstValidReader(const Attributes& options, const std::vector<IIODescriptor*>& descriptors, const char* filename) {
+std::unique_ptr<IImageReader> getFirstValidReader(const attribute::Attributes& options, const std::vector<IIODescriptor*>& descriptors, const char* filename) {
     std::unique_ptr<IImageReader> pCurrent;
     for (const auto* pDescriptor : descriptors) {
         pCurrent.reset(pDescriptor->getReaderFromFile(options, filename));
@@ -52,7 +52,7 @@ void CopyDataFromVolatilePointer(RawPackedFrame& packedFrame, const void* pVolat
 
 class FileSequenceImpl : public IMediaStreamDelegate {
 public:
-    FileSequenceImpl(const Attributes& options, const sequence::Item& item, Attributes& state) :
+    FileSequenceImpl(const attribute::Attributes& options, const sequence::Item& item, attribute::Attributes& state) :
                     m_Item(item),
                     m_ItemType(m_Item.getType()),
                     m_Descriptors(findIODescriptors(item)),
@@ -71,7 +71,7 @@ public:
     // Several threads will access this function at the same time.
     virtual InputFrameOperationResult process(const size_t frame) const override {
         InputFrameOperationResult result;
-        result.attributes().set<attribute::File>(generateFilePath(frame).c_str());
+        attribute::set<attribute::File>(result.attributes(), generateFilePath(frame).c_str());
         return duke::load(m_Options, &CopyDataFromVolatilePointer, std::move(result));
     }
 private:
@@ -95,12 +95,12 @@ private:
     std::string m_Prefix;
     std::string m_Suffix;
     std::vector<IIODescriptor*> m_Descriptors;
-    Attributes m_Options;
+    attribute::Attributes m_Options;
 };
 
 class SingleFileImpl : public IMediaStreamDelegate {
 public:
-    SingleFileImpl(const Attributes& options, const sequence::Item& item, Attributes& state) :
+    SingleFileImpl(const attribute::Attributes& options, const sequence::Item& item, attribute::Attributes& state) :
                     m_Descriptors(findIODescriptors(item)),
                     m_Filename(item.filename),
                     m_pImageReader(getFirstValidReader(options, m_Descriptors, m_Filename.c_str())) {
@@ -108,21 +108,21 @@ public:
             std::string error = "No reader for '";
             error += m_Filename;
             error += "'";
-            state.set<attribute::Error>(error.c_str());
+            attribute::set<attribute::Error>(state, error.c_str());
             return;
         }
         if (m_pImageReader->hasError()) {
-            state.set<attribute::Error>(m_pImageReader->getError().c_str());
+          attribute::set<attribute::Error>(state, m_pImageReader->getError().c_str());
             m_pImageReader.reset();
             return;
         }
-        frameCount = m_pImageReader->getAttributes().getWithDefault<attribute::MediaFrameCount>(1);
+        frameCount = attribute::getWithDefault<attribute::MediaFrameCount>(m_pImageReader->getAttributes(), 1);
     }
 
     virtual InputFrameOperationResult process(const size_t frame) const override {
         InputFrameOperationResult result;
-        result.attributes().set<attribute::File>(m_Filename.c_str());
-        result.attributes().set<attribute::MediaFrame>(frame);
+        attribute::set<attribute::File>(result.attributes(), m_Filename.c_str());
+        attribute::set<attribute::MediaFrame>(result.attributes(), frame);
         CHECK(m_pImageReader);
         std::lock_guard<std::mutex> guard(m_Mutex);
         return duke::loadImage(m_pImageReader.get(), &CopyDataFromVolatilePointer, std::move(result));
@@ -138,7 +138,7 @@ private:
 }  // namespace
 
 
-DiskMediaStream::DiskMediaStream(const Attributes& options, const sequence::Item& item) : m_IsFileSequence(false) {
+DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const sequence::Item& item) : m_IsFileSequence(false) {
     switch (item.getType()) {
         case sequence::Item::SINGLE:
             m_pDelegate.reset(new SingleFileImpl(options, item, m_StreamAttributes));
@@ -153,9 +153,9 @@ DiskMediaStream::DiskMediaStream(const Attributes& options, const sequence::Item
             break;
     }
     CHECK(m_pDelegate);
-    if (m_StreamAttributes.contains<attribute::Error>())
+    if (attribute::contains<attribute::Error>(m_StreamAttributes))
         return;
-    m_StreamAttributes.set<attribute::MediaFrameCount>(m_pDelegate->frameCount);
+    attribute::set<attribute::MediaFrameCount>(m_StreamAttributes, m_pDelegate->frameCount);
 }
 
 } /* namespace duke */

@@ -1,103 +1,80 @@
-#include "AttributeDisplay.hpp"
+#include <duke/attributes/AttributeDisplay.hpp>
+
 #include <duke/base/Slice.hpp>
 
-void AttributeDisplay::snprintf(const Attribute& attribute,
-                                StringAppender& appender) const {
-  const char* const pTypeName = attribute.key.type_index.name();
-  const auto pFound = m_TypeToDisplayFunctions.find(pTypeName);
-  if (pFound == m_TypeToDisplayFunctions.end()) {
-    const uint8_t* const begin = attribute.value.begin();
-    const uint8_t* const end = attribute.value.end();
-    for (const uint8_t* pSrc = begin; !appender.done() && pSrc != end; ++pSrc)
-      appender.snprintf("%s%02X", pSrc != begin ? "-" : "", *pSrc);
-    return;
-  }
-  pFound->second(attribute.value.begin(), attribute.value.size(), appender);
-}
+#include <stdexcept>
 
-template <>
-void displayValue<const char*>(const void* ptr, size_t byteSize,
-                               StringAppender& appender) {
-  appender.snprintf(R"("%s")", *reinterpret_cast<const char* const*>(ptr));
-}
-template <>
-void displayValue<char>(const void* ptr, size_t byteSize,
-                        StringAppender& appender) {
-  appender.snprintf("'%c'", *reinterpret_cast<const char*>(ptr));
-}
-template <>
-void displayValue<unsigned char>(const void* ptr, size_t byteSize,
-                                 StringAppender& appender) {
-  appender.snprintf("%d", *reinterpret_cast<const unsigned char*>(ptr));
-}
-template <>
-void displayValue<int>(const void* ptr, size_t byteSize,
-                       StringAppender& appender) {
-  appender.snprintf("%d", *reinterpret_cast<const int*>(ptr));
-}
-template <>
-void displayValue<long>(const void* ptr, size_t byteSize,
-                        StringAppender& appender) {
-  appender.snprintf("%ld", *reinterpret_cast<const long*>(ptr));
-}
-template <>
-void displayValue<long long>(const void* ptr, size_t byteSize,
-                             StringAppender& appender) {
-  appender.snprintf("%lld", *reinterpret_cast<const long long*>(ptr));
-}
-template <>
-void displayValue<unsigned>(const void* ptr, size_t byteSize,
-                            StringAppender& appender) {
-  appender.snprintf("%u", *reinterpret_cast<const unsigned*>(ptr));
-}
-template <>
-void displayValue<unsigned long>(const void* ptr, size_t byteSize,
-                                 StringAppender& appender) {
-  appender.snprintf("%lu", *reinterpret_cast<const unsigned long*>(ptr));
-}
-template <>
-void displayValue<unsigned long long>(const void* ptr, size_t byteSize,
-                                      StringAppender& appender) {
-  appender.snprintf("%llu", *reinterpret_cast<const unsigned long long*>(ptr));
-}
-template <>
-void displayValue<float>(const void* ptr, size_t byteSize,
-                         StringAppender& appender) {
-  appender.snprintf("%f", *reinterpret_cast<const float*>(ptr));
-}
-template <>
-void displayValue<double>(const void* ptr, size_t byteSize,
-                          StringAppender& appender) {
-  appender.snprintf("%f", *reinterpret_cast<const double*>(ptr));
-}
-template <>
-void displayValue<long double>(const void* ptr, size_t byteSize,
-                               StringAppender& appender) {
-  appender.snprintf("%Lf", *reinterpret_cast<const long double*>(ptr));
-}
+namespace attribute {
 
-template <>
-void displayArray<char>(const void* ptr, size_t byteSize, StringAppender& appender) {
-	appender.snprintf(R"("%s")", reinterpret_cast<const char* >(ptr));
-}
+namespace {
 
 template <typename T>
-void AttributeDisplay::registerType() {
-  m_TypeToDisplayFunctions[typeid(T).name()] = &displayValue<T>;
-  m_TypeToDisplayFunctions[typeid(Slice<T>).name()] = &displayArray<T>;
+T as(const void* ptr) {
+  return *reinterpret_cast<const T*>(ptr);
 }
 
-void registerPrimitiveTypes(AttributeDisplay& display) {
-  display.registerType<const char*>();
-  display.registerType<char>();
-  display.registerType<int>();
-  display.registerType<long>();
-  display.registerType<long long>();
-  display.registerType<unsigned char>();
-  display.registerType<unsigned>();
-  display.registerType<unsigned long>();
-  display.registerType<unsigned long long>();
-  display.registerType<float>();
-  display.registerType<double>();
-  display.registerType<long double>();
+void display(const Type type, const uint8_t* ptr, const size_t size, StringAppender& appender) {
+  switch (type) {
+    case Type::Bool:
+      appender.append(as<bool>(ptr) ? "true" : "false");
+      break;
+    case Type::Int8:
+      appender.append(std::to_string(as<int8_t>(ptr)));
+      break;
+    case Type::Int16:
+      appender.append(std::to_string(as<int16_t>(ptr)));
+      break;
+    case Type::Int32:
+      appender.append(std::to_string(as<int32_t>(ptr)));
+      break;
+    case Type::Int64:
+      appender.append(std::to_string(as<int64_t>(ptr)));
+      break;
+    case Type::UInt8:
+      appender.append(std::to_string(as<uint8_t>(ptr)));
+      break;
+    case Type::UInt16:
+      appender.append(std::to_string(as<uint16_t>(ptr)));
+      break;
+    case Type::UInt32:
+      appender.append(std::to_string(as<uint32_t>(ptr)));
+      break;
+    case Type::UInt64:
+      appender.append(std::to_string(as<uint64_t>(ptr)));
+      break;
+    case Type::Float32:
+      appender.append(std::to_string(as<float>(ptr)));
+      break;
+    case Type::Float64:
+      appender.append(std::to_string(as<double>(ptr)));
+      break;
+    case Type::String:
+      appender.append('"');
+      appender.append(reinterpret_cast<const char*>(ptr));
+      appender.append('"');
+      break;
+    default:
+      const auto primitiveType = getPrimitiveForArray(type);
+      if (primitiveType == Type::Invalid) {
+        appender.append("ERROR");
+      } else {
+        appender.append('[');
+        const auto primitiveSize = getPrimitiveSize(primitiveType);
+        CHECK(size % primitiveSize == 0);
+        const auto count = size / primitiveSize;
+        for (size_t i = 0; i < count && appender; ++i, ptr += primitiveSize) {
+          if (i > 0) appender.append(',');
+          display(primitiveType, ptr, primitiveSize, appender);
+        }
+        appender.append(']');
+      }
+  }
 }
+
+}  // namespace
+
+void append(const Attribute& attribute, StringAppender& appender) {
+  display(attribute.type, attribute.value.begin(), attribute.value.size(), appender);
+}
+
+}  // namespace attribute

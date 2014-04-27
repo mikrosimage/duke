@@ -38,8 +38,8 @@ struct InputFrameOperationResult : public IOOperationResult {
     InputFrameOperationResult(InputFrameOperationResult&&) = default;
     InputFrameOperationResult& operator=(InputFrameOperationResult&&) = default;
 
-    inline Attributes& attributes() { return rawPackedFrame.attributes; }
-    inline const Attributes& attributes() const { return rawPackedFrame.attributes; }
+    inline attribute::Attributes& attributes() { return rawPackedFrame.attributes; }
+    inline const attribute::Attributes& attributes() const { return rawPackedFrame.attributes; }
 };
 
 }  // namespace duke
