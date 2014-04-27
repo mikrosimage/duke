@@ -10,7 +10,7 @@ using namespace std;
 
 vector<string> getKeys(const AttributesView& view) {
   vector<string> order;
-  for (const Attribute& attribute : view) order.push_back(attribute.name);
+  for (const Attribute* pAttribute : view) order.push_back(pAttribute->name);
   return order;
 }
 

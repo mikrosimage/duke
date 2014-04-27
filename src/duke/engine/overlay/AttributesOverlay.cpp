@@ -8,33 +8,41 @@
 
 namespace duke {
 
-AttributesOverlay::AttributesOverlay(const GlyphRenderer &glyphRenderer) :
-                m_GlyphRenderer(glyphRenderer) {
-}
+AttributesOverlay::AttributesOverlay(const GlyphRenderer& glyphRenderer) : m_GlyphRenderer(glyphRenderer) {}
 
-void AttributesOverlay::render(const Context &context) const {
-    if (!context.pCurrentImage) return;
+void AttributesOverlay::render(const Context& context) const {
+  if (!context.pCurrentImage) return;
 
-    attribute::AttributesView attributeView;
-    attributeView.merge(context.pCurrentImage->attributes);
-    attributeView.sort();
+  attribute::AttributesView attributeView;
+  attributeView.merge(context.pCurrentImage->attributes);
 
-    size_t maxKeyCharacters = 0;
-    for (const auto& entry : attributeView) {
-    	maxKeyCharacters = std::max(maxKeyCharacters, strlen(entry.name));
-    }
+  attribute::Attributes additional;
+  const auto& description = context.pCurrentImage->description;
+  additional.emplace_back("dk:frame resolution", asSlice<uint64_t>({description.width, description.height}));
+  attributeView.merge(additional);
 
-    bool first = true;
-    BufferStringAppender<2048> buffer;
-    for (const auto& entry : attributeView) {
-            if(!first) buffer.append('\n');
-            first = false;
-            buffer.append(entry.name);
-            const size_t left = maxKeyCharacters - strlen(entry.name) + 1;
-            for (size_t i = 0; i < left; ++i) buffer.append(' ');
-            attribute::append(entry, buffer);
-    }
-    drawText(m_GlyphRenderer, context.viewport, buffer.c_str(), 50, 50, 1, 1);
+  attributeView.sort();
+
+  // Lines are displayed from bottom to top.
+  // Inverting attribute order.
+  std::reverse(attributeView.begin(), attributeView.end());
+
+  size_t maxKeyCharacters = 0;
+  for (const auto* pEntry : attributeView) {
+    maxKeyCharacters = std::max(maxKeyCharacters, strlen(pEntry->name));
+  }
+
+  bool first = true;
+  BufferStringAppender<2048> buffer;
+  for (const auto* pEntry : attributeView) {
+    if (!first) buffer.append('\n');
+    first = false;
+    buffer.append(pEntry->name);
+    const size_t left = maxKeyCharacters - strlen(pEntry->name) + 1;
+    for (size_t i = 0; i < left; ++i) buffer.append(' ');
+    attribute::append(*pEntry, buffer);
+  }
+  drawText(m_GlyphRenderer, context.viewport, buffer.c_str(), 50, 50, 1, 1);
 }
 
 } /* namespace duke */
