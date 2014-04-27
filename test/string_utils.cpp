@@ -31,7 +31,11 @@ TEST(StringUtils, streq) {
   EXPECT_TRUE(streq("", ""));
   EXPECT_TRUE(streq("a", "a"));
   EXPECT_FALSE(streq("a", "b"));
-  EXPECT_FALSE(streq(nullptr, nullptr));
+
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEATH(streq(nullptr, nullptr),"");
+  EXPECT_DEATH(streq(nullptr, "a"),"");
+  EXPECT_DEATH(streq("a", nullptr),"");
 }
 
 TEST(StringUtils, strless) {
@@ -41,5 +45,11 @@ TEST(StringUtils, strless) {
   EXPECT_FALSE(strless(string, string));
   EXPECT_FALSE(strless("", ""));
   EXPECT_FALSE(strless("a", "a"));
-  EXPECT_FALSE(strless(nullptr, nullptr));
+  EXPECT_TRUE(strless("a", "aa"));
+  EXPECT_FALSE(strless("aa", "a"));
+
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEATH(strless(nullptr, nullptr),"");
+  EXPECT_DEATH(strless(nullptr, "a"),"");
+  EXPECT_DEATH(strless("a", nullptr),"");
 }

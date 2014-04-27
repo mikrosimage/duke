@@ -2,7 +2,8 @@
 #include <duke/base/Check.hpp>
 
 bool streq(const char* first, const char* second) {
-  if (first == second) return first;  // same pointer or both nullptr
+  CHECK(first && second);
+  if (first == second) return true;  // same pointer
   for (;; ++first, ++second) {
     if (*first != *second) return false;
     if (*first == '\0') return true;
@@ -11,7 +12,8 @@ bool streq(const char* first, const char* second) {
 }
 
 bool strless(const char* first, const char* second) {
-  if (first == second) return false;  // same pointer or both nullptr
+  CHECK(first && second);
+  if (first == second) return false;  // same pointer
   for (;; ++first, ++second) {
     if (*first != *second) return *first < *second;
     if (*first == '\0') return true;
