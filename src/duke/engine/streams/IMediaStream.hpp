@@ -16,9 +16,8 @@ public:
     // This function can be called from different threads.
     virtual InputFrameOperationResult process(const size_t frame) const = 0;
 
-    // If true the this stream is random access and
-    // can easily seek in the stream.
-    virtual bool isFileSequence() const = 0;
+    // If true this stream is seekable and random access.
+    virtual bool isForward() const = 0;
 
     const attribute::Attributes& getState() const {
         return m_StreamAttributes;

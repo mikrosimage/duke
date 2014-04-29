@@ -138,15 +138,15 @@ private:
 }  // namespace
 
 
-DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const sequence::Item& item) : m_IsFileSequence(false) {
+DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const sequence::Item& item) : m_IsForward(false) {
     switch (item.getType()) {
         case sequence::Item::SINGLE:
             m_pDelegate.reset(new SingleFileImpl(options, item, m_StreamAttributes));
-            m_IsFileSequence = false;
+            m_IsForward = true;
             break;
         case sequence::Item::PACKED:
             m_pDelegate.reset(new FileSequenceImpl(options, item, m_StreamAttributes));
-            m_IsFileSequence = true;
+            m_IsForward = false;
             break;
         default:
             CHECK(!"Invalid state");

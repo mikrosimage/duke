@@ -23,8 +23,8 @@ public:
         return m_pDelegate->process(frame);
     }
 
-    virtual bool isFileSequence() const override {
-        return m_IsFileSequence;
+    virtual bool isForward() const override {
+        return m_IsForward;
     }
 
     size_t getFrameCount() const {
@@ -33,7 +33,7 @@ public:
     }
 private:
     std::unique_ptr<IMediaStreamDelegate> m_pDelegate;
-    bool m_IsFileSequence;
+    bool m_IsForward;
 };
 
 } /* namespace duke */

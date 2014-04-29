@@ -22,17 +22,17 @@ void LoadedImageCache::setWorkerCount(size_t workerCount) {
 
 namespace {
 
-bool clipIsFileSequence(const std::pair<size_t, Clip>& pair) {
+bool clipIsForwardStream(const std::pair<size_t, Clip>& pair) {
     const Clip& clip = pair.second;
-    return clip.pStream && clip.pStream->isFileSequence();
+    return clip.pStream && clip.pStream->isForward();
 }
 
-bool trackHasMovie(const Track& track) {
-    return std::none_of(begin(track), end(track), &clipIsFileSequence);
+bool trackHasForwardStream(const Track& track) {
+    return std::any_of(begin(track), end(track), &clipIsForwardStream);
 }
 
 bool timelineHasMovie(const Timeline& timeline) {
-    return std::any_of(begin(timeline), end(timeline), &trackHasMovie);
+    return std::any_of(begin(timeline), end(timeline), &trackHasForwardStream);
 }
 
 }  // namespace
