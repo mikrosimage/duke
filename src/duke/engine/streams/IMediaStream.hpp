@@ -9,8 +9,6 @@
 
 namespace duke {
 
-struct MediaFrameReference;
-
 class IMediaStream : public noncopyable {
 public:
     virtual ~IMediaStream() {}
