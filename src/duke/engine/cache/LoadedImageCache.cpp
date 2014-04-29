@@ -24,7 +24,7 @@ namespace {
 
 bool clipIsForwardStream(const std::pair<size_t, Clip>& pair) {
     const Clip& clip = pair.second;
-    return clip.pStream && clip.pStream->isForward();
+    return clip.pStream && clip.pStream->isForwardOnly();
 }
 
 bool trackHasForwardStream(const Track& track) {
