@@ -1,5 +1,8 @@
 #include "StringUtils.hpp"
 #include <duke/base/Check.hpp>
+#include <duke/base/StringAppender.hpp>
+
+#include <limits>
 
 bool streq(const char* first, const char* second) {
   CHECK(first && second);
@@ -28,15 +31,12 @@ unsigned char digits(size_t frame) {
   return count;
 }
 
-void appendPaddedFrameNumber(const size_t frame, unsigned char padding, std::string& output) {
-  enum {
-    kMaxDigits = 10
-  };
-  CHECK(padding <= kMaxDigits);
+void appendPaddedFrameNumber(const size_t frame, unsigned char padding, StringAppender& output) {
+  CHECK(padding <= std::numeric_limits<decltype(frame)>::digits10);
   char buffer[padding];
   char* pChar = buffer;
   for (size_t remainder = frame; padding; ++pChar, --padding, remainder /= 10) *pChar = '0' + remainder % 10;
-  for (--pChar; pChar >= buffer; --pChar) output.push_back(*pChar);
+  for (--pChar; pChar >= buffer; --pChar) output.append(*pChar);
 }
 
 bool nocase_compare::operator()(const unsigned char& c1, const unsigned char& c2) const {

@@ -20,7 +20,7 @@ InputFrameOperationResult loadImage(IImageReader *pRawReader,
                                     InputFrameOperationResult&& result);
 
 
-InputFrameOperationResult load(const attribute::Attributes& readOptions,
+InputFrameOperationResult load(const attribute::Attributes& options,
                                const LoadCallback& callback,
                                InputFrameOperationResult&& result);
 

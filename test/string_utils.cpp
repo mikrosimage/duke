@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <duke/base/StringUtils.hpp>
+#include <duke/base/StringAppender.hpp>
 
 #include <string>
 #include <vector>
@@ -19,9 +20,9 @@ TEST(StringUtils, digits) {
 TEST(StringUtils, append) {
   const vector<string> results = {"", "4", "34", "234", "1234", "01234", "001234", "0001234", "00001234", "000001234"};
   for (size_t i = 0; i < results.size(); ++i) {
-    string tmp;
+    BufferStringAppender<32> tmp;
     appendPaddedFrameNumber(1234, i, tmp);
-    EXPECT_EQ(results.at(i), tmp);
+    EXPECT_EQ(results.at(i), tmp.c_str());
   }
 }
 

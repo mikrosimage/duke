@@ -19,11 +19,12 @@ public:
     // If true this stream is seekable and random access.
     virtual bool isForward() const = 0;
 
+    // Contains the state of the stream as well as all the metadata
     const attribute::Attributes& getState() const {
-        return m_StreamAttributes;
+        return m_State;
     }
 protected:
-    attribute::Attributes m_StreamAttributes;
+    attribute::Attributes m_State;
 };
 
 } /* namespace duke */

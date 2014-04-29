@@ -1,12 +1,16 @@
 #pragma once
 
+#include <duke/base/Check.hpp>
+#include <duke/base/NonCopyable.hpp>
 #include <duke/base/Slice.hpp>
+
+#include <cstring>
 
 /**
  * A small struct to append strings to a buffer.
  * If you try to write too many more characters, the output is truncated.
  */
-struct StringAppender {
+struct StringAppender : public noncopyable {
   StringAppender(char* const ptr, size_t size) : m_Slice(ptr, ptr + size) {
     CHECK(!m_Slice.empty()) << "buffer should be at least 1 char to output '\0'";
     m_Slice = m_Slice.pop_back(1);  // reserving one last char for

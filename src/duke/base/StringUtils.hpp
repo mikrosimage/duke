@@ -16,7 +16,8 @@ unsigned char digits(size_t frame);
  * Appends frame with padding to output.
  * ie. 12 with padding 4 would result in '0012'
  */
-void appendPaddedFrameNumber(const size_t frame, const unsigned char padding, std::string& output);
+struct StringAppender;
+void appendPaddedFrameNumber(const size_t frame, const unsigned char padding, StringAppender& output);
 
 #include <functional>
 struct nocase_compare : public std::binary_function<unsigned char, unsigned char, bool> {

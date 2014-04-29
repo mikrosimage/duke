@@ -2,6 +2,7 @@
 
 #include <duke/base/Check.hpp>
 #include <duke/base/StringUtils.hpp>
+#include <duke/base/StringAppender.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/memory/Allocator.hpp>
 #include <duke/filesystem/FsUtils.hpp>
@@ -42,7 +43,7 @@ std::unique_ptr<IImageReader> getFirstValidReader(const attribute::Attributes& o
 
 BigAlignedBlock gBigAlignedMallocator;
 
-void CopyDataFromVolatilePointer(RawPackedFrame& packedFrame, const void* pVolatileData) {
+void CopyFromVolatileDataPointer(RawPackedFrame& packedFrame, const void* pVolatileData) {
     if (!packedFrame.pData) {
         const size_t dataSize = packedFrame.description.dataSize;
         packedFrame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
@@ -71,23 +72,19 @@ public:
     // Several threads will access this function at the same time.
     virtual InputFrameOperationResult process(const size_t frame) const override {
         InputFrameOperationResult result;
-        attribute::set<attribute::File>(result.attributes(), generateFilePath(frame).c_str());
-        return duke::load(m_Options, &CopyDataFromVolatilePointer, std::move(result));
+        BufferStringAppender<2048> buffer;
+        generateFilePath(frame, buffer);
+        CHECK(!buffer.full()) << "filename too long";
+        attribute::set<attribute::File>(result.attributes(), buffer.c_str());
+        return duke::load(m_Options, &CopyFromVolatileDataPointer, std::move(result));
     }
 private:
-    std::string generateFilePath(size_t atFrame) const {
-        return writeFilename(atFrame + m_Item.start);
-    }
-
-    std::string writeFilename(size_t frame) const {
-        const size_t paddingSize = m_Item.padding > 0 ? m_Item.padding : digits(frame);
-        const size_t bufferSize = m_Prefix.size() + paddingSize + m_Suffix.size();
-        std::string path;
-        path.reserve(bufferSize);
-        path += m_Prefix;
-        appendPaddedFrameNumber(frame, paddingSize, path);
-        path += m_Suffix;
-        return path;
+    void generateFilePath(const size_t atFrame, StringAppender& appender) const {
+      const size_t frame = atFrame + m_Item.start;
+      const size_t paddingSize = m_Item.padding > 0 ? m_Item.padding : digits(frame);
+      appender.append(m_Prefix);
+      appendPaddedFrameNumber(frame, paddingSize, appender);
+      appender.append(m_Suffix);
     }
 
     sequence::Item m_Item;
@@ -125,7 +122,7 @@ public:
         attribute::set<attribute::MediaFrame>(result.attributes(), frame);
         CHECK(m_pImageReader);
         std::lock_guard<std::mutex> guard(m_Mutex);
-        return duke::loadImage(m_pImageReader.get(), &CopyDataFromVolatilePointer, std::move(result));
+        return duke::loadImage(m_pImageReader.get(), &CopyFromVolatileDataPointer, std::move(result));
     }
 private:
     const std::vector<IIODescriptor*> m_Descriptors;
@@ -141,21 +138,20 @@ private:
 DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const sequence::Item& item) : m_IsForward(false) {
     switch (item.getType()) {
         case sequence::Item::SINGLE:
-            m_pDelegate.reset(new SingleFileImpl(options, item, m_StreamAttributes));
-            m_IsForward = true;
+            m_pDelegate.reset(new SingleFileImpl(options, item, m_State));
             break;
         case sequence::Item::PACKED:
-            m_pDelegate.reset(new FileSequenceImpl(options, item, m_StreamAttributes));
-            m_IsForward = false;
+            m_pDelegate.reset(new FileSequenceImpl(options, item, m_State));
             break;
         default:
             CHECK(!"Invalid state");
             break;
     }
     CHECK(m_pDelegate);
-    if (attribute::contains<attribute::Error>(m_StreamAttributes))
+    m_IsForward = m_pDelegate->frameCount > 1;
+    if (attribute::contains<attribute::Error>(m_State))
         return;
-    attribute::set<attribute::MediaFrameCount>(m_StreamAttributes, m_pDelegate->frameCount);
+    attribute::set<attribute::MediaFrameCount>(m_State, m_pDelegate->frameCount);
 }
 
 } /* namespace duke */
