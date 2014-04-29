@@ -12,7 +12,7 @@
 #define DUKE_UNLIKELY(x) (x)
 #endif
 
-#define LOG_FATAL(COND,FUNC,FILE,LINE) fprintf(stderr, "CHECK FAILED '%s' in %s() [%s:%d]\n", COND, FUNC, FILE, LINE); abort();
+#define LOG_FATAL(COND,FUNC,FILE,LINE) { fprintf(stderr, "CHECK FAILED '%s' in %s() [%s:%d]\n", COND, FUNC, FILE, LINE); abort(); }
 #define TRACE_MSG(X) fprintf(stderr, "CHECK FAILED '" #X "' in %s() [%s:%d]\n", __func__, __FILE__, __LINE__)
 
 struct Tracer {
