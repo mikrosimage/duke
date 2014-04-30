@@ -471,6 +471,8 @@ public:
 #endif
         attribute::set<attribute::MediaFrameCount>(m_ReaderAttributes, m_FrameCount);
         attribute::set<attribute::OiioColorspace>(m_ReaderAttributes, "sRGB");
+        exportMetadata(m_Stream.getFormatPtr()->metadata, m_ReaderAttributes);
+        exportMetadata(m_Stream.getStreamPtr()->metadata, m_ReaderAttributes);
     }
     catch (const std::runtime_error &e) {
         m_Error = e.what();
@@ -484,9 +486,6 @@ public:
             description.height = m_PictureDecoder.height;
             description.dataSize = m_PictureDecoder.width * m_PictureDecoder.height * 3;
             description.glPackFormat = GL_RGB8;
-            // export stream metadata to frame
-            exportMetadata(m_Stream.getFormatPtr()->metadata, frameAttributes);
-            exportMetadata(m_Stream.getStreamPtr()->metadata, frameAttributes);
             return true;
         } catch (const exception &e) {
             m_Error = e.what();
