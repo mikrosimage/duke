@@ -98,7 +98,7 @@ SingleFileStream::SingleFileStream(const attribute::Attributes& options, const s
     m_pImageReader.reset();
     return;
   }
-  set<MediaFrameCount>(m_State, getWithDefault<MediaFrameCount>(m_pImageReader->getAttributes(), 1));
+  merge(m_pImageReader->getAttributes(), m_State);
 }
 
 InputFrameOperationResult SingleFileStream::process(const size_t frame) const {
@@ -112,7 +112,7 @@ InputFrameOperationResult SingleFileStream::process(const size_t frame) const {
 
 bool SingleFileStream::isForwardOnly() const {
   using namespace attribute;
-  return getOrDie<MediaFrameCount>(m_State) > 1;
+  return getWithDefault<MediaFrameCount>(m_State) > 1;
 }
 
 }  // namespace duke

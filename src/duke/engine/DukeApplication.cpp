@@ -44,7 +44,7 @@ bool isValid(const std::string& filename) {
 void AddItemToTrack(const attribute::Attributes& options, const Item& item, Track& track, size_t &offset) {
     auto pMediaStream(std::make_shared<DiskMediaStream>(options, item));
     using namespace attribute;
-    const auto frameCount = getOrDie<MediaFrameCount>(pMediaStream->getState());
+    const auto frameCount = getWithDefault<MediaFrameCount>(pMediaStream->getState());
     track.add(offset, Clip { frameCount, std::move(pMediaStream), nullptr });
     offset += frameCount;
 }
