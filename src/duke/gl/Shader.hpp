@@ -8,30 +8,25 @@
 #include <cstring>
 #include <cassert>
 
-template<GLuint SHADER_TYPE>
-class Shader: public noncopyable {
-public:
-	Shader(const char* pSource) :
-			shaderId(glCreateShader(SHADER_TYPE)) {
-		assert(pSource);
-		assert(isValidShaderType());
-		const int length = strlen(pSource);
-		glShaderSource(shaderId, 1, &pSource, &length);
-		glCompileShader(shaderId);
-		checkShaderError(shaderId, pSource);
-	}
-	virtual ~Shader() {
-		glDeleteShader(shaderId);
-	}
-	virtual GLuint getId() const {
-		return shaderId;
-	}
+template <GLuint SHADER_TYPE>
+class Shader : public noncopyable {
+ public:
+  Shader(const char* pSource) : shaderId(glCreateShader(SHADER_TYPE)) {
+    assert(pSource);
+    assert(isValidShaderType());
+    const int length = strlen(pSource);
+    glShaderSource(shaderId, 1, &pSource, &length);
+    glCompileShader(shaderId);
+    checkShaderError(shaderId, pSource);
+  }
+  virtual ~Shader() { glDeleteShader(shaderId); }
+  virtual GLuint getId() const { return shaderId; }
 
-private:
-	const GLuint shaderId;
-	static bool constexpr isValidShaderType() {
-		return SHADER_TYPE == GL_VERTEX_SHADER || SHADER_TYPE == GL_FRAGMENT_SHADER;
-	}
+ private:
+  const GLuint shaderId;
+  static bool constexpr isValidShaderType() {
+    return SHADER_TYPE == GL_VERTEX_SHADER || SHADER_TYPE == GL_FRAGMENT_SHADER;
+  }
 };
 
 typedef Shader<GL_FRAGMENT_SHADER> FragmentShader;
