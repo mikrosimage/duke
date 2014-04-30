@@ -2,7 +2,6 @@
 
 namespace duke {
 
-IOverlay::~IOverlay() {
-}
+IOverlay::~IOverlay() {}
 
 } /* namespace duke */
