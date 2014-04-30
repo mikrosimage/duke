@@ -5,7 +5,9 @@
 namespace duke {
 
 enum class FileStatus {
-	NOT_A_FILE = 0, FILE = 1, DIRECTORY = 2
+  NOT_A_FILE = 0,
+  FILE = 1,
+  DIRECTORY = 2
 };
 
 FileStatus getFileStatus(const char* filename);
@@ -16,6 +18,6 @@ std::string getAbsoluteFilename(const char* pFilename);
 
 std::string getExePath();
 
-std::string getDirname(const std::string &file);
+std::string getDirname(const std::string& file);
 
 } /* namespace duke */
