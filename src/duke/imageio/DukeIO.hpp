@@ -63,12 +63,15 @@ public:
 		return !m_Error.empty();
 	}
 	inline std::string getError() {
-	    std::string copy(m_Error);
-	    m_Error.clear();
+    std::string copy;
+    copy.swap(m_Error); // reading error clears it.
 		return copy;
 	}
-	inline const attribute::Attributes& getAttributes() {
+	inline const attribute::Attributes& getAttributes() const {
 		return m_ReaderAttributes;
+	}
+	inline attribute::Attributes&& moveAttributes() {
+		return std::move(m_ReaderAttributes);
 	}
 	inline const IIODescriptor * getDescriptor() const {
 		return m_pDescriptor;

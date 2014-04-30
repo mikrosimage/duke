@@ -30,15 +30,10 @@ struct IOOperationResult : public noncopyable {
  */
 struct InputFrameOperationResult : public IOOperationResult {
   RawPackedFrame rawPackedFrame;
+  attribute::Attributes readerAttributes;
 
   inline attribute::Attributes& attributes() { return rawPackedFrame.attributes; }
   inline const attribute::Attributes& attributes() const { return rawPackedFrame.attributes; }
 };
 
-/**
- * The result of an operation fetching an image
- */
-struct ReadMetadataOperationResult : public IOOperationResult {
-  attribute::Attributes metadata;
-};
 }  // namespace duke

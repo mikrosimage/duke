@@ -65,6 +65,8 @@ FileSequenceStream::FileSequenceStream(const attribute::Attributes& options, con
   m_Suffix = std::string(begin + lastSharpIndex + 1, filename.end());
   using namespace attribute;
   set<MediaFrameCount>(m_State, item.end - item.start + 1);
+  // reading first frame to get metadata
+  merge(process(0).readerAttributes, m_State);
 }
 
 // Several threads will access this function at the same time.

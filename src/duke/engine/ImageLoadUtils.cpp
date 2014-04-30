@@ -61,6 +61,7 @@ InputFrameOperationResult loadImage(IImageReader *pReader, const LoadCallback& c
         if (pReader->hasError()) return error(pReader->getError(), result);
         callback(packedFrame, packedFrame.pData.get());
     }
+    result.readerAttributes = pReader->moveAttributes();
     result.status = IOOperationResult::SUCCESS;
     return move(result);
 }
