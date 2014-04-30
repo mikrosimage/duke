@@ -1,11 +1,12 @@
 #include "DukeApplication.hpp"
 
+#include <duke/attributes/AttributeKeys.hpp>
+#include <duke/cmdline/CmdLineParameters.hpp>
 #include <duke/engine/streams/DiskMediaStream.hpp>
 #include <duke/engine/overlay/DukeSplashStream.hpp>
-#include <duke/cmdline/CmdLineParameters.hpp>
-#include <duke/imageio/DukeIO.hpp>
 #include <duke/filesystem/FsUtils.hpp>
 #include <duke/gl/GL.hpp>
+#include <duke/imageio/DukeIO.hpp>
 
 #include <sequence/Parser.hpp>
 
@@ -42,7 +43,8 @@ bool isValid(const std::string& filename) {
 
 void AddItemToTrack(const attribute::Attributes& options, const Item& item, Track& track, size_t &offset) {
     auto pMediaStream(std::make_shared<DiskMediaStream>(options, item));
-    const auto frameCount = pMediaStream->getFrameCount();
+    using namespace attribute;
+    const auto frameCount = getOrDie<MediaFrameCount>(pMediaStream->getState());
     track.add(offset, Clip { frameCount, std::move(pMediaStream), nullptr });
     offset += frameCount;
 }

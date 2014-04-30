@@ -34,8 +34,4 @@ bool DiskMediaStream::isForwardOnly() const { return CHECK_NOTNULL(m_pDelegate)-
 
 const attribute::Attributes& DiskMediaStream::getState() const { return CHECK_NOTNULL(m_pDelegate)->getState(); }
 
-size_t DiskMediaStream::getFrameCount() const {
-  return attribute::getOrDie<attribute::MediaFrameCount>(CHECK_NOTNULL(m_pDelegate)->getState());
-}
-
 } /* namespace duke */

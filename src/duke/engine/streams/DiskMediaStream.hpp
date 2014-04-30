@@ -18,8 +18,6 @@ class DiskMediaStream final : public duke::IMediaStream {
 
   const attribute::Attributes& getState() const override;
 
-  size_t getFrameCount() const;
-
  private:
   std::unique_ptr<IMediaStream> m_pDelegate;
 };
