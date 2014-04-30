@@ -5,8 +5,8 @@
 
 namespace duke {
 
-struct RawPackedFrame: public PackedFrameDescriptionAndAttributes {
-	std::shared_ptr<char> pData;
+struct RawPackedFrame : public PackedFrameDescriptionAndAttributes {
+  std::shared_ptr<char> pData;
 };
 
 } /* namespace duke */

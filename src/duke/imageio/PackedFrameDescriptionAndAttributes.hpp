@@ -6,8 +6,8 @@
 namespace duke {
 
 struct PackedFrameDescriptionAndAttributes {
-	PackedFrameDescription description;
-	attribute::Attributes attributes;
+  PackedFrameDescription description;
+  attribute::Attributes attributes;
 };
 
 } /* namespace duke */

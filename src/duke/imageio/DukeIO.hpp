@@ -47,60 +47,40 @@ namespace duke {
 
 class IIODescriptor;
 
-class IImageReader: public noncopyable {
-protected:
-    virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) = 0;
-	const IIODescriptor * const m_pDescriptor;
-	attribute::Attributes m_ReaderAttributes;
-	std::string m_Error;
+class IImageReader : public noncopyable {
+ protected:
+  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) = 0;
+  const IIODescriptor* const m_pDescriptor;
+  attribute::Attributes m_ReaderAttributes;
+  std::string m_Error;
 
-public:
-    IImageReader(const attribute::Attributes& options, const IIODescriptor * pDescriptor) :
-                    m_pDescriptor(pDescriptor), m_ReaderAttributes(std::move(options)) {
-    }
-	virtual ~IImageReader() {}
-	inline bool hasError() const {
-		return !m_Error.empty();
-	}
-	inline std::string getError() {
+ public:
+  IImageReader(const attribute::Attributes& options, const IIODescriptor* pDescriptor)
+      : m_pDescriptor(pDescriptor), m_ReaderAttributes(std::move(options)) {}
+  virtual ~IImageReader() {}
+  inline bool hasError() const { return !m_Error.empty(); }
+  inline std::string getError() {
     std::string copy;
-    copy.swap(m_Error); // reading error clears it.
-		return copy;
-	}
-	inline const attribute::Attributes& getAttributes() const {
-		return m_ReaderAttributes;
-	}
-	inline attribute::Attributes&& moveAttributes() {
-		return std::move(m_ReaderAttributes);
-	}
-	inline const IIODescriptor * getDescriptor() const {
-		return m_pDescriptor;
-	}
-    inline bool setup(RawPackedFrame& packedFrame) {
-        return doSetup(packedFrame.description, packedFrame.attributes);
-    }
-	virtual const void* getMappedImageData() const {
-		return nullptr;
-	}
-	virtual void readImageDataTo(void* pData) {
-		m_Error = "Unsupported readImageDataTo";
-	}
+    copy.swap(m_Error);  // reading error clears it.
+    return copy;
+  }
+  inline const attribute::Attributes& getAttributes() const { return m_ReaderAttributes; }
+  inline attribute::Attributes&& moveAttributes() { return std::move(m_ReaderAttributes); }
+  inline const IIODescriptor* getDescriptor() const { return m_pDescriptor; }
+  inline bool setup(RawPackedFrame& packedFrame) { return doSetup(packedFrame.description, packedFrame.attributes); }
+  virtual const void* getMappedImageData() const { return nullptr; }
+  virtual void readImageDataTo(void* pData) { m_Error = "Unsupported readImageDataTo"; }
 };
 
-class IImageWriter: public noncopyable {
-    attribute::Attributes m_WriterAttributes;
-    std::string m_Error;
-public:
-	virtual ~IImageWriter() {}
-    inline const std::string &getError() const {
-        return m_Error;
-    }
-    inline attribute::Attributes& getAttributes() {
-        return m_WriterAttributes;
-    }
-    virtual bool setup(const attribute::Attributes &input) {
-        return false;
-    }
+class IImageWriter : public noncopyable {
+  attribute::Attributes m_WriterAttributes;
+  std::string m_Error;
+
+ public:
+  virtual ~IImageWriter() {}
+  inline const std::string& getError() const { return m_Error; }
+  inline attribute::Attributes& getAttributes() { return m_WriterAttributes; }
+  virtual bool setup(const attribute::Attributes& input) { return false; }
 };
 
 }  // namespace duke
@@ -109,27 +89,28 @@ public:
 
 namespace duke {
 
-class IIODescriptor: public noncopyable {
-public:
-    enum class Capability {
-        READER_READ_FROM_MEMORY, // Plugin can decode in-memory buffers
-        READER_GENERAL_PURPOSE,  // Plugin can read several formats
-        READER_FILE_SEQUENCE,    // Plugin will be instantiated for each frame
-                                 // read will be parallel and out of order
-    };
-	virtual ~IIODescriptor() {}
-	virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
-	virtual const char* getName() const = 0;
-	virtual bool supports(Capability capability) const = 0;
-	virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char *filename) const {
-		return nullptr;
-	}
-	virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void *pData, const size_t dataSize) const {
-		return nullptr;
-	}
-	virtual IImageWriter* getWriterToFile(const attribute::Attributes& options, const char *filename) const {
-		return nullptr;
-	}
+class IIODescriptor : public noncopyable {
+ public:
+  enum class Capability {
+    READER_READ_FROM_MEMORY,  // Plugin can decode in-memory buffers
+    READER_GENERAL_PURPOSE,   // Plugin can read several formats
+    READER_FILE_SEQUENCE,     // Plugin will be instantiated for each frame
+                              // read will be parallel and out of order
+  };
+  virtual ~IIODescriptor() {}
+  virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
+  virtual const char* getName() const = 0;
+  virtual bool supports(Capability capability) const = 0;
+  virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const {
+    return nullptr;
+  }
+  virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void* pData,
+                                            const size_t dataSize) const {
+    return nullptr;
+  }
+  virtual IImageWriter* getWriterToFile(const attribute::Attributes& options, const char* filename) const {
+    return nullptr;
+  }
 };
 
 }  // namespace duke
@@ -140,21 +121,20 @@ public:
 
 namespace duke {
 
-class IODescriptors: public noncopyable {
-	std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
-	std::map<std::string, std::deque<IIODescriptor*>, ci_less > m_ExtensionToDescriptors;
-public:
-	bool registerDescriptor(IIODescriptor* pDescriptor);
+class IODescriptors : public noncopyable {
+  std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
+  std::map<std::string, std::deque<IIODescriptor*>, ci_less> m_ExtensionToDescriptors;
 
-	const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
+ public:
+  bool registerDescriptor(IIODescriptor* pDescriptor);
 
-	bool isSupported(const char* extension) const;
+  const std::deque<IIODescriptor*>& findDescriptor(const char* extension) const;
 
-	inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const {
-		return m_Descriptors;
-	}
+  bool isSupported(const char* extension) const;
 
-	static IODescriptors& instance();
+  inline const std::vector<std::unique_ptr<IIODescriptor> >& getDescriptors() const { return m_Descriptors; }
+
+  static IODescriptors& instance();
 };
 
 }  // namespace duke
