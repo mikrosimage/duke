@@ -32,4 +32,15 @@ void erase(Attributes& attributes, const char* pKey) {
   if (pFound == attributes.end()) return;
   attributes.erase(pFound);
 }
+
+void merge(const Attributes& from, Attributes& to) {
+  for(const auto& attribute : from) {
+      auto pFound = find(to, attribute.name);
+      if (pFound == to.end()) {
+        to.push_back(attribute);
+      } else {
+        *pFound = attribute;
+      }
+  }
+}
 }  // namespace attribute

@@ -20,6 +20,8 @@ const Attribute& getOrDie(const Attributes& attributes, const char* pKey);
 
 void erase(Attributes& attributes, const char* pKey);
 
+void merge(const Attributes& from, Attributes& to);
+
 template <typename TYPE>
 void set(Attributes& attributes, const char* key, TYPE&& data) {
   auto pFound = find(attributes, key);

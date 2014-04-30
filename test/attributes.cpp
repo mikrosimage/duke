@@ -64,3 +64,24 @@ TEST(Attributes, Writable) {
   // can't reset it again
   EXPECT_FALSE(setIfNotPresent(attributes, kKey, 5));
 }
+
+TEST(Attributes, MergeNoConflict) {
+  const Attributes from = {Attribute("c", 3), Attribute("d", "4")};
+  Attributes to = {Attribute("a", 1.0), Attribute("b", uint64_t(2))};
+  merge(from, to);
+  ASSERT_EQ(4, to.size());
+  EXPECT_EQ(Attribute("a", 1.0), to.at(0));
+  EXPECT_EQ(Attribute("b", uint64_t(2)), to.at(1));
+  EXPECT_EQ(Attribute("c", 3), to.at(2));
+  EXPECT_EQ(Attribute("d", "4"), to.at(3));
+}
+
+TEST(Attributes, MergeOverride) {
+  const Attributes from = {Attribute("b", 3), Attribute("c", "4")};
+  Attributes to = {Attribute("a", 1.0), Attribute("b", uint64_t(2))};
+  merge(from, to);
+  ASSERT_EQ(3, to.size());
+  EXPECT_EQ(Attribute("a", 1.0), to.at(0));
+  EXPECT_EQ(Attribute("b", 3), to.at(1));
+  EXPECT_EQ(Attribute("c", "4"), to.at(2));
+}
