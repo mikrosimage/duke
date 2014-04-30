@@ -236,6 +236,7 @@ void DukeMainWindow::run() {
 				continue;
 
 			m_Context.pCurrentImage = nullptr;
+			m_Context.pCurrentMediaStream = nullptr;
 			const MediaFrameReference mfr = track.getMediaFrameReferenceAt(frame);
 			const auto pMediaStream = mfr.pStream;
 
@@ -255,6 +256,7 @@ void DukeMainWindow::run() {
 				}
 				if (pLoadedTexture) {
 					m_Context.pCurrentImage = pLoadedTexture;
+					m_Context.pCurrentMediaStream = pMediaStream;
 					setupZoom();
 					auto &texture = *pLoadedTexture->pTexture;
 					auto boundTexture = texture.scope_bind_texture();

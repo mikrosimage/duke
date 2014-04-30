@@ -14,6 +14,7 @@ struct Texture;
 struct PackedFrameDescriptionAndAttributes;
 struct GeometryRenderer;
 struct GlyphRenderer;
+class IMediaStream;
 
 struct Context {
 	// drawing
@@ -40,6 +41,7 @@ struct Context {
 	std::string filename;
 	// current drawing
 	const PackedFrameDescriptionAndAttributes *pCurrentImage;
+	const IMediaStream *pCurrentMediaStream;
 };
 
 } /* namespace duke */
