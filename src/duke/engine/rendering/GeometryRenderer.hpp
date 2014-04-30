@@ -7,12 +7,14 @@
 
 namespace duke {
 
-struct GeometryRenderer: public noncopyable {
-	void drawRect(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) const;
-	void drawLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan, const glm::vec4 &color) const;
+struct GeometryRenderer : public noncopyable {
+  void drawRect(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan,
+                const glm::vec4 &color) const;
+  void drawLine(const glm::ivec2 &viewport, const glm::ivec2 &dimensions, const glm::ivec2 &pan,
+                const glm::vec4 &color) const;
 
-	ShaderPool shaderPool;
-	MeshPool meshPool;
+  ShaderPool shaderPool;
+  MeshPool meshPool;
 };
 
 } /* namespace duke */
