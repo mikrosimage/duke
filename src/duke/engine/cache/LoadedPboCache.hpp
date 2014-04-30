@@ -10,17 +10,17 @@ namespace duke {
 
 struct LoadedImageCache;
 
-struct LoadedPboCache: public noncopyable {
-	bool get(const LoadedImageCache& imageCache, const MediaFrameReference& mfr, PboPackedFrame &pbo);
+struct LoadedPboCache : public noncopyable {
+  bool get(const LoadedImageCache& imageCache, const MediaFrameReference& mfr, PboPackedFrame& pbo);
 
-private:
-	void moveFront(const MediaFrameReference& mfr);
-	void evictOneIfNecessary();
+ private:
+  void moveFront(const MediaFrameReference& mfr);
+  void evictOneIfNecessary();
 
-	const size_t m_MaxCount = 10;
-	PboPool m_PboPool;
-	std::map<MediaFrameReference, PboPackedFrame> m_Map;
-	std::vector<MediaFrameReference> m_Fifo;
+  const size_t m_MaxCount = 10;
+  PboPool m_PboPool;
+  std::map<MediaFrameReference, PboPackedFrame> m_Map;
+  std::vector<MediaFrameReference> m_Fifo;
 };
 
 } /* namespace duke */

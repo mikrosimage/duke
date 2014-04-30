@@ -6,12 +6,10 @@
 
 namespace duke {
 
-struct PboPackedFrame: public PackedFrameDescriptionAndAttributes {
-	PboPackedFrame() = default;
-	PboPackedFrame(const PackedFrameDescriptionAndAttributes &other) :
-	PackedFrameDescriptionAndAttributes(other) {
-	}
-	std::shared_ptr<gl::GlStreamUploadPbo> pPbo;
+struct PboPackedFrame : public PackedFrameDescriptionAndAttributes {
+  PboPackedFrame() = default;
+  PboPackedFrame(const PackedFrameDescriptionAndAttributes &other) : PackedFrameDescriptionAndAttributes(other) {}
+  std::shared_ptr<gl::GlStreamUploadPbo> pPbo;
 };
 
 } /* namespace duke */
