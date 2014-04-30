@@ -22,10 +22,11 @@ class DummyMediaStream : public IMediaStream {
     return result;
   }
   virtual bool isForwardOnly() const override { return true; }
-  const attribute::Attributes& getState() const {
+  const attribute::Attributes &getState() const {
     static attribute::Attributes empty;
     return empty;
-  }};
+  }
+};
 
 static shared_ptr<IMediaStream> pStream = make_shared<DummyMediaStream>();
 
