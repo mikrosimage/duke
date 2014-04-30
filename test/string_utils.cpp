@@ -33,7 +33,6 @@ TEST(StringUtils, streq) {
   EXPECT_TRUE(streq("a", "a"));
   EXPECT_FALSE(streq("a", "b"));
 
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   EXPECT_DEATH(streq(nullptr, nullptr),"");
   EXPECT_DEATH(streq(nullptr, "a"),"");
   EXPECT_DEATH(streq("a", nullptr),"");
@@ -49,7 +48,6 @@ TEST(StringUtils, strless) {
   EXPECT_TRUE(strless("a", "aa"));
   EXPECT_FALSE(strless("aa", "a"));
 
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   EXPECT_DEATH(strless(nullptr, nullptr),"");
   EXPECT_DEATH(strless(nullptr, "a"),"");
   EXPECT_DEATH(strless("a", nullptr),"");

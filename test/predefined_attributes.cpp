@@ -84,19 +84,16 @@ TEST(PredefinedAttributes, FloatArray) {
 }
 
 TEST(PredefinedAttributesDeathTest, GetOrDie) {
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   Attributes attributes;
   EXPECT_DEATH(getOrDie<AttributeUInt32>(attributes), "");  // dies
 }
 
 TEST(PredefinedAttributesDeathTest, ConstGetOrDie) {
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   const Attributes attributes;
   EXPECT_DEATH(getOrDie<AttributeUInt32>(attributes), "");  // dies
 }
 
 TEST(PredefinedAttributesDeathTest, TryToGetInvalidType) {
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   const Attributes attributes = {Attribute(AttributeUInt32::key, 1.0)};  // Float64
   EXPECT_DEATH(contains<AttributeUInt32>(attributes), "");
   EXPECT_DEATH(getWithDefault<AttributeUInt32>(attributes, 2u), "");

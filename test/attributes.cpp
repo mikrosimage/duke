@@ -16,7 +16,6 @@ TEST(Attributes, Empty) {
 }
 
 TEST(AttributesDeathTest, GetOrDie) {
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   Attributes attributes;
   ASSERT_DEATH(getOrDie(attributes, kKey), "");  // dies
 }
@@ -29,7 +28,6 @@ TEST(Attributes, ConstEmpty) {
 }
 
 TEST(AttributesDeathTest, ConstGetOrDie) {
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   const Attributes attributes;
   ASSERT_DEATH(getOrDie(attributes, kKey), "");  // dies
 }
