@@ -8,45 +8,34 @@
 namespace duke {
 
 ColorSpace resolveFromName(const char* pColorspace) {
-	if (pColorspace) {
-		if (streq(pColorspace, "Linear"))
-			return ColorSpace::Linear;
-		if (streq(pColorspace, "sRGB") || streq(pColorspace, "GammaCorrected"))
-			return ColorSpace::sRGB;
-		if (streq(pColorspace, "KodakLog"))
-			return ColorSpace::KodakLog;
-		if (streq(pColorspace, "Rec709"))
-			return ColorSpace::Rec709;
-		if (streq(pColorspace, "AdobeRGB"))
-			return ColorSpace::AdobeRGB;
-		if (streq(pColorspace, "AlexaV3LogC"))
-			return ColorSpace::AlexaLogC;
-	}
-	return ColorSpace::Auto;
+  if (pColorspace) {
+    if (streq(pColorspace, "Linear")) return ColorSpace::Linear;
+    if (streq(pColorspace, "sRGB") || streq(pColorspace, "GammaCorrected")) return ColorSpace::sRGB;
+    if (streq(pColorspace, "KodakLog")) return ColorSpace::KodakLog;
+    if (streq(pColorspace, "Rec709")) return ColorSpace::Rec709;
+    if (streq(pColorspace, "AdobeRGB")) return ColorSpace::AdobeRGB;
+    if (streq(pColorspace, "AlexaV3LogC")) return ColorSpace::AlexaLogC;
+  }
+  return ColorSpace::Auto;
 }
 
 ColorSpace resolveFromExtension(const char* pFileExtension) {
-	if (pFileExtension) {
-		if (streq(pFileExtension, "dpx"))
-			return ColorSpace::KodakLog;
-		if (streq(pFileExtension, "exr"))
-			return ColorSpace::Linear;
-		if (streq(pFileExtension, "jpg"))
-			return ColorSpace::sRGB;
-		if (streq(pFileExtension, "png"))
-			return ColorSpace::sRGB;
-	}
-	static std::set<std::string> reported;
-	if (reported.find(pFileExtension) == reported.end()) {
-		printf("Unable to find default ColorSpace for extension '%s' assuming sRGB\n", pFileExtension);
-		reported.insert(pFileExtension);
-	}
-	return ColorSpace::sRGB;
+  if (pFileExtension) {
+    if (streq(pFileExtension, "dpx")) return ColorSpace::KodakLog;
+    if (streq(pFileExtension, "exr")) return ColorSpace::Linear;
+    if (streq(pFileExtension, "jpg")) return ColorSpace::sRGB;
+    if (streq(pFileExtension, "png")) return ColorSpace::sRGB;
+  }
+  static std::set<std::string> reported;
+  if (reported.find(pFileExtension) == reported.end()) {
+    printf("Unable to find default ColorSpace for extension '%s' assuming sRGB\n", pFileExtension);
+    reported.insert(pFileExtension);
+  }
+  return ColorSpace::sRGB;
 }
 
 // GLSL ColorSpace conversion functions
-const char *pColorSpaceConversions =
-		R"(
+const char* pColorSpaceConversions = R"(
 vec3 lintolin(vec3 sample) {
 	return sample;
 }
@@ -74,38 +63,37 @@ vec3 lintorec709(vec3 sample) {
 )";
 
 const char* getToLinearFunction(const ColorSpace fromColorspace) {
-	switch (fromColorspace) {
-	case ColorSpace::AlexaLogC:
-		return "alexatolin";
-	case ColorSpace::KodakLog:
-		return "cineontolin";
-	case ColorSpace::Linear:
-		return "lintolin";
-	case ColorSpace::sRGB:
-	case ColorSpace::GammaCorrected:
-		return "srgbtolin";
-	case ColorSpace::Rec709:
-		return "rec709tolin";
-	case ColorSpace::Auto:
-	default:
-		throw std::runtime_error("ColorSpace must be resolved at this point");
-	}
+  switch (fromColorspace) {
+    case ColorSpace::AlexaLogC:
+      return "alexatolin";
+    case ColorSpace::KodakLog:
+      return "cineontolin";
+    case ColorSpace::Linear:
+      return "lintolin";
+    case ColorSpace::sRGB:
+    case ColorSpace::GammaCorrected:
+      return "srgbtolin";
+    case ColorSpace::Rec709:
+      return "rec709tolin";
+    case ColorSpace::Auto:
+    default:
+      throw std::runtime_error("ColorSpace must be resolved at this point");
+  }
 }
 
 const char* getToScreenFunction(const ColorSpace fromColorspace) {
-	switch (fromColorspace) {
-	case ColorSpace::Linear:
-		return "lintolin";
-	case ColorSpace::Rec709:
-		return "lintorec709";
-	case ColorSpace::sRGB:
-	case ColorSpace::GammaCorrected:
-	case ColorSpace::Auto:
-		return "lintosrgb"; // this is the default screen colorspace though
-	default:
-		throw std::runtime_error("Screen colorspace not handled");
-	}
+  switch (fromColorspace) {
+    case ColorSpace::Linear:
+      return "lintolin";
+    case ColorSpace::Rec709:
+      return "lintorec709";
+    case ColorSpace::sRGB:
+    case ColorSpace::GammaCorrected:
+    case ColorSpace::Auto:
+      return "lintosrgb";  // this is the default screen colorspace though
+    default:
+      throw std::runtime_error("Screen colorspace not handled");
+  }
 }
 
-} //namespace duke
-
+}  // namespace duke

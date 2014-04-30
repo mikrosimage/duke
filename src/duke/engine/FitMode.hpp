@@ -3,7 +3,10 @@
 namespace duke {
 
 enum class FitMode {
-	ACTUAL, FREE, INNER, OUTER
+  ACTUAL,
+  FREE,
+  INNER,
+  OUTER
 };
 
 }  // namespace duke

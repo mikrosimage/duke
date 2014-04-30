@@ -6,13 +6,13 @@
 #include <vector>
 
 struct ConsoleIO {
-	ConsoleIO();
-	~ConsoleIO();
-	void poll(std::vector<std::string>& strings);
-private:
-	void run();
+  ConsoleIO();
+  ~ConsoleIO();
+  void poll(std::vector<std::string>& strings);
 
-	concurrent::queue<std::string> commands;
-	std::thread m_Poller;
+ private:
+  void run();
+
+  concurrent::queue<std::string> commands;
+  std::thread m_Poller;
 };
-

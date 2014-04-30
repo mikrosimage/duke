@@ -8,9 +8,9 @@
 namespace duke {
 
 struct Frame {
-	PackedFrameDescription description;
-	Attributes attributes;
-	std::shared_ptr<void> pData;
+  PackedFrameDescription description;
+  Attributes attributes;
+  std::shared_ptr<void> pData;
 };
 
 } /* namespace duke */
