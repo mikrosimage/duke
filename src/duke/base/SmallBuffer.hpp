@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <cstring>
 
-#define MAY_ALIAS __attribute__((__may_alias__))
 /**
  * A buffer with small size optimization.
  *
