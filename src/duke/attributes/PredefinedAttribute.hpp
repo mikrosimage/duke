@@ -77,7 +77,7 @@ inline typename Prototype::return_type getWithDefault(const Attributes& attribut
 
 template <typename Prototype>
 inline typename Prototype::return_type getOrDie(const Attributes& attributes) {
-  const Attribute& attribute = get(attributes, Prototype::key);
+  const Attribute& attribute = getOrDie(attributes, Prototype::key);
   details::checkRuntimeType(attribute.type, Prototype::type);
   const MemorySlice data(attribute.value.begin(), attribute.value.end());
   return details::Getter<Prototype::is_array>::template typify<Prototype>(data);

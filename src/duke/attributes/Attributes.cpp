@@ -23,7 +23,7 @@ const Attribute& get(const Attributes& attributes, const char* pKey) {
 
 const Attribute& getOrDie(const Attributes& attributes, const char* pKey) {
   const Attribute& entry(get(attributes, pKey));
-  CHECK(entry.name);
+  CHECK(entry.name) << "No attribute '" << pKey << "'";
   return entry;
 }
 
