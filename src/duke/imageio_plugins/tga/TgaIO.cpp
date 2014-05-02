@@ -8,6 +8,8 @@
 
 #include <cstdio>
 
+using namespace attribute;
+
 // Define targa header. This is only used locally.
 #pragma pack(1)
 typedef struct {
@@ -45,16 +47,16 @@ class TGAImageReader : public IImageReader {
     }
   }
 
-  virtual bool doSetup(PackedFrameDescription& description, Attributes& attributes) override {
+  virtual bool doSetup(FrameDescription& description, Attributes& attributes) override {
     switch (m_Header.bits) {
       case 24:  // Most likely case
-        description.glPackFormat = GL_RGB8;
+        description.glFormat = GL_RGB8;
         break;
       case 32:
-        description.glPackFormat = GL_RGBA8;
+        description.glFormat = GL_RGBA8;
         break;
       case 8:
-        description.glPackFormat = GL_R8;
+        description.glFormat = GL_R8;
         break;
       default:
         m_Error = "Unsupported bit depth";
@@ -64,7 +66,7 @@ class TGAImageReader : public IImageReader {
     description.width = m_Header.width;
     description.height = m_Header.height;
     description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
-    attributes.set<attribute::DpxImageOrientation>(4);
+    set<attribute::DpxImageOrientation>(attributes, 4);
     return true;
   }
 

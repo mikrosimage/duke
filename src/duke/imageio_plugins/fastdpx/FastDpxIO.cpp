@@ -5,7 +5,7 @@
 #include <duke/imageio/DukeIO.hpp>            // for IIODescriptor::Capability, etc
 #include <duke/attributes/AttributeKeys.hpp>  // for DpxImageOrientation
 #include <duke/attributes/Attributes.hpp>     // for Attributes
-#include <duke/imageio/PackedFrameDescription.hpp>
+#include <duke/imageio/FrameDescription.hpp>
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for int32_t
 #include <string>    // for string
@@ -97,13 +97,13 @@ class FastDpxImageReader : public IImageReader {
     }
   }
 
-  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
+  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
     m_pData = nullptr;
     description.height = swap(pImageInformation->lines_per_image_ele);
     description.width = swap(pImageInformation->pixels_per_line);
     m_pData = pArithmeticPointer + swap(pInformation->offset);
     description.swapEndianness = bigEndian;
-    description.glPackFormat = GL_RGB10_A2UI;
+    description.glFormat = GL_RGB10_A2UI;
     description.dataSize = description.height * description.width * sizeof(int32_t);
     attribute::set<attribute::DpxImageOrientation>(attributes, pImageInformation->orientation);
     return true;

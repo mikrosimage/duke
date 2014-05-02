@@ -426,14 +426,14 @@ class LibAVIOReader : public IImageReader {
     m_Error = e.what();
   }
 
-  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& frameAttributes) override {
+  virtual bool doSetup(FrameDescription& description, attribute::Attributes& frameAttributes) override {
     try {
       const auto requestedFrame = attribute::getOrDie<attribute::MediaFrame>(frameAttributes);
       m_Decoder.decodeFrame(requestedFrame + m_Stream.getFirstFrame());
       description.width = m_PictureDecoder.width;
       description.height = m_PictureDecoder.height;
       description.dataSize = m_PictureDecoder.width * m_PictureDecoder.height * 3;
-      description.glPackFormat = GL_RGB8;
+      description.glFormat = GL_RGB8;
       return true;
     }
     catch (const exception& e) {

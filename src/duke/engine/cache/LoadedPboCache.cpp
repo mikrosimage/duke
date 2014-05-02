@@ -6,20 +6,20 @@ namespace duke {
 bool LoadedPboCache::get(const LoadedImageCache& imageCache, const MediaFrameReference& mfr, PboPackedFrame& pbo) {
   auto pFound = m_Map.find(mfr);
   if (pFound == m_Map.end()) {
-    RawPackedFrame packedFrame;
-    const bool inCache = imageCache.get(mfr, packedFrame);
-    if (!inCache || packedFrame.description.dataSize == 0) return false;
+    FrameData frame;
+    const bool inCache = imageCache.get(mfr, frame);
+    if (!inCache || frame.description.dataSize == 0) return false;
     evictOneIfNecessary();
-    const auto dataSize = packedFrame.description.dataSize;
+    const auto dataSize = frame.description.dataSize;
     auto pSharedPbo = m_PboPool.get(dataSize);
     {  // transfer buffer
       auto pboBound = pSharedPbo->scope_bind_buffer();
       GLubyte* ptr =
           (GLubyte*)glMapBufferRange(pSharedPbo->target, 0, dataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-      memcpy(ptr, packedFrame.pData.get(), dataSize);
+      memcpy(ptr, frame.pData.get(), dataSize);
       glUnmapBuffer(pSharedPbo->target);
     }
-    PboPackedFrame pboPackedFrame(packedFrame);
+    PboPackedFrame pboPackedFrame(frame);
     pboPackedFrame.pPbo = std::move(pSharedPbo);
     pFound = m_Map.insert({mfr, std::move(pboPackedFrame)}).first;
   }

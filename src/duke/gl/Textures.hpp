@@ -1,7 +1,7 @@
 #pragma once
 
 #include <duke/gl/GlObjects.hpp>
-#include <duke/imageio/PackedFrameDescription.hpp>
+#include <duke/imageio/FrameDescription.hpp>
 
 namespace duke {
 

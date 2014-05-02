@@ -11,7 +11,7 @@ struct Attributes;
 namespace duke {
 
 struct Texture;
-struct PackedFrameDescriptionAndAttributes;
+struct FrameDescriptionAndAttributes;
 struct GeometryRenderer;
 struct GlyphRenderer;
 class IMediaStream;
@@ -40,7 +40,7 @@ struct Context {
   // file
   std::string filename;
   // current drawing
-  const PackedFrameDescriptionAndAttributes *pCurrentImage;
+  const FrameDescriptionAndAttributes *pCurrentImage;
   const IMediaStream *pCurrentMediaStream;
 };
 

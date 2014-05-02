@@ -1,7 +1,7 @@
 #pragma once
 
 #include <duke/base/NonCopyable.hpp>
-#include <duke/imageio/RawPackedFrame.hpp>
+#include <duke/imageio/FrameData.hpp>
 
 namespace duke {
 
@@ -28,11 +28,11 @@ struct IOResult : public noncopyable {
  * The result of an operation fetching an image
  */
 struct ReadFrameResult : public IOResult {
-  RawPackedFrame rawPackedFrame;
+  FrameData frame;
   attribute::Attributes readerAttributes;
 
-  inline attribute::Attributes& attributes() { return rawPackedFrame.attributes; }
-  inline const attribute::Attributes& attributes() const { return rawPackedFrame.attributes; }
+  inline attribute::Attributes& attributes() { return frame.attributes; }
+  inline const attribute::Attributes& attributes() const { return frame.attributes; }
 };
 
 }  // namespace duke

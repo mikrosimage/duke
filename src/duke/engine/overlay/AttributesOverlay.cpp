@@ -4,7 +4,7 @@
 #include <duke/engine/Context.hpp>
 #include <duke/engine/rendering/GlyphRenderer.hpp>
 #include <duke/engine/streams/IMediaStream.hpp>
-#include <duke/imageio/PackedFrameDescriptionAndAttributes.hpp>
+#include <duke/imageio/FrameDescriptionAndAttributes.hpp>
 #include <algorithm>
 
 namespace duke {

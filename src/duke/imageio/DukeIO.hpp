@@ -34,10 +34,10 @@
 
 #pragma once
 
-#include <duke/imageio/RawPackedFrame.hpp>
 #include <duke/base/Check.hpp>
 #include <duke/base/NonCopyable.hpp>
 #include <duke/base/StringUtils.hpp>
+#include <duke/imageio/FrameData.hpp>
 
 #include <cstddef>
 #include <string>
@@ -67,7 +67,7 @@ class IImageReader : public noncopyable {
   inline const attribute::Attributes& getAttributes() const { return m_ReaderAttributes; }
   inline attribute::Attributes&& moveAttributes() { return std::move(m_ReaderAttributes); }
   inline const IIODescriptor* getDescriptor() const { return m_pDescriptor; }
-  inline bool setup(RawPackedFrame& packedFrame) { return doSetup(packedFrame.description, packedFrame.attributes); }
+  inline bool setup(FrameData& frame) { return doSetup(frame.description, frame.attributes); }
   virtual const void* getMappedImageData() const { return nullptr; }
   virtual void readImageDataTo(void* pData) { m_Error = "Unsupported readImageDataTo"; }
 };

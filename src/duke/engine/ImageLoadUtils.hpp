@@ -10,9 +10,9 @@ struct FrameDescription;
 
 namespace duke {
 
-struct RawPackedFrame;
+struct FrameData;
 
-typedef std::function<void(RawPackedFrame& packedFrame, const void* pVolatileData)> LoadCallback;
+typedef std::function<void(FrameData& frame, const void* pVolatileData)> LoadCallback;
 
 class IImageReader;
 ReadFrameResult loadImage(IImageReader* pRawReader, const LoadCallback& callback, ReadFrameResult&& result);

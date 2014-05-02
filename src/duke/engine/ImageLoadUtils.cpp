@@ -2,7 +2,7 @@
 #include <duke/imageio/DukeIO.hpp>
 #include <duke/attributes/Attributes.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
-#include <duke/imageio/PackedFrameDescription.hpp>
+#include <duke/imageio/FrameDescription.hpp>
 #include <duke/gl/Textures.hpp>
 #include <duke/filesystem/MemoryMappedFile.hpp>
 #include <duke/filesystem/FsUtils.hpp>
@@ -53,16 +53,16 @@ ReadFrameResult load(const char* pFilename, const char* pExtension, const attrib
 ReadFrameResult loadImage(IImageReader* pReader, const LoadCallback& callback, ReadFrameResult&& result) {
   CHECK(pReader);
   if (pReader->hasError()) return error(pReader->getError(), result);
-  RawPackedFrame& packedFrame = result.rawPackedFrame;
-  if (!pReader->setup(packedFrame)) return error(pReader->getError(), result);
+  FrameData& frame = result.frame;
+  if (!pReader->setup(frame)) return error(pReader->getError(), result);
   const void* pMapped = pReader->getMappedImageData();
   if (pMapped) {
-    callback(packedFrame, pMapped);
+    callback(frame, pMapped);
   } else {
-    packedFrame.pData = make_shared_memory<char>(packedFrame.description.dataSize, alignedMalloc);
-    pReader->readImageDataTo(packedFrame.pData.get());
+    frame.pData = make_shared_memory<char>(frame.description.dataSize, alignedMalloc);
+    pReader->readImageDataTo(frame.pData.get());
     if (pReader->hasError()) return error(pReader->getError(), result);
-    callback(packedFrame, packedFrame.pData.get());
+    callback(frame, frame.pData.get());
   }
   result.readerAttributes = pReader->moveAttributes();
   result.status = IOResult::SUCCESS;
@@ -81,9 +81,9 @@ ReadFrameResult load(const char* pFilename, Texture& texture) {
   CHECK(pFilename);
   ReadFrameResult result;
   attribute::set<attribute::File>(result.attributes(), pFilename);
-  return load({}, [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
+  return load({}, [&](FrameData& frame, const void* pVolatileData) {
                     const auto bound = texture.scope_bind_texture();
-                    texture.initialize(packedFrame.description, pVolatileData);
+                    texture.initialize(frame.description, pVolatileData);
                   },
               std::move(result));
 }

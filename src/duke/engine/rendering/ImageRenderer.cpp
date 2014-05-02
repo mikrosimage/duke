@@ -74,16 +74,16 @@ bool isGreyscale(size_t glPackFormat) {
 void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context) {
   const auto &description = context.pCurrentImage->description;
   bool redBlueSwapped = description.swapRedAndBlue;
-  if (isInternalOptimizedFormatRedBlueSwapped(description.glPackFormat)) redBlueSwapped = !redBlueSwapped;
+  if (isInternalOptimizedFormatRedBlueSwapped(description.glFormat)) redBlueSwapped = !redBlueSwapped;
 
   const auto &currentImageAttributes = context.pCurrentImage->attributes;
   const auto inputColorSpace = resolve(currentImageAttributes, context.fileColorSpace);
 
   const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc(  //
-      isGreyscale(description.glPackFormat),                                  //
+      isGreyscale(description.glFormat),                                      //
       description.swapEndianness,                                             //
       redBlueSwapped,                                                         //
-      description.glPackFormat == GL_RGB10_A2UI,                              //
+      description.glFormat == GL_RGB10_A2UI,                                  //
       inputColorSpace, context.screenColorSpace);
   const auto pProgram = shaderPool.get(shaderDesc);
   const auto pair =

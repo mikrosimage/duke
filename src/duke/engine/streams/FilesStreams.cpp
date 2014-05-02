@@ -43,11 +43,11 @@ std::unique_ptr<IImageReader> getFirstValidReader(const attribute::Attributes& o
 
 BigAlignedBlock gBigAlignedMallocator;
 
-void CopyFromVolatileDataPointer(RawPackedFrame& packedFrame, const void* pVolatileData) {
-  if (!packedFrame.pData) {
-    const size_t dataSize = packedFrame.description.dataSize;
-    packedFrame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
-    memcpy(packedFrame.pData.get(), pVolatileData, dataSize);
+void CopyFromVolatileDataPointer(FrameData& frame, const void* pVolatileData) {
+  if (!frame.pData) {
+    const size_t dataSize = frame.description.dataSize;
+    frame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
+    memcpy(frame.pData.get(), pVolatileData, dataSize);
   }
 }
 
