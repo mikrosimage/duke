@@ -20,7 +20,7 @@ const vector<string> A = {"A"};
 const vector<string> RGB = {"R", "G", "B"};
 const vector<string> RGBA = {"R", "G", "B", "A"};
 
-GLuint getGLType(const TypeDesc& typedesc, const vector<string>& channels) {
+GLuint getGlType(const TypeDesc& typedesc, const vector<string>& channels) {
   if (channels == A) {
     switch (typedesc.basetype) {
       case TypeDesc::UCHAR:
@@ -187,10 +187,10 @@ class OpenImageIOReader : public IImageReader {
     if (m_pImageInput) m_pImageInput->close();
   }
 
-  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
+  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
     description.width = m_Spec.width;
     description.height = m_Spec.height;
-    description.glPackFormat = getGLType(m_Spec.format, m_Spec.channelnames);
+    description.glFormat = getGlType(m_Spec.format, m_Spec.channelnames);
     description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
     return true;
   }

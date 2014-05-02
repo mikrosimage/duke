@@ -4,13 +4,13 @@
 
 namespace duke {
 
-void Texture::initialize(const PackedFrameDescription &description, const GLvoid *pData) {
-  const auto packFormat = description.glPackFormat;
+void Texture::initialize(const FrameDescription &description, const GLvoid *pData) {
+  const auto packFormat = description.glFormat;
   initialize(description, getAdaptedInternalFormat(packFormat), getPixelFormat(packFormat), getPixelType(packFormat),
              pData);
 }
 
-void Texture::initialize(const PackedFrameDescription &description, GLint internalFormat, GLenum format, GLenum type,
+void Texture::initialize(const FrameDescription &description, GLint internalFormat, GLenum format, GLenum type,
                          const GLvoid *pData) {
   glCheckBound(target, id);
   //	printf("about to glTexImage2D, original internal %s, internal %s, pixel format %s, pixel type %s\n", //

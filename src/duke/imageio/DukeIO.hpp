@@ -49,7 +49,7 @@ class IIODescriptor;
 
 class IImageReader : public noncopyable {
  protected:
-  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) = 0;
+  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) = 0;
   const IIODescriptor* const m_pDescriptor;
   attribute::Attributes m_ReaderAttributes;
   std::string m_Error;

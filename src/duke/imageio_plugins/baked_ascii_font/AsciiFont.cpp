@@ -68,10 +68,10 @@ class AsciiFontImageReader : public IImageReader {
   AsciiFontImageReader(const attribute::Attributes& options, const IIODescriptor* pDesc)
       : IImageReader(options, pDesc) {}
 
-  virtual bool doSetup(PackedFrameDescription& description, attribute::Attributes& attributes) override {
+  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
     description.height = 128;
     description.width = 128;
-    description.glPackFormat = GL_RGBA8;
+    description.glFormat = GL_RGBA8;
     description.dataSize = description.height * description.width * sizeof(uint32_t);
     return true;
   }

@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 
-struct PackedFrameDescription;
+struct FrameDescription;
 
 namespace duke {
 
