@@ -12,7 +12,7 @@ namespace duke {
  * - 'error' gives a message in case of failure.
  * - 'warning' gives a message if needed.
  */
-struct IOOperationResult : public noncopyable {
+struct IOResult : public noncopyable {
   enum Status {
     SUCCESS,
     FAILURE
@@ -20,7 +20,6 @@ struct IOOperationResult : public noncopyable {
 
   Status status = FAILURE;
   std::string error;
-  std::string warning;
 
   operator bool() const { return status == SUCCESS; }
 };
@@ -28,7 +27,7 @@ struct IOOperationResult : public noncopyable {
 /**
  * The result of an operation fetching an image
  */
-struct InputFrameOperationResult : public IOOperationResult {
+struct ReadFrameResult : public IOResult {
   RawPackedFrame rawPackedFrame;
   attribute::Attributes readerAttributes;
 

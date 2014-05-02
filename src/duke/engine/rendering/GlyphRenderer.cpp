@@ -91,7 +91,7 @@ void main(void)
 GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename)
     : m_GeometryRenderer(renderer),  //
       m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)) {
-  InputFrameOperationResult result = load(glyphsFilename, m_GlyphsTexture);
+  ReadFrameResult result = load(glyphsFilename, m_GlyphsTexture);
   if (result) {
     m_Attributes = result.rawPackedFrame.attributes;
   } else {

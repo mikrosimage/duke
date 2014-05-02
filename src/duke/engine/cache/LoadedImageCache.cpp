@@ -105,16 +105,16 @@ void LoadedImageCache::workerFunction() {
     for (;;) {
       m_Cache.pop(mfr);
       CHECK(mfr.pStream);
-      InputFrameOperationResult result(mfr.pStream->process(mfr.frame));
+      ReadFrameResult result(mfr.pStream->process(mfr.frame));
 
       switch (result.status) {
-        case IOOperationResult::FAILURE: {
+        case IOResult::FAILURE: {
           printf("error while reading %s : %s\n", attribute::getOrDie<attribute::File>(result.attributes()),
                  result.error.c_str());
           m_Cache.push(mfr, 1UL, RawPackedFrame());
           break;
         }
-        case IOOperationResult::SUCCESS: {
+        case IOResult::SUCCESS: {
           const size_t weight = result.rawPackedFrame.description.dataSize;
           m_Cache.push(mfr, weight, std::move(result.rawPackedFrame));
           break;

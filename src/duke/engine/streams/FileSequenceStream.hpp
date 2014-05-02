@@ -20,7 +20,7 @@ class FileSequenceStream final : public duke::IMediaStream {
   ~FileSequenceStream() override {}
 
   // This function can be called from different threads.
-  InputFrameOperationResult process(const size_t frame) const override;
+  ReadFrameResult process(const size_t frame) const override;
 
   // File sequences are random access streams
   bool isForwardOnly() const override { return false; }

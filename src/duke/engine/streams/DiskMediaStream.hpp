@@ -12,7 +12,7 @@ class DiskMediaStream final : public duke::IMediaStream {
  public:
   DiskMediaStream(const attribute::Attributes& readerOptions, const sequence::Item& item);
 
-  InputFrameOperationResult process(const size_t frame) const override;
+  ReadFrameResult process(const size_t frame) const override;
 
   bool isForwardOnly() const override;
 

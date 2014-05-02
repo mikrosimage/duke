@@ -70,8 +70,8 @@ FileSequenceStream::FileSequenceStream(const attribute::Attributes& options, con
 }
 
 // Several threads will access this function at the same time.
-InputFrameOperationResult FileSequenceStream::process(const size_t atFrame) const {
-  InputFrameOperationResult result;
+ReadFrameResult FileSequenceStream::process(const size_t atFrame) const {
+  ReadFrameResult result;
   BufferStringAppender<2048> buffer;
   const size_t frame = atFrame + m_FrameStart;
   const size_t paddingSize = m_Padding > 0 ? m_Padding : digits(frame);
@@ -95,18 +95,24 @@ SingleFileStream::SingleFileStream(const attribute::Attributes& options, const s
     set<Error>(m_State, error.c_str());
     return;
   }
+  set<File>(m_State, m_Filename.c_str());
+  merge(m_pImageReader->getAttributes(), m_State);
   if (m_pImageReader->hasError()) {
     set<Error>(m_State, m_pImageReader->getError().c_str());
     m_pImageReader.reset();
     return;
   }
-  merge(m_pImageReader->getAttributes(), m_State);
 }
 
-InputFrameOperationResult SingleFileStream::process(const size_t frame) const {
-  InputFrameOperationResult result;
-  attribute::set<attribute::File>(result.attributes(), m_Filename.c_str());
-  attribute::set<attribute::MediaFrame>(result.attributes(), frame);
+ReadFrameResult SingleFileStream::process(const size_t frame) const {
+  using namespace attribute;
+  ReadFrameResult result;
+  if (!m_pImageReader) {
+    result.error = getWithDefault<Error>(m_State, "Invalid reader state");
+    return result;
+  }
+  set<File>(result.attributes(), m_Filename.c_str());
+  set<MediaFrame>(result.attributes(), frame);
   CHECK(m_pImageReader);
   std::lock_guard<std::mutex> guard(m_Mutex);
   return duke::loadImage(m_pImageReader.get(), &CopyFromVolatileDataPointer, std::move(result));

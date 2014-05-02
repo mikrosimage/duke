@@ -21,7 +21,7 @@ class SingleFileStream final : public duke::IMediaStream {
   ~SingleFileStream() override {}
 
   // This function can be called from different threads.
-  InputFrameOperationResult process(const size_t frame) const override;
+  ReadFrameResult process(const size_t frame) const override;
 
   // True if this stream is a movie
   bool isForwardOnly() const override;

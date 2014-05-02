@@ -16,9 +16,9 @@ ostream &operator<<(ostream &stream, const Range &range) {
 
 class DummyMediaStream : public IMediaStream {
  public:
-  virtual InputFrameOperationResult process(const size_t frame) const override {
-    InputFrameOperationResult result;
-    result.status = IOOperationResult::SUCCESS;
+  virtual ReadFrameResult process(const size_t frame) const override {
+    ReadFrameResult result;
+    result.status = IOResult::SUCCESS;
     return result;
   }
   virtual bool isForwardOnly() const override { return true; }

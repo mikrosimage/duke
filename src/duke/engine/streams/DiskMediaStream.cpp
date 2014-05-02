@@ -26,7 +26,7 @@ DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const seq
   CHECK(m_pDelegate);
 }
 
-InputFrameOperationResult DiskMediaStream::process(const size_t frame) const {
+ReadFrameResult DiskMediaStream::process(const size_t frame) const {
   return CHECK_NOTNULL(m_pDelegate)->process(frame);
 }
 

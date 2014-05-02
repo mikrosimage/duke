@@ -17,15 +17,15 @@ namespace {
 
 AlignedMalloc alignedMalloc;
 
-InputFrameOperationResult error(const std::string& error, InputFrameOperationResult& result) {
+ReadFrameResult error(const std::string& error, ReadFrameResult& result) {
   result.error = error;
-  result.status = IOOperationResult::FAILURE;
+  result.status = IOResult::FAILURE;
   return move(result);
 }
 
-InputFrameOperationResult tryReader(const char* filename, const IIODescriptor* pDescriptor,
-                                    const attribute::Attributes& readOptions, const LoadCallback& callback,
-                                    InputFrameOperationResult&& result) {
+ReadFrameResult tryReader(const char* filename, const IIODescriptor* pDescriptor,
+                          const attribute::Attributes& readOptions, const LoadCallback& callback,
+                          ReadFrameResult&& result) {
   std::unique_ptr<IImageReader> pReader;
   if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
     MemoryMappedFile file(filename);
@@ -37,8 +37,8 @@ InputFrameOperationResult tryReader(const char* filename, const IIODescriptor* p
   return loadImage(pReader.get(), callback, move(result));
 }
 
-InputFrameOperationResult load(const char* pFilename, const char* pExtension, const attribute::Attributes& readOptions,
-                               const LoadCallback& callback, InputFrameOperationResult&& result) {
+ReadFrameResult load(const char* pFilename, const char* pExtension, const attribute::Attributes& readOptions,
+                     const LoadCallback& callback, ReadFrameResult&& result) {
   const auto& descriptors = IODescriptors::instance().findDescriptor(pExtension);
   if (descriptors.empty()) return error("no reader available", result);
   for (const IIODescriptor* pDescriptor : descriptors) {
@@ -50,8 +50,7 @@ InputFrameOperationResult load(const char* pFilename, const char* pExtension, co
 
 }  // namespace
 
-InputFrameOperationResult loadImage(IImageReader* pReader, const LoadCallback& callback,
-                                    InputFrameOperationResult&& result) {
+ReadFrameResult loadImage(IImageReader* pReader, const LoadCallback& callback, ReadFrameResult&& result) {
   CHECK(pReader);
   if (pReader->hasError()) return error(pReader->getError(), result);
   RawPackedFrame& packedFrame = result.rawPackedFrame;
@@ -66,12 +65,11 @@ InputFrameOperationResult loadImage(IImageReader* pReader, const LoadCallback& c
     callback(packedFrame, packedFrame.pData.get());
   }
   result.readerAttributes = pReader->moveAttributes();
-  result.status = IOOperationResult::SUCCESS;
+  result.status = IOResult::SUCCESS;
   return move(result);
 }
 
-InputFrameOperationResult load(const attribute::Attributes& readOptions, const LoadCallback& callback,
-                               InputFrameOperationResult&& result) {
+ReadFrameResult load(const attribute::Attributes& readOptions, const LoadCallback& callback, ReadFrameResult&& result) {
   const char* pFilename = attribute::getOrDie<attribute::File>(result.attributes());
   if (!pFilename) return error("no filename", result);
   const char* pExtension = fileExtension(pFilename);
@@ -79,9 +77,9 @@ InputFrameOperationResult load(const attribute::Attributes& readOptions, const L
   return load(pFilename, pExtension, readOptions, callback, move(result));
 }
 
-InputFrameOperationResult load(const char* pFilename, Texture& texture) {
+ReadFrameResult load(const char* pFilename, Texture& texture) {
   CHECK(pFilename);
-  InputFrameOperationResult result;
+  ReadFrameResult result;
   attribute::set<attribute::File>(result.attributes(), pFilename);
   return load({}, [&](RawPackedFrame& packedFrame, const void* pVolatileData) {
                     const auto bound = texture.scope_bind_texture();

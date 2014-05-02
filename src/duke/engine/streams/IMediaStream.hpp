@@ -11,12 +11,12 @@ class IMediaStream : public noncopyable {
   virtual ~IMediaStream() {}
 
   // This function can be called from different threads.
-  virtual InputFrameOperationResult process(const size_t frame) const = 0;
+  virtual ReadFrameResult process(const size_t frame) const = 0;
 
   // True if this stream is only a forward stream
   virtual bool isForwardOnly() const = 0;
 
-  // Contains the state of the stream as well as all the metadata
+  // Contains the state of the stream like current frame for movie stream
   virtual const attribute::Attributes& getState() const = 0;
 };
 
