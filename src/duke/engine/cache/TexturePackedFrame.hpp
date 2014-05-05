@@ -1,8 +1,9 @@
 #pragma once
 
-#include <duke/imageio/FrameDescriptionAndAttributes.hpp>
+#include <duke/image/FrameDescriptionAndAttributes.hpp>
 #include <duke/gl/Textures.hpp>
 #include <duke/gl/GLUtils.hpp>
+
 #include <memory>
 
 namespace duke {

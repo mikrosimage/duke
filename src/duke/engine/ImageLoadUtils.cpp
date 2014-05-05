@@ -1,12 +1,14 @@
 #include "ImageLoadUtils.hpp"
-#include <duke/imageio/DukeIO.hpp>
+
 #include <duke/attributes/Attributes.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
-#include <duke/imageio/FrameDescription.hpp>
-#include <duke/gl/Textures.hpp>
 #include <duke/filesystem/MemoryMappedFile.hpp>
 #include <duke/filesystem/FsUtils.hpp>
+#include <duke/gl/Textures.hpp>
+#include <duke/image/FrameDescription.hpp>
+#include <duke/imageio/DukeIO.hpp>
 #include <duke/memory/Allocator.hpp>
+
 #include <sstream>
 
 using std::move;

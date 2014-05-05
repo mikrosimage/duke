@@ -1,6 +1,7 @@
 #pragma once
 
-#include <duke/imageio/FrameDescriptionAndAttributes.hpp>
+#include <duke/image/FrameDescriptionAndAttributes.hpp>
+
 #include <memory>
 
 namespace duke {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/imageio/FrameDescription.hpp>
 #include <duke/attributes/Attributes.hpp>
+#include <duke/image/FrameDescription.hpp>
 
 namespace duke {
 

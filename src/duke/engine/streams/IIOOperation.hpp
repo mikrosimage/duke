@@ -1,7 +1,7 @@
 #pragma once
 
 #include <duke/base/NonCopyable.hpp>
-#include <duke/imageio/FrameData.hpp>
+#include <duke/image/FrameData.hpp>
 
 namespace duke {
 

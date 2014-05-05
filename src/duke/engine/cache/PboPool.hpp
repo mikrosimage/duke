@@ -2,8 +2,10 @@
 
 #include <duke/engine/cache/Pool.hpp>
 #include <duke/gl/GlObjects.hpp>
-#include <duke/imageio/FrameDescription.hpp>
+#include <duke/image/FrameDescription.hpp>
+
 #include <map>
+
 #include <cstdio>
 
 namespace duke {

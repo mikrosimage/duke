@@ -1,11 +1,12 @@
 #pragma once
 
+#include <concurrent/cache/lookahead_cache.hpp>
 #include <duke/base/NonCopyable.hpp>
 #include <duke/engine/cache/TimelineIterator.hpp>
 #include <duke/engine/Timeline.hpp>
 #include <duke/engine/streams/IMediaStream.hpp>
-#include <duke/imageio/FrameData.hpp>
-#include <concurrent/cache/lookahead_cache.hpp>
+#include <duke/image/FrameData.hpp>
+
 #include <thread>
 #include <vector>
 

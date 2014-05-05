@@ -37,7 +37,7 @@
 #include <duke/base/Check.hpp>
 #include <duke/base/NonCopyable.hpp>
 #include <duke/base/StringUtils.hpp>
-#include <duke/imageio/FrameData.hpp>
+#include <duke/image/FrameData.hpp>
 
 #include <cstddef>
 #include <string>
