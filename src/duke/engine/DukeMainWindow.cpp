@@ -21,6 +21,7 @@ DukeMainWindow::DukeMainWindow(GLFWwindow *pWindow, const CmdLineParameters &par
   m_Context.fileColorSpace = parameters.inputColorSpace;
   m_Context.screenColorSpace = parameters.outputColorSpace;
 
+  ::glfwSetWindowTitle(m_pWindow, "Duke");
   ::glfwMakeContextCurrent(m_pWindow);
   ::glfwGetWindowSize(m_pWindow, &m_WindowDim.x, &m_WindowDim.y);
   ::glfwGetWindowPos(m_pWindow, &m_WindowPos.x, &m_WindowPos.y);
