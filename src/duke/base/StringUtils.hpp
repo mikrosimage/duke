@@ -3,11 +3,22 @@
 #include <cstddef>
 #include <string>
 
+/**
+ * Tests if two strings are equals.
+ * Both strings have to be non nullptr.
+ * Equality of pointers is first checked and fallback to string
+ * comparison if needed.
+ */
 bool streq(const char* first, const char* second);
+
+/**
+ * Compares the two strings lexicographically.
+ * Both strings have to be non nullptr.
+ */
 bool strless(const char* first, const char* second);
 
 /**
- * Returns the number of digits needed to represent frame.
+ * Returns the number of digits needed to represent the number.
  * ie. digits(5243) == 4
  */
 unsigned char digits(size_t frame);
