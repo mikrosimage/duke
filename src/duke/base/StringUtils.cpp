@@ -3,6 +3,7 @@
 #include <duke/base/StringAppender.hpp>
 
 #include <limits>
+#include <algorithm>
 
 bool streq(const char* first, const char* second) {
   CHECK(first && second);
@@ -22,6 +23,22 @@ bool strless(const char* first, const char* second) {
     if (*first == '\0') return true;
   }
   return false;
+}
+
+void strdim(const char* string, unsigned& width, unsigned& height) {
+  CHECK(string);
+  width = 0;
+  height = 0;
+  const char* start = string;
+  const char* end = strchr(start, '\n');
+  while (end != nullptr) {
+    ++height;
+    CHECK(end - start < std::numeric_limits<unsigned>::max());
+    width = std::max(width, static_cast<unsigned>(end - start));
+    start = end + 1;
+    end = strchr(start, '\n');
+  }
+  width = std::max(width, static_cast<unsigned>(strlen(start)));
 }
 
 unsigned char digits(size_t frame) {

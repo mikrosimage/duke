@@ -52,3 +52,19 @@ TEST(StringUtils, strless) {
   EXPECT_DEATH(strless(nullptr, "a"), "");
   EXPECT_DEATH(strless("a", nullptr), "");
 }
+
+void checkDimensions(const char* string, unsigned expectedWidth, unsigned expectedHeight) {
+  unsigned width, height;
+  strdim(string, width, height);
+  EXPECT_EQ(expectedWidth, width);
+  EXPECT_EQ(expectedHeight, height);
+}
+
+TEST(StringUtils, strdim) {
+  checkDimensions("", 0, 0);
+  checkDimensions("1", 1, 0);
+  checkDimensions("\n", 0, 1);
+  checkDimensions("_\n_", 1, 1);
+  checkDimensions("__\n", 2, 1);
+  checkDimensions("__\n___\n", 3, 2);
+}

@@ -18,6 +18,14 @@ bool streq(const char* first, const char* second);
 bool strless(const char* first, const char* second);
 
 /**
+ * Computes the dimensions of the string.
+ * 'string' have to be non nullptr.
+ * 'height' is the number of lines.
+ * 'width' is the maximum length of the lines.
+ */
+void strdim(const char* string, unsigned& width, unsigned& height);
+
+/**
  * Returns the number of digits needed to represent the number.
  * ie. digits(5243) == 4
  */
