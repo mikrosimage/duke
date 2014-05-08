@@ -39,24 +39,24 @@
 #include <duke/base/StringUtils.hpp>
 #include <duke/image/FrameData.hpp>
 
-#include <cstddef>
-#include <string>
+#include <deque>
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <cstddef>
 
 namespace duke {
-
-class IIODescriptor;
 
 class IImageReader : public noncopyable {
  protected:
   virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) = 0;
-  const IIODescriptor* const m_pDescriptor;
   attribute::Attributes m_ReaderAttributes;
   std::string m_Error;
 
  public:
-  IImageReader(const attribute::Attributes& options, const IIODescriptor* pDescriptor)
-      : m_pDescriptor(pDescriptor), m_ReaderAttributes(std::move(options)) {}
+  IImageReader(const attribute::Attributes& options) : m_ReaderAttributes(std::move(options)) {}
   virtual ~IImageReader() {}
   inline bool hasError() const { return !m_Error.empty(); }
   inline std::string getError() {
@@ -66,28 +66,10 @@ class IImageReader : public noncopyable {
   }
   inline const attribute::Attributes& getAttributes() const { return m_ReaderAttributes; }
   inline attribute::Attributes&& moveAttributes() { return std::move(m_ReaderAttributes); }
-  inline const IIODescriptor* getDescriptor() const { return m_pDescriptor; }
   inline bool setup(FrameData& frame) { return doSetup(frame.description, frame.attributes); }
   virtual const void* getMappedImageData() const { return nullptr; }
   virtual void readImageDataTo(void* pData) { m_Error = "Unsupported readImageDataTo"; }
 };
-
-class IImageWriter : public noncopyable {
-  attribute::Attributes m_WriterAttributes;
-  std::string m_Error;
-
- public:
-  virtual ~IImageWriter() {}
-  inline const std::string& getError() const { return m_Error; }
-  inline attribute::Attributes& getAttributes() { return m_WriterAttributes; }
-  virtual bool setup(const attribute::Attributes& input) { return false; }
-};
-
-}  // namespace duke
-
-#include <vector>
-
-namespace duke {
 
 class IIODescriptor : public noncopyable {
  public:
@@ -108,18 +90,7 @@ class IIODescriptor : public noncopyable {
                                             const size_t dataSize) const {
     return nullptr;
   }
-  virtual IImageWriter* getWriterToFile(const attribute::Attributes& options, const char* filename) const {
-    return nullptr;
-  }
 };
-
-}  // namespace duke
-
-#include <memory>
-#include <map>
-#include <deque>
-
-namespace duke {
 
 class IODescriptors : public noncopyable {
   std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;

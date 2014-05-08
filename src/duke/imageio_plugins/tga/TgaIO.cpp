@@ -35,8 +35,8 @@ class TGAImageReader : public IImageReader {
   TGAHEADER m_Header;
 
  public:
-  TGAImageReader(const Attributes& options, const IIODescriptor* pDesc, const char* filename)
-      : IImageReader(options, pDesc), m_pFile(fopen(filename, "rb")) {
+  TGAImageReader(const Attributes& options, const char* filename)
+      : IImageReader(options), m_pFile(fopen(filename, "rb")) {
     if (!m_pFile) {
       m_Error = "Unable to open";
       return;
@@ -90,7 +90,7 @@ class TGADescriptor : public IIODescriptor {
   virtual bool supports(Capability capability) const override { return capability == Capability::READER_FILE_SEQUENCE; }
   virtual const char* getName() const override { return "Targa"; }
   virtual IImageReader* getReaderFromFile(const Attributes& options, const char* filename) const override {
-    return new TGAImageReader(options, this, filename);
+    return new TGAImageReader(options, filename);
   }
 };
 

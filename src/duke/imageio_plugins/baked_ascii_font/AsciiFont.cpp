@@ -65,8 +65,7 @@ const uint64_t raster_data[] = {
 
 class AsciiFontImageReader : public IImageReader {
  public:
-  AsciiFontImageReader(const attribute::Attributes& options, const IIODescriptor* pDesc)
-      : IImageReader(options, pDesc) {}
+  AsciiFontImageReader(const attribute::Attributes& options) : IImageReader(options) {}
 
   virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
     description.height = 128;
@@ -99,7 +98,7 @@ class AsciiFontDescriptor : public IIODescriptor {
   }
   virtual const char* getName() const override { return "Basic font provider"; }
   virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
-    return new AsciiFontImageReader(options, this);
+    return new AsciiFontImageReader(options);
   }
 };
 

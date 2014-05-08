@@ -407,8 +407,8 @@ class LibAVIOReader : public IImageReader {
   uint64_t m_FrameCount;
 
  public:
-  LibAVIOReader(const attribute::Attributes& options, const IIODescriptor* pDesc, const char* filename)
-  try : IImageReader(options, pDesc),
+  LibAVIOReader(const attribute::Attributes& options, const char* filename)
+  try : IImageReader(options),
         m_Container(filename),
         m_Stream(m_Container),
         m_Decoder(m_Stream),
@@ -469,7 +469,7 @@ class LibAVIODescriptor : public IIODescriptor {
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "LibAv"; }
   virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
-    return new LibAVIOReader(options, this, filename);
+    return new LibAVIOReader(options, filename);
   }
 
  private:

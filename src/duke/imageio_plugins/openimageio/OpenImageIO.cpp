@@ -113,8 +113,8 @@ class OpenImageIOReader : public IImageReader {
   ImageSpec m_Spec;
 
  public:
-  OpenImageIOReader(const attribute::Attributes& options, const IIODescriptor* pDesc, const char* filename)
-      : IImageReader(options, pDesc), m_pImageInput(ImageInput::create(filename)) {
+  OpenImageIOReader(const attribute::Attributes& options, const char* filename)
+      : IImageReader(options), m_pImageInput(ImageInput::create(filename)) {
     if (!m_pImageInput) {
       m_Error = OpenImageIO::geterror();
       return;
@@ -230,7 +230,7 @@ class OpenImageIODescriptor : public IIODescriptor {
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "OpenImageIO"; }
   virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
-    return new OpenImageIOReader(options, this, filename);
+    return new OpenImageIOReader(options, filename);
   }
 };
 

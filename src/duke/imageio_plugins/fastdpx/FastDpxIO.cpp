@@ -76,9 +76,8 @@ class FastDpxImageReader : public IImageReader {
   }
 
  public:
-  FastDpxImageReader(const attribute::Attributes& options, const IIODescriptor* pDesc, const void* pData,
-                     const size_t dataSize)
-      : IImageReader(options, pDesc),
+  FastDpxImageReader(const attribute::Attributes& options, const void* pData, const size_t dataSize)
+      : IImageReader(options),
         m_pData(nullptr),
         pInformation(reinterpret_cast<const FileInformation*>(pData)),
         pArithmeticPointer(reinterpret_cast<const char*>(pData)),
@@ -124,7 +123,7 @@ class FastDpxDescriptor : public IIODescriptor {
   virtual const char* getName() const override { return "FastDpx"; }
   virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void* pData,
                                             const size_t dataSize) const override {
-    return new FastDpxImageReader(options, this, pData, dataSize);
+    return new FastDpxImageReader(options, pData, dataSize);
   }
 };
 
