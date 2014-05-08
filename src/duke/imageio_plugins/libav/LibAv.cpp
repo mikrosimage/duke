@@ -468,7 +468,7 @@ class LibAVIODescriptor : public IIODescriptor {
   }
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "LibAv"; }
-  virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
+  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
     return new LibAVIOReader(options, filename);
   }
 

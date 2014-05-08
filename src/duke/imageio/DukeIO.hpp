@@ -49,6 +49,9 @@
 
 namespace duke {
 
+/**
+ * Interface for an image reader plugin.
+ */
 class IImageReader : public noncopyable {
  protected:
   virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) = 0;
@@ -58,19 +61,26 @@ class IImageReader : public noncopyable {
  public:
   IImageReader(const attribute::Attributes& options) : m_ReaderAttributes(std::move(options)) {}
   virtual ~IImageReader() {}
+
   inline bool hasError() const { return !m_Error.empty(); }
   inline std::string getError() {
     std::string copy;
     copy.swap(m_Error);  // reading error clears it.
     return copy;
   }
+
   inline const attribute::Attributes& getAttributes() const { return m_ReaderAttributes; }
   inline attribute::Attributes&& moveAttributes() { return std::move(m_ReaderAttributes); }
+
   inline bool setup(FrameData& frame) { return doSetup(frame.description, frame.attributes); }
+
   virtual const void* getMappedImageData() const { return nullptr; }
   virtual void readImageDataTo(void* pData) { m_Error = "Unsupported readImageDataTo"; }
 };
 
+/**
+ * Interface to describe and instantiate a plugin.
+ */
 class IIODescriptor : public noncopyable {
  public:
   enum class Capability {
@@ -80,18 +90,27 @@ class IIODescriptor : public noncopyable {
                               // read will be parallel and out of order
   };
   virtual ~IIODescriptor() {}
+
   virtual const std::vector<std::string>& getSupportedExtensions() const = 0;
+
   virtual const char* getName() const = 0;
+
   virtual bool supports(Capability capability) const = 0;
-  virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const {
+
+  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const {
     return nullptr;
   }
-  virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void* pData,
-                                            const size_t dataSize) const {
+
+  virtual IImageReader* createMemoryReader(const attribute::Attributes& options, const void* pData,
+                                           const size_t dataSize) const {
     return nullptr;
   }
 };
 
+/**
+ * Class to hold the descriptors for all IO plugins.
+ * This is the entry point for plugin retrieval.
+ */
 class IODescriptors : public noncopyable {
   std::vector<std::unique_ptr<IIODescriptor> > m_Descriptors;
   std::map<std::string, std::deque<IIODescriptor*>, ci_less> m_ExtensionToDescriptors;

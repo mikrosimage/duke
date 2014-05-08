@@ -97,7 +97,7 @@ class AsciiFontDescriptor : public IIODescriptor {
     return extensions;
   }
   virtual const char* getName() const override { return "Basic font provider"; }
-  virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
+  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
     return new AsciiFontImageReader(options);
   }
 };

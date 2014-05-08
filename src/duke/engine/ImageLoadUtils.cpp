@@ -32,9 +32,9 @@ ReadFrameResult tryReader(const char* filename, const IIODescriptor* pDescriptor
   if (pDescriptor->supports(IIODescriptor::Capability::READER_READ_FROM_MEMORY)) {
     MemoryMappedFile file(filename);
     if (!file) return error("unable to map file to memory", result);
-    pReader.reset(pDescriptor->getReaderFromMemory(readOptions, file.pFileData, file.fileSize));
+    pReader.reset(pDescriptor->createMemoryReader(readOptions, file.pFileData, file.fileSize));
   } else {
-    pReader.reset(pDescriptor->getReaderFromFile(readOptions, filename));
+    pReader.reset(pDescriptor->createFileReader(readOptions, filename));
   }
   return loadImage(pReader.get(), callback, move(result));
 }

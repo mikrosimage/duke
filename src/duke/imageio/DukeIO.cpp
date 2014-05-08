@@ -1,6 +1,8 @@
 #include "DukeIO.hpp"
-#include <cassert>
+
 #include <stdexcept>
+
+#include <cassert>
 
 using namespace std;
 

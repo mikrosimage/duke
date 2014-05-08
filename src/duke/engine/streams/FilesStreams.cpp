@@ -31,7 +31,7 @@ std::unique_ptr<IImageReader> getFirstValidReader(const attribute::Attributes& o
                                                   const char* filename) {
   std::unique_ptr<IImageReader> pCurrent;
   for (const auto* pDescriptor : descriptors) {
-    pCurrent.reset(pDescriptor->getReaderFromFile(options, filename));
+    pCurrent.reset(pDescriptor->createFileReader(options, filename));
     if (!pCurrent) {
       printf("Discarding '%s' reader, read from memory is not yet implemented\n", pDescriptor->getName());
       continue;

@@ -89,7 +89,7 @@ class TGADescriptor : public IIODescriptor {
   }
   virtual bool supports(Capability capability) const override { return capability == Capability::READER_FILE_SEQUENCE; }
   virtual const char* getName() const override { return "Targa"; }
-  virtual IImageReader* getReaderFromFile(const Attributes& options, const char* filename) const override {
+  virtual IImageReader* createFileReader(const Attributes& options, const char* filename) const override {
     return new TGAImageReader(options, filename);
   }
 };

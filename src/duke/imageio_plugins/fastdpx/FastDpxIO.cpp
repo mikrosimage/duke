@@ -121,8 +121,8 @@ class FastDpxDescriptor : public IIODescriptor {
     return extensions;
   }
   virtual const char* getName() const override { return "FastDpx"; }
-  virtual IImageReader* getReaderFromMemory(const attribute::Attributes& options, const void* pData,
-                                            const size_t dataSize) const override {
+  virtual IImageReader* createMemoryReader(const attribute::Attributes& options, const void* pData,
+                                           const size_t dataSize) const override {
     return new FastDpxImageReader(options, pData, dataSize);
   }
 };

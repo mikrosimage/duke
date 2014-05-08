@@ -229,7 +229,7 @@ class OpenImageIODescriptor : public IIODescriptor {
   }
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "OpenImageIO"; }
-  virtual IImageReader* getReaderFromFile(const attribute::Attributes& options, const char* filename) const override {
+  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
     return new OpenImageIOReader(options, filename);
   }
 };
