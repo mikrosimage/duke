@@ -19,7 +19,7 @@ ColorSpace resolve(const attribute::Attributes &attributes, ColorSpace original)
   if (original != ColorSpace::Auto) return original;
   original = resolveFromName(attribute::getWithDefault<attribute::OiioColorspace>(attributes));
   if (original != ColorSpace::Auto) return original;
-  return resolveFromExtension(fileExtension(attribute::getOrDie<attribute::File>(attributes)));
+  return resolveFromExtension(fileExtension(attribute::getWithDefault<attribute::File>(attributes, "")));
 }
 
 inline float getAspectRatio(glm::vec2 dim) { return dim.x / dim.y; }
@@ -38,8 +38,7 @@ float getZoomValue(const Context &context) {
   if (!context.pCurrentImage) return 1;
   const auto viewportDim = glm::vec2(context.viewport.dimension);
   const auto viewportAspect = getAspectRatio(viewportDim);
-  const auto &imageDescription = context.pCurrentImage->description;
-  const auto imageDim = glm::vec2(imageDescription.width, imageDescription.height);
+  const auto imageDim = glm::vec2(context.pCurrentImage->width, context.pCurrentImage->height);
   const auto imageAspect = getAspectRatio(imageDim);
   switch (context.fitMode) {
     case FitMode::INNER:
@@ -72,23 +71,25 @@ bool isGreyscale(size_t glPackFormat) {
 }  // namespace
 
 void renderWithBoundTexture(const ShaderPool &shaderPool, const Mesh *pMesh, const Context &context) {
-  const auto &description = context.pCurrentImage->description;
-  bool redBlueSwapped = description.swapRedAndBlue;
-  if (isInternalOptimizedFormatRedBlueSwapped(description.glFormat)) redBlueSwapped = !redBlueSwapped;
+  using namespace attribute;
+  const ImageDescription &description = *context.pCurrentImage;
+  const auto opengl_format = description.opengl_format;
 
-  const auto &currentImageAttributes = context.pCurrentImage->attributes;
-  const auto inputColorSpace = resolve(currentImageAttributes, context.fileColorSpace);
+  const auto &extra_attributes = description.extra_attributes;
+  const auto inputColorSpace = resolve(extra_attributes, context.fileColorSpace);
+  const uint8_t imageOrientation = getWithDefault<DpxImageOrientation>(extra_attributes);
+  const bool swapEndianness = getWithDefault<DpxImageSwapEndianness>(extra_attributes);
+  bool redBlueSwapped = getWithDefault<ImageSwapRedAndBlue>(extra_attributes);
+  if (isInternalOptimizedFormatRedBlueSwapped(opengl_format)) redBlueSwapped = !redBlueSwapped;
 
   const ShaderDescription shaderDesc = ShaderDescription::createTextureDesc(  //
-      isGreyscale(description.glFormat),                                      //
-      description.swapEndianness,                                             //
+      isGreyscale(opengl_format),                                             //
+      swapEndianness,                                                         //
       redBlueSwapped,                                                         //
-      description.glFormat == GL_RGB10_A2UI,                                  //
+      opengl_format == GL_RGB10_A2UI,                                         //
       inputColorSpace, context.screenColorSpace);
   const auto pProgram = shaderPool.get(shaderDesc);
-  const auto pair =
-      getTextureDimensions(description.width, description.height,
-                           attribute::getWithDefault<attribute::DpxImageOrientation>(currentImageAttributes));
+  const auto pair = getTextureDimensions(description.width, description.height, imageOrientation);
   pProgram->use();
   pProgram->glUniform2i(shader::gImage, pair.first, pair.second);
   pProgram->glUniform2i(shader::gViewport, context.viewport.dimension.x, context.viewport.dimension.y);

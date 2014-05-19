@@ -10,7 +10,9 @@ namespace duke {
 
 class DiskMediaStream final : public duke::IMediaStream {
  public:
-  DiskMediaStream(const attribute::Attributes& readerOptions, const sequence::Item& item);
+  DiskMediaStream(const sequence::Item& item);
+
+  const IImageReader& getImageReader() const override;
 
   ReadFrameResult process(const size_t frame) const override;
 

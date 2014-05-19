@@ -27,7 +27,7 @@ struct SmallBuffer {
 
   SmallBuffer(const void *ptr, size_t size) : _size(size) { allocateAndCopy(ptr); }
 
-  SmallBuffer(MemorySlice slice) : SmallBuffer(slice.begin(), slice.size()) {}
+  SmallBuffer(ConstMemorySlice slice) : SmallBuffer(slice.begin(), slice.size()) {}
 
   SmallBuffer(const SmallBuffer &other) : _size(other._size) { allocateAndCopy(other.begin()); }
 
@@ -50,11 +50,11 @@ struct SmallBuffer {
 
   ~SmallBuffer() { release(); }
 
-  inline const uint8_t *begin() const { return addressof(); }
-  inline uint8_t *begin() { return addressof(); }
+  inline const char *begin() const { return addressof(); }
+  inline char *begin() { return addressof(); }
 
-  inline const uint8_t *end() const { return begin() + _size; }
-  inline uint8_t *end() { return begin() + _size; }
+  inline const char *end() const { return begin() + _size; }
+  inline char *end() { return begin() + _size; }
 
   void fill(const void *ptr) { memcpy(addressof(), ptr, _size); }
 
@@ -78,9 +78,9 @@ struct SmallBuffer {
 
   inline void setDynamicPtr(void *ptr) { as<void *>(_storage) = ptr; }
 
-  inline uint8_t *addressof() { return isAllocated() ? as<uint8_t *>(_storage) : _storage; }
+  inline char *addressof() { return isAllocated() ? as<char *>(_storage) : _storage; }
 
-  inline const uint8_t *addressof() const { return isAllocated() ? as<const uint8_t *>(_storage) : _storage; }
+  inline const char *addressof() const { return isAllocated() ? as<const char *>(_storage) : _storage; }
 
   inline bool isAllocated() const { return _size > SMALL_SIZE; }
 
@@ -105,5 +105,5 @@ struct SmallBuffer {
   }
 
   size_t _size;
-  uint8_t _storage[SMALL_SIZE];
+  char _storage[SMALL_SIZE];
 };

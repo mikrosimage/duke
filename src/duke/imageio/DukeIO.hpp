@@ -1,35 +1,5 @@
 /**
  * This file describes Duke's IO API.
- *
- * First plugins register an IIODescriptor instance via the static
- * IODescriptors::registerDescriptor() function.
- *
- * Descriptors give informations about plugin capabilities. This allows Duke to
- * select the appropriate one depending on the context.
- * - READER_GENERAL_PURPOSE
- *     The plugin can read/write several formats. Those plugins will be tried
- *     after specialized ones.
- * - READER_READ_FROM_MEMORY
- *     File can be loaded by Duke and decoded by the plugin in-memory.
- * - READER_PERSISTENT
- *     The plugin has a state that is costly to create and we want to reuse it
- *     between calls. Typical case is a movie file where you want the same
- *     plugin instance to be used for all the images.
- *
- * Once created the plugin state can be checked by looking at the has/getError()
- * functions. If plugin creation succeeded Duke can fetch properties by reading
- * the plugin's attributes.
- *
- * Then the 'setup' plugin function will be called to initialize the metadata
- * - read : frame number to read, frame dimensions, data size, ...
- * - write: frame to write, open file on disk, ...
- *
- * If 'setup' call fails, user can check the getError() function for more
- * informations. If call succeeds, Duke is allowed to go on with read/write
- * functions.
- *
- * If plugin is persistent, pairs of setup/read or setup/write functions are
- * allowed. The plugin must configure it's state accordingly.
  */
 
 #pragma once
@@ -38,6 +8,7 @@
 #include <duke/base/NonCopyable.hpp>
 #include <duke/base/StringUtils.hpp>
 #include <duke/image/FrameData.hpp>
+#include <duke/image/ImageDescription.hpp>
 
 #include <deque>
 #include <map>
@@ -49,33 +20,64 @@
 
 namespace duke {
 
+struct ContainerDescription {
+  // Number of frames in this container. Will be one for single image.
+  // Note: frame refers to temporal event, a frame can still have multiple layers
+  // or exist in different streams.
+  uint32_t frames = 0;
+
+  // Describes available images :
+  // - for single image format : only one ImageDescription.
+  // - for multi part image format : one ImageDescription for every sub-image.
+  // - for movies : one ImageDescription for every available streams.
+  std::vector<ImageDescription> subimages;
+
+  // All the extra informations available in the container.
+  // eg. For a movie this could be the framerate, copyright informations, etc...
+  attribute::Attributes metadata;
+};
+
+struct ReadOptions {
+  uint32_t frame = 0;    // Index of frame to read.
+  uint8_t subimage = 0;  // Index of image to read if multipart image.
+
+  // In case you're interested in a sub range of channels, specify first and last
+  // channels to consider.
+  // eg. use [0,2] if images is RGBA but you only want RGB.
+  int8_t channelRange[2] = {-1, -1};
+
+  attribute::Attributes extra_attributes;  // Additional attributes.
+};
+
 /**
  * Interface for an image reader plugin.
  */
 class IImageReader : public noncopyable {
  protected:
-  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) = 0;
-  attribute::Attributes m_ReaderAttributes;
   std::string m_Error;
+  ContainerDescription m_Description;
+
+  bool error(const std::string& msg) {
+    m_Error = msg;
+    return false;
+  }
 
  public:
-  IImageReader(const attribute::Attributes& options) : m_ReaderAttributes(std::move(options)) {}
   virtual ~IImageReader() {}
 
   inline bool hasError() const { return !m_Error.empty(); }
-  inline std::string getError() {
-    std::string copy;
-    copy.swap(m_Error);  // reading error clears it.
-    return copy;
-  }
 
-  inline const attribute::Attributes& getAttributes() const { return m_ReaderAttributes; }
-  inline attribute::Attributes&& moveAttributes() { return std::move(m_ReaderAttributes); }
+  inline std::string getError() const { return m_Error; }
 
-  inline bool setup(FrameData& frame) { return doSetup(frame.description, frame.attributes); }
+  inline void clearError() { m_Error.clear(); }
 
-  virtual const void* getMappedImageData() const { return nullptr; }
-  virtual void readImageDataTo(void* pData) { m_Error = "Unsupported readImageDataTo"; }
+  // Fill in a description of what's available.
+  // Result will be meaningful only if no error.
+  inline const ContainerDescription& getContainerDescription() const { return m_Description; }
+
+  // Reads the specified image into data.
+  // Returns false if reader is in invalid state. If so check error function above.
+  virtual bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) = 0;
 };
 
 /**
@@ -84,10 +86,8 @@ class IImageReader : public noncopyable {
 class IIODescriptor : public noncopyable {
  public:
   enum class Capability {
-    READER_READ_FROM_MEMORY,  // Plugin can decode in-memory buffers
-    READER_GENERAL_PURPOSE,   // Plugin can read several formats
-    READER_FILE_SEQUENCE,     // Plugin will be instantiated for each frame
-                              // read will be parallel and out of order
+    READER_GENERAL_PURPOSE,  // Plugin can read several formats
+    READER_FILE_SEQUENCE,    // Plugin will be instantiated for each frame, read will be parallel and out of order
   };
   virtual ~IIODescriptor() {}
 
@@ -97,14 +97,7 @@ class IIODescriptor : public noncopyable {
 
   virtual bool supports(Capability capability) const = 0;
 
-  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const {
-    return nullptr;
-  }
-
-  virtual IImageReader* createMemoryReader(const attribute::Attributes& options, const void* pData,
-                                           const size_t dataSize) const {
-    return nullptr;
-  }
+  virtual IImageReader* createFileReader(const char* filename) const = 0;
 };
 
 /**

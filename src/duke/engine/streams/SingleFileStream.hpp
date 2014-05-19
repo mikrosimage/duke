@@ -5,8 +5,6 @@
 #include <duke/attributes/Attributes.hpp>
 #include <duke/imageio/DukeIO.hpp>
 
-#include <vector>
-#include <string>
 #include <mutex>
 
 namespace sequence {
@@ -17,8 +15,10 @@ namespace duke {
 
 class SingleFileStream final : public duke::IMediaStream {
  public:
-  SingleFileStream(const attribute::Attributes& options, const sequence::Item& item);
+  SingleFileStream(const sequence::Item& item);
   ~SingleFileStream() override {}
+
+  const IImageReader& getImageReader() const override;
 
   // This function can be called from different threads.
   ReadFrameResult process(const size_t frame) const override;
@@ -29,10 +29,8 @@ class SingleFileStream final : public duke::IMediaStream {
   const attribute::Attributes& getState() const override { return m_State; }
 
  private:
-  const std::string m_Filename;
-  const std::vector<IIODescriptor*> m_Descriptors;
   mutable std::mutex m_Mutex;
-  std::unique_ptr<IImageReader> m_pImageReader;
+  ReadFrameResult m_OpenResult;
   attribute::Attributes m_State;
 };
 

@@ -7,11 +7,11 @@
 #include <glm/glm.hpp>
 
 struct Attributes;
+struct ImageDescription;
 
 namespace duke {
 
 struct Texture;
-struct FrameDescriptionAndAttributes;
 struct GeometryRenderer;
 struct GlyphRenderer;
 class IMediaStream;
@@ -40,7 +40,7 @@ struct Context {
   // file
   std::string filename;
   // current drawing
-  const FrameDescriptionAndAttributes *pCurrentImage;
+  const ImageDescription *pCurrentImage;
   const IMediaStream *pCurrentMediaStream;
 };
 

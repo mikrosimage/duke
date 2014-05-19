@@ -1,7 +1,9 @@
 #include "LoadedImageCache.hpp"
-#include <duke/base/Check.hpp>
+
 #include <duke/attributes/AttributeKeys.hpp>
+#include <duke/base/Check.hpp>
 #include <duke/engine/streams/IMediaStream.hpp>
+#include <duke/memory/Allocator.hpp>
 
 namespace duke {
 
@@ -99,6 +101,12 @@ void LoadedImageCache::stopWorkers() {
   m_WorkerThreads.clear();
 }
 
+namespace {
+
+AlignedMalloc alignedMalloc;
+
+}  // namespace
+
 void LoadedImageCache::workerFunction() {
   MediaFrameReference mfr;
   try {
@@ -107,18 +115,16 @@ void LoadedImageCache::workerFunction() {
       CHECK(mfr.pStream);
       ReadFrameResult result(mfr.pStream->process(mfr.frame));
 
-      switch (result.status) {
-        case IOResult::FAILURE: {
-          printf("error while reading %s : %s\n", attribute::getOrDie<attribute::File>(result.attributes()),
-                 result.error.c_str());
-          m_Cache.push(mfr, 1UL, FrameData());
-          break;
-        }
-        case IOResult::SUCCESS: {
-          const size_t weight = result.frame.description.dataSize;
-          m_Cache.push(mfr, weight, std::move(result.frame));
-          break;
-        }
+      if (result) {
+        result.frame.persistDataIfNeeded(alignedMalloc);
+        const size_t weight = result.frame.getData().size();
+        m_Cache.push(mfr, weight, std::move(result.frame));
+      } else {
+        CHECK(result.reader);
+        using namespace attribute;
+        const auto &metadata = result.reader->getContainerDescription().metadata;
+        printf("error while reading %s : %s\n", getWithDefault<File>(metadata), result.error.c_str());
+        m_Cache.push(mfr, 1UL, FrameData());
       }
     }
   }

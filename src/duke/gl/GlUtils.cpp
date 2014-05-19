@@ -1,177 +1,173 @@
-#include "GLUtils.hpp"
+#include "GlUtils.hpp"
 
+#include <duke/base/Check.hpp>
+#include <duke/base/StringUtils.hpp>
 #include <duke/gl/GL.hpp>
-#include <stdexcept>
 
 #include <fstream>
+#include <map>
+#include <regex>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
-const char* getInternalFormatString(GLint internalFormat) {
-  switch (internalFormat) {
-    case GL_DEPTH_COMPONENT:
-      return "GL_DEPTH_COMPONENT";
-    case GL_DEPTH_STENCIL:
-      return "GL_DEPTH_STENCIL";
-    case GL_RED:
-      return "GL_RED";
-    case GL_RG:
-      return "GL_RG";
-    case GL_RGB:
-      return "GL_RGB";
-    case GL_RGBA:
-      return "GL_RGBA";
-    case GL_R8:
-      return "GL_R8";
-    case GL_R8_SNORM:
-      return "GL_R8_SNORM";
-    case GL_R16:
-      return "GL_R16";
-    case GL_R16_SNORM:
-      return "GL_R16_SNORM";
-    case GL_RG8:
-      return "GL_RG8";
-    case GL_RG8_SNORM:
-      return "GL_RG8_SNORM";
-    case GL_RG16:
-      return "GL_RG16";
-    case GL_RG16_SNORM:
-      return "GL_RG16_SNORM";
-    case GL_R3_G3_B2:
-      return "GL_R3_G3_B2";
-    case GL_RGB4:
-      return "GL_RGB4";
-    case GL_RGB5:
-      return "GL_RGB5";
-    case GL_RGB8:
-      return "GL_RGB8";
-    case GL_RGB8_SNORM:
-      return "GL_RGB8_SNORM";
-    case GL_RGB10:
-      return "GL_RGB10";
-    case GL_RGB12:
-      return "GL_RGB12";
-    case GL_RGB16_SNORM:
-      return "GL_RGB16_SNORM";
-    case GL_RGBA2:
-      return "GL_RGBA2";
-    case GL_RGBA4:
-      return "GL_RGBA4";
-    case GL_RGB5_A1:
-      return "GL_RGB5_A1";
-    case GL_RGBA8:
-      return "GL_RGBA8";
-    case GL_RGBA8_SNORM:
-      return "GL_RGBA8_SNORM";
-    case GL_RGB10_A2:
-      return "GL_RGB10_A2";
-    case GL_RGB10_A2UI:
-      return "GL_RGB10_A2UI";
-    case GL_RGBA12:
-      return "GL_RGBA12";
-    case GL_RGBA16:
-      return "GL_RGBA16";
-    case GL_SRGB8:
-      return "GL_SRGB8";
-    case GL_SRGB8_ALPHA8:
-      return "GL_SRGB8_ALPHA8";
-    case GL_R16F:
-      return "GL_R16F";
-    case GL_RG16F:
-      return "GL_RG16F";
-    case GL_RGB16F:
-      return "GL_RGB16F";
-    case GL_RGBA16F:
-      return "GL_RGBA16F";
-    case GL_R32F:
-      return "GL_R32F";
-    case GL_RG32F:
-      return "GL_RG32F";
-    case GL_RGB32F:
-      return "GL_RGB32F";
-    case GL_RGBA32F:
-      return "GL_RGBA32F";
-    case GL_R11F_G11F_B10F:
-      return "GL_R11F_G11F_B10F";
-    case GL_RGB9_E5:
-      return "GL_RGB9_E5";
-    case GL_R8I:
-      return "GL_R8I";
-    case GL_R8UI:
-      return "GL_R8UI";
-    case GL_R16I:
-      return "GL_R16I";
-    case GL_R16UI:
-      return "GL_R16UI";
-    case GL_R32I:
-      return "GL_R32I";
-    case GL_R32UI:
-      return "GL_R32UI";
-    case GL_RG8I:
-      return "GL_RG8I";
-    case GL_RG8UI:
-      return "GL_RG8UI";
-    case GL_RG16I:
-      return "GL_RG16I";
-    case GL_RG16UI:
-      return "GL_RG16UI";
-    case GL_RG32I:
-      return "GL_RG32I";
-    case GL_RG32UI:
-      return "GL_RG32UI";
-    case GL_RGB8I:
-      return "GL_RGB8I";
-    case GL_RGB8UI:
-      return "GL_RGB8UI";
-    case GL_RGB16I:
-      return "GL_RGB16I";
-    case GL_RGB16UI:
-      return "GL_RGB16UI";
-    case GL_RGB32I:
-      return "GL_RGB32I";
-    case GL_RGB32UI:
-      return "GL_RGB32UI";
-    case GL_RGBA8I:
-      return "GL_RGBA8I";
-    case GL_RGBA8UI:
-      return "GL_RGBA8UI";
-    case GL_RGBA16I:
-      return "GL_RGBA16I";
-    case GL_RGBA16UI:
-      return "GL_RGBA16UI";
-    case GL_RGBA32I:
-      return "GL_RGBA32I";
-    case GL_RGBA32UI:
-      return "GL_RGBA32UI";
-    case GL_COMPRESSED_RED:
-      return "GL_COMPRESSED_RED";
-    case GL_COMPRESSED_RG:
-      return "GL_COMPRESSED_RG";
-    case GL_COMPRESSED_RGB:
-      return "GL_COMPRESSED_RGB";
-    case GL_COMPRESSED_RGBA:
-      return "GL_COMPRESSED_RGBA";
-    case GL_COMPRESSED_SRGB:
-      return "GL_COMPRESSED_SRGB";
-    case GL_COMPRESSED_SRGB_ALPHA:
-      return "GL_COMPRESSED_SRGB_ALPHA";
-    case GL_COMPRESSED_RED_RGTC1:
-      return "GL_COMPRESSED_RED_RGTC1";
-    case GL_COMPRESSED_SIGNED_RED_RGTC1:
-      return "GL_COMPRESSED_SIGNED_RED_RGTC1";
-    case GL_COMPRESSED_RG_RGTC2:
-      return "GL_COMPRESSED_RG_RGTC2";
-    case GL_COMPRESSED_SIGNED_RG_RGTC2:
-      return "GL_COMPRESSED_SIGNED_RG_RGTC2";
-      //	case GL_COMPRESSED_RGBA_BPTC_UNORM:
-      //		return "GL_COMPRESSED_RGBA_BPTC_UNORM";
-      //	case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM:
-      //		return "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM";
-      //	case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT:
-      //		return "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT";
-      //	case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT:
-      //		return "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT";
+bool operator<(const Channel& a, const Channel& b) {
+  return std::tie(a.semantic, a.bits) < std::tie(b.semantic, b.bits);
+}
+
+namespace {
+
+Channel::Semantic getSemantic(const char c) {
+  switch (c) {
+    case 'R':
+      return Channel::Semantic::RED;
+    case 'G':
+      return Channel::Semantic::GREEN;
+    case 'B':
+      return Channel::Semantic::BLUE;
+    case 'A':
+      return Channel::Semantic::ALPHA;
+    default:
+      CHECK(false) << "Invalid semantic";
+      return Channel::Semantic::UNKNOWN;
   }
+}
+
+void appendChannel(const std::csub_match& semantic_, const std::csub_match& bits_, Channels& channels) {
+  if (!(semantic_.matched && bits_.matched)) return;
+  const uint8_t bits = std::stoi(bits_);
+  for (const char c : semantic_.str()) channels.emplace_back(getSemantic(c), bits);
+}
+
+Channels::FormatType parseType(const std::string& string) {
+  if (string.empty()) return Channels::FormatType::UNSIGNED_NORMALIZED;
+  if (string == "F") return Channels::FormatType::FLOATING_POINT;
+  if (string == "UI") return Channels::FormatType::UNSIGNED_INTEGRAL;
+  if (string == "I") return Channels::FormatType::SIGNED_INTEGRAL;
+  if (string == "_SNORM") return Channels::FormatType::SIGNED_NORMALIZED;
+  CHECK(false) << "Invalid format type '" << string << "'";
+  return Channels::FormatType::UNKNOWN;
+}
+
+Channels parseOpenGlFormat(const char* ogl) {
+  static const std::regex regex(
+      R"(^GL_(?:(R|RG|RGB|RGBA)(\d{1,2}))(?:_(A|G|B)(\d{1,2}))?(?:_(A|B)(\d{1,2}))?(_SNORM|UI|I|F)?$)");
+  std::cmatch m;
+  std::regex_match(ogl, m, regex);
+  CHECK(!m.empty()) << "Can't match '" << ogl << "'";
+  Channels channels;
+  appendChannel(m[1], m[2], channels);
+  appendChannel(m[3], m[4], channels);
+  appendChannel(m[5], m[6], channels);
+  channels.type = parseType(m[7].str());
+  return channels;
+}
+
+struct ChannelComparator : public std::binary_function<bool, Channels, Channels> {
+  bool operator()(const Channels& a, const Channels& b) const {
+    if (a.type == b.type)
+      return static_cast<const std::vector<Channel>&>(a) < static_cast<const std::vector<Channel>&>(b);
+    return a.type < b.type;
+  }
+};
+}
+
+Channels getChannels(int32_t internalFormat) { return parseOpenGlFormat(getInternalFormatString(internalFormat)); }
+
+int32_t getOpenGlFormat(const Channels& channels) {
+#define MAKE_PAIR(X) std::make_pair(getChannels(X), X)
+  static const std::map<Channels, int32_t, ChannelComparator> kStaticMap{
+      MAKE_PAIR(GL_R16),          MAKE_PAIR(GL_R16F),        MAKE_PAIR(GL_R16I),       MAKE_PAIR(GL_R16_SNORM),
+      MAKE_PAIR(GL_R16UI),        MAKE_PAIR(GL_R32F),        MAKE_PAIR(GL_R32I),       MAKE_PAIR(GL_R32UI),
+      MAKE_PAIR(GL_R3_G3_B2),     MAKE_PAIR(GL_R8),          MAKE_PAIR(GL_R8I),        MAKE_PAIR(GL_R8_SNORM),
+      MAKE_PAIR(GL_R8UI),         MAKE_PAIR(GL_RG16),        MAKE_PAIR(GL_RG16F),      MAKE_PAIR(GL_RG16I),
+      MAKE_PAIR(GL_RG16_SNORM),   MAKE_PAIR(GL_RG16UI),      MAKE_PAIR(GL_RG32F),      MAKE_PAIR(GL_RG32I),
+      MAKE_PAIR(GL_RG32UI),       MAKE_PAIR(GL_RG8),         MAKE_PAIR(GL_RG8I),       MAKE_PAIR(GL_RG8_SNORM),
+      MAKE_PAIR(GL_RG8UI),        MAKE_PAIR(GL_RGB10),       MAKE_PAIR(GL_RGB10_A2),   MAKE_PAIR(GL_RGB10_A2UI),
+      MAKE_PAIR(GL_RGB12),        MAKE_PAIR(GL_RGB16),       MAKE_PAIR(GL_RGB16F),     MAKE_PAIR(GL_RGB16I),
+      MAKE_PAIR(GL_RGB16_SNORM),  MAKE_PAIR(GL_RGB16UI),     MAKE_PAIR(GL_RGB32F),     MAKE_PAIR(GL_RGB32I),
+      MAKE_PAIR(GL_RGB32UI),      MAKE_PAIR(GL_RGB4),        MAKE_PAIR(GL_RGB5),       MAKE_PAIR(GL_RGB5_A1),
+      MAKE_PAIR(GL_RGB8),         MAKE_PAIR(GL_RGB8I),       MAKE_PAIR(GL_RGB8_SNORM), MAKE_PAIR(GL_RGB8UI),
+      MAKE_PAIR(GL_RGBA12),       MAKE_PAIR(GL_RGBA16),      MAKE_PAIR(GL_RGBA16F),    MAKE_PAIR(GL_RGBA16I),
+      MAKE_PAIR(GL_RGBA16_SNORM), MAKE_PAIR(GL_RGBA16UI),    MAKE_PAIR(GL_RGBA2),      MAKE_PAIR(GL_RGBA32F),
+      MAKE_PAIR(GL_RGBA32I),      MAKE_PAIR(GL_RGBA32UI),    MAKE_PAIR(GL_RGBA4),      MAKE_PAIR(GL_RGBA8),
+      MAKE_PAIR(GL_RGBA8I),       MAKE_PAIR(GL_RGBA8_SNORM), MAKE_PAIR(GL_RGBA8UI), };
+#undef MAKE_PAIR
+  const auto pFound = kStaticMap.find(channels);
+  if (pFound == kStaticMap.end()) return 0;
+  return pFound->second;
+}
+
+const char* getInternalFormatString(GLint internalFormat) {
+#define CASE(X) \
+  case X:       \
+    return #X
+
+  switch (internalFormat) {
+    CASE(GL_R16);
+    CASE(GL_R16F);
+    CASE(GL_R16I);
+    CASE(GL_R16_SNORM);
+    CASE(GL_R16UI);
+    CASE(GL_R32F);
+    CASE(GL_R32I);
+    CASE(GL_R32UI);
+    CASE(GL_R3_G3_B2);
+    CASE(GL_R8);
+    CASE(GL_R8I);
+    CASE(GL_R8_SNORM);
+    CASE(GL_R8UI);
+    CASE(GL_RG16);
+    CASE(GL_RG16F);
+    CASE(GL_RG16I);
+    CASE(GL_RG16_SNORM);
+    CASE(GL_RG16UI);
+    CASE(GL_RG32F);
+    CASE(GL_RG32I);
+    CASE(GL_RG32UI);
+    CASE(GL_RG8);
+    CASE(GL_RG8I);
+    CASE(GL_RG8_SNORM);
+    CASE(GL_RG8UI);
+    CASE(GL_RGB10);
+    CASE(GL_RGB10_A2);
+    CASE(GL_RGB10_A2UI);
+    CASE(GL_RGB12);
+    CASE(GL_RGB16);
+    CASE(GL_RGB16F);
+    CASE(GL_RGB16I);
+    CASE(GL_RGB16_SNORM);
+    CASE(GL_RGB16UI);
+    CASE(GL_RGB32F);
+    CASE(GL_RGB32I);
+    CASE(GL_RGB32UI);
+    CASE(GL_RGB4);
+    CASE(GL_RGB5);
+    CASE(GL_RGB5_A1);
+    CASE(GL_RGB8);
+    CASE(GL_RGB8I);
+    CASE(GL_RGB8_SNORM);
+    CASE(GL_RGB8UI);
+    CASE(GL_RGBA12);
+    CASE(GL_RGBA16);
+    CASE(GL_RGBA16F);
+    CASE(GL_RGBA16I);
+    CASE(GL_RGBA16_SNORM);
+    CASE(GL_RGBA16UI);
+    CASE(GL_RGBA2);
+    CASE(GL_RGBA32F);
+    CASE(GL_RGBA32I);
+    CASE(GL_RGBA32UI);
+    CASE(GL_RGBA4);
+    CASE(GL_RGBA8);
+    CASE(GL_RGBA8I);
+    CASE(GL_RGBA8_SNORM);
+    CASE(GL_RGBA8UI);
+  }
+
+#undef CASE
+  CHECK(false) << "Unknown code 0x" << std::hex << internalFormat;
   return "Unknown";
 }
 
@@ -355,13 +351,14 @@ GLenum getPixelFormat(GLint internalFormat) {
     case GL_RGBA16F:
     case GL_RGBA32F:
       return GL_RGBA;
+    //    case GL_RGB16UI:
+    //      return GL_RGB_INTEGER;
     case GL_RGB10_A2UI:
       return GL_RGBA_INTEGER;
     default:
-      std::ostringstream oss;
-      oss << "Don't know how to convert internal image format ";
-      oss << getInternalFormatString(internalFormat) << " to pixel format";
-      throw std::runtime_error(oss.str());
+      CHECK(false) << "Don't know how to convert internal image format " << getInternalFormatString(internalFormat)
+                   << " to pixel format";
+      return 0;
   }
 }
 
@@ -395,6 +392,7 @@ GLenum getPixelType(GLint internalFormat) {
       return GL_UNSIGNED_BYTE;
     case GL_RGB16:
     case GL_RGBA16:
+      //    case GL_RGB16UI:
       return GL_UNSIGNED_SHORT;
     case GL_RGB10_A2UI:
     case GL_RGBA8:
@@ -407,10 +405,9 @@ GLenum getPixelType(GLint internalFormat) {
     case GL_RGBA32F:
       return GL_FLOAT;
     default:
-      std::ostringstream oss;
-      oss << "Don't know how to convert internal image format ";
-      oss << getInternalFormatString(internalFormat) << " to pixel type";
-      throw std::runtime_error(oss.str());
+      CHECK(false) << "Don't know how to convert internal image format " << getInternalFormatString(internalFormat)
+                   << " to pixel type";
+      return 0;
   }
 }
 

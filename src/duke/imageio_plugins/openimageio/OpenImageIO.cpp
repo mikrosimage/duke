@@ -2,12 +2,14 @@
 
 #include <duke/attributes/Attribute.hpp>
 #include <duke/imageio/DukeIO.hpp>
+#include <duke/image/ImageUtils.hpp>
 #include <duke/gl/GL.hpp>
 
 #include <OpenImageIO/imageio.h>
 
 #include <algorithm>
 #include <iterator>
+#include <set>
 
 using namespace std;
 OIIO_NAMESPACE_USING;
@@ -16,84 +18,82 @@ namespace duke {
 
 namespace {
 
-const vector<string> A = {"A"};
-const vector<string> RGB = {"R", "G", "B"};
-const vector<string> RGBA = {"R", "G", "B", "A"};
-
-GLuint getGlType(const TypeDesc& typedesc, const vector<string>& channels) {
-  if (channels == A) {
-    switch (typedesc.basetype) {
-      case TypeDesc::UCHAR:
-      case TypeDesc::CHAR:
-        return GL_R8;
-      case TypeDesc::USHORT:
-      case TypeDesc::SHORT:
-        return GL_R16;
-      case TypeDesc::UINT:
-        return GL_R32UI;
-      case TypeDesc::INT:
-        return GL_R32I;
-      case TypeDesc::HALF:
-        return GL_R16F;
-      case TypeDesc::FLOAT:
-        return GL_R32F;
-    }
-  } else if (channels == RGB) {
-    switch (typedesc.basetype) {
-      case TypeDesc::UCHAR:
-      case TypeDesc::CHAR:
-        return GL_RGB8;
-      case TypeDesc::USHORT:
-      case TypeDesc::SHORT:
-        return GL_RGB16;
-      case TypeDesc::UINT:
-        return GL_RGB32UI;
-      case TypeDesc::INT:
-        return GL_RGB32I;
-      case TypeDesc::HALF:
-        return GL_RGB16F;
-      case TypeDesc::FLOAT:
-        return GL_RGB32F;
-    }
-  } else if (channels == RGBA) {
-    switch (typedesc.basetype) {
-      case TypeDesc::UCHAR:
-      case TypeDesc::CHAR:
-        return GL_RGBA8;
-      case TypeDesc::USHORT:
-      case TypeDesc::SHORT:
-        return GL_RGBA16;
-      case TypeDesc::UINT:
-        return GL_RGBA32UI;
-      case TypeDesc::INT:
-        return GL_RGBA32I;
-      case TypeDesc::HALF:
-        return GL_RGBA16F;
-      case TypeDesc::FLOAT:
-        return GL_RGBA32F;
-    }
+Channels::FormatType getFormatType(const TypeDesc& description) {
+  switch (description.basetype) {
+    case TypeDesc::UINT8:
+    case TypeDesc::UINT16:
+    case TypeDesc::UINT32:
+      return Channels::FormatType::UNSIGNED_INTEGRAL;
+    case TypeDesc::INT8:
+    case TypeDesc::INT16:
+    case TypeDesc::INT32:
+      return Channels::FormatType::SIGNED_INTEGRAL;
+    case TypeDesc::HALF:
+    case TypeDesc::FLOAT:
+      return Channels::FormatType::FLOATING_POINT;
   }
+  CHECK(false) << "Unsupported basetype " << description.basetype;
+  return Channels::FormatType::UNKNOWN;
+}
+
+uint8_t getBits(const TypeDesc& description) {
+  switch (description.basetype) {
+    case TypeDesc::UINT8:
+    case TypeDesc::INT8:
+      return 8;
+    case TypeDesc::INT16:
+    case TypeDesc::UINT16:
+    case TypeDesc::HALF:
+      return 16;
+    case TypeDesc::UINT32:
+    case TypeDesc::INT32:
+    case TypeDesc::FLOAT:
+      return 32;
+  }
+  CHECK(false) << "Unsupported basetype " << description.basetype;
   return 0;
 }
 
-size_t getTypeSize(const TypeDesc& typedesc) {
-  switch (typedesc.basetype) {
-    case TypeDesc::UCHAR:
-    case TypeDesc::CHAR:
-      return 1;
-    case TypeDesc::USHORT:
-    case TypeDesc::SHORT:
-    case TypeDesc::HALF:
-      return 2;
-    case TypeDesc::UINT:
-    case TypeDesc::INT:
-    case TypeDesc::FLOAT:
-      return 4;
-    case TypeDesc::DOUBLE:
-      return 8;
-    default:
-      return 0;
+Channel::Semantic getSemantic(const string& name, bool isAlpha, bool isDepth) {
+  if (isAlpha || name == "A") return Channel::Semantic::ALPHA;
+  if (isDepth || name == "Z") return Channel::Semantic::DEPTH;
+  if (name == "R") return Channel::Semantic::RED;
+  if (name == "G") return Channel::Semantic::GREEN;
+  if (name == "B") return Channel::Semantic::BLUE;
+  return Channel::Semantic::UNKNOWN;
+}
+
+Channels getChannels(const ImageSpec& imageSpec) {
+  Channels channels;
+  set<Channels::FormatType> formatTypes;
+  CHECK(imageSpec.channelformats.empty()) << "Per channel format unsupported";
+  for (size_t i = 0; i < imageSpec.channelnames.size(); ++i) {
+    const auto& format = imageSpec.format;
+    const auto& name = imageSpec.channelnames.at(i);
+    const bool isAlpha = i == static_cast<size_t>(imageSpec.alpha_channel);
+    const bool isDepth = i == static_cast<size_t>(imageSpec.z_channel);
+    channels.emplace_back(getSemantic(name, isAlpha, isDepth), getBits(format), name);
+    formatTypes.insert(getFormatType(format));
   }
+  CHECK(formatTypes.size() == 1) << "All channels must conform to the same type";
+  channels.type = *formatTypes.begin();
+  return channels;
+}
+
+ImageDescription getImageDescription(const ImageSpec& imageSpec) {
+  ImageDescription description;
+  description.x = imageSpec.x;
+  description.y = imageSpec.y;
+  description.width = imageSpec.width;
+  description.height = imageSpec.height;
+  description.full_x = imageSpec.full_x;
+  description.full_y = imageSpec.full_y;
+  description.full_width = imageSpec.full_width;
+  description.full_height = imageSpec.full_height;
+  description.tile_width = imageSpec.tile_width;
+  description.tile_height = imageSpec.tile_height;
+  description.channels = getChannels(imageSpec);
+  return description;
 }
 
 template <typename T>
@@ -113,8 +113,7 @@ class OpenImageIOReader : public IImageReader {
   ImageSpec m_Spec;
 
  public:
-  OpenImageIOReader(const attribute::Attributes& options, const char* filename)
-      : IImageReader(options), m_pImageInput(ImageInput::create(filename)) {
+  OpenImageIOReader(const char* filename) : m_pImageInput(ImageInput::create(filename)) {
     if (!m_pImageInput) {
       m_Error = OpenImageIO::geterror();
       return;
@@ -127,12 +126,21 @@ class OpenImageIOReader : public IImageReader {
       m_Error = "can't read volume images";
       return;
     }
+    static const vector<string> A = {"A"};
+    static const vector<string> RGB = {"R", "G", "B"};
+    static const vector<string> RGBA = {"R", "G", "B", "A"};
     if (m_Spec.channelnames != RGB && m_Spec.channelnames != RGBA && m_Spec.channelnames != A) {
       m_Error = "Can only handle RGB, RGBA and A images for now, was '";
       for (const auto& string : m_Spec.channelnames) m_Error += string;
       m_Error += "'";
       return;
     }
+
+    m_Description.frames = 1;
+    // images
+    m_Description.subimages.push_back(getImageDescription(m_Spec));
+    // metadata
+    auto& metadata = m_Description.metadata;
     for (const ParamValue& paramvalue : m_Spec.extra_attribs) {
       // skipping none scalar type for now
       if (paramvalue.nvalues() != 1) {
@@ -145,37 +153,37 @@ class OpenImageIOReader : public IImageReader {
       const auto aggregate = paramvalue.type().aggregate;
       switch (paramvalue.type().basetype) {
         case TypeDesc::STRING:
-          attribute::set(m_ReaderAttributes, key, *reinterpret_cast<const char* const*>(data));
+          attribute::set(metadata, key, *reinterpret_cast<const char* const*>(data));
           break;
         case TypeDesc::INT8:
-          insert<int8_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<int8_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::INT16:
-          insert<int16_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<int16_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::INT32:
-          insert<int32_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<int32_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::INT64:
-          insert<int64_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<int64_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::UINT8:
-          insert<uint8_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<uint8_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::UINT16:
-          insert<uint16_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<uint16_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::UINT32:
-          insert<uint32_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<uint32_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::UINT64:
-          insert<uint64_t>(m_ReaderAttributes, key, data, aggregate);
+          insert<uint64_t>(metadata, key, data, aggregate);
           break;
         case TypeDesc::FLOAT:
-          insert<float>(m_ReaderAttributes, key, data, aggregate);
+          insert<float>(metadata, key, data, aggregate);
           break;
         case TypeDesc::DOUBLE:
-          insert<double>(m_ReaderAttributes, key, data, aggregate);
+          insert<double>(metadata, key, data, aggregate);
           break;
         default:
           CHECK(false) << "Unhandled type";
@@ -187,20 +195,14 @@ class OpenImageIOReader : public IImageReader {
     if (m_pImageInput) m_pImageInput->close();
   }
 
-  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
-    description.width = m_Spec.width;
-    description.height = m_Spec.height;
-    description.glFormat = getGlType(m_Spec.format, m_Spec.channelnames);
-    description.dataSize = m_Spec.width * m_Spec.height * m_Spec.nchannels * getTypeSize(m_Spec.format);
+  bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) override {
+    if (options.frame != 0) return error("plugin does not support multiple frames");
+    if (options.subimage != 0) return error("plugin does not support subimage yet");
+    auto description = m_Description.subimages.at(0);
+    auto& attributes = description.extra_attributes;
+    auto data = frame.setDescriptionAndAllocate(description, allocator);
+    if (!m_pImageInput->read_image(m_Spec.format, data.begin())) return error(OpenImageIO::geterror());
     return true;
-  }
-
-  virtual void readImageDataTo(void* pData) {
-    if (!m_pImageInput) return;
-    if (!m_pImageInput->read_image(m_Spec.format, pData)) {
-      m_Error = OpenImageIO::geterror();
-      return;
-    }
   }
 };
 
@@ -229,8 +231,8 @@ class OpenImageIODescriptor : public IIODescriptor {
   }
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "OpenImageIO"; }
-  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
-    return new OpenImageIOReader(options, filename);
+  virtual IImageReader* createFileReader(const char* filename) const override {
+    return new OpenImageIOReader(filename);
   }
 };
 

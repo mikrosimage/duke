@@ -4,6 +4,7 @@
 #include <duke/imageio/DukeIO.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/gl/GL.hpp>
+#include <duke/gl/GlUtils.hpp>
 
 #include <mutex>
 #include <memory>
@@ -22,6 +23,14 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
+#if FF_API_AVFRAME_LAVC
+#define FRAME_ALLOC av_frame_alloc
+#define FRAME_FREE av_frame_free
+#else
+#define FRAME_ALLOC avcodec_alloc_frame
+#define FRAME_FREE avcodec_free_frame
 #endif
 
 using namespace std;
@@ -46,7 +55,7 @@ struct default_delete<AVCodecContext> {
 template <>
 struct default_delete<AVFrame> {
   void operator()(AVFrame* ptr) {
-    if (ptr) av_frame_free(&ptr);
+    if (ptr) FRAME_FREE(&ptr);
   }
 };
 }
@@ -228,7 +237,7 @@ struct StreamFrameDecoder {
       : m_Stream(stream),                                          //
         m_pCodecCtx(stream.getStreamPtr()->codec),                 //
         m_PacketReader(stream.getIndex(), stream.getFormatPtr()),  //
-        m_pFrameHolder(av_frame_alloc()),
+        m_pFrameHolder(FRAME_ALLOC()),
         m_CurrentFrame(-1) {
     // finding codec
     const AVCodec* const pCodec = avcodec_find_decoder(m_pCodecCtx->codec_id);
@@ -353,17 +362,18 @@ struct PictureDecoder {
     for (int i = 0; i < AV_NUM_DATA_POINTERS; ++i) lineSizes[i] = roundedUpLineSize;
   }
 
-  const uint8_t* decodeFrame(const AVFrame* pFrame) const {
-    uint8_t* pSrc = m_StridedBuffer.data();
-    if (sws_scale(m_pSwsCtx, pFrame->data, pFrame->linesize, 0, height, &pSrc, lineSizes) != pFrame->height) {
+  ConstMemorySlice decodeFrame(const AVFrame* pFrame) const {
+    char* pSrc = m_StridedBuffer.data();
+    if (sws_scale(m_pSwsCtx, pFrame->data, pFrame->linesize, 0, height, reinterpret_cast<unsigned char**>(&pSrc),
+                  lineSizes) != pFrame->height) {
       throw std::runtime_error("cannot decode image");
     }
     if (m_Buffer.size() == m_StridedBuffer.size()) {
-      return pSrc;
+      return {pSrc, pSrc + m_Buffer.size()};
     }
-    uint8_t* pDest = m_Buffer.data();
+    char* pDest = m_Buffer.data();
     for (int i = 0; i < height; ++i, pSrc += roundedUpLineSize, pDest += lineSize) memcpy(pDest, pSrc, lineSize);
-    return m_Buffer.data();
+    return {m_Buffer.data(), m_Buffer.data() + m_Buffer.size()};
   }
 
   void debugFrame(const AVFrame* pFrame, const char* filename) const {
@@ -372,7 +382,8 @@ struct PictureDecoder {
     file << "P6" << '\n';
     file << std::to_string(width) << ' ' << std::to_string(height) << '\n';
     file << "255\n";
-    file.write(reinterpret_cast<const char*>(decodeFrame(pFrame)), m_Buffer.size());
+    const auto buffer = decodeFrame(pFrame);
+    file.write(reinterpret_cast<const char*>(buffer.begin()), buffer.size());
     file.close();
     printf("wrote %s\n", filename);
   }
@@ -383,7 +394,7 @@ struct PictureDecoder {
  private:
   int lineSize, roundedUpLineSize;
   struct SwsContext* m_pSwsCtx;
-  mutable std::vector<uint8_t> m_StridedBuffer, m_Buffer;
+  mutable std::vector<char> m_StridedBuffer, m_Buffer;
   int lineSizes[AV_NUM_DATA_POINTERS];
 };
 
@@ -407,9 +418,8 @@ class LibAVIOReader : public IImageReader {
   uint64_t m_FrameCount;
 
  public:
-  LibAVIOReader(const attribute::Attributes& options, const char* filename)
-  try : IImageReader(options),
-        m_Container(filename),
+  LibAVIOReader(const char* filename)
+  try : m_Container(filename),
         m_Stream(m_Container),
         m_Decoder(m_Stream),
         m_PictureDecoder(m_Decoder.getCodecContextPtr()),
@@ -417,33 +427,35 @@ class LibAVIOReader : public IImageReader {
 #ifdef DEBUG_LIBAV
     printf("found %lu frames...\n", m_FrameCount);
 #endif
-    attribute::set<attribute::MediaFrameCount>(m_ReaderAttributes, m_FrameCount);
-    attribute::set<attribute::OiioColorspace>(m_ReaderAttributes, "sRGB");
-    exportMetadata(m_Stream.getFormatPtr()->metadata, m_ReaderAttributes);
-    exportMetadata(m_Stream.getStreamPtr()->metadata, m_ReaderAttributes);
+    ImageDescription description;
+    description.width = m_PictureDecoder.width;
+    description.height = m_PictureDecoder.height;
+    description.channels = getChannels(GL_RGB8);
+    m_Description.subimages.push_back(std::move(description));
+    m_Description.frames = m_FrameCount;
+    auto& metadata = m_Description.metadata;
+    exportMetadata(m_Stream.getFormatPtr()->metadata, metadata);
+    exportMetadata(m_Stream.getStreamPtr()->metadata, metadata);
   }
   catch (const std::runtime_error& e) {
     m_Error = e.what();
   }
 
-  virtual bool doSetup(FrameDescription& description, attribute::Attributes& frameAttributes) override {
+  bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) override {
     try {
-      const auto requestedFrame = attribute::getOrDie<attribute::MediaFrame>(frameAttributes);
-      m_Decoder.decodeFrame(requestedFrame + m_Stream.getFirstFrame());
-      description.width = m_PictureDecoder.width;
-      description.height = m_PictureDecoder.height;
-      description.dataSize = m_PictureDecoder.width * m_PictureDecoder.height * 3;
-      description.glFormat = GL_RGB8;
+      using namespace attribute;
+      auto description = m_Description.subimages.at(0);
+      auto& attributes = description.extra_attributes;
+      set<OiioColorspace>(attributes, "sRGB");
+      m_Decoder.decodeFrame(options.frame + m_Stream.getFirstFrame());
+      const auto slice = m_PictureDecoder.decodeFrame(m_Decoder.getCurrentFramePtr());
+      frame.setDescriptionAndVolatileData(description, slice);
       return true;
     }
     catch (const exception& e) {
       m_Error = e.what();
       return false;
     }
-  }
-
-  virtual const void* getMappedImageData() const override {
-    return m_PictureDecoder.decodeFrame(m_Decoder.getCurrentFramePtr());
   }
 };
 
@@ -468,9 +480,7 @@ class LibAVIODescriptor : public IIODescriptor {
   }
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "LibAv"; }
-  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
-    return new LibAVIOReader(options, filename);
-  }
+  virtual IImageReader* createFileReader(const char* filename) const override { return new LibAVIOReader(filename); }
 
  private:
   vector<string> m_Extensions;

@@ -11,13 +11,13 @@
 
 namespace duke {
 
-DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const sequence::Item& item) {
+DiskMediaStream::DiskMediaStream(const sequence::Item& item) {
   switch (item.getType()) {
     case sequence::Item::SINGLE:
-      m_pDelegate.reset(new SingleFileStream(options, item));
+      m_pDelegate.reset(new SingleFileStream(item));
       break;
     case sequence::Item::PACKED:
-      m_pDelegate.reset(new FileSequenceStream(options, item));
+      m_pDelegate.reset(new FileSequenceStream(item));
       break;
     default:
       CHECK(!"Invalid state");
@@ -29,6 +29,8 @@ DiskMediaStream::DiskMediaStream(const attribute::Attributes& options, const seq
 ReadFrameResult DiskMediaStream::process(const size_t frame) const {
   return CHECK_NOTNULL(m_pDelegate)->process(frame);
 }
+
+const IImageReader& DiskMediaStream::getImageReader() const { return CHECK_NOTNULL(m_pDelegate)->getImageReader(); }
 
 bool DiskMediaStream::isForwardOnly() const { return CHECK_NOTNULL(m_pDelegate)->isForwardOnly(); }
 

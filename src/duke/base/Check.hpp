@@ -1,5 +1,7 @@
 #pragma once
 
+#include <duke/base/StackTrace.hpp>
+
 #include <cstdlib>
 #include <cstdio>
 #include <sstream>
@@ -15,6 +17,7 @@
 #define LOG_FATAL(COND, FUNC, FILE, LINE)                                           \
   {                                                                                 \
     fprintf(stderr, "CHECK FAILED '%s' in %s() [%s:%d]\n", COND, FUNC, FILE, LINE); \
+    printStackTrace();                                                              \
     abort();                                                                        \
   }
 #define TRACE_MSG(X) fprintf(stderr, "CHECK FAILED '" #X "' in %s() [%s:%d]\n", __func__, __FILE__, __LINE__)
@@ -27,6 +30,7 @@ struct Tracer {
   std::ostream& getStream() { return msg; }
   ~Tracer() {
     fprintf(stderr, "%s\n", msg.str().c_str());
+    printStackTrace();
     abort();
   }
 

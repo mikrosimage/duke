@@ -25,7 +25,7 @@ TEST(Attribute, Default) {
   attribute::Attribute attribute;
   EXPECT_EQ(nullptr, attribute.name);
   EXPECT_EQ(attribute::Type::Invalid, attribute.type);
-  const MemorySlice slice = attribute;
+  const ConstMemorySlice slice = attribute;
   EXPECT_TRUE(slice.empty());
 }
 

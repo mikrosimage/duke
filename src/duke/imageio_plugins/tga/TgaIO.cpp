@@ -35,8 +35,7 @@ class TGAImageReader : public IImageReader {
   TGAHEADER m_Header;
 
  public:
-  TGAImageReader(const Attributes& options, const char* filename)
-      : IImageReader(options), m_pFile(fopen(filename, "rb")) {
+  TGAImageReader(const char* filename) : m_pFile(fopen(filename, "rb")) {
     if (!m_pFile) {
       m_Error = "Unable to open";
       return;
@@ -45,39 +44,40 @@ class TGAImageReader : public IImageReader {
       m_Error = "Unable to read header";
       return;
     }
-  }
-
-  virtual bool doSetup(FrameDescription& description, Attributes& attributes) override {
+    ImageDescription description;
     switch (m_Header.bits) {
       case 24:  // Most likely case
-        description.glFormat = GL_RGB8;
+        description.channels = getChannels(GL_RGB8);
         break;
       case 32:
-        description.glFormat = GL_RGBA8;
+        description.channels = getChannels(GL_RGBA8);
         break;
       case 8:
-        description.glFormat = GL_R8;
+        description.channels = getChannels(GL_R8);
         break;
       default:
         m_Error = "Unsupported bit depth";
-        return false;
+        return;
     };
-    description.swapRedAndBlue = true;
     description.width = m_Header.width;
     description.height = m_Header.height;
-    description.dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
-    set<attribute::DpxImageOrientation>(attributes, 4);
-    return true;
+    m_Description.frames = 1;
+    m_Description.subimages.push_back(std::move(description));
   }
 
   ~TGAImageReader() {
     if (m_pFile) fclose(m_pFile);
   }
 
-  virtual void readImageDataTo(void* pData) {
-    if (hasError() || !pData) return;
-    const size_t dataSize = m_Header.width * m_Header.height * (m_Header.bits / 8);
-    if (fread(pData, dataSize, 1, m_pFile) != 1) m_Error = "Unable to read from file";
+  bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) override {
+    using namespace attribute;
+    auto description = m_Description.subimages.at(0);
+    auto& attributes = description.extra_attributes;
+    set<DpxImageOrientation>(attributes, 4);
+    set<ImageSwapRedAndBlue>(attributes, true);
+    auto data = frame.setDescriptionAndAllocate(description, allocator);
+    if (fread(data.begin(), data.size(), 1, m_pFile) != 1) m_Error = "Unable to read from file";
+    return true;
   }
 };
 
@@ -89,9 +89,7 @@ class TGADescriptor : public IIODescriptor {
   }
   virtual bool supports(Capability capability) const override { return capability == Capability::READER_FILE_SEQUENCE; }
   virtual const char* getName() const override { return "Targa"; }
-  virtual IImageReader* createFileReader(const Attributes& options, const char* filename) const override {
-    return new TGAImageReader(options, filename);
-  }
+  virtual IImageReader* createFileReader(const char* filename) const override { return new TGAImageReader(filename); }
 };
 
 namespace {

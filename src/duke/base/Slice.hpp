@@ -70,4 +70,5 @@ Slice<const T> asSlice(const std::vector<T>& array) {
   return Slice<const T>(array.begin(), array.end());
 }
 
-typedef Slice<const uint8_t> MemorySlice;
+typedef Slice<const char> ConstMemorySlice;
+typedef Slice<char> MemorySlice;

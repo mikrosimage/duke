@@ -1,7 +1,9 @@
 #pragma once
 
-#include <duke/base/NonCopyable.hpp>
 #include <duke/image/FrameData.hpp>
+#include <duke/imageio/DukeIO.hpp>
+
+#include <memory>
 
 namespace duke {
 
@@ -12,16 +14,9 @@ namespace duke {
  * - 'error' gives a message in case of failure.
  * - 'warning' gives a message if needed.
  */
-struct IOResult : public noncopyable {
-  enum Status {
-    SUCCESS,
-    FAILURE
-  };
-
-  Status status = FAILURE;
+struct IOResult {
   std::string error;
-
-  operator bool() const { return status == SUCCESS; }
+  operator bool() const { return error.empty(); }
 };
 
 /**
@@ -29,10 +24,7 @@ struct IOResult : public noncopyable {
  */
 struct ReadFrameResult : public IOResult {
   FrameData frame;
-  attribute::Attributes readerAttributes;
-
-  inline attribute::Attributes& attributes() { return frame.attributes; }
-  inline const attribute::Attributes& attributes() const { return frame.attributes; }
+  std::shared_ptr<IImageReader> reader;
 };
 
 }  // namespace duke

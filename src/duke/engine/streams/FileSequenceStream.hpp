@@ -16,8 +16,10 @@ namespace duke {
 
 class FileSequenceStream final : public duke::IMediaStream {
  public:
-  FileSequenceStream(const attribute::Attributes& options, const sequence::Item& item);
+  FileSequenceStream(const sequence::Item& item);
   ~FileSequenceStream() override {}
+
+  const IImageReader& getImageReader() const override;
 
   // This function can be called from different threads.
   ReadFrameResult process(const size_t frame) const override;
@@ -31,9 +33,9 @@ class FileSequenceStream final : public duke::IMediaStream {
   const size_t m_FrameStart;
   const size_t m_Padding;
   const std::vector<IIODescriptor*> m_Descriptors;
-  const attribute::Attributes m_Options;
   std::string m_Prefix;
   std::string m_Suffix;
+  ReadFrameResult m_OpenResult;
   attribute::Attributes m_State;
 };
 

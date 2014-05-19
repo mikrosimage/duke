@@ -1,11 +1,11 @@
-#include "duke/engine/streams/SingleFileStream.hpp"
-#include "duke/engine/streams/FileSequenceStream.hpp"
+#include <duke/engine/streams/SingleFileStream.hpp>
+#include <duke/engine/streams/FileSequenceStream.hpp>
 
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/attributes/Attributes.hpp>
 #include <duke/base/StringAppender.hpp>
-#include <duke/engine/ImageLoadUtils.hpp>
 #include <duke/filesystem/FsUtils.hpp>
+#include <duke/imageio/ImageLoadUtils.hpp>
 #include <duke/memory/Allocator.hpp>
 #include <sequence/Item.hpp>
 
@@ -26,35 +26,10 @@ bool isFileSequenceReader(const IIODescriptor* pDescriptor) {
   return pDescriptor->supports(IIODescriptor::Capability::READER_FILE_SEQUENCE);
 }
 
-std::unique_ptr<IImageReader> getFirstValidReader(const attribute::Attributes& options,
-                                                  const std::vector<IIODescriptor*>& descriptors,
-                                                  const char* filename) {
-  std::unique_ptr<IImageReader> pCurrent;
-  for (const auto* pDescriptor : descriptors) {
-    pCurrent.reset(pDescriptor->createFileReader(options, filename));
-    if (!pCurrent) {
-      printf("Discarding '%s' reader, read from memory is not yet implemented\n", pDescriptor->getName());
-      continue;
-    }
-    if (pCurrent->hasError() == false) return pCurrent;
-  }
-  return pCurrent;
-}
-
-BigAlignedBlock gBigAlignedMallocator;
-
-void CopyFromVolatileDataPointer(FrameData& frame, const void* pVolatileData) {
-  if (!frame.pData) {
-    const size_t dataSize = frame.description.dataSize;
-    frame.pData = make_shared_memory<char>(dataSize, gBigAlignedMallocator);
-    memcpy(frame.pData.get(), pVolatileData, dataSize);
-  }
-}
-
 }  // namespace
 
-FileSequenceStream::FileSequenceStream(const attribute::Attributes& options, const sequence::Item& item)
-    : m_FrameStart(item.start), m_Padding(item.padding), m_Descriptors(findIODescriptors(item)), m_Options(options) {
+FileSequenceStream::FileSequenceStream(const sequence::Item& item)
+    : m_FrameStart(item.start), m_Padding(item.padding), m_Descriptors(findIODescriptors(item)) {
   CHECK(item.getType() == sequence::Item::PACKED);
   CHECK(std::all_of(begin(m_Descriptors), end(m_Descriptors), &isFileSequenceReader));
   const auto& filename = item.filename;
@@ -65,13 +40,13 @@ FileSequenceStream::FileSequenceStream(const attribute::Attributes& options, con
   m_Suffix = std::string(begin + lastSharpIndex + 1, filename.end());
   using namespace attribute;
   set<MediaFrameCount>(m_State, item.end - item.start + 1);
-  // reading first frame to get metadata
-  merge(process(0).readerAttributes, m_State);
+  m_OpenResult = process(0);
 }
+
+const IImageReader& FileSequenceStream::getImageReader() const { return *m_OpenResult.reader; }
 
 // Several threads will access this function at the same time.
 ReadFrameResult FileSequenceStream::process(const size_t atFrame) const {
-  ReadFrameResult result;
   BufferStringAppender<2048> buffer;
   const size_t frame = atFrame + m_FrameStart;
   const size_t paddingSize = m_Padding > 0 ? m_Padding : digits(frame);
@@ -79,43 +54,35 @@ ReadFrameResult FileSequenceStream::process(const size_t atFrame) const {
   appendPaddedFrameNumber(frame, paddingSize, buffer);
   buffer.append(m_Suffix);
   CHECK(!buffer.full()) << "filename too long";
-  attribute::set<attribute::File>(result.attributes(), buffer.c_str());
-  return duke::load(m_Options, &CopyFromVolatileDataPointer, std::move(result));
+  return duke::load(buffer.c_str());
 }
 
-SingleFileStream::SingleFileStream(const attribute::Attributes& options, const sequence::Item& item)
-    : m_Filename(item.filename),
-      m_Descriptors(findIODescriptors(item)),
-      m_pImageReader(getFirstValidReader(options, m_Descriptors, m_Filename.c_str())) {
+SingleFileStream::SingleFileStream(const sequence::Item& item) : m_OpenResult(load(item.filename.c_str())) {
   using namespace attribute;
-  if (!m_pImageReader) {
-    std::string error = "No reader for '";
-    error += m_Filename;
-    error += "'";
-    set<Error>(m_State, error.c_str());
+  if (!m_OpenResult) {
+    set<Error>(m_State, m_OpenResult.error.c_str());
     return;
   }
-  set<File>(m_State, m_Filename.c_str());
-  merge(m_pImageReader->getAttributes(), m_State);
-  if (m_pImageReader->hasError()) {
-    set<Error>(m_State, m_pImageReader->getError().c_str());
-    m_pImageReader.reset();
-    return;
-  }
+  CHECK(m_OpenResult.reader);
+  set<File>(m_State, item.filename.c_str());
+  set<MediaFrameCount>(m_State, m_OpenResult.reader->getContainerDescription().frames);
 }
+
+const IImageReader& SingleFileStream::getImageReader() const { return *m_OpenResult.reader; }
 
 ReadFrameResult SingleFileStream::process(const size_t frame) const {
+  if (frame == 0) return m_OpenResult;
+  CHECK(m_OpenResult.reader);
   using namespace attribute;
-  ReadFrameResult result;
-  if (!m_pImageReader) {
-    result.error = getWithDefault<Error>(m_State, "Invalid reader state");
-    return result;
-  }
-  set<File>(result.attributes(), m_Filename.c_str());
-  set<MediaFrame>(result.attributes(), frame);
-  CHECK(m_pImageReader);
   std::lock_guard<std::mutex> guard(m_Mutex);
-  return duke::loadImage(m_pImageReader.get(), &CopyFromVolatileDataPointer, std::move(result));
+  ReadFrameResult result;
+  result.reader = m_OpenResult.reader;
+  duke::loadImage(result, [frame](const ContainerDescription&) {
+    ReadOptions options;
+    options.frame = frame;
+    return options;
+  });
+  return result;
 }
 
 bool SingleFileStream::isForwardOnly() const {

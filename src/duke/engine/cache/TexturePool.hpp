@@ -1,11 +1,22 @@
 #pragma once
 
-#include <duke/gl/GLUtils.hpp>
-#include <duke/image/FrameDescription.hpp>
+#include <duke/gl/GlUtils.hpp>
+#include <duke/image/ImageDescription.hpp>
+
+#include <functional>
+#include <tuple>
 
 namespace duke {
 
-struct TexturePoolPolicy : public pool::PoolBase<FrameDescription, Texture> {
+struct ImageDescriptionLess : std::binary_function<ImageDescription, ImageDescription, bool> {
+  std::tuple<uint32_t, uint32_t, int> asTuple(const ImageDescription& d) const {
+    return std::make_tuple(d.width, d.height, d.opengl_format);
+  }
+
+  bool operator()(const ImageDescription& x, const ImageDescription& y) const { return asTuple(x) < asTuple(y); }
+};
+
+struct TexturePoolPolicy : public pool::PoolBase<ImageDescription, Texture, ImageDescriptionLess> {
  protected:
   value_type* evictAndCreate(const key_type& key, PoolMap& map) {
     auto* pValue = new Texture();

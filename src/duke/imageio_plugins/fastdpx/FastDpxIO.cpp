@@ -4,7 +4,10 @@
 #include <duke/attributes/Attributes.hpp>     // for Attributes
 #include <duke/base/ByteSwap.hpp>             // for bswap_32
 #include <duke/gl/GL.hpp>
-#include <duke/image/FrameDescription.hpp>
+#include <duke/gl/GlUtils.hpp>
+#include <duke/filesystem/MemoryMappedFile.hpp>  // for IIODescriptor::Capability, etc
+#include <duke/image/ImageDescription.hpp>
+#include <duke/image/ImageUtils.hpp>
 #include <duke/imageio/DukeIO.hpp>  // for IIODescriptor::Capability, etc
 
 #include <stddef.h>  // for size_t
@@ -63,7 +66,7 @@ typedef struct _image_information {
 namespace duke {
 
 class FastDpxImageReader : public IImageReader {
-  const void* m_pData;
+  const MemoryMappedFile m_File;
   const FileInformation* pInformation;
   const char* pArithmeticPointer;
   const Image_Information* pImageInformation;
@@ -76,11 +79,10 @@ class FastDpxImageReader : public IImageReader {
   }
 
  public:
-  FastDpxImageReader(const attribute::Attributes& options, const void* pData, const size_t dataSize)
-      : IImageReader(options),
-        m_pData(nullptr),
-        pInformation(reinterpret_cast<const FileInformation*>(pData)),
-        pArithmeticPointer(reinterpret_cast<const char*>(pData)),
+  FastDpxImageReader(const char* filename)
+      : m_File(filename),
+        pInformation(reinterpret_cast<const FileInformation*>(m_File.pFileData)),
+        pArithmeticPointer(reinterpret_cast<const char*>(m_File.pFileData)),
         pImageInformation(reinterpret_cast<const Image_Information*>(pArithmeticPointer + sizeof(FileInformation))),
         magic(pInformation->magic_num),
         bigEndian(magic == DPX_MAGIC_SWAP) {
@@ -95,35 +97,38 @@ class FastDpxImageReader : public IImageReader {
       m_Error = "Can't use fast dpx";
       return;
     }
+
+    ImageDescription description;
+    description.width = swap(pImageInformation->pixels_per_line);
+    description.height = swap(pImageInformation->lines_per_image_ele);
+    description.channels = getChannels(GL_RGB10_A2UI);
+    m_Description.subimages.push_back(std::move(description));
+    m_Description.frames = 1;
   }
 
-  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
-    m_pData = nullptr;
-    description.height = swap(pImageInformation->lines_per_image_ele);
-    description.width = swap(pImageInformation->pixels_per_line);
-    m_pData = pArithmeticPointer + swap(pInformation->offset);
-    description.swapEndianness = bigEndian;
-    description.glFormat = GL_RGB10_A2UI;
-    description.dataSize = description.height * description.width * sizeof(int32_t);
-    attribute::set<attribute::DpxImageOrientation>(attributes, pImageInformation->orientation);
+  bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) override {
+    using namespace attribute;
+    auto description = m_Description.subimages.at(0);
+    auto& attributes = description.extra_attributes;
+    set<DpxImageSwapEndianness>(attributes, bigEndian);
+    set<DpxImageOrientation>(attributes, pImageInformation->orientation);
+    set<OiioColorspace>(attributes, "KodakLog");
+    const char* const pData = pArithmeticPointer + swap(pInformation->offset);
+    const auto size = getImageSize(description);
+    frame.setDescriptionAndVolatileData(description, {pData, pData + size});
     return true;
   }
-
-  virtual const void* getMappedImageData() const override { return m_pData; }
 };
 
 class FastDpxDescriptor : public IIODescriptor {
-  virtual bool supports(Capability capability) const override {
-    return capability == Capability::READER_READ_FROM_MEMORY || capability == Capability::READER_FILE_SEQUENCE;
-  }
+  virtual bool supports(Capability capability) const override { return capability == Capability::READER_FILE_SEQUENCE; }
   virtual const std::vector<std::string>& getSupportedExtensions() const override {
     static std::vector<std::string> extensions = {"dpx"};
     return extensions;
   }
   virtual const char* getName() const override { return "FastDpx"; }
-  virtual IImageReader* createMemoryReader(const attribute::Attributes& options, const void* pData,
-                                           const size_t dataSize) const override {
-    return new FastDpxImageReader(options, pData, dataSize);
+  virtual IImageReader* createFileReader(const char* filename) const override {
+    return new FastDpxImageReader(filename);
   }
 };
 

@@ -38,10 +38,12 @@ bool isValid(const std::string& filename) {
   return true;
 }
 
-void AddItemToTrack(const attribute::Attributes& options, const Item& item, Track& track, size_t& offset) {
-  auto pMediaStream(std::make_shared<DiskMediaStream>(options, item));
-  using namespace attribute;
-  const auto frameCount = getWithDefault<MediaFrameCount>(pMediaStream->getState());
+void AddItemToTrack(const Item& item, Track& track, size_t& offset) {
+  auto pMediaStream(std::make_shared<DiskMediaStream>(item));
+  CHECK(pMediaStream);
+  const auto& reader = pMediaStream->getImageReader();
+  if (reader.hasError()) throw commandline_error(reader.getError());
+  const auto frameCount = reader.getContainerDescription().frames;
   track.add(offset, Clip{frameCount, std::move(pMediaStream), nullptr});
   offset += frameCount;
 }
@@ -51,12 +53,11 @@ void AddItemToTrack(const attribute::Attributes& options, const Item& item, Trac
 Timeline buildTimeline(const std::vector<std::string>& paths) {
   Track track;
   size_t offset = 0;
-  attribute::Attributes options;
   for (const std::string& path : paths) {
     const std::string absolutePath = getAbsoluteFilename(path.c_str());
     switch (getFileStatus(absolutePath.c_str())) {
       case FileStatus::FILE:
-        AddItemToTrack(options, Item(absolutePath), track, offset);
+        AddItemToTrack(Item(absolutePath), track, offset);
         break;
       case FileStatus::DIRECTORY:
         for (Item item : sequence::parseDir(getParserConf(), absolutePath.c_str()).files) {
@@ -67,7 +68,7 @@ Timeline buildTimeline(const std::vector<std::string>& paths) {
           switch (type) {
             case Item::SINGLE:
             case Item::PACKED:
-              AddItemToTrack(options, item, track, offset);
+              AddItemToTrack(item, track, offset);
               break;
             case Item::INDICED:
             default:

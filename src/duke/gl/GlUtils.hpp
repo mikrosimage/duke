@@ -1,9 +1,14 @@
 #pragma once
 
+#include <duke/image/Channel.hpp>
+
 #include <string>
 #include <vector>
 
 std::pair<int, int> getTextureDimensions(size_t uwidth, size_t uheight, uint8_t orientation = 1);
+
+int32_t getOpenGlFormat(const Channels& channels);
+Channels getChannels(int32_t internalFormat);
 
 int getAdaptedInternalFormat(int internalFormat);
 unsigned int getPixelFormat(int internalFormat);

@@ -16,10 +16,9 @@ ostream &operator<<(ostream &stream, const Range &range) {
 
 class DummyMediaStream : public IMediaStream {
  public:
+  virtual const IImageReader &getImageReader() const override { throw std::runtime_error("N/A"); }
   virtual ReadFrameResult process(const size_t frame) const override {
-    ReadFrameResult result;
-    result.status = IOResult::SUCCESS;
-    return result;
+    return {};
   }
   virtual bool isForwardOnly() const override { return true; }
   const attribute::Attributes &getState() const {

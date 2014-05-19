@@ -1,6 +1,11 @@
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/base/Slice.hpp>
 #include <duke/gl/GL.hpp>
+#include <duke/gl/GlUtils.hpp>
+#include <duke/image/ImageUtils.hpp>
+#include <duke/imageio/DukeIO.hpp>
+
 #include <bitset>
+
 #include <cstring>
 
 namespace duke {
@@ -64,29 +69,32 @@ const uint64_t raster_data[] = {
 }  // namespace
 
 class AsciiFontImageReader : public IImageReader {
- public:
-  AsciiFontImageReader(const attribute::Attributes& options) : IImageReader(options) {}
 
-  virtual bool doSetup(FrameDescription& description, attribute::Attributes& attributes) override {
-    description.height = 128;
-    description.width = 128;
-    description.glFormat = GL_RGBA8;
-    description.dataSize = description.height * description.width * sizeof(uint32_t);
-    return true;
+ public:
+  AsciiFontImageReader() {
+    m_Description.frames = 1;
+    ImageDescription image;
+    image.height = 128;
+    image.width = 128;
+    image.channels = getChannels(GL_RGBA8);
+    m_Description.subimages.push_back(image);
   }
 
-  virtual void readImageDataTo(void* pData) override {
+  bool read(const ReadOptions& options, const Allocator& allocator, FrameData& frame) override {
+    if (options.frame != 0) return error("plugin does not support multiple frames");
+    if (options.subimage != 0) return error("plugin does not support subimage");
+    auto data = frame.setDescriptionAndAllocate(m_Description.subimages.at(0), allocator);
     const static unsigned char pOn[] = {0xFF, 0xFF, 0xFF, 0xFF};
     const static unsigned char pOff[] = {0x00, 0x00, 0x00, 0x00};
     using namespace std;
-    auto pCharData = reinterpret_cast<unsigned char*>(pData);
     for (size_t index = 0; index < 256; ++index) {
-      const std::bitset<64> bitset(raster_data[index]);
+      const bitset<64> bitset(raster_data[index]);
       for (size_t i = 0; i < bitset.size(); ++i) {
-        memcpy(pCharData, bitset[i] ? pOn : pOff, 4);
-        pCharData += sizeof(int);
+        memcpy(data.begin(), bitset[i] ? pOn : pOff, 4);
+        data = data.pop_front(sizeof(uint32_t));
       }
     }
+    return true;
   }
 };
 
@@ -97,9 +105,7 @@ class AsciiFontDescriptor : public IIODescriptor {
     return extensions;
   }
   virtual const char* getName() const override { return "Basic font provider"; }
-  virtual IImageReader* createFileReader(const attribute::Attributes& options, const char* filename) const override {
-    return new AsciiFontImageReader(options);
-  }
+  virtual IImageReader* createFileReader(const char* filename) const override { return new AsciiFontImageReader(); }
 };
 
 namespace {
