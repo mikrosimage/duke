@@ -199,7 +199,6 @@ class OpenImageIOReader : public IImageReader {
     if (options.frame != 0) return error("plugin does not support multiple frames");
     if (options.subimage != 0) return error("plugin does not support subimage yet");
     auto description = m_Description.subimages.at(0);
-    auto& attributes = description.extra_attributes;
     auto data = frame.setDescriptionAndAllocate(description, allocator);
     if (!m_pImageInput->read_image(m_Spec.format, data.begin())) return error(OpenImageIO::geterror());
     return true;

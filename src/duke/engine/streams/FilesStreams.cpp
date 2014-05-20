@@ -43,7 +43,7 @@ FileSequenceStream::FileSequenceStream(const sequence::Item& item)
   m_OpenResult = process(0);
 }
 
-const IImageReader& FileSequenceStream::getImageReader() const { return *m_OpenResult.reader; }
+const ReadFrameResult& FileSequenceStream::getResult() const { return m_OpenResult; }
 
 // Several threads will access this function at the same time.
 ReadFrameResult FileSequenceStream::process(const size_t atFrame) const {
@@ -68,7 +68,7 @@ SingleFileStream::SingleFileStream(const sequence::Item& item) : m_OpenResult(lo
   set<MediaFrameCount>(m_State, m_OpenResult.reader->getContainerDescription().frames);
 }
 
-const IImageReader& SingleFileStream::getImageReader() const { return *m_OpenResult.reader; }
+const ReadFrameResult& SingleFileStream::getResult() const { return m_OpenResult; }
 
 ReadFrameResult SingleFileStream::process(const size_t frame) const {
   if (frame == 0) return m_OpenResult;

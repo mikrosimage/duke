@@ -30,7 +30,7 @@ ReadFrameResult DiskMediaStream::process(const size_t frame) const {
   return CHECK_NOTNULL(m_pDelegate)->process(frame);
 }
 
-const IImageReader& DiskMediaStream::getImageReader() const { return CHECK_NOTNULL(m_pDelegate)->getImageReader(); }
+const ReadFrameResult& DiskMediaStream::getResult() const { return CHECK_NOTNULL(m_pDelegate)->getResult(); }
 
 bool DiskMediaStream::isForwardOnly() const { return CHECK_NOTNULL(m_pDelegate)->isForwardOnly(); }
 
