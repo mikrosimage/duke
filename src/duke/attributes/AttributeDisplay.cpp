@@ -1,6 +1,6 @@
-#include <duke/attributes/AttributeDisplay.hpp>
+#include "duke/attributes/AttributeDisplay.hpp"
 
-#include <duke/base/Slice.hpp>
+#include "duke/base/Slice.hpp"
 
 #include <stdexcept>
 

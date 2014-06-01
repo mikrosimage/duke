@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <duke/engine/cache/TimelineIterator.hpp>
-#include <duke/engine/Timeline.hpp>
-#include <duke/streams/IMediaStream.hpp>
+#include "duke/engine/cache/TimelineIterator.hpp"
+#include "duke/engine/Timeline.hpp"
+#include "duke/streams/IMediaStream.hpp"
 
 #include <stdexcept>
 #include <set>

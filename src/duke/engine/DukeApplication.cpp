@@ -1,12 +1,12 @@
 #include "DukeApplication.hpp"
 
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/cmdline/CmdLineParameters.hpp>
-#include <duke/engine/overlay/DukeSplashStream.hpp>
-#include <duke/filesystem/FsUtils.hpp>
-#include <duke/gl/GL.hpp>
-#include <duke/io/IO.hpp>
-#include <duke/streams/DiskMediaStream.hpp>
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/cmdline/CmdLineParameters.hpp"
+#include "duke/engine/overlay/DukeSplashStream.hpp"
+#include "duke/filesystem/FsUtils.hpp"
+#include "duke/gl/GL.hpp"
+#include "duke/io/IO.hpp"
+#include "duke/streams/DiskMediaStream.hpp"
 
 #include <sequence/Parser.hpp>
 

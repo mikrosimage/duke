@@ -1,6 +1,6 @@
 #include "StringUtils.hpp"
-#include <duke/base/Check.hpp>
-#include <duke/base/StringAppender.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/base/StringAppender.hpp"
 
 #include <limits>
 #include <algorithm>

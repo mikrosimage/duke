@@ -1,15 +1,15 @@
 #include "ImageRenderer.hpp"
-#include <duke/io/IO.hpp>
-#include <duke/attributes/Attributes.hpp>
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/engine/Context.hpp>
-#include <duke/engine/rendering/ShaderFactory.hpp>
-#include <duke/engine/rendering/ShaderPool.hpp>
-#include <duke/engine/rendering/ShaderConstants.hpp>
-#include <duke/filesystem/FsUtils.hpp>
-#include <duke/gl/Mesh.hpp>
-#include <duke/gl/Textures.hpp>
-#include <duke/engine/ColorSpace.hpp>
+#include "duke/io/IO.hpp"
+#include "duke/attributes/Attributes.hpp"
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/engine/Context.hpp"
+#include "duke/engine/rendering/ShaderFactory.hpp"
+#include "duke/engine/rendering/ShaderPool.hpp"
+#include "duke/engine/rendering/ShaderConstants.hpp"
+#include "duke/filesystem/FsUtils.hpp"
+#include "duke/gl/Mesh.hpp"
+#include "duke/gl/Textures.hpp"
+#include "duke/engine/ColorSpace.hpp"
 
 namespace duke {
 

@@ -1,4 +1,4 @@
-#include <duke/attributes/Attributes.hpp>
+#include "duke/attributes/Attributes.hpp"
 
 #include <gtest/gtest.h>
 

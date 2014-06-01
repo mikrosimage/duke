@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/attributes/PredefinedAttribute.hpp>
+#include "duke/attributes/PredefinedAttribute.hpp"
 #include <cstdint>
 
 namespace attribute {

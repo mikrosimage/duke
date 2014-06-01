@@ -1,5 +1,5 @@
-#include <duke/attributes/PredefinedAttribute.hpp>
-#include <duke/attributes/AttributeTraits.hpp>
+#include "duke/attributes/PredefinedAttribute.hpp"
+#include "duke/attributes/AttributeTraits.hpp"
 
 #include <gtest/gtest.h>
 

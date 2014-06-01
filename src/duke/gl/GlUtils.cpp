@@ -1,8 +1,8 @@
 #include "GlUtils.hpp"
 
-#include <duke/base/Check.hpp>
-#include <duke/base/StringUtils.hpp>
-#include <duke/gl/GL.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/base/StringUtils.hpp"
+#include "duke/gl/GL.hpp"
 
 #include <fstream>
 #include <map>

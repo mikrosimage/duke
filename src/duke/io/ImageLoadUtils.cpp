@@ -1,15 +1,15 @@
-#include <duke/io/ImageLoadUtils.hpp>
+#include "duke/io/ImageLoadUtils.hpp"
 
-#include <duke/attributes/Attributes.hpp>
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/filesystem/FsUtils.hpp>
-#include <duke/filesystem/MemoryMappedFile.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/gl/Textures.hpp>
-#include <duke/image/ImageDescription.hpp>
-#include <duke/image/ImageUtils.hpp>
-#include <duke/io/IO.hpp>
-#include <duke/memory/Allocator.hpp>
+#include "duke/attributes/Attributes.hpp"
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/filesystem/FsUtils.hpp"
+#include "duke/filesystem/MemoryMappedFile.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/gl/Textures.hpp"
+#include "duke/image/ImageDescription.hpp"
+#include "duke/image/ImageUtils.hpp"
+#include "duke/io/IO.hpp"
+#include "duke/memory/Allocator.hpp"
 
 #include <sstream>
 

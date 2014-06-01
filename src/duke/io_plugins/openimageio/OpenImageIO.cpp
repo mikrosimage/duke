@@ -1,9 +1,9 @@
 #ifdef DUKE_OIIO
 
-#include <duke/attributes/Attribute.hpp>
-#include <duke/io/IO.hpp>
-#include <duke/image/ImageUtils.hpp>
-#include <duke/gl/GL.hpp>
+#include "duke/attributes/Attribute.hpp"
+#include "duke/io/IO.hpp"
+#include "duke/image/ImageUtils.hpp"
+#include "duke/gl/GL.hpp"
 
 #include <OpenImageIO/imageio.h>
 

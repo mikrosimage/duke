@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/image/Channel.hpp>
+#include "duke/image/Channel.hpp"
 
 #include <string>
 #include <vector>

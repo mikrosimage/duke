@@ -1,10 +1,10 @@
 #ifdef DUKE_LIBAV
 
-#include <duke/base/NonCopyable.hpp>
-#include <duke/io/IO.hpp>
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlUtils.hpp>
+#include "duke/base/NonCopyable.hpp"
+#include "duke/io/IO.hpp"
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlUtils.hpp"
 
 #include <mutex>
 #include <memory>

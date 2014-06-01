@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/base/Slice.hpp>
-#include <duke/image/ImageDescription.hpp>
+#include "duke/base/Slice.hpp"
+#include "duke/image/ImageDescription.hpp"
 
 #include <memory>
 

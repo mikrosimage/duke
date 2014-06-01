@@ -1,7 +1,7 @@
 #include "OnScreenDisplayOverlay.hpp"
-#include <duke/engine/rendering/GlyphRenderer.hpp>
-#include <duke/engine/Context.hpp>
-#include <duke/animation/Animation.hpp>
+#include "duke/engine/rendering/GlyphRenderer.hpp"
+#include "duke/engine/Context.hpp"
+#include "duke/animation/Animation.hpp"
 #include <algorithm>
 
 namespace duke {

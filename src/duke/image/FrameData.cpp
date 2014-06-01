@@ -1,9 +1,9 @@
 #include "duke/image/FrameData.hpp"
 
-#include <duke/base/Check.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/image/ImageUtils.hpp>
-#include <duke/memory/Allocator.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/image/ImageUtils.hpp"
+#include "duke/memory/Allocator.hpp"
 
 namespace duke {
 

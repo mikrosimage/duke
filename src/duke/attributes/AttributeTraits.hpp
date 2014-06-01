@@ -1,8 +1,8 @@
 #pragma once
 
-#include <duke/attributes/AttributeType.hpp>
-#include <duke/base/Slice.hpp>
-#include <duke/base/Check.hpp>
+#include "duke/attributes/AttributeType.hpp"
+#include "duke/base/Slice.hpp"
+#include "duke/base/Check.hpp"
 
 #include <string>
 #include <vector>

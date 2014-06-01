@@ -1,6 +1,6 @@
 #include "CmdLineParameters.hpp"
 
-#include <duke/memory/AvailableMemory.hpp>
+#include "duke/memory/AvailableMemory.hpp"
 
 #include <stdexcept>
 #include <sstream>

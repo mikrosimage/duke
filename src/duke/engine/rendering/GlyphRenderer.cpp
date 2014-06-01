@@ -1,11 +1,11 @@
-#include <duke/engine/rendering/GlyphRenderer.hpp>
+#include "duke/engine/rendering/GlyphRenderer.hpp"
 
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/engine/Viewport.hpp>
-#include <duke/engine/rendering/GeometryRenderer.hpp>
-#include <duke/engine/rendering/MeshPool.hpp>
-#include <duke/engine/rendering/ShaderConstants.hpp>
-#include <duke/io/ImageLoadUtils.hpp>
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/engine/Viewport.hpp"
+#include "duke/engine/rendering/GeometryRenderer.hpp"
+#include "duke/engine/rendering/MeshPool.hpp"
+#include "duke/engine/rendering/ShaderConstants.hpp"
+#include "duke/io/ImageLoadUtils.hpp"
 
 namespace duke {
 

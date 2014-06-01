@@ -1,6 +1,6 @@
 #include "Textures.hpp"
-#include <duke/gl/GlUtils.hpp>
-#include <duke/io/ImageLoadUtils.hpp>
+#include "duke/gl/GlUtils.hpp"
+#include "duke/io/ImageLoadUtils.hpp"
 
 namespace duke {
 

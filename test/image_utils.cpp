@@ -1,4 +1,4 @@
-#include <duke/image/ImageUtils.hpp>
+#include "duke/image/ImageUtils.hpp"
 
 #include <gtest/gtest.h>
 

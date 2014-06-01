@@ -1,14 +1,14 @@
 #ifdef DUKE_FAST_DPX
 
-#include <duke/attributes/AttributeKeys.hpp>  // for DpxImageOrientation
-#include <duke/attributes/Attributes.hpp>     // for Attributes
-#include <duke/base/ByteSwap.hpp>             // for bswap_32
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/filesystem/MemoryMappedFile.hpp>  // for IIODescriptor::Capability, etc
-#include <duke/image/ImageDescription.hpp>
-#include <duke/image/ImageUtils.hpp>
-#include <duke/io/IO.hpp>  // for IIODescriptor::Capability, etc
+#include "duke/attributes/AttributeKeys.hpp"  // for DpxImageOrientation
+#include "duke/attributes/Attributes.hpp"     // for Attributes
+#include "duke/base/ByteSwap.hpp"             // for bswap_32
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/filesystem/MemoryMappedFile.hpp"  // for IIODescriptor::Capability, etc
+#include "duke/image/ImageDescription.hpp"
+#include "duke/image/ImageUtils.hpp"
+#include "duke/io/IO.hpp"  // for IIODescriptor::Capability, etc
 
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for int32_t

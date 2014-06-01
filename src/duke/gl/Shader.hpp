@@ -1,8 +1,8 @@
 #pragma once
 
-#include <duke/base/NonCopyable.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/gl/GL.hpp>
+#include "duke/base/NonCopyable.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/gl/GL.hpp"
 
 #include <memory>
 #include <cstring>

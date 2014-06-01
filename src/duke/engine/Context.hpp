@@ -1,9 +1,9 @@
 #pragma once
 
-#include <duke/engine/FitMode.hpp>
-#include <duke/engine/ColorSpace.hpp>
-#include <duke/engine/Viewport.hpp>
-#include <duke/time/FrameUtils.hpp>
+#include "duke/engine/FitMode.hpp"
+#include "duke/engine/ColorSpace.hpp"
+#include "duke/engine/Viewport.hpp"
+#include "duke/time/FrameUtils.hpp"
 #include <glm/glm.hpp>
 
 struct Attributes;

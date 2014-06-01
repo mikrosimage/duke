@@ -1,13 +1,13 @@
 #include "Benchmark.hpp"
 
-#include <duke/gl/GlFwApp.hpp>
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlObjects.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/gl/Mesh.hpp>
-#include <duke/gl/Textures.hpp>
-#include <duke/engine/rendering/ShaderFactory.hpp>
-#include <duke/memory/Allocator.hpp>
+#include "duke/gl/GlFwApp.hpp"
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlObjects.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/gl/Mesh.hpp"
+#include "duke/gl/Textures.hpp"
+#include "duke/engine/rendering/ShaderFactory.hpp"
+#include "duke/memory/Allocator.hpp"
 
 #include <glm/glm.hpp>
 

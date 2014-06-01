@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/io/ImageDescription.hpp>
-#include <duke/io/Attributes.hpp>
+#include "duke/io/ImageDescription.hpp"
+#include "duke/io/Attributes.hpp"
 #include <memory>
 #include <string>
 

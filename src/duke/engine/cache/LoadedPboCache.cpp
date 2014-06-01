@@ -1,7 +1,7 @@
 #include "LoadedPboCache.hpp"
 
-#include <duke/engine/cache/LoadedImageCache.hpp>
-#include <duke/image/ImageUtils.hpp>
+#include "duke/engine/cache/LoadedImageCache.hpp"
+#include "duke/image/ImageUtils.hpp"
 
 namespace duke {
 

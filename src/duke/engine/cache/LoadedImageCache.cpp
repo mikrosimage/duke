@@ -1,8 +1,8 @@
 #include "LoadedImageCache.hpp"
 
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/base/Check.hpp>
-#include <duke/memory/Allocator.hpp>
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/base/Check.hpp"
+#include "duke/memory/Allocator.hpp"
 
 namespace duke {
 

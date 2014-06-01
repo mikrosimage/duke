@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/engine/rendering/ShaderFactory.hpp>
+#include "duke/engine/rendering/ShaderFactory.hpp"
 #include <map>
 
 namespace duke {

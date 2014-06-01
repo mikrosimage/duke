@@ -1,5 +1,5 @@
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlUtils.hpp>
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlUtils.hpp"
 
 #include <gtest/gtest.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/streams/MediaFrameReference.hpp>
+#include "duke/streams/MediaFrameReference.hpp"
 
 #include <string>
 #include <vector>

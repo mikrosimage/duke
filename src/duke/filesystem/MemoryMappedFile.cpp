@@ -1,6 +1,6 @@
 #include "MemoryMappedFile.hpp"
 
-#include <duke/base/Check.hpp>
+#include "duke/base/Check.hpp"
 
 #include <cstdio>
 #include <fcntl.h>

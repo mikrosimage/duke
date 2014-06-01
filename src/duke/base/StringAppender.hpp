@@ -1,8 +1,8 @@
 #pragma once
 
-#include <duke/base/Check.hpp>
-#include <duke/base/NonCopyable.hpp>
-#include <duke/base/Slice.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/base/NonCopyable.hpp"
+#include "duke/base/Slice.hpp"
 
 #include <cstring>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/base/NonCopyable.hpp>
+#include "duke/base/NonCopyable.hpp"
 #include <cstddef>
 
 struct MemoryMappedFile : public noncopyable {

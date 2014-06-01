@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/base/StackTrace.hpp>
+#include "duke/base/StackTrace.hpp"
 
 #include <cstdlib>
 #include <cstdio>

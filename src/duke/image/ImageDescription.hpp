@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/image/Channel.hpp>
-#include <duke/attributes/Attributes.hpp>
+#include "duke/image/Channel.hpp"
+#include "duke/attributes/Attributes.hpp"
 
 struct ImageDescription {
   int32_t x = 0;        // origin (left corner) of pixel data

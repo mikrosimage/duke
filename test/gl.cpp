@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/gl/GlObjects.hpp>
+#include "duke/gl/GlObjects.hpp"
 
 using namespace duke::gl;
 

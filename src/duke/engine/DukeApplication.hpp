@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/engine/DukeMainWindow.hpp>
-#include <duke/gl/GlFwApp.hpp>
+#include "duke/engine/DukeMainWindow.hpp"
+#include "duke/gl/GlFwApp.hpp"
 
 namespace duke {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/image/ImageDescription.hpp>
-#include <duke/gl/GlObjects.hpp>
+#include "duke/image/ImageDescription.hpp"
+#include "duke/gl/GlObjects.hpp"
 
 #include <memory>
 

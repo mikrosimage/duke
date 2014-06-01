@@ -1,5 +1,5 @@
 #include "LoadedTextureCache.hpp"
-#include <duke/cmdline/CmdLineParameters.hpp>
+#include "duke/cmdline/CmdLineParameters.hpp"
 #include <algorithm>
 
 namespace duke {

@@ -2,8 +2,8 @@
 
 #include "IMediaStream.hpp"
 
-#include <duke/attributes/Attributes.hpp>
-#include <duke/io/IO.hpp>
+#include "duke/attributes/Attributes.hpp"
+#include "duke/io/IO.hpp"
 
 #include <vector>
 #include <string>

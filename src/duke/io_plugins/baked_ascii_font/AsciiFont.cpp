@@ -1,8 +1,8 @@
-#include <duke/base/Slice.hpp>
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlUtils.hpp>
-#include <duke/image/ImageUtils.hpp>
-#include <duke/io/IO.hpp>
+#include "duke/base/Slice.hpp"
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlUtils.hpp"
+#include "duke/image/ImageUtils.hpp"
+#include "duke/io/IO.hpp"
 
 #include <bitset>
 

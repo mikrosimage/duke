@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/filesystem/FsUtils.hpp>
+#include "duke/filesystem/FsUtils.hpp"
 
 TEST(FsUtils, extension) {
   EXPECT_EQ(nullptr, duke::fileExtension(nullptr));

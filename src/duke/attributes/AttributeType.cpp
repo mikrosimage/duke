@@ -1,4 +1,4 @@
-#include <duke/attributes/AttributeType.hpp>
+#include "duke/attributes/AttributeType.hpp"
 
 namespace attribute {
 

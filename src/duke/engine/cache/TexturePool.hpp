@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/gl/GlUtils.hpp>
-#include <duke/image/ImageDescription.hpp>
+#include "duke/gl/GlUtils.hpp"
+#include "duke/image/ImageDescription.hpp"
 
 #include <functional>
 #include <tuple>

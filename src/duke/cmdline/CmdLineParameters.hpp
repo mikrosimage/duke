@@ -4,8 +4,8 @@
 #include <string>
 #include <stdexcept>
 
-#include <duke/time/FrameUtils.hpp>
-#include <duke/engine/ColorSpace.hpp>
+#include "duke/time/FrameUtils.hpp"
+#include "duke/engine/ColorSpace.hpp"
 
 namespace duke {
 

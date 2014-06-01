@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/math/Rational.hpp>
+#include "duke/math/Rational.hpp"
 
 #include <chrono>
 

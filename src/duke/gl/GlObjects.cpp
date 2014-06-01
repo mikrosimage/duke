@@ -1,6 +1,6 @@
 #include "GlObjects.hpp"
-#include <duke/gl/GL.hpp>
-#include <duke/gl/GlUtils.hpp>
+#include "duke/gl/GL.hpp"
+#include "duke/gl/GlUtils.hpp"
 
 namespace duke {
 namespace gl {

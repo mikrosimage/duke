@@ -1,4 +1,4 @@
-#include <duke/base/Slice.hpp>
+#include "duke/base/Slice.hpp"
 
 #include <gtest/gtest.h>
 

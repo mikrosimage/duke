@@ -1,4 +1,4 @@
-#include <duke/base/SmallBuffer.hpp>
+#include "duke/base/SmallBuffer.hpp"
 
 #include <algorithm>
 #include <iterator>

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <duke/base/StringUtils.hpp>
-#include <duke/base/StringAppender.hpp>
+#include "duke/base/StringUtils.hpp"
+#include "duke/base/StringAppender.hpp"
 
 #include <string>
 #include <vector>

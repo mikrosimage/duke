@@ -1,6 +1,6 @@
 #include "DukeSplashStream.hpp"
-#include <duke/engine/Context.hpp>
-#include <duke/animation/Animation.hpp>
+#include "duke/engine/Context.hpp"
+#include "duke/animation/Animation.hpp"
 #include <glm/glm.hpp>
 
 using namespace glm;

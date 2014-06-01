@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <duke/base/Check.hpp>
-#include <duke/base/NonCopyable.hpp>
-#include <duke/base/StringUtils.hpp>
-#include <duke/image/FrameData.hpp>
-#include <duke/image/ImageDescription.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/base/NonCopyable.hpp"
+#include "duke/base/StringUtils.hpp"
+#include "duke/image/FrameData.hpp"
+#include "duke/image/ImageDescription.hpp"
 
 #include <deque>
 #include <map>
