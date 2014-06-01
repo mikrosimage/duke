@@ -9,12 +9,12 @@ before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   # If compiling with clang also fetch clang repository
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-  # Adding universe repository for libopenimageio-dev
-  - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
   # Update database
   - sudo apt-get update -qq
   # Install duke dependencies
-  - sudo apt-get install -y xorg-dev libglu1-mesa-dev libopenimageio-dev libavcodec-dev libavformat-dev libavfilter-dev libavdevice-dev libswscale-dev libavutil-dev libbz2-dev
+  - sudo apt-get install -y xorg-dev libglu1-mesa-dev libavcodec-dev libavformat-dev libavfilter-dev libavdevice-dev libswscale-dev libavutil-dev libbz2-dev
+  
+  # Note: libopenimageio-dev is not available on Ubuntu 12.04 precise and is disable for now.
 
 install:
   # Install g++ 4.8.1 since Travis provides g++ 4.6 by default
