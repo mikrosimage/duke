@@ -15,6 +15,8 @@ Binaries
 
 ### Develop
 
+[![Build Status](https://travis-ci.org/mikrosimage/duke.svg?branch=develop)](https://travis-ci.org/mikrosimage/duke)
+
 * [Linux 64 / g++ 4.8](http://www.bbteam.fr:8090/job/duke-develop/compiler=gcc/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
 * [Linux 64 / clang 3.3](http://www.bbteam.fr:8090/job/duke-develop/compiler=clang/lastSuccessfulBuild/artifact/dist/*zip*/dist.zip)
 
