@@ -2,7 +2,6 @@
 
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/base/Check.hpp>
-#include <duke/engine/streams/IMediaStream.hpp>
 #include <duke/memory/Allocator.hpp>
 
 namespace duke {

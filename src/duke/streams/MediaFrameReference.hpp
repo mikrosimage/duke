@@ -7,6 +7,9 @@ namespace duke {
 
 class IMediaStream;
 
+/**
+ *
+ */
 struct MediaFrameReference {
   const IMediaStream* pStream;
   size_t frame;

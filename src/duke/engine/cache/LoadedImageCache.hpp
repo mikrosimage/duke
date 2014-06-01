@@ -4,8 +4,8 @@
 #include <duke/base/NonCopyable.hpp>
 #include <duke/engine/cache/TimelineIterator.hpp>
 #include <duke/engine/Timeline.hpp>
-#include <duke/engine/streams/IMediaStream.hpp>
 #include <duke/image/FrameData.hpp>
+#include <duke/streams/IMediaStream.hpp>
 
 #include <thread>
 #include <vector>

@@ -2,10 +2,13 @@
 
 #include <duke/attributes/Attributes.hpp>
 #include <duke/base/NonCopyable.hpp>
-#include <duke/imageio/IIOOperation.hpp>
+#include <duke/io/IIOOperation.hpp>
 
 namespace duke {
 
+/**
+ * Abstraction for a streamable media
+ */
 class IMediaStream : public noncopyable {
  public:
   virtual ~IMediaStream() {}

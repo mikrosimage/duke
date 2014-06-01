@@ -1,11 +1,11 @@
-#include <duke/engine/streams/SingleFileStream.hpp>
-#include <duke/engine/streams/FileSequenceStream.hpp>
+#include <duke/streams/SingleFileStream.hpp>
+#include <duke/streams/FileSequenceStream.hpp>
 
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/attributes/Attributes.hpp>
 #include <duke/base/StringAppender.hpp>
 #include <duke/filesystem/FsUtils.hpp>
-#include <duke/imageio/ImageLoadUtils.hpp>
+#include <duke/io/ImageLoadUtils.hpp>
 #include <duke/memory/Allocator.hpp>
 #include <sequence/Item.hpp>
 

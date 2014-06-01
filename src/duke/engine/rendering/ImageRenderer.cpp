@@ -1,5 +1,5 @@
 #include "ImageRenderer.hpp"
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 #include <duke/attributes/Attributes.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/engine/Context.hpp>

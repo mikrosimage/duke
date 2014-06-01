@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/imageio/DukeIO.hpp>
-#include <duke/imageio/IIOOperation.hpp>
+#include <duke/io/IO.hpp>
+#include <duke/io/IIOOperation.hpp>
 
 #include <functional>
 

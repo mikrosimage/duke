@@ -8,7 +8,7 @@
 #include <duke/filesystem/MemoryMappedFile.hpp>  // for IIODescriptor::Capability, etc
 #include <duke/image/ImageDescription.hpp>
 #include <duke/image/ImageUtils.hpp>
-#include <duke/imageio/DukeIO.hpp>  // for IIODescriptor::Capability, etc
+#include <duke/io/IO.hpp>  // for IIODescriptor::Capability, etc
 
 #include <stddef.h>  // for size_t
 #include <stdint.h>  // for int32_t

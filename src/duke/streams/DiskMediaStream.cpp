@@ -2,8 +2,8 @@
 
 #include <duke/attributes/AttributeKeys.hpp>
 #include <duke/base/Check.hpp>
-#include <duke/engine/streams/SingleFileStream.hpp>
-#include <duke/engine/streams/FileSequenceStream.hpp>
+#include <duke/streams/SingleFileStream.hpp>
+#include <duke/streams/FileSequenceStream.hpp>
 #include <sequence/Item.hpp>
 
 #include <algorithm>

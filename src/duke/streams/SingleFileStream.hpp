@@ -3,10 +3,9 @@
 #include "IMediaStream.hpp"
 
 #include <duke/attributes/Attributes.hpp>
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 
-#include <vector>
-#include <string>
+#include <mutex>
 
 namespace sequence {
 struct Item;
@@ -14,27 +13,23 @@ struct Item;
 
 namespace duke {
 
-class FileSequenceStream final : public duke::IMediaStream {
+class SingleFileStream final : public duke::IMediaStream {
  public:
-  FileSequenceStream(const sequence::Item& item);
-  ~FileSequenceStream() override {}
+  SingleFileStream(const sequence::Item& item);
+  ~SingleFileStream() override {}
 
   const ReadFrameResult& getResult() const override;
 
   // This function can be called from different threads.
   ReadFrameResult process(const size_t frame) const override;
 
-  // File sequences are random access streams
-  bool isForwardOnly() const override { return false; }
+  // True if this stream is a movie
+  bool isForwardOnly() const override;
 
   const attribute::Attributes& getState() const override { return m_State; }
 
  private:
-  const size_t m_FrameStart;
-  const size_t m_Padding;
-  const std::vector<IIODescriptor*> m_Descriptors;
-  std::string m_Prefix;
-  std::string m_Suffix;
+  mutable std::mutex m_Mutex;
   ReadFrameResult m_OpenResult;
   attribute::Attributes m_State;
 };

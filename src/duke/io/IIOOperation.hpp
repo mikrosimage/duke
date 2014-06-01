@@ -1,7 +1,7 @@
 #pragma once
 
 #include <duke/image/FrameData.hpp>
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 
 #include <memory>
 

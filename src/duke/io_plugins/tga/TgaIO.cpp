@@ -1,6 +1,6 @@
 #ifdef DUKE_TGA
 
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
 
 #include <duke/gl/GL.hpp>

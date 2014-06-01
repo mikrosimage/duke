@@ -2,7 +2,7 @@
 #include <duke/gl/GL.hpp>
 #include <duke/gl/GlUtils.hpp>
 #include <duke/image/ImageUtils.hpp>
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 
 #include <bitset>
 

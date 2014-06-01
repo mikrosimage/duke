@@ -4,8 +4,8 @@
 #include <duke/attributes/AttributesView.hpp>
 #include <duke/engine/Context.hpp>
 #include <duke/engine/rendering/GlyphRenderer.hpp>
-#include <duke/engine/streams/IMediaStream.hpp>
 #include <duke/image/ImageDescription.hpp>
+#include <duke/streams/IMediaStream.hpp>
 
 #include <algorithm>
 

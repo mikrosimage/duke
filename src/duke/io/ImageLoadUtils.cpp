@@ -1,4 +1,4 @@
-#include <duke/imageio/ImageLoadUtils.hpp>
+#include <duke/io/ImageLoadUtils.hpp>
 
 #include <duke/attributes/Attributes.hpp>
 #include <duke/attributes/AttributeKeys.hpp>
@@ -8,7 +8,7 @@
 #include <duke/gl/Textures.hpp>
 #include <duke/image/ImageDescription.hpp>
 #include <duke/image/ImageUtils.hpp>
-#include <duke/imageio/DukeIO.hpp>
+#include <duke/io/IO.hpp>
 #include <duke/memory/Allocator.hpp>
 
 #include <sstream>

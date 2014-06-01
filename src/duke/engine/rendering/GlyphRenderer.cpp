@@ -5,7 +5,7 @@
 #include <duke/engine/rendering/GeometryRenderer.hpp>
 #include <duke/engine/rendering/MeshPool.hpp>
 #include <duke/engine/rendering/ShaderConstants.hpp>
-#include <duke/imageio/ImageLoadUtils.hpp>
+#include <duke/io/ImageLoadUtils.hpp>
 
 namespace duke {
 
