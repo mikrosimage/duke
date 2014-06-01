@@ -12,7 +12,7 @@ before_install:
   # Update database
   - sudo apt-get update -qq
   # Install duke dependencies
-  - sudo apt-get install -y xorg-dev libglu1-mesa-dev libavcodec-dev libavformat-dev libavfilter-dev libavdevice-dev libswscale-dev libavutil-dev libbz2-dev
+  - sudo apt-get install -y xorg-dev libglu1-mesa-dev yasm libbz2-dev
   
   # Note: libopenimageio-dev is not available on Ubuntu 12.04 precise and is disable for now.
 
