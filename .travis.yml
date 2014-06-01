@@ -31,3 +31,5 @@ script:
   - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip gtest-1.7.0.zip -d dependencies
   # Let's rock and roll
   - ./configure && make
+
+# no automatic packaging yet ...
