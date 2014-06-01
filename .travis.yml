@@ -5,7 +5,7 @@ compiler:
   - gcc
 
 before_install:
-  # Add g++ 4.9 repository since Travis provides g++ 4.6 by default
+  # Add g++ 4.8 repository since Travis provides g++ 4.6 by default
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   # If compiling with clang also fetch clang repository
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
@@ -17,13 +17,13 @@ before_install:
   # Note: libopenimageio-dev is not available on Ubuntu 12.04 precise and is disable for now.
 
 install:
-  # Install g++ 4.( since Travis provides g++ 4.6 by default
+  # Install g++ 4.8 since Travis provides g++ 4.6 by default
   # This is also required to compile with clang since it uses g++ headers for standard library
-  - sudo apt-get install -qq g++-4.9
+  - sudo apt-get install -qq g++-4.8
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
 
   # Set up compiler
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
 
 script: 
