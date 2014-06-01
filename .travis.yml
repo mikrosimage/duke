@@ -5,24 +5,23 @@ compiler:
   - gcc
 
 before_install:
-  # g++4.8.1
-  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-
-  # clang 3.4
+  # always install g++4.8.1
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
   - sudo apt-get update -qq
   - sudo apt-get install -y xorg-dev libglu1-mesa-dev
 
 install:
-  # g++4.8.1
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
-
-  # clang 3.4
+  # always install g++4.8.1 (clang is using gcc headers)
+  - sudo apt-get install -qq g++-4.8
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
+
+  # Installing compiler
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
 
 script: 
   - $CXX --version
+  - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip gtest-1.7.0.zip -d dependencies
   - ./configure && make
