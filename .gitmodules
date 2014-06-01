@@ -10,3 +10,6 @@
 [submodule "dependencies/glfw"]
 	path = dependencies/glfw
 	url = git://github.com/elmindreda/glfw.git
+[submodule "dependencies/libav"]
+	path = dependencies/libav
+	url = git://git.libav.org/libav.git
