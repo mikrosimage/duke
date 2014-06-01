@@ -1,16 +1,17 @@
 #include "Textures.hpp"
-#include <duke/gl/GLUtils.hpp>
-#include <duke/engine/ImageLoadUtils.hpp>
+#include "duke/gl/GlUtils.hpp"
+#include "duke/io/ImageLoadUtils.hpp"
 
 namespace duke {
 
-void Texture::initialize(const FrameDescription &description, const GLvoid *pData) {
-  const auto packFormat = description.glFormat;
-  initialize(description, getAdaptedInternalFormat(packFormat), getPixelFormat(packFormat), getPixelType(packFormat),
-             pData);
+void Texture::initialize(const ImageDescription &description, const GLvoid *pData) {
+  const auto opengl_format = description.opengl_format;
+  CHECK(opengl_format != -1) << "OpenGl format must be resolved at this point";
+  initialize(description, getAdaptedInternalFormat(opengl_format), getPixelFormat(opengl_format),
+             getPixelType(opengl_format), pData);
 }
 
-void Texture::initialize(const FrameDescription &description, GLint internalFormat, GLenum format, GLenum type,
+void Texture::initialize(const ImageDescription &description, GLint internalFormat, GLenum format, GLenum type,
                          const GLvoid *pData) {
   glCheckBound(target, id);
   //	printf("about to glTexImage2D, original internal %s, internal %s, pixel format %s, pixel type %s\n", //

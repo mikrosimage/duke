@@ -7,7 +7,7 @@
 
 namespace pool {
 
-template <typename KEY, typename DATA>
+template <typename KEY, typename DATA, class Compare = std::less<KEY>>
 struct PoolBase {
   PoolBase() = default;
   PoolBase(const PoolBase&) = delete;
@@ -18,7 +18,7 @@ struct PoolBase {
 
   typedef std::shared_ptr<value_type> DataPtr;
   typedef std::stack<DataPtr> DataStack;
-  typedef std::map<key_type, DataStack> PoolMap;
+  typedef std::map<key_type, DataStack, Compare> PoolMap;
 };
 
 template <class BASE>

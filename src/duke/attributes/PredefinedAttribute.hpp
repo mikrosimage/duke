@@ -34,12 +34,12 @@ inline void checkRuntimeType(const Type actual, const Type expected) {
 template <bool IS_ARRAY>
 struct Getter {
   template <typename Prototype>
-  inline static typename Prototype::return_type typify(const MemorySlice& memorySlice);
+  inline static typename Prototype::return_type typify(const ConstMemorySlice& memorySlice);
 };
 
 template <>
 template <typename Prototype>
-inline typename Prototype::return_type Getter<true>::typify(const MemorySlice& memorySlice) {
+inline typename Prototype::return_type Getter<true>::typify(const ConstMemorySlice& memorySlice) {
   typedef typename Prototype::static_type SliceType;
   typedef typename SliceType::value_type value_type;
   return asArray<value_type>(memorySlice);
@@ -47,7 +47,7 @@ inline typename Prototype::return_type Getter<true>::typify(const MemorySlice& m
 
 template <>
 template <typename Prototype>
-inline typename Prototype::return_type Getter<false>::typify(const MemorySlice& memorySlice) {
+inline typename Prototype::return_type Getter<false>::typify(const ConstMemorySlice& memorySlice) {
   return asValue<typename Prototype::static_type>(memorySlice);
 }
 
@@ -66,7 +66,7 @@ inline typename Prototype::return_type getWithDefault(const Attributes& attribut
   const Attribute& attribute = get(attributes, Prototype::key);
   if (attribute.type == Type::Invalid || attribute.name == nullptr) return defaultValue;
   details::checkRuntimeType(attribute.type, Prototype::type);
-  const MemorySlice data(attribute.value.begin(), attribute.value.end());
+  const ConstMemorySlice data(attribute.value.begin(), attribute.value.end());
   return details::Getter<Prototype::is_array>::template typify<Prototype>(data);
 }
 
@@ -79,7 +79,7 @@ template <typename Prototype>
 inline typename Prototype::return_type getOrDie(const Attributes& attributes) {
   const Attribute& attribute = getOrDie(attributes, Prototype::key);
   details::checkRuntimeType(attribute.type, Prototype::type);
-  const MemorySlice data(attribute.value.begin(), attribute.value.end());
+  const ConstMemorySlice data(attribute.value.begin(), attribute.value.end());
   return details::Getter<Prototype::is_array>::template typify<Prototype>(data);
 }
 

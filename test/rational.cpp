@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <duke/math/Rational.hpp>
+#include "duke/math/Rational.hpp"
 
 typedef boost::rational<int64_t> Rational;
 

@@ -1,17 +1,17 @@
 #pragma once
 
-#include <duke/engine/FitMode.hpp>
-#include <duke/engine/ColorSpace.hpp>
-#include <duke/engine/Viewport.hpp>
-#include <duke/time/FrameUtils.hpp>
+#include "duke/engine/FitMode.hpp"
+#include "duke/engine/ColorSpace.hpp"
+#include "duke/engine/Viewport.hpp"
+#include "duke/time/FrameUtils.hpp"
 #include <glm/glm.hpp>
 
 struct Attributes;
+struct ImageDescription;
 
 namespace duke {
 
 struct Texture;
-struct FrameDescriptionAndAttributes;
 struct GeometryRenderer;
 struct GlyphRenderer;
 class IMediaStream;
@@ -40,7 +40,7 @@ struct Context {
   // file
   std::string filename;
   // current drawing
-  const FrameDescriptionAndAttributes *pCurrentImage;
+  const ImageDescription *pCurrentImage;
   const IMediaStream *pCurrentMediaStream;
 };
 

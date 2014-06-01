@@ -1,7 +1,7 @@
 #include "StatisticsOverlay.hpp"
-#include <duke/engine/Context.hpp>
-#include <duke/engine/rendering/GlyphRenderer.hpp>
-#include <duke/engine/rendering/GeometryRenderer.hpp>
+#include "duke/engine/Context.hpp"
+#include "duke/engine/rendering/GlyphRenderer.hpp"
+#include "duke/engine/rendering/GeometryRenderer.hpp"
 #include <sstream>
 
 namespace duke {
@@ -20,8 +20,8 @@ void StatisticsOverlay::render(const Context& context) const {
   // draw background
   const auto& geometryRenderer = m_GlyphRenderer.getGeometryRenderer();
   geometryRenderer.drawRect(context.viewport.dimension, glm::ivec2(context.viewport.dimension.x, height),  // size
-                            glm::ivec2(0, yOffset),  // pan
-                            glm::vec4(1, 1, 1, 0.2));  // color
+                            glm::ivec2(0, yOffset),                                                        // pan
+                            glm::vec4(1, 1, 1, 0.2));                                                      // color
 
   // draw cache state
   for (const Track& track : m_Timeline) {
@@ -32,9 +32,9 @@ void StatisticsOverlay::render(const Context& context) const {
           for (const auto range : it->second) {
             size_t rangeLength = frameLength * (range.last - range.first + 1);
             geometryRenderer.drawRect(
-                context.viewport.dimension, glm::ivec2(rangeLength, height),  // size
+                context.viewport.dimension, glm::ivec2(rangeLength, height),                                  // size
                 glm::ivec2(frameLength * (clip.first + range.first) + rangeLength / 2.f + xOffset, yOffset),  // pan
-                glm::vec4(1, 1, 1, 0.4));  // color
+                glm::vec4(1, 1, 1, 0.4));                                                                     // color
           }
       }
     }
@@ -42,9 +42,9 @@ void StatisticsOverlay::render(const Context& context) const {
 
   // draw cursor
   geometryRenderer.drawRect(
-      context.viewport.dimension, glm::ivec2((frameLength < 1.0) ? 1.0 : frameLength, height),  // size
+      context.viewport.dimension, glm::ivec2((frameLength < 1.0) ? 1.0 : frameLength, height),        // size
       glm::ivec2(frameLength * context.currentFrame.round() + frameLength / 2.f + xOffset, yOffset),  // pan
-      glm::vec4(1, 1, 1, 1));  // color
+      glm::vec4(1, 1, 1, 1));                                                                         // color
 
   //  draw infos
   std::ostringstream oss;

@@ -1,6 +1,6 @@
-#include <duke/base/Check.hpp>
-#include <duke/base/StringUtils.hpp>
-#include <duke/attributes/Attributes.hpp>
+#include "duke/base/Check.hpp"
+#include "duke/base/StringUtils.hpp"
+#include "duke/attributes/Attributes.hpp"
 
 #include <algorithm>
 

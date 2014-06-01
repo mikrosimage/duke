@@ -1,5 +1,5 @@
 #include "LoadedTextureCache.hpp"
-#include <duke/cmdline/CmdLineParameters.hpp>
+#include "duke/cmdline/CmdLineParameters.hpp"
 #include <algorithm>
 
 namespace duke {
@@ -33,8 +33,7 @@ void LoadedTextureCache::prepare(size_t frame, IterationMode mode) {
       continue;
     PboPackedFrame pboPackedFrame;
     const auto pboReady = m_PboCache.get(m_ImageCache, mfr, pboPackedFrame);
-    if (pboReady)
-      m_Map.insert({mfr, TexturePackedFrame(pboPackedFrame, m_TexturePool.get(pboPackedFrame.description))});
+    if (pboReady) m_Map.insert({mfr, TexturePackedFrame(pboPackedFrame, m_TexturePool.get(pboPackedFrame))});
   }
   // discarding all textures expect those fetched during this call
   const auto isOutsideCurrentFrame = [&](const Map::value_type& pair) {

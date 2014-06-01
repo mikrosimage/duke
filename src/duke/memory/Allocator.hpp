@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/memory/PageSize.hpp>
-#include <duke/base/NonCopyable.hpp>
+#include "duke/memory/PageSize.hpp"
+#include "duke/base/NonCopyable.hpp"
 
 #include <cstddef>  // size_t
 #include <cstdlib>
@@ -32,7 +32,7 @@ struct Allocator : public noncopyable {
 #include <functional>
 #include <memory>
 template <typename T>
-std::shared_ptr<T> make_shared_memory(size_t size, Allocator& allocator) {
+std::shared_ptr<T> make_shared_memory(size_t size, const Allocator& allocator) {
   using namespace std;
   return shared_ptr<T>(reinterpret_cast<T*>(allocator.malloc(size * sizeof(T))),
                        bind(&Allocator::free, ref(allocator), placeholders::_1));

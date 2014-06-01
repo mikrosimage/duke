@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/commands/Commands.hpp>
-#include <duke/engine/parameters/Parameters.hpp>
+#include "duke/commands/Commands.hpp"
+#include "duke/engine/parameters/Parameters.hpp"
 
 #include <functional>
 

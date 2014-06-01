@@ -1,5 +1,5 @@
 #include "Player.hpp"
-#include <duke/cmdline/CmdLineParameters.hpp>
+#include "duke/cmdline/CmdLineParameters.hpp"
 
 namespace duke {
 

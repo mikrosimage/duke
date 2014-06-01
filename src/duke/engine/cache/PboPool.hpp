@@ -1,8 +1,7 @@
 #pragma once
 
-#include <duke/engine/cache/Pool.hpp>
-#include <duke/gl/GlObjects.hpp>
-#include <duke/image/FrameDescription.hpp>
+#include "duke/engine/cache/Pool.hpp"
+#include "duke/gl/GlObjects.hpp"
 
 #include <map>
 

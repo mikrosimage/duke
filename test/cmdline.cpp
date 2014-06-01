@@ -2,7 +2,7 @@
 #include <tuple>
 #include <utility>
 
-#include <duke/cmdline/CmdLineParameters.hpp>
+#include "duke/cmdline/CmdLineParameters.hpp"
 
 duke::CmdLineParameters build(std::initializer_list<const char*> args) {
   std::vector<const char*> all_args = {"duke"};

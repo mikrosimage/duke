@@ -1,15 +1,15 @@
 #pragma once
 
-#include <duke/image/FrameDescriptionAndAttributes.hpp>
-#include <duke/gl/GlObjects.hpp>
+#include "duke/image/ImageDescription.hpp"
+#include "duke/gl/GlObjects.hpp"
 
 #include <memory>
 
 namespace duke {
 
-struct PboPackedFrame : public FrameDescriptionAndAttributes {
+struct PboPackedFrame : public ImageDescription {
   PboPackedFrame() = default;
-  PboPackedFrame(const FrameDescriptionAndAttributes &other) : FrameDescriptionAndAttributes(other) {}
+  PboPackedFrame(const ImageDescription &other) : ImageDescription(other) {}
   std::shared_ptr<gl::GlStreamUploadPbo> pPbo;
 };
 

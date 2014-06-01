@@ -1,10 +1,10 @@
 #pragma once
 
-#include <duke/engine/cache/PboPackedFrame.hpp>
-#include <duke/engine/cache/TimelineIterator.hpp>
-#include <duke/gl/GlObjects.hpp>
-#include <duke/engine/cache/PboPool.hpp>
-#include <duke/base/NonCopyable.hpp>
+#include "duke/engine/cache/PboPackedFrame.hpp"
+#include "duke/engine/cache/TimelineIterator.hpp"
+#include "duke/gl/GlObjects.hpp"
+#include "duke/engine/cache/PboPool.hpp"
+#include "duke/base/NonCopyable.hpp"
 
 namespace duke {
 

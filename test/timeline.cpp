@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <duke/engine/Timeline.hpp>
-#include <duke/engine/streams/IMediaStream.hpp>
+#include "duke/engine/Timeline.hpp"
+#include "duke/streams/IMediaStream.hpp"
 
 #include <stdexcept>
 #include <set>
@@ -11,10 +11,9 @@ using namespace duke;
 
 class DummyMediaStream : public IMediaStream {
  public:
+  virtual const ReadFrameResult& getResult() const override { throw std::runtime_error("N/A"); }
   virtual ReadFrameResult process(const size_t frame) const override {
-    ReadFrameResult result;
-    result.status = IOResult::SUCCESS;
-    return result;
+    return {};
   }
   virtual bool isForwardOnly() const override { return true; }
   const attribute::Attributes& getState() const {

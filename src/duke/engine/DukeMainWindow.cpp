@@ -1,13 +1,13 @@
 #include "DukeMainWindow.hpp"
 
-#include <duke/engine/overlay/StatisticsOverlay.hpp>
-#include <duke/engine/overlay/OnScreenDisplayOverlay.hpp>
-#include <duke/engine/overlay/AttributesOverlay.hpp>
-#include <duke/engine/ConsoleIO.hpp>
-#include <duke/engine/rendering/ImageRenderer.hpp>
-#include <duke/engine/commands/Commands.hpp>
-#include <duke/time/Clock.hpp>
-#include <duke/gl/GL.hpp>
+#include "duke/engine/overlay/StatisticsOverlay.hpp"
+#include "duke/engine/overlay/OnScreenDisplayOverlay.hpp"
+#include "duke/engine/overlay/AttributesOverlay.hpp"
+#include "duke/engine/ConsoleIO.hpp"
+#include "duke/engine/rendering/ImageRenderer.hpp"
+#include "duke/engine/commands/Commands.hpp"
+#include "duke/time/Clock.hpp"
+#include "duke/gl/GL.hpp"
 
 #include <string>
 #include <sstream>

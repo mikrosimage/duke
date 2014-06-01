@@ -1,5 +1,7 @@
 #include "LoadedPboCache.hpp"
-#include <duke/engine/cache/LoadedImageCache.hpp>
+
+#include "duke/engine/cache/LoadedImageCache.hpp"
+#include "duke/image/ImageUtils.hpp"
 
 namespace duke {
 
@@ -8,18 +10,22 @@ bool LoadedPboCache::get(const LoadedImageCache& imageCache, const MediaFrameRef
   if (pFound == m_Map.end()) {
     FrameData frame;
     const bool inCache = imageCache.get(mfr, frame);
-    if (!inCache || frame.description.dataSize == 0) return false;
+    const auto dataSize = frame.getData().size();
+    if (!inCache || dataSize == 0) return false;
     evictOneIfNecessary();
-    const auto dataSize = frame.description.dataSize;
     auto pSharedPbo = m_PboPool.get(dataSize);
     {  // transfer buffer
+      const auto target = pSharedPbo->target;
+      const auto offset = 0;
+      const auto length = dataSize;
+      const auto access = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
+      const auto data = frame.getData();
       auto pboBound = pSharedPbo->scope_bind_buffer();
-      GLubyte* ptr =
-          (GLubyte*)glMapBufferRange(pSharedPbo->target, 0, dataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-      memcpy(ptr, frame.pData.get(), dataSize);
-      glUnmapBuffer(pSharedPbo->target);
+      void* destPtr = glMapBufferRange(target, offset, length, access);
+      memcpy(destPtr, data.begin(), data.size());
+      glUnmapBuffer(target);
     }
-    PboPackedFrame pboPackedFrame(frame);
+    PboPackedFrame pboPackedFrame(frame.getDescription());
     pboPackedFrame.pPbo = std::move(pSharedPbo);
     pFound = m_Map.insert({mfr, std::move(pboPackedFrame)}).first;
   }

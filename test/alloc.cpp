@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <duke/memory/PageSize.hpp>
+#include "duke/memory/PageSize.hpp"
 
 TEST(Allocation, PageSize) { EXPECT_EQ(PAGE_SIZE, getPageSize()); }
 
-#include <duke/memory/Allocator.hpp>
+#include "duke/memory/Allocator.hpp"
 #include <memory>
 #include <vector>
 

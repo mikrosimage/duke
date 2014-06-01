@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/commands/DescriptorSet.hpp>
-#include <duke/commands/CommandDescription.hpp>
+#include "duke/commands/DescriptorSet.hpp"
+#include "duke/commands/CommandDescription.hpp"
 #include <utility>
 
 namespace cmd {

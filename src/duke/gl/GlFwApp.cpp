@@ -1,6 +1,6 @@
 #include "GlFwApp.hpp"
 
-#include <duke/gl/GL.hpp>
+#include "duke/gl/GL.hpp"
 
 #include <stdexcept>
 #include <cassert>

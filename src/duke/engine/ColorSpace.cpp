@@ -27,7 +27,7 @@ ColorSpace resolveFromExtension(const char* pFileExtension) {
     if (streq(pFileExtension, "png")) return ColorSpace::sRGB;
   }
   static std::set<std::string> reported;
-  if (reported.find(pFileExtension) == reported.end()) {
+  if (pFileExtension && reported.find(pFileExtension) == reported.end()) {
     printf("Unable to find default ColorSpace for extension '%s' assuming sRGB\n", pFileExtension);
     reported.insert(pFileExtension);
   }

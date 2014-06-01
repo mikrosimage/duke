@@ -1,10 +1,10 @@
 #pragma once
 
-#include <duke/base/NonCopyable.hpp>
-#include <duke/gl/Textures.hpp>
-#include <duke/gl/Program.hpp>
-#include <duke/gl/Mesh.hpp>
-#include <duke/attributes/Attributes.hpp>
+#include "duke/base/NonCopyable.hpp"
+#include "duke/gl/Textures.hpp"
+#include "duke/gl/Program.hpp"
+#include "duke/gl/Mesh.hpp"
+#include "duke/attributes/Attributes.hpp"
 
 namespace duke {
 

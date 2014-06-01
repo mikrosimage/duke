@@ -1,15 +1,15 @@
 #pragma once
 
-#include <duke/cmdline/CmdLineParameters.hpp>
-#include <duke/commands/Commands.hpp>
-#include <duke/engine/parameters/Parameters.hpp>
-#include <duke/engine/Player.hpp>
-#include <duke/engine/Context.hpp>
-#include <duke/engine/rendering/ShaderPool.hpp>
-#include <duke/engine/rendering/MeshPool.hpp>
-#include <duke/engine/rendering/GeometryRenderer.hpp>
-#include <duke/engine/rendering/GlyphRenderer.hpp>
-#include <duke/gl/GlFwApp.hpp>
+#include "duke/cmdline/CmdLineParameters.hpp"
+#include "duke/commands/Commands.hpp"
+#include "duke/engine/parameters/Parameters.hpp"
+#include "duke/engine/Player.hpp"
+#include "duke/engine/Context.hpp"
+#include "duke/engine/rendering/ShaderPool.hpp"
+#include "duke/engine/rendering/MeshPool.hpp"
+#include "duke/engine/rendering/GeometryRenderer.hpp"
+#include "duke/engine/rendering/GlyphRenderer.hpp"
+#include "duke/gl/GlFwApp.hpp"
 
 namespace duke {
 

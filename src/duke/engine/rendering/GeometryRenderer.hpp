@@ -1,8 +1,8 @@
 #pragma once
 
-#include <duke/base/NonCopyable.hpp>
-#include <duke/engine/rendering/MeshPool.hpp>
-#include <duke/engine/rendering/ShaderPool.hpp>
+#include "duke/base/NonCopyable.hpp"
+#include "duke/engine/rendering/MeshPool.hpp"
+#include "duke/engine/rendering/ShaderPool.hpp"
 #include <glm/glm.hpp>
 
 namespace duke {

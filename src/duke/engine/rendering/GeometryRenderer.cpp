@@ -1,7 +1,7 @@
 #include "GeometryRenderer.hpp"
-#include <duke/gl/Mesh.hpp>
-#include <duke/engine/Context.hpp>
-#include <duke/engine/rendering/ShaderConstants.hpp>
+#include "duke/gl/Mesh.hpp"
+#include "duke/engine/Context.hpp"
+#include "duke/engine/rendering/ShaderConstants.hpp"
 
 namespace duke {
 

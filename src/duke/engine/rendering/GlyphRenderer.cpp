@@ -1,10 +1,11 @@
-#include "GlyphRenderer.hpp"
-#include <duke/attributes/AttributeKeys.hpp>
-#include <duke/engine/Viewport.hpp>
-#include <duke/engine/ImageLoadUtils.hpp>
-#include <duke/engine/rendering/GeometryRenderer.hpp>
-#include <duke/engine/rendering/MeshPool.hpp>
-#include <duke/engine/rendering/ShaderConstants.hpp>
+#include "duke/engine/rendering/GlyphRenderer.hpp"
+
+#include "duke/attributes/AttributeKeys.hpp"
+#include "duke/engine/Viewport.hpp"
+#include "duke/engine/rendering/GeometryRenderer.hpp"
+#include "duke/engine/rendering/MeshPool.hpp"
+#include "duke/engine/rendering/ShaderConstants.hpp"
+#include "duke/io/ImageLoadUtils.hpp"
 
 namespace duke {
 
@@ -91,12 +92,13 @@ void main(void)
 GlyphRenderer::GlyphRenderer(const GeometryRenderer &renderer, const char *glyphsFilename)
     : m_GeometryRenderer(renderer),  //
       m_Program(makeVertexShader(pTextVertexShader), makeFragmentShader(pTextFragmentShader)) {
-  ReadFrameResult result = load(glyphsFilename, m_GlyphsTexture);
-  if (result) {
-    m_Attributes = result.frame.attributes;
-  } else {
-    throw std::runtime_error("unable to load glyphs texture");
-  }
+  const ReadFrameResult result(load(glyphsFilename));
+  if (!result) throw std::runtime_error("unable to load glyphs texture");
+  const auto &frame = result.frame;
+  const auto &description = frame.getDescription();
+  m_Attributes = description.extra_attributes;
+  const auto bound = m_GlyphsTexture.scope_bind_texture();
+  m_GlyphsTexture.initialize(description, frame.getData().begin());
 }
 
 GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const {
@@ -106,8 +108,10 @@ GlyphRenderer::GlyphBinder GlyphRenderer::begin(const Viewport &viewport) const 
   auto scopeBinded = m_GlyphsTexture.scope_bind_texture();
   glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(m_GlyphsTexture.target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  auto pair = getTextureDimensions(m_GlyphsTexture.description.width, m_GlyphsTexture.description.height,
-                                   attribute::getWithDefault<attribute::DpxImageOrientation>(m_Attributes));
+  using namespace attribute;
+  const auto orientation = getWithDefault<DpxImageOrientation>(m_Attributes);
+  const auto &description = m_GlyphsTexture.description;
+  const auto pair = getTextureDimensions(description.width, description.height, orientation);
   m_Program.glUniform2i(shader::gImage, pair.first, pair.second);
   return std::move(scopeBinded);
 }

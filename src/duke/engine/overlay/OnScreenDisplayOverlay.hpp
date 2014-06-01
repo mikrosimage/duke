@@ -1,8 +1,8 @@
 #pragma once
 
 #include "IOverlay.hpp"
-#include <duke/time/FrameUtils.hpp>
-#include <duke/animation/Animation.hpp>
+#include "duke/time/FrameUtils.hpp"
+#include "duke/animation/Animation.hpp"
 #include <string>
 #include <memory>
 

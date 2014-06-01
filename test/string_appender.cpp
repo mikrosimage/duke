@@ -1,5 +1,5 @@
-#include <duke/attributes/Attribute.hpp>
-#include <duke/attributes/AttributeDisplay.hpp>
+#include "duke/attributes/Attribute.hpp"
+#include "duke/attributes/AttributeDisplay.hpp"
 
 #include <gtest/gtest.h>
 

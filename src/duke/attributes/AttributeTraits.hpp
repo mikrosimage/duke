@@ -1,8 +1,8 @@
 #pragma once
 
-#include <duke/attributes/AttributeType.hpp>
-#include <duke/base/Slice.hpp>
-#include <duke/base/Check.hpp>
+#include "duke/attributes/AttributeType.hpp"
+#include "duke/base/Slice.hpp"
+#include "duke/base/Check.hpp"
 
 #include <string>
 #include <vector>
@@ -138,33 +138,33 @@ DEFINE_ARRAY_TRAITS(Float64, Float64Array);
  */
 
 template <typename T>
-inline MemorySlice asMemorySlice(const std::vector<T>& value) {
-  return {reinterpret_cast<const uint8_t*>(&*value.begin()), reinterpret_cast<const uint8_t*>(&*value.end())};
+inline ConstMemorySlice asMemorySlice(const std::vector<T>& value) {
+  return {reinterpret_cast<const char*>(&*value.begin()), reinterpret_cast<const char*>(&*value.end())};
 }
 
 template <typename T>
-inline MemorySlice asMemorySlice(const std::initializer_list<T>& value) {
-  return {reinterpret_cast<const uint8_t*>(value.begin()), reinterpret_cast<const uint8_t*>(value.end())};
+inline ConstMemorySlice asMemorySlice(const std::initializer_list<T>& value) {
+  return {reinterpret_cast<const char*>(value.begin()), reinterpret_cast<const char*>(value.end())};
 }
 
 template <typename T>
-inline MemorySlice asMemorySlice(const Slice<T>& value) {
-  return {reinterpret_cast<const uint8_t*>(value.begin()), reinterpret_cast<const uint8_t*>(value.end())};
+inline ConstMemorySlice asMemorySlice(const Slice<T>& value) {
+  return {reinterpret_cast<const char*>(value.begin()), reinterpret_cast<const char*>(value.end())};
 }
 
 template <typename T, bool = std::is_arithmetic<T>::value>
-inline MemorySlice asMemorySlice(const T& value) {
-  const uint8_t* pBegin = reinterpret_cast<const uint8_t*>(&value);
+inline ConstMemorySlice asMemorySlice(const T& value) {
+  const char* pBegin = reinterpret_cast<const char*>(&value);
   return {pBegin, pBegin + sizeof(T)};
 }
 
-inline MemorySlice asMemorySlice(const char* value) {
-  const uint8_t* pBegin = reinterpret_cast<const uint8_t*>(value);
+inline ConstMemorySlice asMemorySlice(const char* value) {
+  const char* pBegin = reinterpret_cast<const char*>(value);
   return {pBegin, pBegin + strlen(value) + 1};
 }
 
-inline MemorySlice asMemorySlice(const std::string& value) {
-  const uint8_t* pBegin = reinterpret_cast<const uint8_t*>(&*value.cbegin());
+inline ConstMemorySlice asMemorySlice(const std::string& value) {
+  const char* pBegin = reinterpret_cast<const char*>(&*value.cbegin());
   return {pBegin, pBegin + value.size() + 1};
 }
 
@@ -173,24 +173,24 @@ inline MemorySlice asMemorySlice(const std::string& value) {
  */
 
 template <typename T, bool = std::is_arithmetic<T>::value>
-inline T asValue(const MemorySlice slice) {
+inline T asValue(const ConstMemorySlice slice) {
   CHECK(slice.size() == sizeof(T)) << "Corrupt memory";
   return *reinterpret_cast<const T*>(slice.begin());
 }
 
 template <typename T>
-inline Slice<const T> asArray(const MemorySlice slice) {
+inline Slice<const T> asArray(const ConstMemorySlice slice) {
   CHECK(slice.size() % sizeof(T) == 0) << "Corrupt memory";
   return Slice<const T>(reinterpret_cast<const T*>(slice.begin()), reinterpret_cast<const T*>(slice.end()));
 }
 
 template <>
-inline const char* asValue(const MemorySlice slice) {
+inline const char* asValue(const ConstMemorySlice slice) {
   return reinterpret_cast<const char*>(slice.begin());
 }
 
 template <>
-inline std::string asValue(const MemorySlice slice) {
+inline std::string asValue(const ConstMemorySlice slice) {
   return reinterpret_cast<const char*>(slice.begin());
 }
 

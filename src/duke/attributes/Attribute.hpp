@@ -49,7 +49,7 @@ struct Attribute {
   Attribute(const char* name, const T& value)
       : name(name), type(attribute::runtime_type<T>()), value(asMemorySlice(value)) {}
 
-  operator MemorySlice() const {
+  operator ConstMemorySlice() const {
     return {value.begin(), value.end()};
   }
 

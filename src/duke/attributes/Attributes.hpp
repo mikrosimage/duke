@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/attributes/Attribute.hpp>
+#include "duke/attributes/Attribute.hpp"
 
 #include <vector>
 

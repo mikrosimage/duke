@@ -1,7 +1,7 @@
 #pragma once
 
-#include <duke/gl/GlObjects.hpp>
-#include <duke/gl/GLUtils.hpp>
+#include "duke/gl/GlObjects.hpp"
+#include "duke/gl/GlUtils.hpp"
 
 #include <glm/glm.hpp>
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "IOverlay.hpp"
-#include <duke/engine/Timeline.hpp>
-#include <duke/time/Clock.hpp>
+#include "duke/engine/Timeline.hpp"
+#include "duke/time/Clock.hpp"
 
 namespace duke {
 

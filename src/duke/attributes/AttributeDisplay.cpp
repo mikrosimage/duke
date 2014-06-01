@@ -1,6 +1,6 @@
-#include <duke/attributes/AttributeDisplay.hpp>
+#include "duke/attributes/AttributeDisplay.hpp"
 
-#include <duke/base/Slice.hpp>
+#include "duke/base/Slice.hpp"
 
 #include <stdexcept>
 
@@ -13,7 +13,7 @@ T as(const void* ptr) {
   return *reinterpret_cast<const T*>(ptr);
 }
 
-void display(const Type type, const uint8_t* ptr, const size_t size, StringAppender& appender) {
+void display(const Type type, const char* ptr, const size_t size, StringAppender& appender) {
   switch (type) {
     case Type::Bool:
       appender.append(as<bool>(ptr) ? "true" : "false");

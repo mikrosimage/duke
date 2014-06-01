@@ -1,11 +1,11 @@
 #include "AttributesOverlay.hpp"
 
-#include <duke/attributes/AttributeDisplay.hpp>
-#include <duke/attributes/AttributesView.hpp>
-#include <duke/engine/Context.hpp>
-#include <duke/engine/rendering/GlyphRenderer.hpp>
-#include <duke/engine/streams/IMediaStream.hpp>
-#include <duke/image/FrameDescriptionAndAttributes.hpp>
+#include "duke/attributes/AttributeDisplay.hpp"
+#include "duke/attributes/AttributesView.hpp"
+#include "duke/engine/Context.hpp"
+#include "duke/engine/rendering/GlyphRenderer.hpp"
+#include "duke/image/ImageDescription.hpp"
+#include "duke/streams/IMediaStream.hpp"
 
 #include <algorithm>
 
@@ -17,11 +17,11 @@ void AttributesOverlay::render(const Context& context) const {
   if (!context.pCurrentImage) return;
 
   attribute::AttributesView attributeView;
-  attributeView.merge(context.pCurrentImage->attributes);
+  attributeView.merge(context.pCurrentImage->extra_attributes);
 
   attribute::Attributes additional;
-  const auto& description = context.pCurrentImage->description;
-  additional.emplace_back("dk:frame resolution", asSlice<uint64_t>({description.width, description.height}));
+  const auto* description = context.pCurrentImage;
+  additional.emplace_back("dk:frame resolution", asSlice<uint64_t>({description->width, description->height}));
   attributeView.merge(additional);
 
   attributeView.merge(context.pCurrentMediaStream->getState());

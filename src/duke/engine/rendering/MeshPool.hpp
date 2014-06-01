@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/gl/Mesh.hpp>
+#include "duke/gl/Mesh.hpp"
 
 namespace duke {
 

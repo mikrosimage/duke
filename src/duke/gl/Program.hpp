@@ -1,6 +1,6 @@
 #pragma once
 
-#include <duke/gl/Shader.hpp>
+#include "duke/gl/Shader.hpp"
 #include <map>
 
 namespace duke {
