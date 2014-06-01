@@ -7,10 +7,10 @@
 
 namespace duke {
 
-typedef std::function<ReadOptions(const ContainerDescription&)> ReadOptionsFunc;
+typedef std::function<ReadOptions(const StreamDescription&)> ReadOptionsFunc;
 
 inline ReadOptionsFunc defaultReadOptions() {
-  return [](const ContainerDescription&) { return ReadOptions{}; };
+  return [](const StreamDescription&) { return ReadOptions{}; };
 }
 
 void loadImage(ReadFrameResult& result, const ReadOptionsFunc& getReadOptions = defaultReadOptions());

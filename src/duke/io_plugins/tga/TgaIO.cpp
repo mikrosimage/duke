@@ -87,7 +87,7 @@ class TGADescriptor : public IIODescriptor {
     static std::vector<std::string> extensions = {"tga"};
     return extensions;
   }
-  virtual bool supports(Capability capability) const override { return capability == Capability::READER_FILE_SEQUENCE; }
+  virtual bool supports(Capability capability) const override { return capability == Capability::READER_SINGLE_FRAME; }
   virtual const char* getName() const override { return "Targa"; }
   virtual IImageReader* createFileReader(const char* filename) const override { return new TGAImageReader(filename); }
 };

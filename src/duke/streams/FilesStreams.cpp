@@ -23,7 +23,7 @@ std::vector<IIODescriptor*> findIODescriptors(const sequence::Item& item) {
 }
 
 bool isFileSequenceReader(const IIODescriptor* pDescriptor) {
-  return pDescriptor->supports(IIODescriptor::Capability::READER_FILE_SEQUENCE);
+  return pDescriptor->supports(IIODescriptor::Capability::READER_SINGLE_FRAME);
 }
 
 }  // namespace
@@ -77,7 +77,7 @@ ReadFrameResult SingleFileStream::process(const size_t frame) const {
   std::lock_guard<std::mutex> guard(m_Mutex);
   ReadFrameResult result;
   result.reader = m_OpenResult.reader;
-  duke::loadImage(result, [frame](const ContainerDescription&) {
+  duke::loadImage(result, [frame](const StreamDescription&) {
     ReadOptions options;
     options.frame = frame;
     return options;

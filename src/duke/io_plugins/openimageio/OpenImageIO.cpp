@@ -226,7 +226,7 @@ class OpenImageIODescriptor : public IIODescriptor {
     m_Extensions.push_back(current);
   }
   virtual bool supports(Capability capability) const override {
-    return capability == Capability::READER_GENERAL_PURPOSE || capability == Capability::READER_FILE_SEQUENCE;
+    return capability == Capability::READER_GENERAL_PURPOSE || capability == Capability::READER_SINGLE_FRAME;
   }
   virtual const vector<string>& getSupportedExtensions() const override { return m_Extensions; }
   virtual const char* getName() const override { return "OpenImageIO"; }

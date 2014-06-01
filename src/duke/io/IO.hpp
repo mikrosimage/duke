@@ -20,7 +20,7 @@
 
 namespace duke {
 
-struct ContainerDescription {
+struct StreamDescription {
   // Number of frames in this container. Will be one for single image.
   // Note: frame refers to temporal event, a frame can still have multiple layers
   // or exist in different streams.
@@ -55,7 +55,7 @@ struct ReadOptions {
 class IImageReader : public noncopyable {
  protected:
   std::string m_Error;
-  ContainerDescription m_Description;
+  StreamDescription m_Description;
 
   bool error(const std::string& msg) {
     m_Error = msg;
@@ -67,13 +67,13 @@ class IImageReader : public noncopyable {
 
   inline bool hasError() const { return !m_Error.empty(); }
 
-  inline std::string getError() const { return m_Error; }
+  inline const std::string& getError() const { return m_Error; }
 
   inline void clearError() { m_Error.clear(); }
 
   // Fill in a description of what's available.
   // Result will be meaningful only if no error.
-  inline const ContainerDescription& getContainerDescription() const { return m_Description; }
+  inline const StreamDescription& getContainerDescription() const { return m_Description; }
 
   // Reads the specified image into data.
   // Returns false if reader is in invalid state. If so check error function above.
@@ -87,7 +87,7 @@ class IIODescriptor : public noncopyable {
  public:
   enum class Capability {
     READER_GENERAL_PURPOSE,  // Plugin can read several formats
-    READER_FILE_SEQUENCE,    // Plugin will be instantiated for each frame, read will be parallel and out of order
+    READER_SINGLE_FRAME,     // Plugin will be instantiated for each frame, read will be parallel and out of order
   };
   virtual ~IIODescriptor() {}
 
