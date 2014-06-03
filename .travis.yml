@@ -12,7 +12,7 @@ before_install:
   # Update database
   - sudo apt-get update -qq
   # Install duke dependencies
-  - sudo apt-get install -y xorg-dev libglu1-mesa-dev yasm libbz2-dev
+  - sudo apt-get install -y xorg-dev libglu1-mesa-dev yasm libbz2-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev libboost-thread-dev libjpeg-dev libtiff-dev libpng-dev
   
   # Note: libopenimageio-dev is not available on Ubuntu 12.04 precise and is disable for now.
 
@@ -32,7 +32,7 @@ script:
   # Install testing library (unfortunately not available as a submodule)
   - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip gtest-1.7.0.zip -d dependencies
   # Setting up third party libraries (oiio, libav)
-  - env CXX=$CXX CC=$CXX ./setup_thirdparty.sh
+  - ./setup_thirdparty.sh
   #- cd $TRAVIS_BUILD_DIR/dependencies/libav && ./configure --prefix=`pwd`/build && make install
   # Let's rock and roll
   #- cd $TRAVIS_BUILD_DIR && ./configure -DLIBAV_ROOT_DIR=dependencies/libav/build && make
