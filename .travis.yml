@@ -17,8 +17,7 @@ before_install:
   - sudo apt-get install --allow-unauthenticated -y g++-4.8 clang-3.4 org-dev libglu1-mesa-dev yasm libbz2-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev libboost-thread-dev libjpeg-dev libtiff-dev libpng-dev
 
   # Set up compiler
-  - export CC="gcc-4.8"; export CXX="g++-4.8"
-  - if [ "$CXX" == "clang++" ]; then export CC="clang-3.4"; export CXX="clang++-3.4"; fi
+  - if [ "$CXX" == "clang++" ]; then export CC="clang-3.4"; export CXX="clang++-3.4"; else export CC="gcc-4.8"; export CXX="g++-4.8"; fi
 
 script: 
   # Output compiler version
