@@ -30,7 +30,7 @@ script:
   # Output compiler version
   - $CXX --version
   # Install testing library (unfortunately not available as a submodule)
-  - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip gtest-1.7.0.zip -d dependencies
+  - wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip -q gtest-1.7.0.zip -d dependencies
   # Setting up third party libraries (oiio, libav)
   - ./setup_thirdparty.sh
   #- cd $TRAVIS_BUILD_DIR/dependencies/libav && ./configure --prefix=`pwd`/build && make install
