@@ -14,7 +14,7 @@ before_install:
 
   # Note: Install g++ 4.8 since Travis provides g++ 4.6 by default
   # Note: libopenimageio-dev is not available on Ubuntu 12.04 precise and will be compiled from source
-  - sudo apt-get install --allow-unauthenticated -y g++-4.8 clang-3.4 org-dev libglu1-mesa-dev yasm libbz2-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev libboost-thread-dev libjpeg-dev libtiff-dev libpng-dev
+  - sudo apt-get install --allow-unauthenticated -y g++-4.8 clang-3.4 xorg-dev libglu1-mesa-dev yasm libbz2-dev libboost-filesystem-dev libboost-system-dev libboost-regex-dev libboost-thread-dev libjpeg-dev libtiff-dev libpng-dev
 
   # Set up compiler
   - export CC="gcc-4.8"; export CXX="g++-4.8"
