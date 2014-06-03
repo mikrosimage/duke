@@ -41,7 +41,7 @@ make install -j$NPROC
 # openimageio | requires libjpeg, libtiff, libpng, boost filesystem regex system thread, openexr, ilmbase
 
 cd $ROOT_DIR
-wget https://github.com/OpenImageIO/oiio/archive/RB-1.4.zip-O $THIRD_PARTY_DOWNLOAD/oiio.zip
+wget https://github.com/OpenImageIO/oiio/archive/RB-1.4.zip -O $THIRD_PARTY_DOWNLOAD/oiio.zip
 unzip -q $THIRD_PARTY_DOWNLOAD/oiio.zip -d $THIRD_PARTY_DOWNLOAD/
 cd $THIRD_PARTY_DOWNLOAD/oiio-RB-1.4
 make OIIO_BUILD_TOOLS=0 OIIO_BUILD_TESTS=0 USE_PYTHON=0 USE_OPENGL=0 USE_OCIO=0 USE_FIELD3D=0 USE_GIF=0 USE_OPENJPEG=0 USE_QT=0 BUILDSTATIC=1 LINKSTATIC=1 ILMBASE_HOME=$THIRD_PARTY OPENEXR_HOME=$THIRD_PARTY BOOST_HOME=$THIRD_PARTY INSTALLDIR=$THIRD_PARTY dist_dir=""
