@@ -29,14 +29,14 @@ cd $THIRD_PARTY_DOWNLOAD/openexr-2.1.0
 ./configure --prefix=$THIRD_PARTY --with-ilmbase-prefix=$THIRD_PARTY
 make install -j$NPROC
 
-# boost
+# boost - disabled
 
-cd $ROOT_DIR
-wget http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download -O $THIRD_PARTY_DOWNLOAD/boost_1_55_0.tar.bz2
-tar xfj $THIRD_PARTY_DOWNLOAD/boost_1_55_0.tar.bz2  -C $THIRD_PARTY_DOWNLOAD/
-cd $THIRD_PARTY_DOWNLOAD/boost_1_55_0
-./bootstrap.sh
-./b2 -j$NPROC -d1 install --prefix=$THIRD_PARTY
+#cd $ROOT_DIR
+#wget http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download -O $THIRD_PARTY_DOWNLOAD/boost_1_55_0.tar.bz2
+#tar xfj $THIRD_PARTY_DOWNLOAD/boost_1_55_0.tar.bz2  -C $THIRD_PARTY_DOWNLOAD/
+#cd $THIRD_PARTY_DOWNLOAD/boost_1_55_0
+#./bootstrap.sh
+#./b2 -j$NPROC -d1 install --prefix=$THIRD_PARTY
 
 # openimageio | requires libjpeg, libtiff, libpng, boost filesystem regex system thread, openexr, ilmbase
 
