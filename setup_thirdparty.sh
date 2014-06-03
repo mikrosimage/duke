@@ -1,11 +1,15 @@
+# environnement
 export ROOT_DIR=`pwd`
-
 export THIRD_PARTY=$ROOT_DIR/third_party
 export THIRD_PARTY_LIB=$THIRD_PARTY/lib
 export THIRD_PARTY_DOWNLOAD=$ROOT_DIR/third_party_download
-mkdir -p $THIRD_PARTY $THIRD_PARTY_LIB $THIRD_PARTY_DOWNLOAD
 export LD_LIBRARY_PATH=$THIRD_PARTY_LIB
 export NPROC=`nproc`
+
+printenv
+
+# Creating folders
+mkdir -p $THIRD_PARTY $THIRD_PARTY_LIB $THIRD_PARTY_DOWNLOAD
 
 # ilmbase
 
