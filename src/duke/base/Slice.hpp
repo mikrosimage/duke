@@ -1,5 +1,7 @@
 #pragma once
 
+#include "duke/base/Check.hpp"
+
 #include <initializer_list>
 #include <vector>
 
@@ -40,25 +42,36 @@ struct Slice {
 
   bool empty() const { return _begin == _end; }
 
-  Slice pop_front(size_t count) const {
-    if (count > size()) return *this;
-    return {_begin + count, _end};
-  }
-  Slice pop_back(size_t count) const {
-    if (count > size()) return *this;
-    return {_begin, _end - count};
-  }
-  Slice resize(size_t new_size) const {
-    if (new_size >= size()) return *this;
-    return {_begin, _begin + new_size};
-  }
-
   bool operator==(const Slice& other) const { return size() == other.size() && std::equal(_begin, _end, other._begin); }
 
  private:
   value_type* _begin;
   value_type* _end;
 };
+
+template <typename Slice>
+Slice pop_front(Slice slice, size_t count) {
+  if (count > slice.size()) return Slice();
+  return {slice.begin() + count, slice.end()};
+}
+
+template <typename Slice>
+Slice pop_back(Slice slice, size_t count) {
+  if (count > slice.size()) return Slice();
+  return {slice.begin(), slice.end() - count};
+}
+
+template <typename Slice>
+Slice keep_front(Slice slice, size_t count) {
+  if (count >= slice.size()) return slice;
+  return {slice.begin(), slice.begin() + count};
+}
+
+template <typename Slice>
+Slice keep_back(Slice slice, size_t count) {
+  if (count >= slice.size()) return slice;
+  return {slice.end() - count, slice.end()};
+}
 
 template <typename T>
 Slice<const T> asSlice(const std::initializer_list<T>& array) {

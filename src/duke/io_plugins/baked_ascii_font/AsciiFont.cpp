@@ -91,7 +91,7 @@ class AsciiFontImageReader : public IImageReader {
       const bitset<64> bitset(raster_data[index]);
       for (size_t i = 0; i < bitset.size(); ++i) {
         memcpy(data.begin(), bitset[i] ? pOn : pOff, 4);
-        data = data.pop_front(sizeof(uint32_t));
+        data = pop_front(data, sizeof(uint32_t));
       }
     }
     return true;

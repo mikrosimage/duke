@@ -65,3 +65,15 @@ bool ci_less::operator()(const std::string& s1, const std::string& s2) const {
                                       s2.begin(), s2.end(),  // dest range
                                       nocase_compare());     // comparison
 }
+
+bool stripPrefix(StringSlice prefix, StringSlice& from) {
+  if (!from.startsWith(prefix)) return false;
+  from = pop_front(from, prefix.size());
+  return true;
+}
+
+bool stripSuffix(StringSlice suffix, StringSlice& from) {
+  if (!from.endsWith(suffix)) return false;
+  from = pop_back(from, suffix.size());
+  return true;
+}

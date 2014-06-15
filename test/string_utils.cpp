@@ -68,3 +68,17 @@ TEST(StringUtils, strdim) {
   checkDimensions("__\n", 2, 1);
   checkDimensions("__\n___\n", 3, 2);
 }
+
+TEST(StringSlice, stripPrefix) {
+  StringSlice string = "abcdef";
+  EXPECT_FALSE(stripPrefix("c", string));
+  EXPECT_TRUE(stripPrefix("a", string));
+  EXPECT_EQ(string, "bcdef");
+}
+
+TEST(StringSlice, stripSuffix) {
+  StringSlice string = "abcdef";
+  EXPECT_FALSE(stripSuffix("c", string));
+  EXPECT_TRUE(stripSuffix("f", string));
+  EXPECT_EQ(string, "abcde");
+}

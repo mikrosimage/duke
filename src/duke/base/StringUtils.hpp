@@ -1,5 +1,7 @@
 #pragma once
 
+#include <duke/base/StringSlice.hpp>
+
 #include <cstddef>
 #include <string>
 
@@ -50,3 +52,15 @@ struct nocase_compare : public std::binary_function<unsigned char, unsigned char
 struct ci_less : std::binary_function<std::string, std::string, bool> {
   bool operator()(const std::string& s1, const std::string& s2) const;
 };
+
+/**
+ * Returns true if successfully stripped prefix from string.
+ * If prefix is not found, string is left untouched.
+ */
+bool stripPrefix(StringSlice prefix, StringSlice& string);
+
+/**
+ * Returns true if successfully stripped suffix from string.
+ * If suffix is not found, string is left untouched.
+ */
+bool stripSuffix(StringSlice suffix, StringSlice& string);

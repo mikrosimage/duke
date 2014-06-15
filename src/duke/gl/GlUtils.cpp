@@ -1,16 +1,18 @@
 #include "GlUtils.hpp"
 
 #include "duke/base/Check.hpp"
+#include "duke/base/StringSlice.hpp"
 #include "duke/base/StringUtils.hpp"
 #include "duke/gl/GL.hpp"
 
 #include <fstream>
 #include <map>
-#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include <cstring>
 
 bool operator<(const Channel& a, const Channel& b) {
   return std::tie(a.semantic, a.bits) < std::tie(b.semantic, b.bits);
@@ -34,33 +36,48 @@ Channel::Semantic getSemantic(const char c) {
   }
 }
 
-void appendChannel(const std::csub_match& semantic_, const std::csub_match& bits_, Channels& channels) {
-  if (!(semantic_.matched && bits_.matched)) return;
-  const uint8_t bits = std::stoi(bits_);
-  for (const char c : semantic_.str()) channels.emplace_back(getSemantic(c), bits);
+Channels::FormatType parseAndStripType(StringSlice& string) {
+  if (stripSuffix("SNORM", string)) return Channels::FormatType::SIGNED_NORMALIZED;
+  if (stripSuffix("F", string)) return Channels::FormatType::FLOATING_POINT;
+  if (stripSuffix("UI", string)) return Channels::FormatType::UNSIGNED_INTEGRAL;
+  if (stripSuffix("I", string)) return Channels::FormatType::SIGNED_INTEGRAL;
+  return Channels::FormatType::UNSIGNED_NORMALIZED;
 }
 
-Channels::FormatType parseType(const std::string& string) {
-  if (string.empty()) return Channels::FormatType::UNSIGNED_NORMALIZED;
-  if (string == "F") return Channels::FormatType::FLOATING_POINT;
-  if (string == "UI") return Channels::FormatType::UNSIGNED_INTEGRAL;
-  if (string == "I") return Channels::FormatType::SIGNED_INTEGRAL;
-  if (string == "_SNORM") return Channels::FormatType::SIGNED_NORMALIZED;
-  CHECK(false) << "Invalid format type '" << string << "'";
-  return Channels::FormatType::UNKNOWN;
+StringSlice getAndStripPrefix(StringSlice& slice, std::function<bool(char)> predicate) {
+  size_t splitIndex = 0;
+  for (const char c : slice) {
+    if (!predicate(c)) break;
+    ++splitIndex;
+  }
+  if (splitIndex == 0) return {};
+  const StringSlice prefix = keep_front(slice, splitIndex);
+  slice = pop_front(slice, splitIndex);
+  return prefix;
 }
 
-Channels parseOpenGlFormat(const char* ogl) {
-  static const std::regex regex(
-      R"(^GL_(?:(R|RG|RGB|RGBA)(\d{1,2}))(?:_(A|G|B)(\d{1,2}))?(?:_(A|B)(\d{1,2}))?(_SNORM|UI|I|F)?$)");
-  std::cmatch m;
-  std::regex_match(ogl, m, regex);
-  CHECK(!m.empty()) << "Can't match '" << ogl << "'";
+StringSlice getAndStripBits(StringSlice& slice) {
+  return getAndStripPrefix(slice, [](char c) { return isdigit(c); });
+}
+
+StringSlice getAndStripChannels(StringSlice& slice) {
+  return getAndStripPrefix(slice, [](char c) { return c == 'R' || c == 'G' || c == 'B' || c == 'A'; });
+}
+
+Channels parseOpenGlFormat(StringSlice ogl) {
+  const StringSlice prefix = "GL_";
+  CHECK(stripPrefix(prefix, ogl));
   Channels channels;
-  appendChannel(m[1], m[2], channels);
-  appendChannel(m[3], m[4], channels);
-  appendChannel(m[5], m[6], channels);
-  channels.type = parseType(m[7].str());
+  channels.type = parseAndStripType(ogl);
+  while (!ogl.empty()) {
+    const StringSlice channel_slice = getAndStripChannels(ogl);
+    CHECK(!channel_slice.empty());
+    const StringSlice digit_slice = getAndStripBits(ogl);
+    CHECK(!digit_slice.empty());
+    const uint8_t bits = atoi(digit_slice.begin());
+    for (char c : channel_slice) channels.push_back(Channel(getSemantic(c), bits));
+    if (!ogl.empty() && ogl.front() == '_') ogl = pop_front(ogl, 1);
+  }
   return channels;
 }
 

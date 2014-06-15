@@ -31,41 +31,41 @@ TEST(Slice, AllocatedFromArray) {
 TEST(Slice, PopFront) {
   char buffer[5];
   Slice<char> slice(buffer);
-  EXPECT_EQ(5, slice.pop_front(0).size());
-  EXPECT_EQ(5, slice.pop_front(6).size());
-  EXPECT_EQ(4, slice.pop_front(1).size());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 1, slice.pop_front(1).begin());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 5, slice.pop_front(1).end());
-  EXPECT_EQ(0, slice.pop_front(5).size());
-  EXPECT_TRUE(slice.pop_front(5).empty());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 5, slice.pop_front(5).begin());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 5, slice.pop_front(5).end());
+  EXPECT_EQ(5, pop_front(slice, 0).size());
+  EXPECT_EQ(4, pop_front(slice, 1).size());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 1, pop_front(slice, 1).begin());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 5, pop_front(slice, 1).end());
+  EXPECT_EQ(0, pop_front(slice, 5).size());
+  EXPECT_TRUE(pop_front(slice, 5).empty());
 }
 
 TEST(Slice, PopBack) {
   char buffer[5];
   Slice<char> slice(buffer);
-  EXPECT_EQ(5, slice.pop_back(0).size());
-  EXPECT_EQ(5, slice.pop_back(6).size());
-  EXPECT_EQ(4, slice.pop_back(1).size());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer), slice.pop_back(1).begin());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 4, slice.pop_back(1).end());
-  EXPECT_EQ(0, slice.pop_back(5).size());
-  EXPECT_TRUE(slice.pop_back(5).empty());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer), slice.pop_back(5).begin());
-  EXPECT_EQ(reinterpret_cast<char*>(&buffer), slice.pop_back(5).end());
+  EXPECT_EQ(5, pop_back(slice, 0).size());
+  EXPECT_EQ(4, pop_back(slice, 1).size());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer), pop_back(slice, 1).begin());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 4, pop_back(slice, 1).end());
+  EXPECT_EQ(0, pop_back(slice, 5).size());
+  EXPECT_TRUE(pop_back(slice, 5).empty());
 }
 
-TEST(Slice, Resize) {
+TEST(Slice, KeepFront) {
   char buffer[5];
   Slice<char> slice(buffer);
-  EXPECT_EQ(5, slice.size());
-  EXPECT_EQ(5, slice.resize(6).size());
-  EXPECT_EQ(5, slice.resize(5).size());
-  EXPECT_EQ(1, slice.resize(1).size());
-  EXPECT_EQ(1, slice.resize(1).resize(2).size());
-  EXPECT_EQ(0, slice.resize(0).size());
-  EXPECT_TRUE(slice.resize(0).empty());
+  EXPECT_EQ(0, keep_front(slice, 0).size());
+  EXPECT_EQ(1, keep_front(slice, 1).size());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer), keep_front(slice, 1).begin());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 1, keep_front(slice, 1).end());
+}
+
+TEST(Slice, KeepBack) {
+  char buffer[5];
+  Slice<char> slice(buffer);
+  EXPECT_EQ(0, keep_back(slice, 0).size());
+  EXPECT_EQ(1, keep_back(slice, 1).size());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 4, keep_back(slice, 1).begin());
+  EXPECT_EQ(reinterpret_cast<char*>(&buffer) + 5, keep_back(slice, 1).end());
 }
 
 TEST(Slice, FrontBack) {
