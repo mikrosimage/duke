@@ -47,7 +47,7 @@ add_subdirectory(dependencies/gtest-1.7.0)
 add_subdirectory(test)
 else()
 MESSAGE(STATUS "Could NOT find gtest (missing: 'dependencies/gtest-1.7.0/' folder) : tests disabled
-To unable tests
+To enable tests
 * download https://googletest.googlecode.com/files/gtest-1.7.0.zip
 * unzip into 'dependencies/gtest-1.7.0/'")
 endif()
