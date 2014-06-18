@@ -1,5 +1,6 @@
 CURRENT_DIR   :=$(shell pwd)
 PREFIX_DIR    :=$(CURRENT_DIR)/build
+LIB_DIR       :=$(PREFIX_DIR)/lib
 PKGCONFIG_DIR :=$(PREFIX_DIR)/lib/pkgconfig
 
 ILMBASE_PC    :=$(PKGCONFIG_DIR)/IlmBase.pc
@@ -8,6 +9,7 @@ LIBRAW_PC     :=$(PKGCONFIG_DIR)/libraw.pc
 LIBAV_PC      :=$(PKGCONFIG_DIR)/libavfilter.pc
 OIIO_PC       :=$(PREFIX_DIR)/lib/libOpenImageIO.a
 
+export LD_LIBRARY_PATH=$(LIB_DIR)
 export PKG_CONFIG_PATH=$(PKGCONFIG_DIR)
 
 all: $(OIIO_PC) $(LIBAV_PC)
