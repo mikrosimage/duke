@@ -1,5 +1,3 @@
-.ONESHELL: # makes every recipe line part of the same shell
-
 CURRENT_DIR   :=$(shell pwd)
 PREFIX_DIR    :=$(CURRENT_DIR)/build
 INCLUDE_DIR   :=$(PREFIX_DIR)/include
@@ -11,7 +9,7 @@ OPENEXR_PC    :=$(PKGCONFIG_DIR)/OpenEXR.pc
 LIBRAW_PC     :=$(PKGCONFIG_DIR)/libraw.pc
 LIBAV_PC      :=$(PKGCONFIG_DIR)/libavfilter.pc
 OIIO_PC       :=$(LIB_DIR)/libOpenImageIO.a
-GTEST_LIBS    :=$(LIB_DIR)/libgtest.a $(LIB_DIR)/libgtest_main.a
+GTEST_LIBS    :=$(LIB_DIR)/libgtest.a
 
 export LD_LIBRARY_PATH=$(LIB_DIR)
 export PKG_CONFIG_PATH=$(PKGCONFIG_DIR)
@@ -22,18 +20,13 @@ all: $(OIIO_PC) $(LIBAV_PC) $(GTEST_LIBS)
 # make
 
 $(ILMBASE_PC): ilmbase-2.1.0/Makefile
-	cd $(dir $<)
-	$(MAKE) install
+	cd $(dir $<) && $(MAKE) install
 
 $(OPENEXR_PC): openexr-2.1.0/Makefile
-	cd $(dir $<)
-	$(MAKE) install
+	cd $(dir $<) && $(MAKE) install
 
 $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
-	cd $(dir $<)
-	mkdir -p build
-	cd build
-	cmake                                        \
+	cd $(dir $<) && mkdir -p build && cd build && cmake                                        \
 		-G "Unix Makefiles"                  \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX_DIR) \
 		-Wno-dev                             \
@@ -44,12 +37,10 @@ $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
 		-DENABLE_DEMOSAIC_PACK_GPL2=OFF      \
 		-DENABLE_DEMOSAIC_PACK_GPL3=OFF      \
 		-DENABLE_DCRAW_DEBUG=OFF             \
-		..
-	$(MAKE) install
+		.. && $(MAKE) install
 
 $(OIIO_PC): oiio-RB-1.4/configure $(OPENEXR_PC) $(LIBRAW_PC)
-	cd $(dir $<)
-	$(MAKE)                            \
+	cd $(dir $<) && $(MAKE)                            \
 		ILMBASE_HOME=$(PREFIX_DIR) \
 		LIBRAW_PATH=$(PREFIX_DIR)  \
 		OPENEXR_HOME=$(PREFIX_DIR) \
@@ -68,37 +59,26 @@ $(OIIO_PC): oiio-RB-1.4/configure $(OPENEXR_PC) $(LIBRAW_PC)
 		dist_dir=""
 
 $(LIBAV_PC): libav-10.1/Makefile
-	cd $(dir $<)
-	$(MAKE) install
+	cd $(dir $<) && $(MAKE) install
 
 $(GTEST_LIBS): gtest-1.7.0/CMakeLists.txt
-	cd $(dir $<)
-	mkdir -p build
-	cd build
-	cmake ..
-	$(MAKE)
-	mkdir -p $(LIB_DIR)
-	cp *.a $(LIB_DIR)
-	cp -R -f ../include/* $(INCLUDE_DIR)
+	mkdir -p $(LIB_DIR) $(dir $<)/build
+	cd $(dir $<)/build && cmake .. && $(MAKE)
+	cp $(dir $<)/build/*.a $(LIB_DIR)
+	cp -R -f $(dir $<)/include/* $(INCLUDE_DIR)
 
 # configure
 
 ilmbase-2.1.0/Makefile : ilmbase-2.1.0/configure
-	cd $(dir $<)
-	./configure --prefix=$(PREFIX_DIR)
-	cd -
+	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR)
 	touch $@
 
 openexr-2.1.0/Makefile : openexr-2.1.0/configure $(ILMBASE_PC)
-	cd $(dir $<)
-	./configure --prefix=$(PREFIX_DIR) --with-ilmbase-prefix=$(PREFIX_DIR)
-	cd -
+	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR) --with-ilmbase-prefix=$(PREFIX_DIR)
 	touch $@
 
 libav-10.1/Makefile : libav-10.1/configure
-	cd $(dir $<)
-	./configure --prefix=$(PREFIX_DIR)
-	cd -
+	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR)
 	touch $@
 
 # unzipping
