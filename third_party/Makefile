@@ -88,7 +88,9 @@ libav-10.1/Makefile : libav-10.1/configure
 #boost bootstrap
 
 $(BOOST_THREAD_LIB): $(BOOST_NAME)/b2
-	cd $(dir $<) && ./b2 -d0 --with-thread --with-filesystem --with-regex --with-system --prefix=$(PREFIX_DIR)
+	cd $(dir $<) && ./b2 --with-thread --with-filesystem --with-regex --with-system stage
+	cp -R -f $(dir $<)/boost $(INCLUDE_DIR)
+	cp -R -f $(dir $<)/stage/lib/* $(LIB_DIR)
 	touch $@
 
 $(BOOST_NAME)/b2: $(BOOST_NAME)/bootstrap.sh
