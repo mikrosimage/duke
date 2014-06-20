@@ -82,7 +82,7 @@ openexr-2.1.0/Makefile : openexr-2.1.0/configure $(ILMBASE_PC)
 	touch $@
 
 libav-10.1/Makefile : libav-10.1/configure
-	cd $(dir $<) && ./configure --prefix=
+	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR)
 	touch $@
 
 #boost bootstrap
