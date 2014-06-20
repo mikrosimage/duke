@@ -91,7 +91,7 @@ ilmbase-2.1.0/Makefile : ilmbase-2.1.0/configure
 
 openexr-2.1.0/Makefile : openexr-2.1.0/configure $(ILMBASE_PC)
 	cd $(dir $<)
-	./configure --prefix=$(PREFIX_DIR)--with-ilmbase-prefix=$(PREFIX_DIR)
+	./configure --prefix=$(PREFIX_DIR) --with-ilmbase-prefix=$(PREFIX_DIR)
 	cd -
 	touch $@
 
