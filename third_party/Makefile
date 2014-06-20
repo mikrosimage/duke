@@ -20,10 +20,10 @@ all: $(OIIO_PC) $(LIBAV_PC) $(GTEST_LIBS)
 # make
 
 $(ILMBASE_PC): ilmbase-2.1.0/Makefile
-	cd $(dir $<) && $(MAKE) install
+	$(MAKE) -C $(dir $<) install
 
 $(OPENEXR_PC): openexr-2.1.0/Makefile
-	cd $(dir $<) && $(MAKE) install
+	$(MAKE) -C $(dir $<) install
 
 $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
 	cd $(dir $<) && mkdir -p build && cd build && cmake                                        \
@@ -59,7 +59,7 @@ $(OIIO_PC): oiio-RB-1.4/configure $(OPENEXR_PC) $(LIBRAW_PC)
 		dist_dir=""
 
 $(LIBAV_PC): libav-10.1/Makefile
-	cd $(dir $<) && $(MAKE) install
+	$(MAKE) -C $(dir $<) install
 
 $(GTEST_LIBS): gtest-1.7.0/CMakeLists.txt
 	mkdir -p $(LIB_DIR) $(dir $<)/build
