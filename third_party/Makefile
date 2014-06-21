@@ -29,7 +29,7 @@ $(OPENEXR_PC): openexr-2.1.0/Makefile
 	$(MAKE) -C $(dir $<) install
 
 $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
-	cd $(dir $<) && mkdir -p build && cd build && cmake                                        \
+	cd $(dir $<) && mkdir -p build && cd build && cmake \
 		-G "Unix Makefiles"                  \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX_DIR) \
 		-Wno-dev                             \
@@ -43,7 +43,7 @@ $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
 		.. && $(MAKE) install
 
 $(OIIO_PC): oiio-RB-1.4/CMakeLists.txt $(OPENEXR_PC) $(LIBRAW_PC) $(BOOST_THREAD_LIB)
-	cd $(dir $<) && $(MAKE)                            \
+	cd $(dir $<) && $(MAKE) \
 		BOOST_HOME=$(PREFIX_DIR)   \
 		ILMBASE_HOME=$(PREFIX_DIR) \
 		LIBRAW_PATH=$(PREFIX_DIR)  \
@@ -98,81 +98,84 @@ $(BOOST_NAME)/b2: $(BOOST_NAME)/bootstrap.sh
 	touch $@
 
 # unzipping
+UNZIP:=unzip -q
+TARZ:=tar xfz
 all-folders=$(BOOST_NAME) ilmbase-2.1.0 openexr-2.1.0 oiio-RB-1.4 libav-10.1 LibRaw-0.16.0 gtest-1.7.0
 
 $(BOOST_NAME)/bootstrap.sh: $(BOOST_NAME).tar.gz
-	tar xfz $<
+	$(TARZ) $<
 	touch $@
 
 ilmbase-2.1.0/configure: ilmbase.tar.gz
-	tar xfz $<
+	$(TARZ) $<
 	touch $@
 
 openexr-2.1.0/configure: openexr.tar.gz ilmbase-2.1.0/configure
-	tar xfz $<
+	$(TARZ) $<
 	touch $@
 
 oiio-RB-1.4/CMakeLists.txt: oiio.zip openexr-2.1.0/configure
-	unzip -q $<
+	$(UNZIP) $<
 	touch $@
 
 libav-10.1/configure: libav-10.1.tar.gz
-	tar xfz $<
+	$(TARZ) $<
 	touch $@
 
 LibRaw-0.16.0/CMakeLists.txt: libraw.zip
-	unzip -q $<
+	$(UNZIP) $<
 	touch $@
 
 gtest-1.7.0/CMakeLists.txt: gtest-1.7.0.zip
-	unzip -q $<
+	$(UNZIP) $<
 	touch $@
 
 # downloads
-
+WGET:=wget -N --quiet
 all-archives=$(BOOST_NAME).tar.gz ilmbase.tar.gz openexr.tar.gz oiio.zip libav-10.1.tar.gz libraw.zip gtest-1.7.0.zip 
 
 $(BOOST_NAME).tar.gz:
-	wget -N --quiet -O $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
+	$(WGET) -O $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
 	touch $@
 
 ilmbase.tar.gz:
-	wget -N --quiet -O $@ http://download.savannah.nongnu.org/releases/openexr/ilmbase-2.1.0.tar.gz
+	$(WGET) -O $@ http://download.savannah.nongnu.org/releases/openexr/ilmbase-2.1.0.tar.gz
 	touch $@
 
 openexr.tar.gz: ilmbase.tar.gz
-	wget -N --quiet -O $@ http://download.savannah.nongnu.org/releases/openexr/openexr-2.1.0.tar.gz
+	$(WGET) -O $@ http://download.savannah.nongnu.org/releases/openexr/openexr-2.1.0.tar.gz
 	touch $@
 
 oiio.zip: openexr.tar.gz
-	wget -N --quiet -O $@ https://github.com/OpenImageIO/oiio/archive/RB-1.4.zip
+	$(WGET) -O $@ https://github.com/OpenImageIO/oiio/archive/RB-1.4.zip
 	touch $@
 
 libav-10.1.tar.gz:
-	wget -N --quiet -O $@ http://libav.org/releases/libav-10.1.tar.gz
+	$(WGET) -O $@ http://libav.org/releases/libav-10.1.tar.gz
 	touch $@
 
 libraw.zip:
-	wget -N --quiet -O $@ https://github.com/LibRaw/LibRaw/archive/0.16.0.zip
+	$(WGET) -O $@ https://github.com/LibRaw/LibRaw/archive/0.16.0.zip
 	touch $@
 
 gtest-1.7.0.zip:
-	wget -N --quiet -O $@ https://googletest.googlecode.com/files/gtest-1.7.0.zip
+	$(WGET) -O $@ https://googletest.googlecode.com/files/gtest-1.7.0.zip
 	touch $@
 
 # clean
+RM    := rm -rf
 
 clean: clean-build clean-archives clean-folders
 .PHONY: clean
 
 clean-build:
-	rm -rf $(PREFIX_DIR)
+	$(RM) $(PREFIX_DIR)
 .PHONY: clean-build
 
 clean-archives:
-	rm -rf $(all-archives)	
+	$(RM) $(all-archives)	
 .PHONY: clean-archives
 
 clean-folders:
-	rm -rf $(all-folders)
+	$(RM) $(all-folders)
 .PHONY: clean-folders
