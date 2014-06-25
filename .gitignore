@@ -5,4 +5,5 @@
 /.settings
 /.cproject
 /.project
+/third_party_dist
 .DS_Store

@@ -47,32 +47,33 @@ list(REMOVE_ITEM DUKE_SRC_FILES main.cpp ${DUKE_PLUGINS_FILES})
 add_library(duke_core ${DUKE_SRC_FILES} ${PROJECT_SOURCE_DIR}/dependencies/light_sequence_parser/src/FolderParser.cpp)
 target_link_libraries(duke_core ${CMAKE_THREAD_LIBS_INIT} glfw ${GLFW_LIBRARIES})
 
-add_executable(duke ${DUKE_PLUGINS_FILES} main.cpp)
-target_link_libraries(duke duke_core)
-
-# adding fast dpx
-add_definitions(-DDUKE_FAST_DPX)
+find_package(PkgConfig)
+set(THIRD_PARTY_DIST "${PROJECT_SOURCE_DIR}/third_party_dist")
+set(THIRD_PARTY_INCLUDE "${THIRD_PARTY_DIST}/include")
+set(THIRD_PARTY_LIB "${THIRD_PARTY_DIST}/lib")
 
 #
 # OpenImageIO
 #
-find_package(OpenImageIO)
-if(OPENIMAGEIO_FOUND)
-  add_definitions(-DDUKE_OIIO)
-  include_directories(${OPENIMAGEIO_INCLUDE_DIRS})
-  target_link_libraries(duke ${OPENIMAGEIO_LIBRARIES})
-else(OPENIMAGEIO_FOUND)
-  # enabling dumb TGA reader just to have a basic reader
-  add_definitions(-DDUKE_TGA)
-endif(OPENIMAGEIO_FOUND)
+pkg_check_modules(PC_OIIO REQUIRED OpenImageIO>=1.4.10 libraw=0.16.0)
+add_definitions(-DDUKE_OIIO)
+include_directories(${PC_OIIO_INCLUDE_DIRS})
+link_directories(${PC_OIIO_LIBRARY_DIRS})
 
 #
 # LibAv
 #
-find_package(LibAV)
+pkg_check_modules(PC_LIBAV REQUIRED libavformat=55.12.0 libavcodec=55.34.1 libavutil=53.3.0 libswscale=2.1.2)
+add_definitions(-DDUKE_LIBAV)
+include_directories(${PC_LIBAV_INCLUDE_DIRS})
+link_directories(${PC_LIBAV_LIBRARY_DIRS})
 
-if(${LIBAV_FOUND} AND ${LIBAV_AVCODEC_FOUND} AND ${LIBAV_AVFORMAT_FOUND} AND ${LIBAV_AVUTIL_FOUND} AND ${LIBAV_SWSCALE_FOUND})
-  add_definitions(-DDUKE_LIBAV)
-  include_directories(${LIBAV_INCLUDE_DIRS})
-  target_link_libraries(duke ${LIBAV_AVFORMAT_LIBRARIES} ${LIBAV_AVCODEC_LIBRARIES} ${LIBAV_AVUTIL_LIBRARIES} ${LIBAV_SWSCALE_LIBRARIES} bz2)
-endif()
+# Fast DPX
+add_definitions(-DDUKE_FAST_DPX)
+
+# Duke executable
+add_executable(duke ${DUKE_PLUGINS_FILES} main.cpp)
+
+target_link_libraries(duke duke_core)
+target_link_libraries(duke ${PC_OIIO_LIBRARIES})
+target_link_libraries(duke ${PC_LIBAV_LIBRARIES})

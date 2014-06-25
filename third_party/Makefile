@@ -1,5 +1,8 @@
 CURRENT_DIR   :=$(shell pwd)
-PREFIX_DIR    :=$(CURRENT_DIR)/build
+
+THIRD_PARTY_INSTALL_DIR ?= $(abspath ../third_party_dist)
+
+PREFIX_DIR    :=$(THIRD_PARTY_INSTALL_DIR)
 INCLUDE_DIR   :=$(PREFIX_DIR)/include
 LIB_DIR       :=$(PREFIX_DIR)/lib
 PKGCONFIG_DIR :=$(PREFIX_DIR)/lib/pkgconfig
@@ -8,8 +11,7 @@ ILMBASE_PC       :=$(PKGCONFIG_DIR)/IlmBase.pc
 OPENEXR_PC       :=$(PKGCONFIG_DIR)/OpenEXR.pc
 LIBRAW_PC        :=$(PKGCONFIG_DIR)/libraw.pc
 LIBAV_PC         :=$(PKGCONFIG_DIR)/libavfilter.pc
-OIIO_PC          :=$(LIB_DIR)/libOpenImageIO.a
-GTEST_LIBS       :=$(LIB_DIR)/libgtest.a
+OIIO_PC          :=$(LIB_DIR)/OpenImageIO.pc
 
 BOOST_NAME       :=boost_1_55_0
 BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
@@ -17,7 +19,7 @@ BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
 export LD_LIBRARY_PATH=$(LIB_DIR)
 export PKG_CONFIG_PATH=$(PKGCONFIG_DIR)
 
-all: $(OIIO_PC) $(LIBAV_PC) $(GTEST_LIBS)
+all: $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
 .PHONY: all
 
 # make
@@ -42,8 +44,9 @@ $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
 		-DENABLE_DCRAW_DEBUG=OFF             \
 		.. && $(MAKE) install
 
-$(OIIO_PC): oiio-RB-1.4/CMakeLists.txt $(OPENEXR_PC) $(LIBRAW_PC) $(BOOST_THREAD_LIB)
+$(OIIO_PC): oiio-master/CMakeLists.txt $(OPENEXR_PC) $(LIBRAW_PC) $(BOOST_THREAD_LIB)
 	cd $(dir $<) && $(MAKE) \
+		OIIO_INSTALL_PKGCONFIG=1   \
 		BOOST_HOME=$(PREFIX_DIR)   \
 		ILMBASE_HOME=$(PREFIX_DIR) \
 		LIBRAW_PATH=$(PREFIX_DIR)  \
@@ -64,12 +67,6 @@ $(OIIO_PC): oiio-RB-1.4/CMakeLists.txt $(OPENEXR_PC) $(LIBRAW_PC) $(BOOST_THREAD
 
 $(LIBAV_PC): libav-10.1/Makefile
 	$(MAKE) -C $(dir $<) install
-
-$(GTEST_LIBS): gtest-1.7.0/CMakeLists.txt
-	mkdir -p $(LIB_DIR) $(dir $<)/build
-	cd $(dir $<)/build && cmake .. && $(MAKE)
-	cp $(dir $<)/build/*.a $(LIB_DIR)
-	cp -R -f $(dir $<)/include/* $(INCLUDE_DIR)
 
 # configure
 
@@ -98,9 +95,9 @@ $(BOOST_NAME)/b2: $(BOOST_NAME)/bootstrap.sh
 	touch $@
 
 # unzipping
-UNZIP:=unzip -q
+UNZIP:=unzip -o -q
 TARZ:=tar xfz
-all-folders=$(BOOST_NAME) ilmbase-2.1.0 openexr-2.1.0 oiio-RB-1.4 libav-10.1 LibRaw-0.16.0 gtest-1.7.0
+all-folders=$(BOOST_NAME) ilmbase-2.1.0 openexr-2.1.0 oiio-master libav-10.1 LibRaw-0.16.0 gtest-1.7.0
 
 $(BOOST_NAME)/bootstrap.sh: $(BOOST_NAME).tar.gz
 	$(TARZ) $<
@@ -114,7 +111,7 @@ openexr-2.1.0/configure: openexr.tar.gz ilmbase-2.1.0/configure
 	$(TARZ) $<
 	touch $@
 
-oiio-RB-1.4/CMakeLists.txt: oiio.zip openexr-2.1.0/configure
+oiio-master/CMakeLists.txt: oiio.zip openexr-2.1.0/configure
 	$(UNZIP) $<
 	touch $@
 
@@ -124,6 +121,7 @@ libav-10.1/configure: libav-10.1.tar.gz
 
 LibRaw-0.16.0/CMakeLists.txt: libraw.zip
 	$(UNZIP) $<
+	patch $@ < LibRaw-0.16.0.patch
 	touch $@
 
 gtest-1.7.0/CMakeLists.txt: gtest-1.7.0.zip
@@ -147,7 +145,7 @@ openexr.tar.gz: ilmbase.tar.gz
 	touch $@
 
 oiio.zip: openexr.tar.gz
-	$(WGET) -O $@ https://github.com/OpenImageIO/oiio/archive/RB-1.4.zip
+	$(WGET) -O $@ https://github.com/gchatelet/oiio/archive/master.zip
 	touch $@
 
 libav-10.1.tar.gz:
@@ -165,7 +163,7 @@ gtest-1.7.0.zip:
 # clean
 RM    := rm -rf
 
-clean: clean-build clean-archives clean-folders
+clean: clean-build clean-folders # clean-archives
 .PHONY: clean
 
 clean-build:

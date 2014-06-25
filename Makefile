@@ -5,21 +5,25 @@
 SHELL := /bin/bash
 RM    := rm -rf
 
-all: ./build/Makefile
-	@ $(MAKE) -C build
+export THIRD_PARTY_INSTALL_DIR=$(abspath third_party_dist)
+export LD_LIBRARY_PATH=$(THIRD_PARTY_INSTALL_DIR)/lib
+export PKG_CONFIG_PATH=$(THIRD_PARTY_INSTALL_DIR)/lib/pkgconfig
 
-./build/Makefile:
-	@ (cd build >/dev/null 2>&1 && cmake ..)
+all: build/Makefile
+	$(MAKE) -C build
+.PHONY: all
+
+build/Makefile: third_party_dist
+	mkdir -p build && cd build && cmake ..
+
+third_party_dist:
+	$(MAKE) -C third_party all
+.PHONY: third_party_dist
+
+clean:
+	- $(MAKE) -C build clean
+.PHONY: clean
 
 distclean:
-	@- (cd build >/dev/null 2>&1 && cmake .. >/dev/null 2>&1)
-	@- $(MAKE) --silent -C build clean || true
-	@- $(RM) ./build
-
-
-ifeq ($(findstring distclean,$(MAKECMDGOALS)),)
-
-    $(MAKECMDGOALS): ./build/Makefile
-	@ $(MAKE) -C build $(MAKECMDGOALS)
-
-endif
+	- $(RM) ./build
+.PHONY: distclean
