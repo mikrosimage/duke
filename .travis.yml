@@ -24,9 +24,5 @@ before_install:
 script: 
   # Output compiler version
   - $CXX --version
-  # Setting up third party libraries (oiio, libav)
-  - cd third_party && sudo make -j$CPU
-  # Install testing library
-  #- wget https://googletest.googlecode.com/files/gtest-1.7.0.zip && unzip -q gtest-1.7.0.zip -d dependencies
-  # Compile duke
-  #- cd $TRAVIS_BUILD_DIR && ./configure -DLIBAV_ROOT_DIR=`pwd`/third_party -DOPENIMAGEIO_ROOT_DIR=`pwd`/third_party && make -j$CPU
+  # Setting up third party libraries (oiio, libav) and compiling Duke
+  - make -j$CPU
