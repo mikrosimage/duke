@@ -51,8 +51,6 @@ $(OIIO_PC): oiio-master/CMakeLists.txt $(OPENEXR_PC) $(LIBRAW_PC) $(BOOST_THREAD
 		ILMBASE_HOME=$(PREFIX_DIR) \
 		LIBRAW_PATH=$(PREFIX_DIR)  \
 		OPENEXR_HOME=$(PREFIX_DIR) \
-		BUILDSTATIC=1              \
-		LINKSTATIC=1               \
 		INSTALLDIR=$(PREFIX_DIR)   \
 		OIIO_BUILD_TESTS=0         \
 		OIIO_BUILD_TOOLS=0         \
