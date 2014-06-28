@@ -25,4 +25,4 @@ script:
   # Output compiler version
   - $CXX --version
   # Setting up third party libraries (oiio, libav) and compiling Duke
-  - make -j$CPU
+  - make package -j$CPU
