@@ -128,35 +128,36 @@ gtest-1.7.0/CMakeLists.txt: gtest-1.7.0.zip
 	touch $@
 
 # downloads
-WGET:=wget -N --quiet
+WGET:=wget -N --quiet -O
+CURL:=curl --location --silent -o
 all-archives=$(BOOST_NAME).tar.gz ilmbase.tar.gz openexr.tar.gz oiio.zip libav-10.1.tar.gz libraw.zip gtest-1.7.0.zip 
 
 $(BOOST_NAME).tar.gz:
-	$(WGET) -O $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
+	$(CURL) $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
 	touch $@
 
 ilmbase.tar.gz:
-	$(WGET) -O $@ http://download.savannah.nongnu.org/releases/openexr/ilmbase-2.1.0.tar.gz
+	$(CURL) $@ http://download.savannah.nongnu.org/releases/openexr/ilmbase-2.1.0.tar.gz
 	touch $@
 
 openexr.tar.gz: ilmbase.tar.gz
-	$(WGET) -O $@ http://download.savannah.nongnu.org/releases/openexr/openexr-2.1.0.tar.gz
+	$(CURL) $@ http://download.savannah.nongnu.org/releases/openexr/openexr-2.1.0.tar.gz
 	touch $@
 
 oiio.zip: openexr.tar.gz
-	$(WGET) -O $@ https://github.com/gchatelet/oiio/archive/master.zip
+	$(CURL) $@ https://github.com/gchatelet/oiio/archive/master.zip
 	touch $@
 
 libav-10.1.tar.gz:
-	$(WGET) -O $@ http://libav.org/releases/libav-10.1.tar.gz
+	$(CURL) $@ http://libav.org/releases/libav-10.1.tar.gz
 	touch $@
 
 libraw.zip:
-	$(WGET) -O $@ https://github.com/LibRaw/LibRaw/archive/0.16.0.zip
+	$(CURL) $@ https://github.com/LibRaw/LibRaw/archive/0.16.0.zip
 	touch $@
 
 gtest-1.7.0.zip:
-	$(WGET) -O $@ https://googletest.googlecode.com/files/gtest-1.7.0.zip
+	$(CURL) $@ https://googletest.googlecode.com/files/gtest-1.7.0.zip
 	touch $@
 
 # clean
