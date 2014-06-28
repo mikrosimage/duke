@@ -55,7 +55,7 @@ set(THIRD_PARTY_LIB "${THIRD_PARTY_DIST}/lib")
 #
 # OpenImageIO
 #
-pkg_check_modules(PC_OIIO REQUIRED OpenImageIO>=1.4.10 libraw=0.16.0)
+pkg_check_modules(PC_OIIO REQUIRED OpenImageIO>=1.4.10)
 add_definitions(-DDUKE_OIIO)
 include_directories(${PC_OIIO_INCLUDE_DIRS})
 link_directories(${PC_OIIO_LIBRARY_DIRS})

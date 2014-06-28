@@ -7,3 +7,8 @@
 /.project
 /third_party_dist
 .DS_Store
+### ArchLinuxPackages ###
+*.tar
+*.tar.*
+*.zip
+*.tgz

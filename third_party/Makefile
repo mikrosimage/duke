@@ -11,7 +11,7 @@ ILMBASE_PC       :=$(PKGCONFIG_DIR)/IlmBase.pc
 OPENEXR_PC       :=$(PKGCONFIG_DIR)/OpenEXR.pc
 LIBRAW_PC        :=$(PKGCONFIG_DIR)/libraw.pc
 LIBAV_PC         :=$(PKGCONFIG_DIR)/libavfilter.pc
-OIIO_PC          :=$(LIB_DIR)/OpenImageIO.pc
+OIIO_PC          :=$(PKGCONFIG_DIR)/OpenImageIO.pc
 
 BOOST_NAME       :=boost_1_55_0
 BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
@@ -23,6 +23,7 @@ all: $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
 .PHONY: all
 
 # make
+CMAKE:=cmake -DCMAKE_BUILD_TYPE=Release
 
 $(ILMBASE_PC): ilmbase-2.1.0/Makefile
 	$(MAKE) -C $(dir $<) install
@@ -31,7 +32,7 @@ $(OPENEXR_PC): openexr-2.1.0/Makefile
 	$(MAKE) -C $(dir $<) install
 
 $(LIBRAW_PC): LibRaw-0.16.0/CMakeLists.txt
-	cd $(dir $<) && mkdir -p build && cd build && cmake \
+	cd $(dir $<) && mkdir -p build && cd build && $(CMAKE) \
 		-G "Unix Makefiles"                  \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX_DIR) \
 		-Wno-dev                             \
