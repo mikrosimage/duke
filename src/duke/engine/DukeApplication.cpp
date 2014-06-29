@@ -79,7 +79,7 @@ Timeline buildTimeline(const std::vector<std::string>& paths) {
         }
         break;
       default:
-        throw commandline_error("'" + absolutePath + "' is not a file nor a directory");
+        throw commandline_error("'" + path + "' is not a file nor a directory");
     }
   }
   return {track};
