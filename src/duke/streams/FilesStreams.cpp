@@ -66,6 +66,7 @@ SingleFileStream::SingleFileStream(const sequence::Item& item) : m_OpenResult(lo
   CHECK(m_OpenResult.reader);
   set<File>(m_State, item.filename.c_str());
   set<MediaFrameCount>(m_State, m_OpenResult.reader->getContainerDescription().frames);
+  puts(item.filename.c_str());
 }
 
 const ReadFrameResult& SingleFileStream::getResult() const { return m_OpenResult; }

@@ -112,7 +112,7 @@ int32_t getOpenGlFormat(const Channels& channels) {
       MAKE_PAIR(GL_RGBA8I),       MAKE_PAIR(GL_RGBA8_SNORM), MAKE_PAIR(GL_RGBA8UI), };
 #undef MAKE_PAIR
   const auto pFound = kStaticMap.find(channels);
-  if (pFound == kStaticMap.end()) return 0;
+  CHECK(pFound != kStaticMap.end()) << "Unable to find OpenGl format for channels " << channels.asString();
   return pFound->second;
 }
 
@@ -184,7 +184,6 @@ const char* getInternalFormatString(GLint internalFormat) {
   }
 
 #undef CASE
-  CHECK(false) << "Unknown code 0x" << std::hex << internalFormat;
   return "Unknown";
 }
 
@@ -374,7 +373,7 @@ GLenum getPixelFormat(GLint internalFormat) {
       return GL_RGBA_INTEGER;
     default:
       CHECK(false) << "Don't know how to convert internal image format " << getInternalFormatString(internalFormat)
-                   << " to pixel format";
+                   << " (" << internalFormat << ") to pixel format";
       return 0;
   }
 }
@@ -423,7 +422,7 @@ GLenum getPixelType(GLint internalFormat) {
       return GL_FLOAT;
     default:
       CHECK(false) << "Don't know how to convert internal image format " << getInternalFormatString(internalFormat)
-                   << " to pixel type";
+                   << " (" << internalFormat << ") to pixel type";
       return 0;
   }
 }

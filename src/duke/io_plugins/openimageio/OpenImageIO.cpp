@@ -20,14 +20,21 @@ namespace {
 
 Channels::FormatType getFormatType(const TypeDesc& description) {
   switch (description.basetype) {
-    case TypeDesc::UINT8:
-    case TypeDesc::UINT16:
-    case TypeDesc::UINT32:
-      return Channels::FormatType::UNSIGNED_INTEGRAL;
     case TypeDesc::INT8:
     case TypeDesc::INT16:
     case TypeDesc::INT32:
-      return Channels::FormatType::SIGNED_INTEGRAL;
+    case TypeDesc::UINT8:
+    case TypeDesc::UINT16:
+    case TypeDesc::UINT32:
+      return Channels::FormatType::UNSIGNED_NORMALIZED;
+    //    case TypeDesc::UINT8:
+    //    case TypeDesc::UINT16:
+    //    case TypeDesc::UINT32:
+    //      return Channels::FormatType::UNSIGNED_INTEGRAL;
+    //    case TypeDesc::INT8:
+    //    case TypeDesc::INT16:
+    //    case TypeDesc::INT32:
+    //      return Channels::FormatType::SIGNED_INTEGRAL;
     case TypeDesc::HALF:
     case TypeDesc::FLOAT:
       return Channels::FormatType::FLOATING_POINT;

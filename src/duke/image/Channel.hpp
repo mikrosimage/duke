@@ -12,12 +12,14 @@ struct Channel {
     ALPHA,
     DEPTH,
   };
-  Semantic semantic;
-  uint8_t bits;
-  std::string name;
+
   Channel(Semantic numeric_type, uint8_t bits, const std::string& name = "")
       : semantic(numeric_type), bits(bits), name(name) {}
   Channel() : Channel(Semantic::UNKNOWN, 0) {}
+
+  Semantic semantic;
+  uint8_t bits;
+  std::string name;
 };
 
 struct Channels : public std::vector<Channel> {
@@ -29,5 +31,8 @@ struct Channels : public std::vector<Channel> {
     SIGNED_INTEGRAL,
     FLOATING_POINT,
   };
+
+  std::string asString() const;
+
   FormatType type = FormatType::UNKNOWN;
 };
