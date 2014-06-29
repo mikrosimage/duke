@@ -5,13 +5,23 @@
 SHELL := /bin/bash
 RM    := rm -rf
 
+# Third parties
 export THIRD_PARTY_INSTALL_DIR=$(abspath third_party_dist)
 export THIRD_PARTY_LIB_DIR=$(THIRD_PARTY_INSTALL_DIR)/lib
 export LD_LIBRARY_PATH=$(THIRD_PARTY_LIB_DIR)
 export PKG_CONFIG_PATH=$(THIRD_PARTY_INSTALL_DIR)/lib/pkgconfig
 
-BUILD_DIR:=$(abspath build)
-DUKE_BIN:=$(abspath build/src/duke/duke)
+# To compile/package debug variant just call 'DEBUG=1 make'
+ifdef DEBUG
+	VARIANT +=.debug
+	MY_CMAKE_FLAGS += -DCMAKE_BUILD_TYPE:STRING=Debug
+else
+	VARIANT +=.release
+	MY_CMAKE_FLAGS += -DCMAKE_BUILD_TYPE:STRING=Release
+endif
+
+BUILD_DIR:=$(abspath build$(VARIANT))
+DUKE_BIN:=$(BUILD_DIR)/src/duke/duke
 DIST_DIR:=$(abspath dist)
 DIST_SHELL:=$(DIST_DIR)/duke.sh
 
@@ -37,7 +47,7 @@ package: dist
 .PHONY: package
 
 $(BUILD_DIR)/Makefile: third_party_dist
-	mkdir -p $(BUILD_DIR) && cd $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=Release ..
+	mkdir -p $(BUILD_DIR) && cd $(BUILD_DIR) && cmake $(MY_CMAKE_FLAGS) ..
 
 third_party_dist:
 	$(MAKE) -C third_party all
