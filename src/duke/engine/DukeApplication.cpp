@@ -41,10 +41,11 @@ bool isValid(const std::string& filename) {
 void AddItemToTrack(const Item& item, Track& track, size_t& offset) {
   auto pMediaStream(std::make_shared<DiskMediaStream>(item));
   CHECK(pMediaStream);
-  const auto& result = pMediaStream->getResult();
+  const auto& result = pMediaStream->openContainer();
   if (!result) throw commandline_error(result.error);
   CHECK(result.reader);
-  const auto frameCount = result.reader->getContainerDescription().frames;
+  using namespace attribute;
+  const auto frameCount = getOrDie<MediaFrameCount>(pMediaStream->getState());
   track.add(offset, Clip{frameCount, std::move(pMediaStream), nullptr});
   offset += frameCount;
 }

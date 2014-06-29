@@ -18,7 +18,7 @@ class SingleFileStream final : public duke::IMediaStream {
   SingleFileStream(const sequence::Item& item);
   ~SingleFileStream() override {}
 
-  const ReadFrameResult& getResult() const override;
+  const ReadFrameResult& openContainer() const override;
 
   // This function can be called from different threads.
   ReadFrameResult process(const size_t frame) const override;

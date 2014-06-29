@@ -19,7 +19,7 @@ class FileSequenceStream final : public duke::IMediaStream {
   FileSequenceStream(const sequence::Item& item);
   ~FileSequenceStream() override {}
 
-  const ReadFrameResult& getResult() const override;
+  const ReadFrameResult& openContainer() const override;
 
   // This function can be called from different threads.
   ReadFrameResult process(const size_t frame) const override;

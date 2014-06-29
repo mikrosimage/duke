@@ -12,7 +12,7 @@ class DiskMediaStream final : public duke::IMediaStream {
  public:
   DiskMediaStream(const sequence::Item& item);
 
-  const ReadFrameResult& getResult() const override;
+  const ReadFrameResult& openContainer() const override;
 
   ReadFrameResult process(const size_t frame) const override;
 

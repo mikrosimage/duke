@@ -14,7 +14,7 @@ class IMediaStream : public noncopyable {
   virtual ~IMediaStream() {}
 
   // Returns a description of the current stream.
-  virtual const ReadFrameResult& getResult() const = 0;
+  virtual const ReadFrameResult& openContainer() const = 0;
 
   // This function can be called from different threads.
   virtual ReadFrameResult process(const size_t frame) const = 0;

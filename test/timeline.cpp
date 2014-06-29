@@ -11,7 +11,7 @@ using namespace duke;
 
 class DummyMediaStream : public IMediaStream {
  public:
-  virtual const ReadFrameResult& getResult() const override { throw std::runtime_error("N/A"); }
+  virtual const ReadFrameResult& openContainer() const override { throw std::runtime_error("N/A"); }
   virtual ReadFrameResult process(const size_t frame) const override {
     return {};
   }
