@@ -42,7 +42,9 @@ void loadImage(ReadFrameResult& result, const ReadOptionsFunc& getReadOptions) {
     result.error = pReader->getError();
     return;
   }
-  // deducing other properties
+  // Appending container properties to image.
+  attribute::merge(description.metadata, result.frame.getMutableDescription().extra_attributes);
+  // Deducing opengl format from channel format.
   result.frame.updateOpenGlFormat();
 }
 

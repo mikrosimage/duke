@@ -27,6 +27,7 @@ struct FrameData {
   ConstMemorySlice getData() const { return m_FrameData; }
 
   const ImageDescription& getDescription() const { return m_Description; }
+  ImageDescription& getMutableDescription() { return m_Description; }
 
   void updateOpenGlFormat();
 
