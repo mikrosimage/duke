@@ -60,5 +60,6 @@ clean:
 .PHONY: clean
 
 distclean: clean
+	- $(MAKE) -C third_party distclean
 	- $(RM) $(BUILD_DIR)
 .PHONY: distclean

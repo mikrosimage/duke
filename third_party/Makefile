@@ -163,17 +163,20 @@ gtest-1.7.0.zip:
 # clean
 RM    := rm -rf
 
-clean: clean-build clean-folders # clean-archives
-.PHONY: clean
-
 clean-build:
 	$(RM) $(PREFIX_DIR)
 .PHONY: clean-build
 
-clean-archives:
+clean-folders: clean-build
+	$(RM) $(all-folders)
+.PHONY: clean-folders
+
+clean: clean-folders
+.PHONY: clean
+
+clean-archives: clean
 	$(RM) $(all-archives)	
 .PHONY: clean-archives
 
-clean-folders:
-	$(RM) $(all-folders)
-.PHONY: clean-folders
+distclean: clean-archives
+.PHONY: distclean
