@@ -16,9 +16,6 @@ OIIO_PC          :=$(PKGCONFIG_DIR)/OpenImageIO.pc
 BOOST_NAME       :=boost_1_55_0
 BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
 
-export LD_LIBRARY_PATH=$(LIB_DIR)
-export PKG_CONFIG_PATH=$(PKGCONFIG_DIR)
-
 all: $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
 .PHONY: all
 
