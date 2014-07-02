@@ -68,17 +68,18 @@ $(LIBAV_PC): libav-10.1/Makefile
 	$(MAKE) -C $(dir $<) install
 
 # configure
+CONFIGURE:=./configure --prefix=$(PREFIX_DIR) --libdir=$(LIB_DIR)
 
 ilmbase-2.1.0/Makefile : ilmbase-2.1.0/configure
-	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR)
+	cd $(dir $<) && $(CONFIGURE)
 	touch $@
 
 openexr-2.1.0/Makefile : openexr-2.1.0/configure $(ILMBASE_PC)
-	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR) --with-ilmbase-prefix=$(PREFIX_DIR)
+	cd $(dir $<) && $(CONFIGURE) --with-ilmbase-prefix=$(PREFIX_DIR)
 	touch $@
 
 libav-10.1/Makefile : libav-10.1/configure
-	cd $(dir $<) && ./configure --prefix=$(PREFIX_DIR)
+	cd $(dir $<) && $(CONFIGURE)
 	touch $@
 
 #boost bootstrap
