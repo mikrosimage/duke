@@ -8,9 +8,8 @@ RM    := rm -rf
 # Third parties
 export THIRD_PARTY_INSTALL_DIR=$(abspath third_party_dist)
 export THIRD_PARTY_LIB_DIR=$(THIRD_PARTY_INSTALL_DIR)/lib
-export THIRD_PARTY_LIB64_DIR=$(THIRD_PARTY_INSTALL_DIR)/lib64
-export LD_LIBRARY_PATH=$(THIRD_PARTY_LIB64_DIR):$(THIRD_PARTY_LIB_DIR)
-export PKG_CONFIG_PATH=$(THIRD_PARTY_LIB64_DIR)/pkgconfig:$(THIRD_PARTY_LIB_DIR)/pkgconfig
+export LD_LIBRARY_PATH=$(THIRD_PARTY_LIB_DIR)
+export PKG_CONFIG_PATH=$(THIRD_PARTY_INSTALL_DIR)/lib/pkgconfig
 
 # To compile/package debug variant just call 'DEBUG=1 make'
 ifdef DEBUG
