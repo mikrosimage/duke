@@ -4,23 +4,35 @@ THIRD_PARTY_INSTALL_DIR ?= $(abspath ../third_party_dist)
 
 PREFIX_DIR    :=$(THIRD_PARTY_INSTALL_DIR)
 INCLUDE_DIR   :=$(PREFIX_DIR)/include
+BIN_DIR       :=$(PREFIX_DIR)/bin
 LIB_DIR       :=$(PREFIX_DIR)/lib
 PKGCONFIG_DIR :=$(PREFIX_DIR)/lib/pkgconfig
 
-ILMBASE_PC       :=$(PKGCONFIG_DIR)/IlmBase.pc
-OPENEXR_PC       :=$(PKGCONFIG_DIR)/OpenEXR.pc
-LIBRAW_PC        :=$(PKGCONFIG_DIR)/libraw.pc
-LIBAV_PC         :=$(PKGCONFIG_DIR)/libavfilter.pc
-OIIO_PC          :=$(PKGCONFIG_DIR)/OpenImageIO.pc
+FLATC         :=$(BIN_DIR)/flatc
+ILMBASE_PC    :=$(PKGCONFIG_DIR)/IlmBase.pc
+OPENEXR_PC    :=$(PKGCONFIG_DIR)/OpenEXR.pc
+LIBRAW_PC     :=$(PKGCONFIG_DIR)/libraw.pc
+LIBAV_PC      :=$(PKGCONFIG_DIR)/libavfilter.pc
+OIIO_PC       :=$(PKGCONFIG_DIR)/OpenImageIO.pc
 
 BOOST_NAME       :=boost_1_55_0
 BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
 
-all: $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
+all: $(FLATC) $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
 .PHONY: all
 
 # make
 CMAKE:=cmake -DCMAKE_BUILD_TYPE=Release
+
+$(FLATC): flatbuffers-1.0.0/CMakeLists.txt
+	cd $(dir $<) && mkdir -p build && cd build && $(CMAKE) \
+		-G "Unix Makefiles"                  \
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX_DIR) \
+		.. && $(MAKE) flatc
+	mkdir -p $(BIN_DIR)
+	cp -R -f $(dir $<)/include/flatbuffers $(INCLUDE_DIR)
+	cp -f $(dir $<)/build/flatc $(FLATC)
+	touch $@
 
 $(ILMBASE_PC): ilmbase-2.1.0/Makefile
 	$(MAKE) -C $(dir $<) install
@@ -94,7 +106,11 @@ $(BOOST_NAME)/b2: $(BOOST_NAME)/bootstrap.sh
 # unzipping
 UNZIP:=unzip -o -q
 TARZ:=tar xfz
-all-folders=$(BOOST_NAME) ilmbase-2.1.0 openexr-2.1.0 oiio-master libav-10.1 LibRaw-0.16.0 gtest-1.7.0
+all-folders=flatbuffers-1.0.0 $(BOOST_NAME) ilmbase-2.1.0 openexr-2.1.0 oiio-master libav-10.1 LibRaw-0.16.0 gtest-1.7.0
+
+flatbuffers-1.0.0/CMakeLists.txt: flatbuffers-1.0.0.zip
+	$(UNZIP) $<
+	touch $@
 
 $(BOOST_NAME)/bootstrap.sh: $(BOOST_NAME).tar.gz
 	$(TARZ) $<
@@ -128,7 +144,11 @@ gtest-1.7.0/CMakeLists.txt: gtest-1.7.0.zip
 # downloads
 WGET:=wget -N --quiet -O
 CURL:=curl --location --silent -o
-all-archives=$(BOOST_NAME).tar.gz ilmbase.tar.gz openexr.tar.gz oiio.zip libav-10.1.tar.gz libraw.zip gtest-1.7.0.zip 
+all-archives=flatbuffers-1.0.0.zip $(BOOST_NAME).tar.gz ilmbase.tar.gz openexr.tar.gz oiio.zip libav-10.1.tar.gz libraw.zip gtest-1.7.0.zip 
+
+flatbuffers-1.0.0.zip:
+	$(CURL) $@ https://github.com/google/flatbuffers/archive/v1.0.0.zip
+	touch $@
 
 $(BOOST_NAME).tar.gz:
 	$(CURL) $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
