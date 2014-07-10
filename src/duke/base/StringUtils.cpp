@@ -77,3 +77,28 @@ bool stripSuffix(StringSlice suffix, StringSlice& from) {
   from = pop_back(from, suffix.size());
   return true;
 }
+
+size_t find(StringSlice haystack, StringSlice needle) {
+  const char* pFound = (const char*)(memmem(haystack.begin(), haystack.size(), needle.begin(), needle.size()));
+  if (pFound) return pFound - haystack.begin();
+  return std::string::npos;
+}
+
+std::vector<StringSlice> split(const StringSlice string, const char sep) { return split(string, StringSlice(&sep, 1)); }
+
+std::vector<StringSlice> split(StringSlice remainder, const StringSlice sep) {
+  std::vector<StringSlice> pieces;
+  for (size_t index = find(remainder, sep); index != std::string::npos;) {
+    pieces.push_back(keep_front(remainder, index));
+    remainder = pop_front(remainder, index + sep.size());
+    index = find(remainder, sep);
+  }
+  if (!remainder.empty()) pieces.push_back(remainder);
+  return pieces;
+}
+
+StringSlice trim(StringSlice string) {
+  while (!string.empty() && std::isspace(string.front())) string = pop_front(string, 1);
+  while (!string.empty() && std::isspace(string.back())) string = pop_back(string, 1);
+  return string;
+}

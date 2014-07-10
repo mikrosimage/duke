@@ -64,3 +64,23 @@ bool stripPrefix(StringSlice prefix, StringSlice& string);
  * If suffix is not found, string is left untouched.
  */
 bool stripSuffix(StringSlice suffix, StringSlice& string);
+
+/**
+ * Returns the index at which needle is found in haystack or std::string::npos if not found.
+ */
+size_t find(StringSlice haystack, StringSlice needle);
+
+/**
+ * Splits the string around separator.
+ */
+std::vector<StringSlice> split(StringSlice string, const char sep);
+
+/**
+ * Splits the string around separator.
+ */
+std::vector<StringSlice> split(StringSlice string, StringSlice sep);
+
+/**
+ * Removes any leading and trailing whitespaces.
+ */
+StringSlice trim(StringSlice string);

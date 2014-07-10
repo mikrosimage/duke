@@ -8,6 +8,19 @@
 
 using namespace std;
 
+void PrintTo(const StringSlice& slice, ::std::ostream* os) { *os << "'" << slice.ToString() << "'"; }
+
+void PrintTo(const std::vector<StringSlice>& slices, ::std::ostream* os) {
+  *os << "[ ";
+  bool first = true;
+  for (const auto& slice : slices) {
+    if (!first) *os << ", ";
+    PrintTo(slice, os);
+    first = false;
+  }
+  *os << " ]";
+}
+
 TEST(StringUtils, digits) {
   EXPECT_EQ(1, digits(0));
   EXPECT_EQ(1, digits(1));
@@ -82,3 +95,39 @@ TEST(StringSlice, stripSuffix) {
   EXPECT_TRUE(stripSuffix("f", string));
   EXPECT_EQ(string, "abcde");
 }
+
+TEST(StringSlice, find) {
+  EXPECT_EQ(std::string::npos, find("abcde", "f"));
+  EXPECT_EQ(0, find("abcde", "a"));
+  EXPECT_EQ(1, find("abcde", "b"));
+}
+
+typedef std::vector<StringSlice> StringSlices;
+
+TEST(StringSlice, splitEmpty) {
+  EXPECT_EQ(StringSlices{}, split("", ','));
+  EXPECT_EQ(StringSlices{}, split("", ","));
+}
+
+TEST(StringSlice, splitNone) {
+  EXPECT_EQ(StringSlices{"abc"}, split("abc", ','));
+  EXPECT_EQ(StringSlices{"abc"}, split("abc", "__"));
+}
+
+TEST(StringSlice, splitTwo) {
+  EXPECT_EQ(StringSlices({"ab", "c"}), split("ab,c", ','));
+  EXPECT_EQ(StringSlices({"ab", "c"}), split("ab__c", "__"));
+}
+
+TEST(StringSlice, splitThree) {
+  EXPECT_EQ(StringSlices({"a", "b", "c"}), split("a,b,c", ','));
+  EXPECT_EQ(StringSlices({"a", "b", "c"}), split("a__b__c", "__"));
+}
+
+TEST(StringSlice, trimEmpty) { EXPECT_EQ(StringSlice(""), trim("")); }
+
+TEST(StringSlice, trimOnlySpaces) { EXPECT_EQ(StringSlice(""), trim("   ")); }
+
+TEST(StringSlice, trimFront) { EXPECT_EQ(StringSlice("a"), trim(" a")); }
+
+TEST(StringSlice, trimBack) { EXPECT_EQ(StringSlice("a"), trim("a  ")); }
