@@ -16,8 +16,6 @@ else
 	export LD_LIBRARY_PATH:=$(THIRD_PARTY_LIB_DIR)
 endif
 
-$(warning $(LD_LIBRARY_PATH))
-
 # To compile/package debug variant just call 'DEBUG=1 make'
 ifdef DEBUG
 	VARIANT +=.debug
