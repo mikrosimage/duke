@@ -1,3 +1,9 @@
+# defining some variables
+set(THIRD_PARTY_DIST "${PROJECT_SOURCE_DIR}/third_party_dist")
+set(THIRD_PARTY_INCLUDE "${THIRD_PARTY_DIST}/include")
+set(THIRD_PARTY_LIB "${THIRD_PARTY_DIST}/lib")
+set(THIRD_PARTY_BIN "${THIRD_PARTY_DIST}/bin")
+
 # adding Wall to configurations
 if (NOT MSVC)
     add_definitions ("-Wall")
@@ -35,22 +41,36 @@ endif()
 # duke sources
 #
 configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/config.h"
+	${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
 
 file(GLOB_RECURSE DUKE_PLUGINS_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} io_plugins/*.c*)
 file(GLOB_RECURSE DUKE_SRC_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-
 list(REMOVE_ITEM DUKE_SRC_FILES main.cpp ${DUKE_PLUGINS_FILES})
-add_library(duke_core ${DUKE_SRC_FILES} ${PROJECT_SOURCE_DIR}/dependencies/light_sequence_parser/src/FolderParser.cpp)
+add_library(
+  duke_core
+#  flatbuffers/shaders_generated.h
+  ${DUKE_SRC_FILES}
+  ${PROJECT_SOURCE_DIR}/dependencies/light_sequence_parser/src/FolderParser.cpp
+)
+
 target_link_libraries(duke_core ${CMAKE_THREAD_LIBS_INIT} glfw ${GLFW_LIBRARIES})
 
+#
+# flatbuffers generation
+#
+# create destination folder
+#execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers/)
+#add_custom_command(
+#  OUTPUT flatbuffers/shaders_generated.h
+#  COMMAND ${THIRD_PARTY_BIN}/flatc
+#  ARGS -o ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers/ -c shaders.fbs
+#  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/flatbuffers
+#)
+
 find_package(PkgConfig)
-set(THIRD_PARTY_DIST "${PROJECT_SOURCE_DIR}/third_party_dist")
-set(THIRD_PARTY_INCLUDE "${THIRD_PARTY_DIST}/include")
-set(THIRD_PARTY_LIB "${THIRD_PARTY_DIST}/lib")
 
 #
 # OpenImageIO
