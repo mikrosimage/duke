@@ -102,3 +102,12 @@ StringSlice trim(StringSlice string) {
   while (!string.empty() && std::isspace(string.back())) string = pop_back(string, 1);
   return string;
 }
+
+StringSlice consumeUntil(StringSlice& input, const std::function<bool(char)> pred) {
+  const auto found = std::find_if(input.begin(), input.end(), pred);
+  CHECK(found != input.end()) << "predicate never satisfied";
+  const auto count = std::distance(input.begin(), found);
+  StringSlice front = keep_front(input, count);
+  input = pop_front(input, count);
+  return front;
+}

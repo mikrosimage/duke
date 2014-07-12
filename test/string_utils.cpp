@@ -1,21 +1,20 @@
 #include <gtest/gtest.h>
 
-#include "duke/base/StringUtils.hpp"
 #include "duke/base/StringAppender.hpp"
+#include "duke/base/StringSlice.hpp"
+#include "duke/base/StringUtils.hpp"
 
 #include <string>
 #include <vector>
 
 using namespace std;
 
-void PrintTo(const StringSlice& slice, ::std::ostream* os) { *os << "'" << slice.ToString() << "'"; }
-
 void PrintTo(const std::vector<StringSlice>& slices, ::std::ostream* os) {
   *os << "[ ";
   bool first = true;
   for (const auto& slice : slices) {
     if (!first) *os << ", ";
-    PrintTo(slice, os);
+    *os << slice;
     first = false;
   }
   *os << " ]";

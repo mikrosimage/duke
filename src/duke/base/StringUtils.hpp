@@ -3,6 +3,7 @@
 #include <duke/base/StringSlice.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <string>
 
 /**
@@ -84,3 +85,8 @@ std::vector<StringSlice> split(StringSlice string, StringSlice sep);
  * Removes any leading and trailing whitespaces.
  */
 StringSlice trim(StringSlice string);
+
+/**
+ * Consume input until predicate is true. Consumed part is returned.
+ */
+StringSlice consumeUntil(StringSlice& input, const std::function<bool(char)> pred);

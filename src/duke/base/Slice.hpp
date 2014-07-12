@@ -42,7 +42,14 @@ struct Slice {
 
   bool empty() const { return _begin == _end; }
 
-  bool operator==(const Slice& other) const { return size() == other.size() && std::equal(_begin, _end, other._begin); }
+  bool operator==(const Slice& other) const {
+    return (_begin == other._begin && _end == other._end) ||
+           (size() == other.size() && std::equal(_begin, _end, other._begin));
+  }
+
+  bool operator<(const Slice& other) const {
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end());
+  }
 
  private:
   value_type* _begin;
@@ -50,13 +57,13 @@ struct Slice {
 };
 
 template <typename Slice>
-Slice pop_front(Slice slice, size_t count) {
+Slice pop_front(Slice slice, size_t count = 1) {
   if (count > slice.size()) return Slice();
   return {slice.begin() + count, slice.end()};
 }
 
 template <typename Slice>
-Slice pop_back(Slice slice, size_t count) {
+Slice pop_back(Slice slice, size_t count = 1) {
   if (count > slice.size()) return Slice();
   return {slice.begin(), slice.end() - count};
 }

@@ -2,6 +2,8 @@
 
 #include "duke/base/Slice.hpp"
 
+#include <iostream>
+
 #include <cstring>
 
 struct StringSlice : public Slice<const char> {
@@ -16,6 +18,7 @@ struct StringSlice : public Slice<const char> {
       : StringSlice(array, size) {}
 
   bool operator==(StringSlice other) const { return UP::operator==(other); }
+  bool operator<(StringSlice other) const { return UP::operator<(other); }
 
   bool startsWith(StringSlice prefix) const {
     if (prefix.size() > size()) return false;
@@ -29,3 +32,5 @@ struct StringSlice : public Slice<const char> {
 
   std::string ToString() const { return std::string(begin(), size()); }
 };
+
+std::ostream& operator<<(std::ostream& stream, const StringSlice& slice);
