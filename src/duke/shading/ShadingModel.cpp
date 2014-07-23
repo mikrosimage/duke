@@ -4,6 +4,7 @@
 #include "duke/base/StringUtils.hpp"
 
 #include <algorithm>
+#include <functional>
 #include <cctype>
 
 namespace duke {
@@ -19,8 +20,8 @@ bool is_opening_brace(char c) { return c == '{'; }
 
 }  // namespace
 
-Function::Function(const std::string& function, const std::vector<std::string>& parameters_)
-    : function(function), parameters(parameters_) {
+Function::Function(const StringSlice function, const std::vector<std::string>& parameters_)
+    : code(function.ToString()), parameters(parameters_), hash(std::hash<std::string>()(code)) {
   for (const auto& parameter : parameters) {
     const auto index = parameter.rfind(' ');
     CHECK(index != std::string::npos);
@@ -28,7 +29,7 @@ Function::Function(const std::string& function, const std::vector<std::string>& 
     StringSlice name(parameter.data() + index, parameter.size() - index);
     params.emplace_back(trim(type), trim(name));
   }
-  StringSlice input = function;
+  StringSlice input = code;
   CHECK(!input.empty() && std::isalpha(input.front()) && input.back() == '}');
   returntype = consumeUntil(input, &is_space);
   CHECK(!returntype.empty());

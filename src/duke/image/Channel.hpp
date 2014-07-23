@@ -32,6 +32,10 @@ struct Channels : public std::vector<Channel> {
     FLOATING_POINT,
   };
 
+  Channels() = default;
+  Channels(const FormatType type, const std::initializer_list<Channel>& channels)
+      : std::vector<Channel>(channels), type(type) {}
+
   std::string asString() const;
 
   FormatType type = FormatType::UNKNOWN;

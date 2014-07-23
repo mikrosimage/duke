@@ -19,14 +19,17 @@ StringTemplate::StringTemplate(const char* templateString) : m_Template(template
   }
 }
 
-void StringTemplate::instantiate(const std::map<StringSlice, StringSlice> parameters, StringAppender& output) const {
+void StringTemplate::instantiate(const std::vector<std::pair<StringSlice, StringSlice>>& parameters,
+                                 StringAppender& output) const {
   for (const auto& chunk : m_Chunks) {
     switch (chunk.type) {
       case Chunk::STRING:
         output.append(chunk.slice);
         break;
       case Chunk::PARAMETER:
-        const auto pFound = parameters.find(chunk.slice);
+        const auto pFound = std::find_if(
+            parameters.begin(), parameters.end(),
+            [&chunk](const std::pair<StringSlice, StringSlice>& pair) { return pair.first == chunk.slice; });
         CHECK(pFound != parameters.end()) << "no value for parameter '" << chunk.slice << "'";
         output.append(pFound->second);
         break;

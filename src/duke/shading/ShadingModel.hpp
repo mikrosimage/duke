@@ -10,17 +10,18 @@ namespace duke {
 
 namespace shader {
 
-struct Variable {
+struct Variable : noncopyable {
   StringSlice fulltype;
   StringSlice name;
   Variable(StringSlice type, StringSlice name) : fulltype(type), name(name) {}
 };
 
-struct Function {
-  Function(const std::string& function, const std::vector<std::string>& parameters = {});
+struct Function : noncopyable {
+  Function(const StringSlice function, const std::vector<std::string>& parameters = {});
 
-  std::string function;
-  std::vector<std::string> parameters;
+  const std::string code;
+  const std::vector<std::string> parameters;
+  const size_t hash;
 
   StringSlice returntype;
   StringSlice name;

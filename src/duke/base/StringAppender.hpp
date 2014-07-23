@@ -11,51 +11,39 @@
  * If you try to write too many more characters, the output is truncated.
  */
 struct StringAppender : public noncopyable {
-  StringAppender(char* const ptr, size_t size) : m_BufferSlice(ptr, ptr + size) {
-    CHECK(!m_BufferSlice.empty()) << "buffer should be at least 1 char to output '\0'";
-    m_BufferSlice = pop_back(m_BufferSlice, 1);  // reserving one last char for
-    m_BufferSlice.front() = '\0';
-  }
+  StringAppender(char* const ptr, size_t size);
 
   template <int size>
   StringAppender(char (&array)[size])
       : StringAppender(array, size) {}
 
-  void append(const StringSlice input) {
-    if (m_BufferSlice.empty()) return;
-    const auto resized = keep_front(input, m_BufferSlice.size());
-    std::copy(resized.begin(), resized.end(), m_BufferSlice.begin());
-    m_BufferSlice = pop_front(m_BufferSlice, resized.size());
-    // We reserved a char in the constructor so even if slice is empty
-    // we can write to front which, in this case, will be the last char
-    // of the buffer.
-    m_BufferSlice.front() = '\0';
-  }
+  void append(const StringSlice input);
 
-  void append(const char input) {
-    if (m_BufferSlice.empty()) return;
-    m_BufferSlice.front() = input;
-    m_BufferSlice = pop_front(m_BufferSlice, 1);
-    // We reserved a char in the constructor so even if slice is empty
-    // we can write to front which, in this case, will be the last char
-    // of the buffer.
-    m_BufferSlice.front() = '\0';
-  }
+  void append(const char input);
+
+  void appendInteger(uint64_t value, uint8_t base = 10);
 
   bool full() const { return m_BufferSlice.empty(); }
+
+  size_t size() const { return m_TotalSize - m_BufferSlice.size(); }
+
+  bool empty() const { return size() == 0; }
 
   operator bool() const { return !full(); }
 
  private:
   Slice<char> m_BufferSlice;
+  const size_t m_TotalSize;
 };
 
-template <size_t size>
+template <size_t SIZE>
 struct BufferStringAppender : public StringAppender {
   BufferStringAppender() : StringAppender(m_Buffer) {}
 
   const char* c_str() const { return m_Buffer; }
 
+  StringSlice slice() const { return StringSlice(m_Buffer, size()); }
+
  private:
-  char m_Buffer[size];
+  char m_Buffer[SIZE];
 };

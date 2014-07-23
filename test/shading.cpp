@@ -4,6 +4,7 @@
 #include "duke/shading/ShadingUtils.hpp"
 
 #include <iostream>
+#include <deque>
 
 namespace duke {
 namespace shader {
@@ -34,6 +35,13 @@ TEST(ShadingModel, parse) {
   EXPECT_EQ(Variable("uniform usampler2DRect", "gTextureSampler"), function.params.at(1));
 }
 
+TEST(ShadingModel, hash) {
+  const std::string functionStr = R"(int foo(usampler2DRect sampler, vec2 offset) {
+  return 1;
+})";
+  EXPECT_EQ(Function(functionStr).hash,Function(functionStr).hash);
+}
+
 TEST(ShadingUtils, createAlphaSampler) {
   Channels channelsIn;
   channelsIn.type = Channels::FormatType::UNSIGNED_INTEGRAL;
@@ -56,89 +64,181 @@ TEST(ShadingUtils, createRGBSampler) {
   EXPECT_EQ(R"(uniform sampler2DRect gTextureSampler)", function.parameters.at(0));
 }
 
-TEST(ShadingUtils, adapterNoTransformationSingleChannel) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsIn.emplace_back(Channel::Semantic::RED, 8);
-  const auto expected = R"(int f(int input) {
-  return int(input);
-})";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsIn).function);
+Channels make(Channels::FormatType type, std::initializer_list<int> channels) {
+  Channels value;
+  std::deque<Channel::Semantic> semantics{Channel::Semantic::RED,  Channel::Semantic::GREEN,
+                                          Channel::Semantic::BLUE, Channel::Semantic::ALPHA};
+  for (const auto bits : channels) {
+    value.emplace_back(semantics.front(), bits);
+    semantics.pop_front();
+  }
+  value.type = type;
+  return value;
 }
 
-TEST(ShadingUtils, adapterNoTransformation) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsIn.emplace_back(Channel::Semantic::RED, 8);
-  channelsIn.emplace_back(Channel::Semantic::GREEN, 8);
-  channelsIn.emplace_back(Channel::Semantic::BLUE, 8);
-  channelsIn.emplace_back(Channel::Semantic::ALPHA, 8);
-  const auto expected = R"(ivec4 f(ivec4 input) {
-  return ivec4(input.r, input.g, input.b, input.a);
-})";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsIn).function);
+TEST(ShadingUtils, needsUnpacking) {
+  EXPECT_TRUE(needsUnpacking(make(Channels::FormatType::UNSIGNED_INTEGRAL, {10, 10, 10, 2})));
+  EXPECT_TRUE(needsUnpacking(make(Channels::FormatType::UNSIGNED_NORMALIZED, {5, 5, 5, 1})));
+  EXPECT_TRUE(needsUnpacking(make(Channels::FormatType::UNSIGNED_NORMALIZED, {5, 5, 5})));
+  EXPECT_TRUE(needsUnpacking(make(Channels::FormatType::UNSIGNED_NORMALIZED, {2, 2, 2, 2})));
+
+  EXPECT_FALSE(needsUnpacking(make(Channels::FormatType::UNSIGNED_NORMALIZED, {8, 8, 8})));
+  EXPECT_FALSE(needsUnpacking(make(Channels::FormatType::UNSIGNED_INTEGRAL, {16, 16, 16})));
+  EXPECT_FALSE(needsUnpacking(make(Channels::FormatType::FLOATING_POINT, {16, 16, 16, 16})));
 }
 
-TEST(ShadingUtils, adapterAlpha) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsIn.emplace_back(Channel::Semantic::ALPHA, 8);
-  Channels channelsOut;
-  channelsOut.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsOut.emplace_back(Channel::Semantic::RED, 8);
-  channelsOut.emplace_back(Channel::Semantic::GREEN, 8);
-  channelsOut.emplace_back(Channel::Semantic::BLUE, 8);
-  channelsOut.emplace_back(Channel::Semantic::ALPHA, 8);
-  const auto expected = R"(ivec4 f(int input) {
-  return ivec4(0, 0, 0, input);
-})";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsOut).function);
+Channels makeSemantic(const std::string semantics) {
+  const auto getSemantic = [](char c) {
+    switch (c) {
+      case 'r':
+        return Channel::Semantic::RED;
+      case 'g':
+        return Channel::Semantic::GREEN;
+      case 'b':
+        return Channel::Semantic::BLUE;
+      case 'a':
+        return Channel::Semantic::ALPHA;
+      case 'z':
+        return Channel::Semantic::DEPTH;
+      default:
+        return Channel::Semantic::UNKNOWN;
+    }
+  };
+  Channels value;
+  for (const char semantic : semantics) value.emplace_back(getSemantic(semantic), 8);
+  return value;
 }
 
-TEST(ShadingUtils, adapterSwizzle) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::FLOATING_POINT;
-  channelsIn.emplace_back(Channel::Semantic::BLUE, 8);
-  channelsIn.emplace_back(Channel::Semantic::GREEN, 8);
-  channelsIn.emplace_back(Channel::Semantic::RED, 8);
-  Channels channelsOut;
-  channelsOut.type = Channels::FormatType::FLOATING_POINT;
-  channelsOut.emplace_back(Channel::Semantic::RED, 8);
-  channelsOut.emplace_back(Channel::Semantic::GREEN, 8);
-  channelsOut.emplace_back(Channel::Semantic::BLUE, 8);
-  channelsOut.emplace_back(Channel::Semantic::ALPHA, 8);
-  const auto expected = R"(vec4 f(vec3 input) {
-  return vec4(input.b, input.g, input.r, 1.0);
-})";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsOut).function);
+TEST(ShadingUtils, isOrderedSemantic) {
+  EXPECT_TRUE(isOrderedSemantic(makeSemantic("r")));
+  EXPECT_TRUE(isOrderedSemantic(makeSemantic("rg")));
+  EXPECT_TRUE(isOrderedSemantic(makeSemantic("rgb")));
+  EXPECT_TRUE(isOrderedSemantic(makeSemantic("rgba")));
+
+  EXPECT_FALSE(isOrderedSemantic(makeSemantic("")));
+  EXPECT_FALSE(isOrderedSemantic(makeSemantic("rgbaz")));
+  EXPECT_FALSE(isOrderedSemantic(makeSemantic("br")));
+  EXPECT_FALSE(isOrderedSemantic(makeSemantic("bgra")));
 }
 
-TEST(ShadingUtils, adapterDynamic) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsIn.emplace_back(Channel::Semantic::RED, 8);
-  Channels channelsOut;
-  channelsOut.type = Channels::FormatType::FLOATING_POINT;
-  channelsOut.emplace_back(Channel::Semantic::RED, 16);
-  const auto expected = R"(float f(int input) {
-  return float(input * 1.0 / 255);
-})";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsOut).function);
+bool operator==(const Channel &a, const Channel &b) { return a.semantic == b.semantic && a.bits == b.bits; }
+
+TEST(ShadingUtils, getGlTextureRGB10A2) {
+  const auto actual(getBestPackingTexture(make(Channels::FormatType::UNSIGNED_INTEGRAL, {10, 10, 10, 2})));
+  const auto expected(make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8, 8}));
+  EXPECT_EQ(expected, actual);
 }
 
-TEST(ShadingUtils, adapterAll) {
-  Channels channelsIn;
-  channelsIn.type = Channels::FormatType::SIGNED_INTEGRAL;
-  channelsIn.emplace_back(Channel::Semantic::BLUE, 16);
-  channelsIn.emplace_back(Channel::Semantic::RED, 16);
-  Channels channelsOut;
-  channelsOut.type = Channels::FormatType::UNSIGNED_INTEGRAL;
-  channelsOut.emplace_back(Channel::Semantic::RED, 8);
-  channelsOut.emplace_back(Channel::Semantic::GREEN, 8);
-  channelsOut.emplace_back(Channel::Semantic::BLUE, 8);
-  channelsOut.emplace_back(Channel::Semantic::ALPHA, 8);
-  const auto expected = R"(uvec4 f(ivec2 input) {
-  return uvec4(input.g * 255 / 65535, 0, input.r * 255 / 65535, 255);
+TEST(ShadingUtils, getGlTextureRGB5A1) {
+  const auto actual(getBestPackingTexture(make(Channels::FormatType::UNSIGNED_INTEGRAL, {5, 5, 5, 1})));
+  const auto expected(make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8}));
+  EXPECT_EQ(expected, actual);
+}
+
+TEST(ShadingUtils, getGlTextureRGB5) {
+  const auto actual(getBestPackingTexture(make(Channels::FormatType::UNSIGNED_INTEGRAL, {5, 5, 5})));
+  const auto expected(make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8}));
+  EXPECT_EQ(expected, actual);
+}
+
+TEST(ShadingUtils, getGlTextureRGBA2) {
+  const auto actual(getBestPackingTexture(make(Channels::FormatType::UNSIGNED_NORMALIZED, {2, 2, 2, 2})));
+  const auto expected(make(Channels::FormatType::UNSIGNED_INTEGRAL, {8}));
+  EXPECT_EQ(expected, actual);
+}
+
+TEST(ShadingUtils, unpackRGB5) {
+  const auto rg8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8});
+  const auto rgb5 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {5, 5, 5});
+  const auto function = unpackToVec4(rg8, rgb5);
+  const char expected[] = R"(vec4 sample_R8G8UI_as_R5G5B5UI(uvec2 input) {
+  return vec4((((input.r & 0x7Cu) >> 2)) / 31.0f, (((input.g & 0xE0u) >> 5) | ((input.r & 0x3u) << 3)) / 31.0f, ((input.g & 0x1Fu)) / 31.0f, 1.0f);
 })";
-  EXPECT_EQ(expected, createChannelAdapter("f", channelsIn, channelsOut).function);
+  EXPECT_EQ(expected, function.code);
+}
+
+TEST(ShadingUtils, unpackRGB10A2) {
+  const auto rgba8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8, 8});
+  const auto rgb10a2 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {10, 10, 10, 2});
+  const auto function = unpackToVec4(rgba8, rgb10a2);
+  const char expected[] = R"(vec4 sample_R8G8B8A8UI_as_R10G10B10A2UI(uvec4 input) {
+  return vec4((((input.g & 0xC0u) >> 6) | (input.r << 2)) / 1023.0f, (((input.b & 0xF0u) >> 4) | ((input.g & 0x3Fu) << 4)) / 1023.0f, (((input.a & 0xFCu) >> 2) | ((input.b & 0xFu) << 6)) / 1023.0f, ((input.a & 0x3u)) / 3.0f);
+})";
+  EXPECT_EQ(expected, function.code);
+}
+
+TEST(ShadingUtils, RGBA8toVec4) {
+  const auto rgba8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8, 8});
+  const auto function = asVec4(rgba8);
+  const char expected[] = R"(vec4 sample_R8G8B8A8UI(uvec4 input) {
+  return vec4((input.r) / 255.0f, (input.g) / 255.0f, (input.b) / 255.0f, (input.a) / 255.0f);
+})";
+  EXPECT_EQ(expected, function.code);
+}
+
+TEST(ShadingUtils, RGB8toVec4) {
+  const auto rgb8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8});
+  const auto function = asVec4(rgb8);
+  const char expected[] = R"(vec4 sample_R8G8B8UI(uvec3 input) {
+  return vec4((input.r) / 255.0f, (input.g) / 255.0f, (input.b) / 255.0f, 1.0f);
+})";
+  EXPECT_EQ(expected, function.code);
+}
+
+std::string createCode(const std::vector<Function> &functions) {
+  std::string code;
+  for (const auto &function : functions) {
+    for (const auto &parameter : function.parameters) {
+      code += parameter;
+      code += ";\n";
+    }
+    code += function.code;
+    code += '\n';
+  }
+  return code;
+}
+
+TEST(ShadingUtils, sampleAsVecNoUnpacking) {
+  const auto rgba8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8, 8});
+  Channels texture;
+  std::vector<Function> functions;
+  sampleAsVec4("foo", rgba8, texture, functions);
+  EXPECT_EQ(rgba8, texture);
+  EXPECT_EQ(3, functions.size());
+  const auto code = createCode(functions);
+  const auto expected = R"(uniform usampler2DRect gTextureSampler;
+uvec4 sample(vec2 uv) {
+  return texture(gTextureSampler, uv);
+}
+vec4 sample_R8G8B8A8UI(uvec4 input) {
+  return vec4((input.r) / 255.0f, (input.g) / 255.0f, (input.b) / 255.0f, (input.a) / 255.0f);
+}
+vec4 foo(vec2 uv) {
+  return sample_R8G8B8A8UI(sample(uv));
+}
+)";
+  EXPECT_EQ(expected, code);
+}
+
+TEST(ShadingUtils, sampleAsVecUnpacking) {
+  const auto rgb10a2 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {10, 10, 10, 2});
+  Channels texture;
+  std::vector<Function> functions;
+  sampleAsVec4("foo", rgb10a2, texture, functions);
+  const auto rgba8 = make(Channels::FormatType::UNSIGNED_INTEGRAL, {8, 8, 8, 8});
+  EXPECT_EQ(rgba8, texture);
+  EXPECT_EQ(3, functions.size());
+  const auto code = createCode(functions);
+  const auto expected = R"(uniform usampler2DRect gTextureSampler;
+uvec4 sample(vec2 uv) {
+  return texture(gTextureSampler, uv);
+}
+vec4 sample_R8G8B8A8UI_as_R10G10B10A2UI(uvec4 input) {
+  return vec4((((input.g & 0xC0u) >> 6) | (input.r << 2)) / 1023.0f, (((input.b & 0xF0u) >> 4) | ((input.g & 0x3Fu) << 4)) / 1023.0f, (((input.a & 0xFCu) >> 2) | ((input.b & 0xFu) << 6)) / 1023.0f, ((input.a & 0x3u)) / 3.0f);
+}
+vec4 foo(vec2 uv) {
+  return sample_R8G8B8A8UI_as_R10G10B10A2UI(sample(uv));
+}
+)";
+  EXPECT_EQ(expected, code);
 }

@@ -3,14 +3,14 @@
 #include "duke/base/StringAppender.hpp"
 #include "duke/base/StringSlice.hpp"
 
-#include <map>
-#include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
 struct StringTemplate {
   StringTemplate(const char* templateString);
 
-  void instantiate(const std::map<StringSlice, StringSlice> parameters, StringAppender& output) const;
+  void instantiate(const std::vector<std::pair<StringSlice, StringSlice>>& parameters, StringAppender& output) const;
 
  private:
   struct Chunk {
