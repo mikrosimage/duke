@@ -1,3 +1,2 @@
 #!/bin/bash
-find src/duke/ -name '*.?pp' -exec clang-format -i {} \;
-find test/ -name '*.?pp' -exec clang-format -i {} \;
+git status --porcelain --untracked-files=all| grep -e "\.[hc]pp$" | cut -c4- | xargs clang-format -i
