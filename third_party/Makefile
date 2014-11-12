@@ -15,7 +15,7 @@ LIBRAW_PC     :=$(PKGCONFIG_DIR)/libraw.pc
 LIBAV_PC      :=$(PKGCONFIG_DIR)/libavfilter.pc
 OIIO_PC       :=$(PKGCONFIG_DIR)/OpenImageIO.pc
 
-BOOST_NAME       :=boost_1_55_0
+BOOST_NAME       :=boost_1_56_0
 BOOST_THREAD_LIB :=$(LIB_DIR)/libboost_thread.a
 
 all: $(FLATC) $(OIIO_PC) $(LIBAV_PC) gtest-1.7.0/CMakeLists.txt
@@ -151,7 +151,7 @@ flatbuffers-1.0.0.zip:
 	touch $@
 
 $(BOOST_NAME).tar.gz:
-	$(CURL) $@ http://sourceforge.net/projects/boost/files/latest/download?source=files
+	$(CURL) $@ http://sourceforge.net/projects/boost/files/boost/1.56.0/boost_1_56_0.tar.gz/download
 	touch $@
 
 ilmbase.tar.gz:
